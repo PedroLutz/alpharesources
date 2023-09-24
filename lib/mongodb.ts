@@ -28,6 +28,8 @@ if (process.env.NODE_ENV === 'development') {
   clientPromise = client.connect()
 }
 
+console.log("Just connected")
 // Export a module-scoped MongoClient promise. By doing this in a
 // separate module, the client can be shared across functions.
 export default clientPromise
+
