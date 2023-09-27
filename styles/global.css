@@ -1,0 +1,65 @@
+button {
+    font-family: 'Montserrat';
+}
+
+input {
+    font-family: 'Montserrat';
+    border-radius: 5px;
+    margin-right: 10px;
+    margin-bottom: 10px
+}
+
+.alinhamentoVertical input {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Espaçamento vertical entre os inputs */
+}
+
+.dark-mode{
+    background-color: #1B1B1B;
+    color: white;
+    font-family: 'Montserrat';
+}
+
+.dark-mode table{
+        border-collapse: collapse;
+        width: 100%;
+        border: 1px solid white;
+        
+}
+
+.dark-mode td {
+    border: 1px solid white;
+    padding: 8px; 
+}
+
+  /* Estilos para todos os inputs */
+.dark-mode input {
+    background-color: #000000;
+    color: white;
+    border: 1px solid white;
+    /* Outros estilos para os inputs */
+  }
+
+.light-mode{
+    background-color: #FFFFFF;
+    color: black;
+    font-family: 'Montserrat';
+}
+
+.light-mode table {
+    border-collapse: collapse;
+    width: 100%;
+    border: 1px solid black;
+}
+
+.light-mode td {
+    border: 1px solid black;
+    padding: 8px; 
+}
+    
+
+@font-face {
+    font-family: 'Montserrat';
+    src: url('../public/fonts/Montserrat.ttf') format('truetype');
+}
