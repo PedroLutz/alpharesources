@@ -12,7 +12,7 @@ input {
 .alinhamentoVertical input {
     display: flex;
     flex-direction: column;
-    gap: 10px; /* Espaçamento vertical entre os inputs */
+    gap: 10px; 
 }
 
 .dark-mode{
@@ -33,12 +33,12 @@ input {
     padding: 8px; 
 }
 
-  /* Estilos para todos os inputs */
+
 .dark-mode input {
     background-color: #000000;
     color: white;
     border: 1px solid white;
-    /* Outros estilos para os inputs */
+
   }
 
 .light-mode{

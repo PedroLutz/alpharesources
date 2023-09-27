@@ -1,6 +1,6 @@
 import React from 'react';
 import Home from './TelaInicial';
-import { useState } from 'react';
+import { useState , useEffect } from 'react';
 import '../styles/global.css';
 
 
@@ -10,8 +10,12 @@ function Verdadeiro() {
     // Função para alternar entre os modos claro e escuro
     const toggleDarkMode = () => {
       setIsDarkMode(!isDarkMode);
-      document.body.classList.toggle('dark-mode', !isDarkMode);
+      document.body.classList.toggle("dark-mode", !isDarkMode);
     };
+
+    useEffect(() => {
+      document.body.classList.add('dark-mode');
+    }, []);
 
   return (
     <div className={isDarkMode ? 'dark-mode' : 'light-mode'}>
