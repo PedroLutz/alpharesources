@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 
 const Tabela = () => {
   const [peopleData, setPeopleData] = useState([]);
-  const [deleteId, setDeleteId] = useState('');
   const [deleteSuccess, setDeleteSuccess] = useState(false);
 
   // Função para buscar os dados das pessoas quando a página é carregada

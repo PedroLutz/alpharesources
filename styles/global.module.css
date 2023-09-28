@@ -1,8 +1,8 @@
-button {
+.button {
     font-family: 'Montserrat';
 }
 
-input {
+.input {
     display: block;
     font-family: 'Montserrat';
     border-radius: 10px;

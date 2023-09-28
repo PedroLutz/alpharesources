@@ -1,5 +1,6 @@
 // components/Cadastro.js
 import React, { useState } from 'react';
+import global from "../styles/global.module.css"
 
 const Cadastro = ({ onCadastro }) => {
   const [formData, setFormData] = useState({
@@ -57,7 +58,7 @@ const Cadastro = ({ onCadastro }) => {
     <div>
       <h1>Cadastrar Lançamento</h1>
       <form onSubmit={handleSubmit}>
-      <div className="alinhamentoVertical">
+      <div className={`${global.alinhamentoVertical}`}>
           <input
             type="text"
             name="tipo"
