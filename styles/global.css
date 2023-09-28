@@ -3,16 +3,21 @@ button {
 }
 
 input {
+    display: block;
     font-family: 'Montserrat';
-    border-radius: 5px;
+    border-radius: 10px;
     margin-right: 10px;
-    margin-bottom: 10px
+    margin-bottom: 10px;
+    padding: 5px;
+    width: 200px;
+    text-align: start; 
+    display: inline-block;
 }
 
 .alinhamentoVertical input {
     display: flex;
-    flex-direction: column;
-    gap: 10px; 
+   
+    gap: 0px; 
 }
 
 .dark-mode{
@@ -25,7 +30,6 @@ input {
         border-collapse: collapse;
         width: 100%;
         border: 1px solid white;
-        
 }
 
 .dark-mode td {
@@ -38,8 +42,7 @@ input {
     background-color: #000000;
     color: white;
     border: 1px solid white;
-
-  }
+}
 
 .light-mode{
     background-color: #FFFFFF;
@@ -56,6 +59,12 @@ input {
 .light-mode td {
     border: 1px solid black;
     padding: 8px; 
+}
+
+.light-mode input {
+    background-color: white;
+    color: black;
+    border: 1px solid black;
 }
     
 

@@ -5,7 +5,7 @@ function index() {
   return (
     <div>
       <h1>Página Verdadeiro</h1>
-      <Verdadeiro /> {/* Renderize o componente Home aqui */}
+        <Verdadeiro />
     </div>
   );
 }
