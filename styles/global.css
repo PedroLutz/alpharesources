@@ -1,0 +1,66 @@
+body {
+    font-family: 'Montserrat';
+}
+
+button {
+    font-family: 'Montserrat';
+    height: 30px;
+    border-radius: 10px;
+}
+
+label {
+    margin-right: 0px; 
+    line-height: normal;
+}
+
+input {
+    font-family: 'Montserrat';
+    border-radius: 10px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    padding: 5px;
+    width: 200px;
+    text-align: start; 
+    display: flex;
+    gap: 0px;
+}
+
+input[type="radio"] {
+    margin-left: 0;
+    width: 15px; 
+    display:inline;
+    margin-right: 5px;
+    margin-left: 10px;
+}
+
+select {
+    font-family: 'Montserrat';
+    border-radius: 10px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    padding: 5px;
+    width: 213px;
+    text-align: start; 
+    display: flex;
+    gap: 0px; 
+    border-width: 2px;
+    border-style: inset;
+    border-color: -internal-light-dark(rgb(118, 118, 118), rgb(133, 133, 133));
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    border: 1px solid black;
+}
+
+td {
+    border: 1px solid black;
+    padding: 8px; 
+}
+    
+
+@font-face {
+    font-family: 'Montserrat';
+    src: url('../public/fonts/Montserrat.ttf') format('truetype');
+}

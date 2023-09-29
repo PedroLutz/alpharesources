@@ -1,6 +1,5 @@
 // components/Cadastro.js
 import React, { useState } from 'react';
-import global from "../styles/global.module.css"
 
 const Cadastro = ({ onCadastro }) => {
   const [formData, setFormData] = useState({
@@ -32,10 +31,13 @@ const Cadastro = ({ onCadastro }) => {
         body: JSON.stringify(formData),
       });
 
-      if (response.status === 201) {
-        console.log('Pessoa criada com sucesso!');
+      if (response.ok) {
+        console.log('Lançamento cadastrado com sucesso!');
+
+        if (typeof onCadastro === 'function') {
+          onCadastro(formData);
+        }
         // Chama a função de cadastro passada como prop
-        onCadastro(formData);
         // Limpa os campos após o envio do formulário
         setFormData({
           tipo: '',
@@ -47,10 +49,10 @@ const Cadastro = ({ onCadastro }) => {
           destino: '',
         });
       } else {
-        console.error('Erro ao criar a pessoa');
+        console.error('Erro ao cadastrar o lançamento');
       }
     } catch (error) {
-      console.error('Erro ao criar a pessoa', error);
+      console.error('Erro ao cadastrar o lançamento', error);
     }
   };
 
@@ -58,14 +60,29 @@ const Cadastro = ({ onCadastro }) => {
     <div>
       <h1>Cadastrar Lançamento</h1>
       <form onSubmit={handleSubmit}>
-      <div className={`${global.alinhamentoVertical}`}>
-          <input
-            type="text"
-            name="tipo"
-            placeholder="Tipo"
-            onChange={handleChange}
-            value={formData.tipo}
-          />
+      <div>
+          <div>
+          <label>
+      <input
+        type="radio"
+        name="tipo"
+        value="Receita"
+        checked={formData.tipo === 'Receita'}
+        onChange={handleChange}
+      />
+      Receita
+    </label>
+    <label>
+      <input
+        type="radio"
+        name="tipo"
+        value="Despesa"
+        checked={formData.tipo === 'Despesa'}
+        onChange={handleChange}
+      />
+      Despesa
+    </label>
+          </div>
           <input
             type="text"
             name="descricao"
@@ -86,13 +103,21 @@ const Cadastro = ({ onCadastro }) => {
             onChange={handleChange}
             value={formData.data}
           />
-          <input
-            type="text"
+          <select
             name="area"
-            placeholder="Área"
             onChange={handleChange}
             value={formData.area}
-          />
+          >
+            <option value="Patrocínio">Patrocínio</option>
+            <option value="Engenharia">Engenharia</option>
+            <option value="Impressão 3D">Impressão 3D</option>
+            <option value="Usinagem">Usinagem</option>
+            <option value="Pintura">Pintura</option>
+            <option value="Marketing">Marketing</option>
+            <option value="Estande">Estande</option>
+            <option value="Viagem">Viagem</option>
+            <option value="Extras">Extras</option>
+          </select>
           <input
             type="text"
             name="origem"
@@ -108,7 +133,7 @@ const Cadastro = ({ onCadastro }) => {
             value={formData.destino}
           />
         </div>
-        <button type="submit">Cadastrar lançamento</button>
+        <button className="dark-mode"type="submit">Cadastrar lançamento</button>
       </form>
     </div>
   );

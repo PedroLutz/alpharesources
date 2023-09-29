@@ -1,12 +1,11 @@
-// components/Tabela.js
 import React, { useEffect, useState } from 'react';
 
 const Tabela = () => {
-  const [peopleData, setPeopleData] = useState([]);
+  const [lancamentos, setLancamentos] = useState([]);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
 
-  // Função para buscar os dados das pessoas quando a página é carregada
-  const fetchPeopleData = async () => {
+  // Função para buscar os dados dos lançamentos quando a página é carregada
+  const fetchLancamentos = async () => {
     try {
       const response = await fetch('/api/get', {
         method: 'GET',
@@ -14,43 +13,49 @@ const Tabela = () => {
 
       if (response.status === 200) {
         const data = await response.json();
-        setPeopleData(data);
+        setLancamentos(data.lancamentos); // Extraia apenas os lançamentos
       } else {
-        console.error('Erro ao buscar dados das pessoas');
+        console.error('Erro ao buscar dados dos lançamentos');
       }
     } catch (error) {
-      console.error('Erro ao buscar dados das pessoas', error);
+      console.error('Erro ao buscar dados dos lançamentos', error);
     }
   };
 
   useEffect(() => {
-    // Chame a função para buscar os dados das pessoas quando a página é carregada
-    fetchPeopleData();
+    // Chame a função para buscar os dados dos lançamentos quando a página é carregada
+    fetchLancamentos();
   }, []);
 
   const handleDelete = async (id) => {
-    try {
-      const response = await fetch(`/api/delete?id=${String(id)}`, {
-        method: 'DELETE',
-      });
-
-      if (response.status === 200) {
-        console.log('Pessoa excluída com sucesso!');
-        // Atualizar o estado para indicar que a exclusão foi bem-sucedida
-        setDeleteSuccess(true);
-        // Atualizar os dados das pessoas após a exclusão bem-sucedida
-        fetchPeopleData();
-      } else {
-        console.error('Erro ao excluir a pessoa');
+    // Exibir um diálogo de confirmação ao usuário
+    const confirmDelete = window.confirm('Tem certeza de que deseja excluir este lançamento?');
+  
+    if (confirmDelete) {
+      try {
+        const response = await fetch(`/api/delete?id=${String(id)}`, {
+          method: 'DELETE',
+        });
+  
+        if (response.status === 200) {
+          console.log('Lançamento excluído com sucesso!');
+          // Atualizar o estado para indicar que a exclusão foi bem-sucedida
+          setDeleteSuccess(true);
+          // Atualizar os dados dos lançamentos após a exclusão bem-sucedida
+          fetchLancamentos();
+        } else {
+          console.error('Erro ao excluir o lançamento');
+          // Definir o estado de sucesso de exclusão como falso
+          setDeleteSuccess(false);
+        }
+      } catch (error) {
+        console.error('Erro ao excluir o lançamento', error);
         // Definir o estado de sucesso de exclusão como falso
         setDeleteSuccess(false);
       }
-    } catch (error) {
-      console.error('Erro ao excluir a pessoa', error);
-      // Definir o estado de sucesso de exclusão como falso
-      setDeleteSuccess(false);
     }
   };
+  
 
   return (
     <div>
@@ -69,7 +74,7 @@ const Tabela = () => {
           </tr>
         </thead>
         <tbody>
-          {peopleData.map((item, index) => (
+          {lancamentos.map((item, index) => (
             <tr key={index}>
               <td>{item.tipo}</td>
               <td>{item.descricao}</td>
