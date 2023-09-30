@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from 'react';
 
+const formatDate = (dateString) => {
+  const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+  return new Date(dateString).toLocaleDateString(undefined, options);
+};
+
 const Tabela = () => {
   const [lancamentos, setLancamentos] = useState([]);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
@@ -13,6 +18,9 @@ const Tabela = () => {
 
       if (response.status === 200) {
         const data = await response.json();
+        data.lancamentos.forEach((item) => {
+          item.data = formatDate(item.data);
+        });
         setLancamentos(data.lancamentos); // Extraia apenas os lançamentos
       } else {
         console.error('Erro ao buscar dados dos lançamentos');
@@ -78,7 +86,7 @@ const Tabela = () => {
             <tr key={index}>
               <td>{item.tipo}</td>
               <td>{item.descricao}</td>
-              <td>{item.valor}</td>
+              <td>{Math.abs(item.valor)}</td>
               <td>{item.data}</td>
               <td>{item.area}</td>
               <td>{item.origem}</td>

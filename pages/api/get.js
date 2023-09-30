@@ -21,7 +21,12 @@ export default async (req, res) => {
       ]);
 
       // Consulta para obter os valores agrupados por área
-      const valoresPorArea = await Lancamento.aggregate([
+      const receitasPorArea = await Lancamento.aggregate([
+        {
+          $match: {
+            valor: { $gt: 0 } // Filtra valores maiores que zero
+          }
+        },
         {
           $group: {
             _id: '$area',
@@ -30,7 +35,77 @@ export default async (req, res) => {
         }
       ]);
 
-      res.status(200).json({ lancamentos, somaValores, valoresPorArea });
+      const despesasPorArea = await Lancamento.aggregate([
+        {
+          $match: {
+            valor: { $lt: 0 } // Filtra valores maiores que zero
+          }
+        },
+        {
+          $group: {
+            _id: '$area',
+            total: { $sum: '$valor' }
+          }
+        }
+      ]);
+
+      const receitasPorMes = await Lancamento.aggregate([
+        {
+          $match: {
+            valor: { $gt: 0 } // Filtra valores maiores que zero
+          }
+        },
+        {
+          $project: {
+            monthYear: {
+              $dateToString: {
+                format: '%m/%Y', // Formato MM/AAAA
+                date: '$data' // Campo da data
+              }
+            },
+            valor: 1 // Mantém o campo 'valor' no resultado
+          }
+        },
+        {
+          $group: {
+            _id: '$monthYear', // Agrupa por mês/ano
+            total: { $sum: '$valor' } // Soma os valores para cada mês/ano
+          }
+        },
+        {
+          $sort: { _id: 1 } // Ordena por mês/ano
+        }
+      ]);
+
+      const despesasPorMes = await Lancamento.aggregate([
+        {
+          $match: {
+            valor: { $lt: 0 } // Filtra valores menores que zero (despesas)
+          }
+        },
+        {
+          $project: {
+            monthYear: {
+              $dateToString: {
+                format: '%m/%Y', // Formato MM/AAAA
+                date: '$data' // Campo da data
+              }
+            },
+            valor: 1 // Mantém o campo 'valor' no resultado
+          }
+        },
+        {
+          $group: {
+            _id: '$monthYear', // Agrupa por mês/ano
+            total: { $sum: '$valor' } // Soma os valores para cada mês/ano
+          }
+        },
+        {
+          $sort: { _id: 1 } // Ordena por mês/ano
+        }
+      ]);      
+
+      res.status(200).json({ lancamentos, somaValores, receitasPorArea, despesasPorArea, receitasPorMes, despesasPorMes });
     } else {
       res.status(405).json({ error: 'Método não permitido' });
     }

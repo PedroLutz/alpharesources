@@ -33,6 +33,7 @@ const Cadastro = ({ onCadastro }) => {
 
       if (response.ok) {
         console.log('Lançamento cadastrado com sucesso!');
+        alert("Lançamento cadastrado com sucesso!");
 
         if (typeof onCadastro === 'function') {
           onCadastro(formData);
@@ -62,26 +63,28 @@ const Cadastro = ({ onCadastro }) => {
       <form onSubmit={handleSubmit}>
       <div>
           <div>
-          <label>
-      <input
-        type="radio"
-        name="tipo"
-        value="Receita"
-        checked={formData.tipo === 'Receita'}
-        onChange={handleChange}
-      />
-      Receita
-    </label>
-    <label>
-      <input
-        type="radio"
-        name="tipo"
-        value="Despesa"
-        checked={formData.tipo === 'Despesa'}
-        onChange={handleChange}
-      />
-      Despesa
-    </label>
+            <label>
+              <input
+                type="radio"
+                name="tipo"
+                value="Receita"
+                checked={formData.tipo === 'Receita'}
+                onChange={handleChange}
+                required
+              />
+              Receita
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="tipo"
+                value="Despesa"
+                checked={formData.tipo === 'Despesa'}
+                onChange={handleChange}
+                required
+              />
+              Despesa
+            </label>
           </div>
           <input
             type="text"
@@ -89,6 +92,7 @@ const Cadastro = ({ onCadastro }) => {
             placeholder="Descrição"
             onChange={handleChange}
             value={formData.descricao}
+            required
           />
           <input
             type="number"
@@ -96,18 +100,22 @@ const Cadastro = ({ onCadastro }) => {
             placeholder="Valor"
             onChange={handleChange}
             value={formData.valor}
+            required
           />
           <input
             type="date"
             name="data"
             onChange={handleChange}
             value={formData.data}
+            required
           />
           <select
             name="area"
             onChange={handleChange}
             value={formData.area}
+            required
           >
+            <option value="" disabled selected>Selecione uma área</option>
             <option value="Patrocínio">Patrocínio</option>
             <option value="Engenharia">Engenharia</option>
             <option value="Impressão 3D">Impressão 3D</option>
@@ -121,16 +129,18 @@ const Cadastro = ({ onCadastro }) => {
           <input
             type="text"
             name="origem"
-            placeholder="Origem"
+            placeholder="Conta creditada"
             onChange={handleChange}
             value={formData.origem}
+            required
           />
           <input
             type="text"
             name="destino"
-            placeholder="Destino"
+            placeholder="Conta debitada"
             onChange={handleChange}
             value={formData.destino}
+            required
           />
         </div>
         <button className="dark-mode"type="submit">Cadastrar lançamento</button>
