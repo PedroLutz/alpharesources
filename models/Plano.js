@@ -17,6 +17,6 @@ const planoSchema = new mongoose.Schema({
   plano_b: String,
   tipo_b: String,
   valor_b: Number
-}, { collection: 'financas' }); // Defina o nome da coleção aqui
+}, { collection: 'planos' }); // Defina o nome da coleção aqui
 
 export default mongoose.models['Plano'] || mongoose.model('Plano', planoSchema);

@@ -8,13 +8,13 @@ const Navbar = () => {
         <h2>Alpha Finances</h2>
         <ul>
           <li>
-            <Link href="/cadastro">Cadastro</Link>
+            <Link href="/financas/cadastro">Cadastro</Link>
           </li>
           <li>
-            <Link href="/tabela">Tabela</Link>
+            <Link href="/financas/tabela">Tabela</Link>
           </li>
           <li>
-            <Link href="/resumo">Resumo</Link>
+            <Link href="/financas/resumo">Resumo</Link>
           </li>
         </ul>
       </nav>

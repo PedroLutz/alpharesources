@@ -1,6 +1,7 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { Chart } from 'react-google-charts';
+import { sortBy } from 'lodash';
 
 const Resumo = () => {
   const [totalValor, setTotalValor] = useState(0);
@@ -17,16 +18,6 @@ const Resumo = () => {
   const DespesasPorAreaGraph = [['Área', 'Valor']];
   despesasPorArea.forEach((area) => {
     DespesasPorAreaGraph.push([area._id, -area.total]);
-  });
-
-  const ReceitasPorMesGraph = [['Mês', 'Valor']];
-  receitasPorMes.forEach((mes) => {
-    ReceitasPorMesGraph.push([mes._id, mes.total]);
-  });
-
-  const DespesasPorMesGraph = [['Mês', 'Valor']];
-  despesasPorMes.forEach((mes) => {
-    DespesasPorMesGraph.push([mes._id, -mes.total]);
   });
 
 
@@ -51,10 +42,11 @@ const Resumo = () => {
 
   const ValoresPorMesGraph = [['Mês', 'Receita', 'Despesa']];
   const CaixaMensalGraph = [['Mês', 'Valor']]
+  let saldoAcumulado = 0;
 
   const mesesGanhos = new Set(receitasPorMes.map((receitaMes) => receitaMes._id));
   const mesesGastos = new Set(despesasPorMes.map((despesaMes) => despesaMes._id));
-  const todosMeses = Array.from(new Set([...mesesGanhos, ...mesesGastos]));
+  const todosMeses = sortBy(Array.from(new Set([...mesesGanhos, ...mesesGastos])));
 
   // Percorra a lista de meses
   todosMeses.forEach((mesNome) => {
@@ -66,8 +58,12 @@ const Resumo = () => {
     const despesaMes = despesasPorMes.find((despesa) => despesa._id === mesNome);
     const despesaValor = despesaMes ? -despesaMes.total : 0;
 
+    const saldoMes = receitaValor - despesaValor;
+
+      saldoAcumulado += saldoMes;
+
     ValoresPorMesGraph.push([mesNome, receitaValor, despesaValor]);
-    CaixaMensalGraph.push([mesNome, receitaValor - despesaValor]);
+    CaixaMensalGraph.push([mesNome, saldoAcumulado]);
   });
 
 // Agora ValoresPorMesGraph conterá os valores para todos os meses, mesmo que não haja receita ou despesa para um mês específico
@@ -75,7 +71,7 @@ const Resumo = () => {
 
   useEffect(() => {
     // Fazer uma solicitação para a rota existente que retorna as informações de resumo
-    fetch('/api/get')
+    fetch('/api/financas/get')
       .then((response) => response.json())
       .then((data) => {
         // Extrair os valores do objeto de resposta
@@ -145,30 +141,6 @@ const Resumo = () => {
 
       <div>
       <h3>Lançamentos Por Mês</h3>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Chart
-            width={'100%'}
-            height={'400px'}
-            chartType="PieChart"
-            loader={<div>Carregando Gráfico</div>}
-            data={ReceitasPorMesGraph}
-            options={{
-              title: 'Receitas por mês',
-            }}
-            rootProps={{ 'data-testid': '1' }}
-          />
-          <Chart
-            width={'100%'}
-            height={'400px'}
-            chartType="PieChart"
-            loader={<div>Carregando Gráfico</div>}
-            data={DespesasPorMesGraph}
-            options={{
-              title: 'Despesas Por mês',
-            }}
-            rootProps={{ 'data-testid': '1' }}
-          />
-        </div>
         <div>
           <Chart
               width={'100%'}
@@ -183,6 +155,7 @@ const Resumo = () => {
             />
         </div>
         <div>
+          <h3>Caixa Mensal por Mês</h3>
           <Chart
               width={'100%'}
               height={'400px'}

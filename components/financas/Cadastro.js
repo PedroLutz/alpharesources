@@ -23,7 +23,7 @@ const Cadastro = ({ onCadastro }) => {
     e.preventDefault();
 
     try {
-      const response = await fetch('/api/create', {
+      const response = await fetch('/api/plano/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

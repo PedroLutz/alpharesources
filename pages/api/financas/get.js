@@ -1,6 +1,6 @@
 // pages/api/get.js
-import connectToDatabase from '../../lib/db';
-import Lancamento from '../../models/Lancamento';
+import connectToDatabase from '../../../lib/db';
+import Lancamento from '../../../models/Lancamento';
 
 export default async (req, res) => {
   try {
@@ -8,7 +8,7 @@ export default async (req, res) => {
 
     if (req.method === 'GET') {
       // Consulte o banco de dados para buscar todas as pessoas
-      const lancamentos = await Lancamento.find();
+      const lancamentos = await Lancamento.find().sort({ data: -1 });
 
       // Consulta para obter a soma de todos os valores
       const somaValores = await Lancamento.aggregate([

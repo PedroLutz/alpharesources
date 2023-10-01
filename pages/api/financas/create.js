@@ -1,6 +1,6 @@
 // pages/api/create.js
-import connectToDatabase from '../../lib/db';
-import Lancamento from '../../models/Lancamento';
+import connectToDatabase from '../../../lib/db';
+import Lancamento from '../../../models/Lancamento';
 
 export default async (req, res) => {
   try {
@@ -25,12 +25,12 @@ export default async (req, res) => {
       // Salve no banco de dados
       await newLancamento.save();
 
-      res.status(201).json({ message: 'Pessoa criada com sucesso!' });
+      res.status(201).json({ message: 'Lançamento cadastrado com sucesso!' });
     } else {
       res.status(405).json({ error: 'Método não permitido' });
     }
   } catch (error) {
-    console.error('Erro ao criar a pessoa', error);
-    res.status(500).json({ error: 'Erro ao criar a pessoa' });
+    console.error('Erro ao cadastrar o lançamento', error);
+    res.status(500).json({ error: 'Erro ao cadastrar o lançamento' });
   }
 };

@@ -1,11 +1,9 @@
 import React from 'react';
-import Cadastro from '../components/Cadastro';
-import Navbar from '../components/Navegador';
+import Cadastro from '../../components/plano/Cadastro';
 
 function CadastroPage() {
   return (
     <div>
-      <Navbar />
       <Cadastro />
     </div>
   );

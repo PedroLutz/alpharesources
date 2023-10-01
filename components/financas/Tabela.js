@@ -9,10 +9,9 @@ const Tabela = () => {
   const [lancamentos, setLancamentos] = useState([]);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
 
-  // Função para buscar os dados dos lançamentos quando a página é carregada
   const fetchLancamentos = async () => {
     try {
-      const response = await fetch('/api/get', {
+      const response = await fetch('/api/financas/get', {
         method: 'GET',
       });
 
@@ -21,7 +20,7 @@ const Tabela = () => {
         data.lancamentos.forEach((item) => {
           item.data = formatDate(item.data);
         });
-        setLancamentos(data.lancamentos); // Extraia apenas os lançamentos
+        setLancamentos(data.lancamentos);
       } else {
         console.error('Erro ao buscar dados dos lançamentos');
       }
@@ -31,39 +30,58 @@ const Tabela = () => {
   };
 
   useEffect(() => {
-    // Chame a função para buscar os dados dos lançamentos quando a página é carregada
     fetchLancamentos();
   }, []);
 
   const handleDelete = async (id) => {
-    // Exibir um diálogo de confirmação ao usuário
     const confirmDelete = window.confirm('Tem certeza de que deseja excluir este lançamento?');
-  
+
     if (confirmDelete) {
       try {
-        const response = await fetch(`/api/delete?id=${String(id)}`, {
+        const response = await fetch(`/api/financas/delete?id=${String(id)}`, {
           method: 'DELETE',
         });
-  
+
         if (response.status === 200) {
           console.log('Lançamento excluído com sucesso!');
-          // Atualizar o estado para indicar que a exclusão foi bem-sucedida
           setDeleteSuccess(true);
-          // Atualizar os dados dos lançamentos após a exclusão bem-sucedida
           fetchLancamentos();
         } else {
           console.error('Erro ao excluir o lançamento');
-          // Definir o estado de sucesso de exclusão como falso
           setDeleteSuccess(false);
         }
       } catch (error) {
         console.error('Erro ao excluir o lançamento', error);
-        // Definir o estado de sucesso de exclusão como falso
         setDeleteSuccess(false);
       }
     }
   };
-  
+
+  const handleUpdate = async (id) => {
+    const newValue = prompt('Insira o novo valor:');
+    if (newValue < 0){
+      alert("Insira um valor maior do que zero!");
+    } else if (newValue !== null) {
+      try {
+        const response = await fetch(`/api/financas/update?id=${String(id)}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ valor: parseFloat(newValue) }), // Converter o novo valor para número
+        });
+
+        if (response.status === 200) {
+          console.log('Lançamento atualizado com sucesso!');
+          fetchLancamentos();
+        } else {
+          console.error('Erro ao atualizar o lançamento');
+        }
+      } catch (error) {
+        console.error('Erro ao atualizar o lançamento', error);
+      }
+    }
+  };
 
   return (
     <div>
@@ -91,8 +109,11 @@ const Tabela = () => {
               <td>{item.area}</td>
               <td>{item.origem}</td>
               <td>{item.destino}</td>
-              <td>
-                <button onClick={() => handleDelete(item._id)}>Excluir</button>
+              <td style={{width: '75px'}}>
+                <div className="botoes-acoes">
+                  <button style={{color: 'red'}} onClick={() => handleDelete(item._id)}>X</button>
+                  <button onClick={() => handleUpdate(item._id)}>$</button>
+                </div>
               </td>
             </tr>
           ))}
