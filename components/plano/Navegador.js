@@ -8,16 +8,16 @@ const Navbar = () => {
         <h2>Alpha Finances</h2>
         <ul>
           <li>
-            <Link href="/financas/cadastro">Cadastro</Link>
+            <Link href="/plano/cadastro">Cadastro</Link>
           </li>
           <li>
-            <Link href="/financas/tabela">Tabela</Link>
+            <Link href="/plano/tabela">Tabela</Link>
           </li>
           <li>
-            <Link href="/financas/resumo">Resumo</Link>
+            <Link href="/plano/resumo">Resumo</Link>
           </li>
           <li>
-            <Link href="/plano/cadastro">Ir para Plano</Link>
+            <Link href="/financas/cadastro">Ir para Finanças</Link>
           </li>
         </ul>
       </nav>

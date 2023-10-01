@@ -75,6 +75,7 @@ const Tabela = () => {
             <th>Plano B</th>
             <th>Tipo B</th>
             <th>Valor B</th>
+            <th>Opções</th>
           </tr>
         </thead>
         <tbody>

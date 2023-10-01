@@ -41,8 +41,10 @@ const Resumo = () => {
   });
 
   const ValoresPorMesGraph = [['Mês', 'Receita', 'Despesa']];
-  const CaixaMensalGraph = [['Mês', 'Valor']]
+  const CaixaMensalGraph = [['Mês', 'Valor']];
+  const CrescimentoDosGastosGraph = [['Mês', 'Valor']];
   let saldoAcumulado = 0;
+  let gastosAcumulados = 0;
 
   const mesesGanhos = new Set(receitasPorMes.map((receitaMes) => receitaMes._id));
   const mesesGastos = new Set(despesasPorMes.map((despesaMes) => despesaMes._id));
@@ -61,9 +63,11 @@ const Resumo = () => {
     const saldoMes = receitaValor - despesaValor;
 
       saldoAcumulado += saldoMes;
+      gastosAcumulados += despesaValor;
 
     ValoresPorMesGraph.push([mesNome, receitaValor, despesaValor]);
     CaixaMensalGraph.push([mesNome, saldoAcumulado]);
+    CrescimentoDosGastosGraph.push([mesNome, gastosAcumulados]);
   });
 
 // Agora ValoresPorMesGraph conterá os valores para todos os meses, mesmo que não haja receita ou despesa para um mês específico
@@ -131,9 +135,6 @@ const Resumo = () => {
               chartType="ColumnChart"
               loader={<div>Carregando Gráfico</div>}
               data={ValoresPorAreaGraph}
-              options={{
-                title: 'Despesas Por Área',
-              }}
               rootProps={{ 'data-testid': '1' }}
             />
         </div>
@@ -162,6 +163,19 @@ const Resumo = () => {
               chartType="LineChart"
               loader={<div>Carregando Gráfico</div>}
               data={CaixaMensalGraph}
+              options={{}}
+              rootProps={{ 'data-testid': '1' }}
+            />
+        </div>
+
+        <div>
+          <h3>Crescimento dos Gastos</h3>
+          <Chart
+              width={'100%'}
+              height={'400px'}
+              chartType="LineChart"
+              loader={<div>Carregando Gráfico</div>}
+              data={CrescimentoDosGastosGraph}
               options={{}}
               rootProps={{ 'data-testid': '1' }}
             />

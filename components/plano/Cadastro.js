@@ -86,8 +86,8 @@ const Cadastro = ({ onCadastro }) => {
               <input
                 type="radio"
                 name="plano"
-                value="Cenário ideal"
-                checked={formData.plano === 'Cenário ideal'}
+                value="Cenário Ideal"
+                checked={formData.plano === 'Cenário Ideal'}
                 onChange={handleChange}
                 required
               />

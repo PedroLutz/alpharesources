@@ -1,14 +1,15 @@
 import React from 'react';
-import Tabela from '../../components/plano/Tabela';
+import Resumo from '../../components/plano/Resumo';
 import Navbar from '../../components/plano/Navegador';
 
-function TabelaPage() {
+
+function ResumoPage() {
   return (
     <div>
       <Navbar />
-      <Tabela />
+      <Resumo />
     </div>
   );
 }
 
-export default TabelaPage;
+export default ResumoPage;

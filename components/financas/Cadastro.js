@@ -114,8 +114,9 @@ const Cadastro = ({ onCadastro }) => {
             onChange={handleChange}
             value={formData.area}
             required
+            defaultValue=""
           >
-            <option value="" disabled selected>Selecione uma área</option>
+            <option value="" disabled select>Selecione uma área</option>
             <option value="Patrocínio">Patrocínio</option>
             <option value="Engenharia">Engenharia</option>
             <option value="Impressão 3D">Impressão 3D</option>
