@@ -1,0 +1,16 @@
+nav ul li a:link {
+    color: gray; /* Cor cinza para links não clicados */
+    text-decoration: none; /* Remover sublinhado padrão */
+  }
+  
+  /* Estilos para links visitados (já clicados) */
+  nav ul li a:visited {
+    color: inherit; /* Usar a cor padrão do navegador para links visitados */
+    text-decoration: none; /* Remover sublinhado padrão */
+  }
+  
+  /* Estilos para links quando passam o mouse por cima */
+  nav ul li a:hover {
+    color: #ff00f2; /* Cor preta quando passa o mouse por cima */
+    text-decoration: none; /* Adicionar sublinhado ao passar o mouse por cima */
+  }

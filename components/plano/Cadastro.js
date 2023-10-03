@@ -70,8 +70,8 @@ const Cadastro = ({ onCadastro }) => {
       <h1>Cadastrar Plano</h1>
       <form onSubmit={handleSubmit}>
       <div>
-          <div>
-            <label>
+          <div class="containerPai">
+            <label className="container">
               <input
                 type="radio"
                 name="plano"
@@ -80,9 +80,10 @@ const Cadastro = ({ onCadastro }) => {
                 onChange={handleChange}
                 required
               />
+              <span class="checkmark"></span>
               Pior cenário
             </label>
-            <label>
+            <label className="container">
               <input
                 type="radio"
                 name="plano"
@@ -91,6 +92,7 @@ const Cadastro = ({ onCadastro }) => {
                 onChange={handleChange}
                 required
               />
+              <span class="checkmark"></span>
               Cenário ideal
             </label>
           </div>
@@ -131,8 +133,8 @@ const Cadastro = ({ onCadastro }) => {
             required
           />
 
-          <div>
-            <label>
+          <div class="containerPai">
+            <label className="container">
               <input
                 type="radio"
                 name="tipo_a"
@@ -141,9 +143,10 @@ const Cadastro = ({ onCadastro }) => {
                 onChange={handleChange}
                 required
               />
+              <span class="checkmark"></span>
               Serviço
             </label>
-            <label>
+            <label className="container">
               <input
                 type="radio"
                 name="tipo_a"
@@ -152,6 +155,7 @@ const Cadastro = ({ onCadastro }) => {
                 onChange={handleChange}
                 required
               />
+              <span class="checkmark"></span>
               Produto
             </label>
           </div>
@@ -188,8 +192,8 @@ const Cadastro = ({ onCadastro }) => {
             required
           />
 
-          <div>
-            <label>
+          <div class="containerPai">
+            <label className="container">
               <input
                 type="radio"
                 name="tipo_b"
@@ -198,9 +202,10 @@ const Cadastro = ({ onCadastro }) => {
                 onChange={handleChange}
                 required
               />
+              <span class="checkmark"></span>
               Serviço
             </label>
-            <label>
+            <label className="container">
               <input
                 type="radio"
                 name="tipo_b"
@@ -209,6 +214,7 @@ const Cadastro = ({ onCadastro }) => {
                 onChange={handleChange}
                 required
               />
+              <span class="checkmark"></span>
               Produto
             </label>
           </div>

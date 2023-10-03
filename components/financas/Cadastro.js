@@ -62,8 +62,8 @@ const Cadastro = ({ onCadastro }) => {
       <h1>Cadastrar Lançamento</h1>
       <form onSubmit={handleSubmit}>
       <div>
-          <div>
-            <label>
+          <div class="containerPai">
+            <label className="container">
               <input
                 type="radio"
                 name="tipo"
@@ -72,9 +72,10 @@ const Cadastro = ({ onCadastro }) => {
                 onChange={handleChange}
                 required
               />
+              <span class="checkmark"></span>
               Receita
             </label>
-            <label>
+            <label className="container">
               <input
                 type="radio"
                 name="tipo"
@@ -83,6 +84,7 @@ const Cadastro = ({ onCadastro }) => {
                 onChange={handleChange}
                 required
               />
+              <span class="checkmark"></span>
               Despesa
             </label>
           </div>
@@ -144,7 +146,7 @@ const Cadastro = ({ onCadastro }) => {
             required
           />
         </div>
-        <button className="dark-mode"type="submit">Cadastrar lançamento</button>
+        <button type="submit">Cadastrar lançamento</button>
       </form>
     </div>
   );

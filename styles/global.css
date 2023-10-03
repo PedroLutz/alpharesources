@@ -1,5 +1,7 @@
 body {
     font-family: 'Montserrat';
+    background-color: #1B1B1B;
+    color: white;
 }
 
 .botoes-acoes button {
@@ -8,16 +10,23 @@ body {
     font-size: 25px;
     font-weight: bold;
     cursor: pointer;
-    margin-top: -10px;
+    margin-top: -6px;
+    margin-bottom: -10px;
+    color: white;
+    margin-right: 5px;
+
 }
 
-button {
+button:not(.botoes-acoes button) {
+    color: white;
     font-family: 'Montserrat';
+    border-color: white;
     height: 30px;
     border-radius: 10px;
     padding: 5px;
     margin-right: 5px;
     margin-bottom: 5px;
+    background-image: linear-gradient(to left, #830074 0%, #500380 100%);
 }
 
 label {
@@ -26,8 +35,11 @@ label {
 }
 
 input {
+    color: white;
     font-family: 'Montserrat';
     border-radius: 10px;
+    border-color: white;
+    background-color: black;
     margin-right: 10px;
     margin-bottom: 10px;
     padding: 5px;
@@ -37,15 +49,10 @@ input {
     gap: 0px;
 }
 
-input[type="radio"] {
-    margin-left: 0;
-    width: 15px; 
-    display:inline;
-    margin-right: 5px;
-    margin-left: 10px;
-}
-
 select {
+    color: white;
+    border-color: white;
+    background-color: black;
     font-family: 'Montserrat';
     border-radius: 10px;
     margin-right: 10px;
@@ -63,14 +70,13 @@ select {
 table {
     border-collapse: collapse;
     width: 100%;
-    border: 1px solid black;
+    border: 1px solid white;
 }
 
 td {
-    border: 1px solid black;
+    border: 1px dotted white;
     padding: 8px; 
 }
-    
 
 @font-face {
     font-family: 'Montserrat';

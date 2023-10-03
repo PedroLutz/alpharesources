@@ -109,7 +109,7 @@ const Tabela = () => {
               <td>{item.area}</td>
               <td>{item.origem}</td>
               <td>{item.destino}</td>
-              <td style={{width: '75px'}}>
+              <td style={{width: '7%'}}>
                 <div className="botoes-acoes">
                   <button style={{color: 'red'}} onClick={() => handleDelete(item._id)}>X</button>
                   <button onClick={() => handleUpdate(item._id)}>$</button>

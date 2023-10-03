@@ -70,6 +70,23 @@ const Resumo = () => {
       });
   }, []);
 
+  const estiloGraph = {
+    backgroundColor: '#1B1B1B',
+    titleTextStyle: {
+      color: "white"
+    },
+    legend: {
+      textStyle: {color: 'white'}
+    },
+    hAxis: {
+      textStyle: {color: 'white'},
+      gridlines: {color: 'white'}
+    },
+    vAxis: {
+      textStyle: {color: 'white'},
+    },
+  }
+
   return (
     <div>
       
@@ -86,7 +103,7 @@ const Resumo = () => {
             chartType="PieChart"
             loader={<div>Carregando Gráfico</div>}
             data={piorPlanoPorAreaGraph}
-            options={{
+            options={{ ...estiloGraph,
               title: 'Pior Cenário',
             }}
             rootProps={{ 'data-testid': '1' }}
@@ -98,6 +115,7 @@ const Resumo = () => {
             loader={<div>Carregando Gráfico</div>}
             data={cenarioIdealPorAreaGraph}
             options={{
+              ...estiloGraph,
               title: 'Cenário Ideal',
             }}
             rootProps={{ 'data-testid': '1' }}
@@ -116,6 +134,13 @@ const Resumo = () => {
                 chartType="Timeline"
                 loader={<div>Carregando Gráfico</div>}
                 data={linhaDoTempoEsperadaGraph}
+                options={{...estiloGraph, 
+                  timeline: {
+                    rowLabelStyle: {
+                      color: 'white'
+                    }
+                  }
+                }}
                 rootProps={{ 'data-testid': '1' }}
             />
         </div>
@@ -126,6 +151,13 @@ const Resumo = () => {
                 width={'100%'}
                 chartType="Timeline"
                 loader={<div>Carregando Gráfico</div>}
+                options={{...estiloGraph,
+                  timeline: {
+                    rowLabelStyle: {
+                      color: 'white'
+                    }
+                  }
+                }}
                 data={linhaDoTempoLimiteGraph}
                 rootProps={{ 'data-testid': '1' }}
             />
@@ -139,7 +171,7 @@ const Resumo = () => {
               chartType="LineChart"
               loader={<div>Carregando Gráfico</div>}
               data={crescimentoDosGastosGraph}
-              options={{}}
+              options={{...estiloGraph, }}
               rootProps={{ 'data-testid': '1' }}
             />
         </div>

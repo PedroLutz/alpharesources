@@ -93,6 +93,23 @@ const Resumo = () => {
       });
   }, []);
 
+  const estiloGraph = {
+    backgroundColor: '#1B1B1B',
+    titleTextStyle: {
+      color: "white"
+    },
+    legend: {
+      textStyle: {color: 'white'}
+    },
+    hAxis: {
+      textStyle: {color: 'white'},
+      gridlines: {color: 'white'}
+    },
+    vAxis: {
+      textStyle: {color: 'white'},
+    },
+  }
+
   return (
     <div>
       
@@ -112,6 +129,7 @@ const Resumo = () => {
             loader={<div>Carregando Gráfico</div>}
             data={ReceitasPorAreaGraph}
             options={{
+              ...estiloGraph,
               title: 'Receitas por Área',
             }}
             rootProps={{ 'data-testid': '1' }}
@@ -123,6 +141,7 @@ const Resumo = () => {
             loader={<div>Carregando Gráfico</div>}
             data={DespesasPorAreaGraph}
             options={{
+              ...estiloGraph,
               title: 'Despesas Por Área',
             }}
             rootProps={{ 'data-testid': '1' }}
@@ -134,6 +153,7 @@ const Resumo = () => {
               height={'400px'}
               chartType="ColumnChart"
               loader={<div>Carregando Gráfico</div>}
+              options={{...estiloGraph, colors: ['green', 'red']}}
               data={ValoresPorAreaGraph}
               rootProps={{ 'data-testid': '1' }}
             />
@@ -150,7 +170,9 @@ const Resumo = () => {
               loader={<div>Carregando Gráfico</div>}
               data={ValoresPorMesGraph}
               options={{
+                ...estiloGraph,
                 title: 'Lançamentos Por Mês',
+                colors: ['green', 'red']
               }}
               rootProps={{ 'data-testid': '1' }}
             />
@@ -163,7 +185,13 @@ const Resumo = () => {
               chartType="LineChart"
               loader={<div>Carregando Gráfico</div>}
               data={CaixaMensalGraph}
-              options={{}}
+              options={{...estiloGraph, 
+                colors: ["#ff00e3"], 
+                series: {
+                0: {
+                  lineWidth: 5, // Largura da linha da série 0
+                },
+              },}}
               rootProps={{ 'data-testid': '1' }}
             />
         </div>
@@ -176,7 +204,13 @@ const Resumo = () => {
               chartType="LineChart"
               loader={<div>Carregando Gráfico</div>}
               data={CrescimentoDosGastosGraph}
-              options={{}}
+              options={{...estiloGraph, colors: ["#ff00e3"], 
+              series: {
+                0: {
+                  lineWidth: 5, // Largura da linha da série 0
+                },
+              }
+              }}
               rootProps={{ 'data-testid': '1' }}
             />
         </div>
