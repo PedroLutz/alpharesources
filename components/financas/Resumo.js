@@ -116,7 +116,7 @@ const Resumo = () => {
       <h2>Resumo</h2>
 
       <div>
-        <p>Valor em Caixa: <span>R${totalValor}</span></p>
+        <span className="custom-span">Valor em Caixa: R${totalValor}</span>
       </div>
      
       <div>

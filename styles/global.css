@@ -78,6 +78,22 @@ td {
     padding: 8px; 
 }
 
+span.custom-span {
+    display: inline-block;
+    height: auto;
+    width: auto;
+    padding: 10px;
+    border-radius: 15px;
+    border: 1px solid #9006e3;
+    background-color: black;
+    font-size: 18px;
+    color: white; /* Define a cor do texto como branca */
+  }
+
+span.custom-span:hover {
+    background-color: #1f0231;
+}
+
 @font-face {
     font-family: 'Montserrat';
     src: url('../public/fonts/Montserrat.ttf') format('truetype');

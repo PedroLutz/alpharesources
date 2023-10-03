@@ -123,8 +123,8 @@ const Resumo = () => {
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <p>Pior Cenário: <span>R${somaPiorPlano}</span></p>
-          <p>Cenário Ideal: <span>R${somaCenarioIdeal}</span></p>
+          <span className="custom-span">Pior Cenário: R${somaPiorPlano}</span>
+          <span className="custom-span">Cenário Ideal: R${somaCenarioIdeal}</span>
         </div>
 
         <div>
