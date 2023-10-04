@@ -1,16 +1,45 @@
+nav {
+  background-image: linear-gradient(45deg, rgba(144,6,227,1) 0%, rgba(255,0,227,1) 100%);
+  padding: 10px; /* Espaçamento interno para afastar o conteúdo da borda */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+}
+
+nav h2 {
+  margin: 0px;
+  margin-right: 20%
+}
+
+nav img {
+  margin-right: 20%
+}
+
+nav ul {
+  padding: 0; 
+  margin: 0; 
+  margin-top: 0px;
+  display: flex;
+  justify-content: center;
+}
+
+nav li {
+  display: inline;
+  margin-right: 10px; 
+}
+
 nav ul li a:link {
-    color: gray; /* Cor cinza para links não clicados */
-    text-decoration: none; /* Remover sublinhado padrão */
+    color: white; 
+    text-decoration: none; 
   }
   
-  /* Estilos para links visitados (já clicados) */
   nav ul li a:visited {
-    color: inherit; /* Usar a cor padrão do navegador para links visitados */
-    text-decoration: none; /* Remover sublinhado padrão */
+    color: inherit;
+    text-decoration: none; 
   }
   
-  /* Estilos para links quando passam o mouse por cima */
   nav ul li a:hover {
-    color: #ff00f2; /* Cor preta quando passa o mouse por cima */
-    text-decoration: none; /* Adicionar sublinhado ao passar o mouse por cima */
+    color: #46205e; 
+    text-decoration: none; 
   }

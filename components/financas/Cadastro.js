@@ -62,7 +62,7 @@ const Cadastro = ({ onCadastro }) => {
       <h1>Cadastrar Lançamento</h1>
       <form onSubmit={handleSubmit}>
       <div>
-          <div class="containerPai">
+          <div className="containerPai">
             <label className="container">
               <input
                 type="radio"
@@ -72,7 +72,7 @@ const Cadastro = ({ onCadastro }) => {
                 onChange={handleChange}
                 required
               />
-              <span class="checkmark"></span>
+              <span className="checkmark"></span>
               Receita
             </label>
             <label className="container">
@@ -84,7 +84,7 @@ const Cadastro = ({ onCadastro }) => {
                 onChange={handleChange}
                 required
               />
-              <span class="checkmark"></span>
+              <span className="checkmark"></span>
               Despesa
             </label>
           </div>
@@ -116,7 +116,6 @@ const Cadastro = ({ onCadastro }) => {
             onChange={handleChange}
             value={formData.area}
             required
-            defaultValue=""
           >
             <option value="" disabled select>Selecione uma área</option>
             <option value="Patrocínio">Patrocínio</option>

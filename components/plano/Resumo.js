@@ -155,7 +155,7 @@ const Resumo = () => {
                   timeline: {
                     rowLabelStyle: {
                       color: 'white'
-                    }
+                    },
                   }
                 }}
                 data={linhaDoTempoLimiteGraph}
