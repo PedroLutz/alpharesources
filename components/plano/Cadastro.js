@@ -66,10 +66,10 @@ const Cadastro = ({ onCadastro }) => {
   };
 
   return (
-    <div>
+    <div className="centered-container">
       <h1>Cadastrar Plano</h1>
       <form onSubmit={handleSubmit}>
-      <div>
+      <div >
           <div class="containerPai">
             <label className="container">
               <input
@@ -227,7 +227,7 @@ const Cadastro = ({ onCadastro }) => {
             required
           />
         </div>
-        <button type="submit">Cadastrar lançamento</button>
+        <button className="botao-cadastro" type="submit">Cadastrar lançamento</button>
       </form>
     </div>
   );

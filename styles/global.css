@@ -1,6 +1,6 @@
 body {
     font-family: 'Montserrat';
-    background-color: #1B1B1B;
+    background-image: linear-gradient(to right, #1B1B1B 0%, #2f034b 500%);
     color: white;
     padding: 0;
     margin: 0;
@@ -19,7 +19,7 @@ body {
 
 }
 
-button:not(.botoes-acoes button) {
+.botao-cadastro {
     color: white;
     font-family: 'Montserrat';
     border-color: white;
@@ -45,7 +45,8 @@ input {
     margin-right: 10px;
     margin-bottom: 10px;
     padding: 5px;
-    width: 200px;
+    width: 500px;
+    font-size: 15px;
     text-align: start; 
     display: flex;
     gap: 0px;
@@ -60,7 +61,8 @@ select {
     margin-right: 10px;
     margin-bottom: 10px;
     padding: 5px;
-    width: 213px;
+    font-size: 15px;
+    width: 513px;
     text-align: start; 
     display: flex;
     gap: 0px; 
@@ -99,4 +101,24 @@ span.custom-span:hover {
 @font-face {
     font-family: 'Montserrat';
     src: url('../public/fonts/Montserrat.ttf') format('truetype');
+}
+
+.centered-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+/* Estilo para os elementos internos dentro da div */
+.centered-container input,
+.centered-container select{
+    margin-bottom: 10px; /* Espaçamento entre os elementos */
+}
+
+.centered-container label:not(.container) {
+    font-size: 12px;
+    align-self: flex-start;
+    margin-bottom: 5px;
 }

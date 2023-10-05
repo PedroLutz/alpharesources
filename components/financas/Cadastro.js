@@ -58,10 +58,10 @@ const Cadastro = ({ onCadastro }) => {
   };
 
   return (
-    <div>
-      <h1>Cadastrar Lançamento</h1>
+    <div className="centered-container">
+      <h2>Cadastrar Lançamento</h2>
       <form onSubmit={handleSubmit}>
-      <div>
+        <div>
           <div className="containerPai">
             <label className="container">
               <input
@@ -88,22 +88,27 @@ const Cadastro = ({ onCadastro }) => {
               Despesa
             </label>
           </div>
-          <input
-            type="text"
-            name="descricao"
-            placeholder="Descrição"
-            onChange={handleChange}
-            value={formData.descricao}
-            required
-          />
+          <div className="centered-container">
+            <label htmlFor="descricao">Descrição</label>
+            <input
+              type="text"
+              id="descricao"
+              name="descricao"
+              placeholder="COMPRA - Adesivos para o Carro"
+              onChange={handleChange}
+              value={formData.descricao}
+              required
+            />
+            <label htmlFor="valor">Valor</label>
           <input
             type="number"
             name="valor"
-            placeholder="Valor"
+            placeholder="420.69"
             onChange={handleChange}
             value={formData.valor}
             required
           />
+          <label htmlFor="data">Data</label>
           <input
             type="date"
             name="data"
@@ -111,6 +116,7 @@ const Cadastro = ({ onCadastro }) => {
             value={formData.data}
             required
           />
+          <label htmlFor="area">Área</label>
           <select
             name="area"
             onChange={handleChange}
@@ -128,24 +134,29 @@ const Cadastro = ({ onCadastro }) => {
             <option value="Viagem">Viagem</option>
             <option value="Extras">Extras</option>
           </select>
+          <label htmlFor="origem">Conta Creditada (Origem)</label>
           <input
             type="text"
             name="origem"
-            placeholder="Conta creditada"
+            placeholder="Patrocinador"
             onChange={handleChange}
             value={formData.origem}
             required
           />
+          <label htmlFor="destino">Conta Debitada (Destino)</label>
           <input
             type="text"
             name="destino"
-            placeholder="Conta debitada"
+            placeholder="Caixa do time"
             onChange={handleChange}
             value={formData.destino}
             required
           />
+          </div>
         </div>
-        <button type="submit">Cadastrar lançamento</button>
+        <div>
+          <button className="botao-cadastro" type="submit">Cadastrar lançamento</button>
+        </div>
       </form>
     </div>
   );

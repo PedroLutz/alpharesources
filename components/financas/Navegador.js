@@ -5,7 +5,8 @@ const Navbar = () => {
     return (
 
       <nav>
-        <h2>Alpha Finances</h2>
+        <h2>Alpha Resources/Finanças</h2>
+        <img src={'/images/logo.png'} alt="Logo" style={{width: '5%'}}/>
         <ul>
           <li>
             <Link href="/financas/cadastro">Cadastro</Link>

@@ -5,23 +5,26 @@ nav {
   justify-content: center;
   align-items: center;
   height: 50px;
+  position: relative;
 }
 
 nav h2 {
-  margin: 0px;
-  margin-right: 20%
+  position: absolute;
+  top: 0%;
+  left: 3%;
 }
 
 nav img {
-  margin-right: 20%
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 nav ul {
-  padding: 0; 
-  margin: 0; 
-  margin-top: 0px;
-  display: flex;
-  justify-content: center;
+  position: absolute;
+  top: 15%;
+  right: 3%;
 }
 
 nav li {

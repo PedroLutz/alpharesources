@@ -58,10 +58,18 @@ const Tabela = () => {
   };
 
   const handleUpdate = async (id) => {
-    const newValue = prompt('Insira o novo valor:');
+    let newValue = prompt('Insira o novo valor:');
     if (newValue < 0){
       alert("Insira um valor maior do que zero!");
     } else if (newValue !== null) {
+
+      const tipo = lancamentos.find(item => item._id === id)?.tipo;
+
+      if (tipo === 'Despesa') {
+        newValue = -Math.abs(newValue); // Torna o valor negativo
+      } else if (tipo === 'Receita') {
+        newValue = Math.abs(newValue); // Torna o valor positivo
+      }
       try {
         const response = await fetch(`/api/financas/update?id=${String(id)}`, {
           method: 'PUT',
