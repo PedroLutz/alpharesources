@@ -73,13 +73,13 @@ select {
 
 table {
     border-collapse: collapse;
-    width: 100%;
+    width: 95%;
     border: 1px solid white;
 }
 
 td {
     border: 1px dotted white;
-    padding: 8px; 
+    padding: 3px; 
 }
 
 span.custom-span {

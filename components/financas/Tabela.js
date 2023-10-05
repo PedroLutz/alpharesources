@@ -92,7 +92,7 @@ const Tabela = () => {
   };
 
   return (
-    <div>
+    <div className="centered-container">
       <h2>Dados dos Lançamentos</h2>
       <table>
         <thead>
@@ -117,7 +117,7 @@ const Tabela = () => {
               <td>{item.area}</td>
               <td>{item.origem}</td>
               <td>{item.destino}</td>
-              <td style={{width: '7%'}}>
+              <td>
                 <div className="botoes-acoes">
                   <button style={{color: 'red'}} onClick={() => handleDelete(item._id)}>X</button>
                   <button onClick={() => handleUpdate(item._id)}>$</button>

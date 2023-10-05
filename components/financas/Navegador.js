@@ -6,7 +6,7 @@ const Navbar = () => {
 
       <nav>
         <h2>Alpha Resources/Finanças</h2>
-        <img src={'/images/logo.png'} alt="Logo" style={{width: '5%'}}/>
+        <img src={'/images/logo.png'} alt="Logo" style={{width: '80px'}}/>
         <ul>
           <li>
             <Link href="/financas/cadastro">Cadastro</Link>
