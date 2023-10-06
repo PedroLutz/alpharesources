@@ -86,12 +86,12 @@ const Tabela = () => {
               <td>{item.recurso}</td>
               <td>{item.plano_a}</td>
               <td>{item.tipo_a}</td>
-              <td>{item.valor_a}</td>
+              <td>R${item.valor_a}</td>
               <td>{item.data_esperada}</td>
               <td>{item.data_limite}</td>
               <td>{item.plano_b}</td>
               <td>{item.tipo_b}</td>
-              <td>{item.valor_b}</td>
+              <td>R${item.valor_b}</td>
               <td style={{width: '75px'}}>
                 <div className="botoes-acoes">
                   <button style={{color: 'red'}} onClick={() => handleDelete(item._id)}>X</button>

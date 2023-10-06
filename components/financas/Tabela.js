@@ -125,7 +125,7 @@ const Tabela = () => {
             <tr key={index}>
               <td>{item.tipo}</td>
               <td>{item.descricao}</td>
-              <td>{Math.abs(item.valor)}</td>
+              <td>R${Math.abs(item.valor)}</td>
               <td>{item.data}</td>
               <td>{item.area}</td>
               <td>{item.origem}</td>
