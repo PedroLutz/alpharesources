@@ -20,6 +20,34 @@ export default async (req, res) => {
         }
       ]);
 
+      const receitasTotais = await Lancamento.aggregate([
+        {
+          $match: {
+            valor: { $gt: 0 } 
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: '$valor' }
+          }
+        }
+      ]);
+
+      const despesasTotais = await Lancamento.aggregate([
+        {
+          $match: {
+            valor: { $lt: 0 }
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: '$valor' }
+          }
+        }
+      ]);
+
       // Consulta para obter os valores agrupados por área
       const receitasPorArea = await Lancamento.aggregate([
         {
@@ -105,7 +133,17 @@ export default async (req, res) => {
         }
       ]);      
 
-      res.status(200).json({ lancamentos, somaValores, receitasPorArea, despesasPorArea, receitasPorMes, despesasPorMes });
+      const maiorEMenorValor = await Lancamento.aggregate([
+        {
+          $group: {
+            _id: null,
+            min: { $min: '$valor' },
+            max: { $max: '$valor' },
+          }
+        }
+      ])
+
+      res.status(200).json({ lancamentos, somaValores, receitasPorArea, despesasPorArea, receitasPorMes, despesasPorMes, maiorEMenorValor, receitasTotais, despesasTotais });
     } else {
       res.status(405).json({ error: 'Método não permitido' });
     }

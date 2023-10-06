@@ -8,7 +8,7 @@ export default async (req, res) => {
 
     if (req.method === 'GET') {
       // Consulte o banco de dados para buscar todas as pessoas
-      const planos = await Plano.find().sort({ plano: 1 });
+      const planos = await Plano.find().sort({ plano: 1, data_esperada: -1 });
 
       const piorPlanoPorArea = await Plano.aggregate([
         {

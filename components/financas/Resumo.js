@@ -9,6 +9,11 @@ const Resumo = () => {
   const [despesasPorArea, setDespesasPorArea] = useState([]);
   const [receitasPorMes, setReceitasPorMes] = useState([]);
   const [despesasPorMes, setDespesasPorMes] = useState([]);
+  const [maiorValor, setMaiorValor] = useState([]);
+  const [menorValor, setMenorValor] = useState([]);
+  const [receitasTotais, setReceitasTotais] = useState([]);
+  const [despesasTotais, setDespesasTotais] = useState([]);
+  const [crescimentoDosGastosPlano, setCrescimentoDosGastosPlano] = useState([]);
 
   const ReceitasPorAreaGraph = [['Área', 'Valor']];
   receitasPorArea.forEach((area) => {
@@ -43,6 +48,7 @@ const Resumo = () => {
   const ValoresPorMesGraph = [['Mês', 'Receita', 'Despesa']];
   const CaixaMensalGraph = [['Mês', 'Valor']];
   const CrescimentoDosGastosGraph = [['Mês', 'Valor']];
+  const ComparaçãoDosGastosGraph = [['Mês', 'Plano', 'Real']];
   let saldoAcumulado = 0;
   let gastosAcumulados = 0;
 
@@ -79,7 +85,7 @@ const Resumo = () => {
       .then((response) => response.json())
       .then((data) => {
         // Extrair os valores do objeto de resposta
-        const { somaValores, receitasPorArea, despesasPorArea, receitasPorMes, despesasPorMes } = data;
+        const { somaValores, receitasPorArea, despesasPorArea, receitasPorMes, despesasPorMes , maiorEMenorValor, receitasTotais, despesasTotais } = data;
 
         // Definir o estado com os valores obtidos
         setTotalValor(somaValores[0]?.total || 0);
@@ -87,6 +93,10 @@ const Resumo = () => {
         setDespesasPorArea(despesasPorArea);
         setReceitasPorMes(receitasPorMes);
         setDespesasPorMes(despesasPorMes);
+        setMaiorValor(maiorEMenorValor[0]?.max || 0);
+        setMenorValor(maiorEMenorValor[0]?.min || 0);
+        setReceitasTotais(receitasTotais[0]?.total || 0); 
+        setDespesasTotais(despesasTotais[0]?.total || 0); 
       })
       .catch((error) => {
         console.error('Erro ao buscar informações de resumo', error);
@@ -111,20 +121,27 @@ const Resumo = () => {
   }
 
   return (
-    <div>
-      
-      <h2>Resumo</h2>
+    <div className="h3-resumo">
+      <div className="centered-container">
+        <h2>Resumo</h2>
 
-      <div>
-        <span className="custom-span">Valor em Caixa: R${totalValor}</span>
+        <div>
+          <span className="custom-span">Valor em Caixa:<br/>R${totalValor}</span>
+          <br/>
+          <span className="custom-span">Maior receita:<br/>R${maiorValor}</span>
+          <span className="custom-span">Ganhos totais:<br/>R${receitasTotais}</span>
+          <span className="custom-span">Maior despesa:<br/>R${-menorValor}</span>
+          <span className="custom-span">Gastos totais:<br/>R${-despesasTotais}</span>
+        </div>
       </div>
      
+     {/* div Lançamentos por Área*/}
       <div>
         <h3>Lançamentos Por Área</h3>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           <Chart
-            width={'100%'}
-            height={'400px'}
+            width={"100%"}
+            height={"400px"}
             chartType="PieChart"
             loader={<div>Carregando Gráfico</div>}
             data={ReceitasPorAreaGraph}
@@ -135,8 +152,8 @@ const Resumo = () => {
             rootProps={{ 'data-testid': '1' }}
           />
           <Chart
-            width={'100%'}
-            height={'400px'}
+            width={"100%"}
+            height={"400px"}
             chartType="PieChart"
             loader={<div>Carregando Gráfico</div>}
             data={DespesasPorAreaGraph}
@@ -149,8 +166,8 @@ const Resumo = () => {
         </div>
         <div>
           <Chart
-              width={'100%'}
-              height={'400px'}
+              width={"100%"}
+              height={"400px"}
               chartType="ColumnChart"
               loader={<div>Carregando Gráfico</div>}
               options={{...estiloGraph, colors: ['green', 'red']}}
@@ -159,13 +176,15 @@ const Resumo = () => {
             />
         </div>
       </div>
+      {/* fim div Lançamentos por Área*/}
 
+      {/* div Lançamentos por Mês*/}
       <div>
       <h3>Lançamentos Por Mês</h3>
         <div>
           <Chart
-              width={'100%'}
-              height={'400px'}
+              width={"100%"}
+              height={"400px"}
               chartType="ColumnChart"
               loader={<div>Carregando Gráfico</div>}
               data={ValoresPorMesGraph}
@@ -180,8 +199,8 @@ const Resumo = () => {
         <div>
           <h3>Caixa Mensal por Mês</h3>
           <Chart
-              width={'100%'}
-              height={'400px'}
+              width={"100%"}
+              height={"400px"}
               chartType="LineChart"
               loader={<div>Carregando Gráfico</div>}
               data={CaixaMensalGraph}
@@ -196,11 +215,14 @@ const Resumo = () => {
             />
         </div>
 
+        {/* fim div Lançamentos por Mês*/}
+
+        {/* div Crescimento dos Gastos*/}
         <div>
           <h3>Crescimento dos Gastos</h3>
           <Chart
-              width={'100%'}
-              height={'400px'}
+              width={"100%"}
+              height={"400px"}
               chartType="LineChart"
               loader={<div>Carregando Gráfico</div>}
               data={CrescimentoDosGastosGraph}

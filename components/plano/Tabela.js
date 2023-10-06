@@ -59,7 +59,7 @@ const Tabela = () => {
   };
 
   return (
-    <div>
+    <div className="centered-container">
       <h2>Dados dos Recursos Planejados</h2>
       <table>
         <thead>
@@ -67,14 +67,14 @@ const Tabela = () => {
             <th>Plano</th>
             <th>Área</th>
             <th>Recurso</th>
-            <th>Tipo A</th>
-            <th>Valor A</th>
             <th>Plano A</th>
+            <th>Tipo</th>
+            <th>Valor</th>
             <th>Data Esperada</th>
             <th>Data Limite</th>
             <th>Plano B</th>
-            <th>Tipo B</th>
-            <th>Valor B</th>
+            <th>Tipo</th>
+            <th>Valor</th>
             <th>Opções</th>
           </tr>
         </thead>
@@ -84,9 +84,9 @@ const Tabela = () => {
               <td>{item.plano}</td>
               <td>{item.area}</td>
               <td>{item.recurso}</td>
+              <td>{item.plano_a}</td>
               <td>{item.tipo_a}</td>
               <td>{item.valor_a}</td>
-              <td>{item.plano_a}</td>
               <td>{item.data_esperada}</td>
               <td>{item.data_limite}</td>
               <td>{item.plano_b}</td>

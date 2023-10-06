@@ -88,9 +88,9 @@ const Resumo = () => {
   }
 
   return (
-    <div>
+    <div className="h3-resumo">
       
-      <h2>Resumo</h2>
+      <h2 className="centered-container">Resumo</h2>
      
       <div>
         <h3>Cenários de gastos</h3>
@@ -122,15 +122,15 @@ const Resumo = () => {
           />
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <div className="centered-container" style={{flexDirection: "row"}}>
           <span className="custom-span">Pior Cenário: R${somaPiorPlano}</span>
           <span className="custom-span">Cenário Ideal: R${somaCenarioIdeal}</span>
         </div>
 
-        <div>
-          <h3>Linha do tempo esperada</h3>
+        <h3>Linha do tempo esperada</h3>
+        <div className="centered-container">
             <Chart
-                width={'100%'}
+                width={'90%'}
                 chartType="Timeline"
                 loader={<div>Carregando Gráfico</div>}
                 data={linhaDoTempoEsperadaGraph}
@@ -145,10 +145,10 @@ const Resumo = () => {
             />
         </div>
 
-        <div>
-          <h3>Linha do tempo crítica</h3>
+        <h3>Linha do tempo crítica</h3>
+        <div className="centered-container">
             <Chart
-                width={'100%'}
+                width={'90%'}
                 chartType="Timeline"
                 loader={<div>Carregando Gráfico</div>}
                 options={{...estiloGraph,
@@ -163,8 +163,8 @@ const Resumo = () => {
             />
         </div>
 
-        <div>
-          <h3>Crescimento dos Gastos</h3>
+        <h3>Crescimento dos Gastos</h3>
+        <div className="centered-container">
           <Chart
               width={'100%'}
               height={'400px'}

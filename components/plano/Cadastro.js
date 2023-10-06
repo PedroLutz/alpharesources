@@ -96,7 +96,8 @@ const Cadastro = ({ onCadastro }) => {
               Cenário ideal
             </label>
           </div>
-          
+          <div className="centered-container">
+          <label htmlFor="area">Área</label>
           <select
             name="area"
             onChange={handleChange}
@@ -114,24 +115,30 @@ const Cadastro = ({ onCadastro }) => {
             <option value="Viagem">Viagem</option>
             <option value="Extras">Extras</option>
           </select>
+          </div>
 
-          <input
-            type="text"
-            name="recurso"
-            placeholder="Recurso"
-            onChange={handleChange}
-            value={formData.recurso}
-            required
-          />
+          <div className='centered-container'>
+            <label htmlFor="recurso">Recurso</label>
+            <input
+              type="text"
+              name="recurso"
+              placeholder="Recurso"
+              onChange={handleChange}
+              value={formData.recurso}
+              required
+            />
+          </div>
 
-          
-          <input
-            type="text"
-            name="plano_a"
-            onChange={handleChange}
-            value={formData.plano_a}
-            required
-          />
+          <div className='centered-container'>
+            <label htmlFor="plano_a">Plano A</label>
+            <input
+              type="text"
+              name="plano_a"
+              onChange={handleChange}
+              value={formData.plano_a}
+              required
+            />
+          </div>
 
           <div class="containerPai">
             <label className="container">
@@ -160,37 +167,49 @@ const Cadastro = ({ onCadastro }) => {
             </label>
           </div>
 
-          <input
-            type="number"
-            name="valor_a"
-            onChange={handleChange}
-            value={formData.valor_a}
-            required
-          />
+          <div className='centered-container'>
+          <label htmlFor="valor_a">Valor</label>
+            <input
+              type="number"
+              name="valor_a"
+              onChange={handleChange}
+              value={formData.valor_a}
+              required
+            />
+          </div>
 
-          <input
-            type="date"
-            name="data_esperada"
-            onChange={handleChange}
-            value={formData.data_esperada}
-            required
-          />
+          <div className='centered-container'>
+          <label htmlFor="data_esperada">Data Esperada</label>
+            <input
+              type="date"
+              name="data_esperada"
+              onChange={handleChange}
+              value={formData.data_esperada}
+              required
+            />
+          </div>
 
-          <input
-            type="date"
-            name="data_limite"
-            onChange={handleChange}
-            value={formData.data_limite}
-            required
-          />
+          <div className='centered-container'>
+          <label htmlFor="data_limite">Data Limite</label>
+            <input
+              type="date"
+              name="data_limite"
+              onChange={handleChange}
+              value={formData.data_limite}
+              required
+            />
+          </div>
 
-          <input
-            type="text"
-            name="plano_b"
-            onChange={handleChange}
-            value={formData.plano_b}
-            required
-          />
+          <div className='centered-container'>
+          <label htmlFor="plano_b">Plano B</label>
+            <input
+              type="text"
+              name="plano_b"
+              onChange={handleChange}
+              value={formData.plano_b}
+              required
+            />
+          </div>
 
           <div class="containerPai">
             <label className="container">
@@ -219,15 +238,18 @@ const Cadastro = ({ onCadastro }) => {
             </label>
           </div>
 
-          <input
-            type="number"
-            name="valor_b"
-            onChange={handleChange}
-            value={formData.valor_b}
-            required
-          />
+          <div className='centered-container'>
+            <label htmlFor="valor_b">Valor</label>
+            <input
+              type="number"
+              name="valor_b"
+              onChange={handleChange}
+              value={formData.valor_b}
+              required
+            />
+          </div>
         </div>
-        <button className="botao-cadastro" type="submit">Cadastrar lançamento</button>
+        <button className="botao-cadastro" type="submit">Cadastrar plano</button>
       </form>
     </div>
   );
