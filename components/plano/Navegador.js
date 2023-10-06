@@ -5,7 +5,7 @@ const Navbar = () => {
     return (
 
       <nav>
-        <h2>Alpha Resources</h2>
+        <h2>Alpha Resources/Plano</h2>
         <img src={'/images/logo.png'} alt="Logo" style={{width: '5%'}}/>
         <ul>
           <li>
