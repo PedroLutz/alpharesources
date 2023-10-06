@@ -1,8 +1,21 @@
 import React, { useEffect, useState } from 'react';
+import { format } from 'date-fns-tz';
 
 const formatDate = (dateString) => {
-  const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
-  return new Date(dateString).toLocaleDateString(undefined, options);
+  // Converte a data da string para um objeto de data
+  const date = new Date(dateString);
+
+  // Adiciona um dia à data
+  date.setDate(date.getDate() + 1);
+
+  // Formata a data
+  const formattedDate = date.toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+
+  return formattedDate;
 };
 
 const Tabela = () => {
