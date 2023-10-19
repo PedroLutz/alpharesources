@@ -23,7 +23,7 @@ const Cadastro = ({ onCadastro }) => {
     e.preventDefault();
 
     try {
-      const response = await fetch('/api/financas/create', {
+      const response = await fetch('/api/financeiro/financas/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

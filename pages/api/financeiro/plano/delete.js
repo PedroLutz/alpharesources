@@ -1,6 +1,6 @@
 // pages/api/delete.js
 import connectToDatabase from '../../../lib/db';
-import Plano from '../../../models/Plano';
+import Plano from '../../../models/financeiro/Plano';
 
 export default async (req, res) => {
   try {

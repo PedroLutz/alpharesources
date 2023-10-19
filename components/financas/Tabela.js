@@ -71,7 +71,7 @@ const Tabela = () => {
         newValue = Math.abs(newValue); // Torna o valor positivo
       }
       try {
-        const response = await fetch(`/api/financas/update?id=${String(id)}`, {
+        const response = await fetch(`/api/financeiro/financas/update?id=${String(id)}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

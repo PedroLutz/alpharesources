@@ -1,6 +1,6 @@
 // pages/api/delete.js
 import connectToDatabase from '../../../lib/db';
-import Lancamento from '../../../models/Lancamento';
+import Lancamento from '../../../models/financeiro/Lancamento';
 
 export default async (req, res) => {
   try {

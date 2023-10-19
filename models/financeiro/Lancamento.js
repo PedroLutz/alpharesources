@@ -1,4 +1,3 @@
-// models/Person.js
 import mongoose from 'mongoose';
 
 // Limpe o cache do Mongoose para o modelo 'Person' (se já estiver definido)

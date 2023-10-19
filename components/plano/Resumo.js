@@ -53,7 +53,7 @@ const Resumo = () => {
 
   useEffect(() => {
     // Fazer uma solicitação para a rota existente que retorna as informações de resumo
-    fetch('/api/plano/get')
+    fetch('/api/financeiro/plano/get')
       .then((response) => response.json())
       .then((data) => {
         // Extrair os valores do objeto de resposta
