@@ -1,6 +1,6 @@
 // pages/api/get.js
-import connectToDatabase from '../../../lib/db';
-import Lancamento from '../../../models/financeiro/Lancamento';
+import connectToDatabase from '../../../../lib/db';
+import Lancamento from '../../../../models/financeiro/Lancamento';
 
 export default async (req, res) => {
   try {

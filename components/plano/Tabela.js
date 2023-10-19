@@ -39,7 +39,7 @@ const Tabela = () => {
 
     if (confirmDelete) {
       try {
-        const response = await fetch(`/api/plano/delete?id=${String(id)}`, {
+        const response = await fetch(`/api/financeiro/plano/delete?id=${String(id)}`, {
           method: 'DELETE',
         });
 

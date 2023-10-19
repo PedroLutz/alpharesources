@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { format } from 'date-fns-tz';
 
 const formatDate = (dateString) => {
   // Converte a data da string para um objeto de data
@@ -24,7 +23,7 @@ const Tabela = () => {
 
   const fetchLancamentos = async () => {
     try {
-      const response = await fetch('/api/financas/get', {
+      const response = await fetch('/api/financeiro/financas/get', {
         method: 'GET',
       });
 
@@ -51,7 +50,7 @@ const Tabela = () => {
 
     if (confirmDelete) {
       try {
-        const response = await fetch(`/api/financas/delete?id=${String(id)}`, {
+        const response = await fetch(`/api/financeiro/financas/delete?id=${String(id)}`, {
           method: 'DELETE',
         });
 
