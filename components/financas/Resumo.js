@@ -13,7 +13,6 @@ const Resumo = () => {
   const [menorValor, setMenorValor] = useState([]);
   const [receitasTotais, setReceitasTotais] = useState([]);
   const [despesasTotais, setDespesasTotais] = useState([]);
-  const [crescimentoDosGastosPlano, setCrescimentoDosGastosPlano] = useState([]);
 
   const ReceitasPorAreaGraph = [['Área', 'Valor']];
   receitasPorArea.forEach((area) => {
@@ -48,7 +47,6 @@ const Resumo = () => {
   const ValoresPorMesGraph = [['Mês', 'Receita', 'Despesa']];
   const CaixaMensalGraph = [['Mês', 'Valor']];
   const CrescimentoDosGastosGraph = [['Mês', 'Valor']];
-  const ComparaçãoDosGastosGraph = [['Mês', 'Plano', 'Real']];
   let saldoAcumulado = 0;
   let gastosAcumulados = 0;
 
@@ -71,9 +69,12 @@ const Resumo = () => {
       saldoAcumulado += saldoMes;
       gastosAcumulados += despesaValor;
 
-    ValoresPorMesGraph.push([mesNome, receitaValor, despesaValor]);
-    CaixaMensalGraph.push([mesNome, saldoAcumulado]);
-    CrescimentoDosGastosGraph.push([mesNome, gastosAcumulados]);
+      const dateParts = mesNome.split('/');
+      const formattedDate = `${dateParts[1]}/${dateParts[0]}`;
+    
+      ValoresPorMesGraph.push([formattedDate, receitaValor, despesaValor]);
+      CaixaMensalGraph.push([formattedDate, saldoAcumulado]);
+      CrescimentoDosGastosGraph.push([formattedDate, gastosAcumulados]);
   });
 
 // Agora ValoresPorMesGraph conterá os valores para todos os meses, mesmo que não haja receita ou despesa para um mês específico

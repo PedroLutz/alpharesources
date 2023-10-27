@@ -87,7 +87,7 @@ export default async (req, res) => {
           $project: {
             monthYear: {
               $dateToString: {
-                format: '%m/%Y', // Formato MM/AAAA
+                format: '%Y/%m', // Formato MM/AAAA
                 date: '$data' // Campo da data
               }
             },
@@ -115,7 +115,7 @@ export default async (req, res) => {
           $project: {
             monthYear: {
               $dateToString: {
-                format: '%m/%Y', // Formato MM/AAAA
+                format: '%Y/%m', // Formato MM/AAAA
                 date: '$data' // Campo da data
               }
             },

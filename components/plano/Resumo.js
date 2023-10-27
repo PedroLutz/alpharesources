@@ -43,10 +43,13 @@ const Resumo = () => {
   });
 
   const crescimentoDosGastosGraph = [['Mês', 'Valor']];
-  crescimentoDosGastos.forEach((area) => {
-    somaDosGastos += area.total
-    crescimentoDosGastosGraph.push([area._id, somaDosGastos]);
-  });
+crescimentoDosGastos.forEach((area) => {
+  somaDosGastos += area.total;
+  const dateParts = area._id.split('/');
+  const formattedDate = `${dateParts[1]}/${dateParts[0]}`;
+  crescimentoDosGastosGraph.push([formattedDate, somaDosGastos]);
+});
+
 
 // Agora ValoresPorMesGraph conterá os valores para todos os meses, mesmo que não haja receita ou despesa para um mês específico
 
