@@ -127,7 +127,7 @@ const Tabela = () => {
               <td>{item.tipo}</td>
               <td>{item.descricao}</td>
               <td style={{ color: item.tipo === 'Receita' ? 'green' : 'red' }}>
-                R${Math.abs(item.valor)}
+                <bold>R${Math.abs(item.valor)}</bold>
               </td>
               <td>{item.data}</td>
               <td>{item.area}</td>

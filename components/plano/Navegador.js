@@ -6,7 +6,7 @@ const Navbar = () => {
 
       <nav>
         <h2>Alpha Resources/Acquisition planning</h2>
-        <img src={'/images/logo.png'} alt="Logo" style={{width: '80%'}}/>
+        <img src={'/images/logo.png'} alt="Logo" style={{width: '80px'}}/>
         <ul>
           <li>
             <Link href="/plano/cadastro">Register</Link>

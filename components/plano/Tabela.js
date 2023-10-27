@@ -100,7 +100,7 @@ const Tabela = () => {
               <td>{item.recurso}</td>
               <td>{item.plano_a}</td>
               <td>{item.tipo_a}</td>
-              <td>R${item.valor_a}</td>
+              <td><bold>R${item.valor_a}</bold></td>
               <td>{item.data_esperada}</td>
               <td>{item.data_limite}</td>
               <td>{item.plano_b}</td>
