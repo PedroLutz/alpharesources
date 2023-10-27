@@ -59,7 +59,7 @@ const Cadastro = ({ onCadastro }) => {
 
   return (
     <div className="centered-container">
-      <h2>Register financial release</h2>
+      <h1>Register Financial Release</h1>
       <form onSubmit={handleSubmit}>
         <div>
           <div className="containerPai">
