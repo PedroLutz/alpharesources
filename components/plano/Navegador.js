@@ -5,20 +5,20 @@ const Navbar = () => {
     return (
 
       <nav>
-        <h2>Alpha Resources/Plano</h2>
+        <h2>Alpha Resources/Resource planning</h2>
         <img src={'/images/logo.png'} alt="Logo" style={{width: '5%'}}/>
         <ul>
           <li>
-            <Link href="/plano/cadastro">Cadastro</Link>
+            <Link href="/plano/cadastro">Register</Link>
           </li>
           <li>
-            <Link href="/plano/tabela">Tabela</Link>
+            <Link href="/plano/tabela">Spreadsheet</Link>
           </li>
           <li>
-            <Link href="/plano/resumo">Resumo</Link>
+            <Link href="/plano/resumo">Report</Link>
           </li>
           <li>
-            <Link href="/financas/cadastro">Ir para Finanças</Link>
+            <Link href="/financas/cadastro">Go to finances</Link>
           </li>
         </ul>
       </nav>

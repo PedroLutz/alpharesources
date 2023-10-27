@@ -34,10 +34,10 @@ const Tabela = () => {
         });
         setLancamentos(data.lancamentos);
       } else {
-        console.error('Erro ao buscar dados dos lançamentos');
+        console.error('Error in searching for financal releases data');
       }
     } catch (error) {
-      console.error('Erro ao buscar dados dos lançamentos', error);
+      console.error('Error in searching for financal releases data', error);
     }
   };
 
@@ -46,7 +46,7 @@ const Tabela = () => {
   }, []);
 
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm('Tem certeza de que deseja excluir este lançamento?');
+    const confirmDelete = window.confirm('Are you sure you want to delete this release?');
 
     if (confirmDelete) {
       try {
@@ -55,31 +55,32 @@ const Tabela = () => {
         });
 
         if (response.status === 200) {
-          console.log('Lançamento excluído com sucesso!');
+          console.log('Release deleted successfully!');
+          alert("Release deleted successfully!");
           setDeleteSuccess(true);
           fetchLancamentos();
         } else {
-          console.error('Erro ao excluir o lançamento');
+          console.error('Error in deleting the release');
           setDeleteSuccess(false);
         }
       } catch (error) {
-        console.error('Erro ao excluir o lançamento', error);
+        console.error('Error in deleting the release', error);
         setDeleteSuccess(false);
       }
     }
   };
 
   const handleUpdate = async (id) => {
-    let newValue = prompt('Insira o novo valor:');
+    let newValue = prompt('Insert the new value:');
     if (newValue < 0){
-      alert("Insira um valor maior do que zero!");
+      alert("Insert a value bigger than zero!");
     } else if (newValue !== null) {
 
       const tipo = lancamentos.find(item => item._id === id)?.tipo;
 
-      if (tipo === 'Despesa') {
+      if (tipo === 'Cost') {
         newValue = -Math.abs(newValue); // Torna o valor negativo
-      } else if (tipo === 'Receita') {
+      } else if (tipo === 'Revenue') {
         newValue = Math.abs(newValue); // Torna o valor positivo
       }
       try {
@@ -92,31 +93,32 @@ const Tabela = () => {
         });
 
         if (response.status === 200) {
-          console.log('Lançamento atualizado com sucesso!');
+          console.log('Release updated successfully!');
+          alert("Release updated successfully!");
           fetchLancamentos();
         } else {
-          console.error('Erro ao atualizar o lançamento');
+          console.error('Error in updating release');
         }
       } catch (error) {
-        console.error('Erro ao atualizar o lançamento', error);
+        console.error('Error in updating release', error);
       }
     }
   };
 
   return (
     <div className="centered-container">
-      <h2>Dados dos Lançamentos</h2>
+      <h2>Financial Releases Data</h2>
       <table>
         <thead>
           <tr>
-            <th>Tipo</th>
-            <th>Descrição</th>
-            <th>Valor</th>
-            <th>Data</th>
-            <th>Área</th>
-            <th>Origem</th>
-            <th>Destino</th>
-            <th>Ações</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Value</th>
+            <th>Date</th>
+            <th>Area</th>
+            <th>Origin</th>
+            <th>Destiny</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>

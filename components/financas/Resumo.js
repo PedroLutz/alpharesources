@@ -124,31 +124,31 @@ const Resumo = () => {
   return (
     <div className="h3-resumo">
       <div className="centered-container">
-        <h2>Resumo</h2>
+        <h2>Report</h2>
 
         <div>
-          <span className="custom-span">Valor em Caixa:<br/>R${totalValor}</span>
+          <span className="custom-span">Cash value:<br/>R${totalValor}</span>
           <br/>
-          <span className="custom-span">Maior receita:<br/>R${maiorValor}</span>
-          <span className="custom-span">Ganhos totais:<br/>R${receitasTotais}</span>
-          <span className="custom-span">Maior despesa:<br/>R${-menorValor}</span>
-          <span className="custom-span">Gastos totais:<br/>R${-despesasTotais}</span>
+          <span className="custom-span">Largest revenue:<br/>R${maiorValor}</span>
+          <span className="custom-span">Total revenue:<br/>R${receitasTotais}</span>
+          <span className="custom-span">Largest cost:<br/>R${-menorValor}</span>
+          <span className="custom-span">Total cost:<br/>R${-despesasTotais}</span>
         </div>
       </div>
      
      {/* div Lançamentos por Área*/}
       <div>
-        <h3>Lançamentos Por Área</h3>
+        <h3>Releases per area</h3>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           <Chart
             width={"100%"}
             height={"400px"}
             chartType="PieChart"
-            loader={<div>Carregando Gráfico</div>}
+            loader={<div>Loading graph</div>}
             data={ReceitasPorAreaGraph}
             options={{
               ...estiloGraph,
-              title: 'Receitas por Área',
+              title: 'Revenues per area',
             }}
             rootProps={{ 'data-testid': '1' }}
           />
@@ -156,11 +156,11 @@ const Resumo = () => {
             width={"100%"}
             height={"400px"}
             chartType="PieChart"
-            loader={<div>Carregando Gráfico</div>}
+            loader={<div>Loading graph</div>}
             data={DespesasPorAreaGraph}
             options={{
               ...estiloGraph,
-              title: 'Despesas Por Área',
+              title: 'Costs per area',
             }}
             rootProps={{ 'data-testid': '1' }}
           />
@@ -170,7 +170,7 @@ const Resumo = () => {
               width={"100%"}
               height={"400px"}
               chartType="ColumnChart"
-              loader={<div>Carregando Gráfico</div>}
+              loader={<div>Loading graph</div>}
               options={{...estiloGraph, colors: ['green', 'red']}}
               data={ValoresPorAreaGraph}
               rootProps={{ 'data-testid': '1' }}
@@ -181,29 +181,29 @@ const Resumo = () => {
 
       {/* div Lançamentos por Mês*/}
       <div>
-      <h3>Lançamentos Por Mês</h3>
+      <h3>Releases per month</h3>
         <div>
           <Chart
               width={"100%"}
               height={"400px"}
               chartType="ColumnChart"
-              loader={<div>Carregando Gráfico</div>}
+              loader={<div>Loading graph</div>}
               data={ValoresPorMesGraph}
               options={{
                 ...estiloGraph,
-                title: 'Lançamentos Por Mês',
+                title: 'Releases per month',
                 colors: ['green', 'red']
               }}
               rootProps={{ 'data-testid': '1' }}
             />
         </div>
         <div>
-          <h3>Caixa Mensal por Mês</h3>
+          <h3>Cash value per month</h3>
           <Chart
               width={"100%"}
               height={"400px"}
               chartType="LineChart"
-              loader={<div>Carregando Gráfico</div>}
+              loader={<div>Loading graph</div>}
               data={CaixaMensalGraph}
               options={{...estiloGraph, 
                 colors: ["#ff00e3"], 
@@ -220,12 +220,12 @@ const Resumo = () => {
 
         {/* div Crescimento dos Gastos*/}
         <div>
-          <h3>Crescimento dos Gastos</h3>
+          <h3>Cost growth per month</h3>
           <Chart
               width={"100%"}
               height={"400px"}
               chartType="LineChart"
-              loader={<div>Carregando Gráfico</div>}
+              loader={<div>Loading graph</div>}
               data={CrescimentoDosGastosGraph}
               options={{...estiloGraph, colors: ["#ff00e3"], 
               series: {

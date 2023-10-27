@@ -32,8 +32,8 @@ const Cadastro = ({ onCadastro }) => {
       });
 
       if (response.ok) {
-        console.log('Lançamento cadastrado com sucesso!');
-        alert("Lançamento cadastrado com sucesso!");
+        console.log('Financial release successfully registered!');
+        alert("Financial release successfully registered!");
 
         if (typeof onCadastro === 'function') {
           onCadastro(formData);
@@ -50,16 +50,16 @@ const Cadastro = ({ onCadastro }) => {
           destino: '',
         });
       } else {
-        console.error('Erro ao cadastrar o lançamento');
+        console.error('Error when registering the release');
       }
     } catch (error) {
-      console.error('Erro ao cadastrar o lançamento', error);
+      console.error('Error when registering the release', error);
     }
   };
 
   return (
     <div className="centered-container">
-      <h2>Cadastrar Lançamento</h2>
+      <h2>Register financial release</h2>
       <form onSubmit={handleSubmit}>
         <div>
           <div className="containerPai">
@@ -67,48 +67,48 @@ const Cadastro = ({ onCadastro }) => {
               <input
                 type="radio"
                 name="tipo"
-                value="Receita"
-                checked={formData.tipo === 'Receita'}
+                value="Revenue"
+                checked={formData.tipo === 'Revenue'}
                 onChange={handleChange}
                 required
               />
               <span className="checkmark"></span>
-              Receita
+              Revenue
             </label>
             <label className="container">
               <input
                 type="radio"
                 name="tipo"
-                value="Despesa"
-                checked={formData.tipo === 'Despesa'}
+                value="Cost"
+                checked={formData.tipo === 'Cost'}
                 onChange={handleChange}
                 required
               />
               <span className="checkmark"></span>
-              Despesa
+              Cost
             </label>
           </div>
           <div className="centered-container">
-            <label htmlFor="descricao">Descrição</label>
+            <label htmlFor="descricao">Description</label>
             <input
               type="text"
               id="descricao"
               name="descricao"
-              placeholder="COMPRA - Adesivos para o Carro"
+              placeholder=""
               onChange={handleChange}
               value={formData.descricao}
               required
             />
-            <label htmlFor="valor">Valor</label>
+            <label htmlFor="valor">Value</label>
           <input
             type="number"
             name="valor"
-            placeholder="420.69"
+            placeholder="R$420.69"
             onChange={handleChange}
             value={formData.valor}
             required
           />
-          <label htmlFor="data">Data</label>
+          <label htmlFor="data">Date</label>
           <input
             type="date"
             name="data"
@@ -116,38 +116,39 @@ const Cadastro = ({ onCadastro }) => {
             value={formData.data}
             required
           />
-          <label htmlFor="area">Área</label>
+          <label htmlFor="area">Area</label>
           <select
             name="area"
             onChange={handleChange}
             value={formData.area}
             required
           >
-            <option value="" disabled select>Selecione uma área</option>
-            <option value="Patrocínio">Patrocínio</option>
-            <option value="Engenharia">Engenharia</option>
-            <option value="Impressão 3D">Impressão 3D</option>
-            <option value="Usinagem">Usinagem</option>
-            <option value="Pintura">Pintura</option>
-            <option value="Marketing">Marketing</option>
-            <option value="Estande">Estande</option>
-            <option value="Viagem">Viagem</option>
+            <option value="" disabled select>Select an area</option>
+            <option value="3D printing">3D printing</option>
+            <option value="Engineering">Engineering</option>
             <option value="Extras">Extras</option>
+            <option value="Marketing">Marketing</option>
+            <option value="Machining">Machining</option>
+            <option value="Painting">Painting</option>
+            <option value="Pit Display">Pit Display</option>
+            <option value="Portfolios">Portfolios</option>
+            <option value="Sponsorship">Sponsorship</option>
+            <option value="Traveling">Traveling</option>
           </select>
-          <label htmlFor="origem">Conta Creditada (Origem)</label>
+          <label htmlFor="origem">Credited Account (Origin)</label>
           <input
             type="text"
             name="origem"
-            placeholder="Patrocinador"
+            placeholder=""
             onChange={handleChange}
             value={formData.origem}
             required
           />
-          <label htmlFor="destino">Conta Debitada (Destino)</label>
+          <label htmlFor="destino">Debited Account (Destiny)</label>
           <input
             type="text"
             name="destino"
-            placeholder="Caixa do time"
+            placeholder=""
             onChange={handleChange}
             value={formData.destino}
             required
@@ -155,7 +156,7 @@ const Cadastro = ({ onCadastro }) => {
           </div>
         </div>
         <div>
-          <button className="botao-cadastro" type="submit">Cadastrar lançamento</button>
+          <button className="botao-cadastro" type="submit">Register financial release</button>
         </div>
       </form>
     </div>

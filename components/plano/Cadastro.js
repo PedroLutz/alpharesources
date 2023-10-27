@@ -36,8 +36,8 @@ const Cadastro = ({ onCadastro }) => {
       });
 
       if (response.ok) {
-        console.log('Plano cadastrado com sucesso!');
-        alert("Plano cadastrado com sucesso!");
+        console.log('Plan successfully registered!');
+        alert("Plan successfully registered!");
 
         if (typeof onCadastro === 'function') {
           onCadastro(formData);
@@ -58,16 +58,16 @@ const Cadastro = ({ onCadastro }) => {
           valor_b: ''
         });
       } else {
-        console.error('Erro ao cadastrar o plano');
+        console.error('Error in registering the plan');
       }
     } catch (error) {
-      console.error('Erro ao cadastrar o plano', error);
+      console.error('Error in registering the plan', error);
     }
   };
 
   return (
     <div className="centered-container">
-      <h1>Cadastrar Plano</h1>
+      <h1>Register Acquisition Plan</h1>
       <form onSubmit={handleSubmit}>
       <div >
           <div class="containerPai">
@@ -75,54 +75,55 @@ const Cadastro = ({ onCadastro }) => {
               <input
                 type="radio"
                 name="plano"
-                value="Pior Cenário"
-                checked={formData.plano === 'Pior Cenário'}
+                value="Worst scenario"
+                checked={formData.plano === 'Worst scenario'}
                 onChange={handleChange}
                 required
               />
               <span class="checkmark"></span>
-              Pior cenário
+              Worst scenario
             </label>
             <label className="container">
               <input
                 type="radio"
                 name="plano"
-                value="Cenário Ideal"
-                checked={formData.plano === 'Cenário Ideal'}
+                value="Ideal scenario"
+                checked={formData.plano === 'Ideal scenario'}
                 onChange={handleChange}
                 required
               />
               <span class="checkmark"></span>
-              Cenário ideal
+              Ideal scenario
             </label>
           </div>
           <div className="centered-container">
-          <label htmlFor="area">Área</label>
+          <label htmlFor="area">Area</label>
           <select
             name="area"
             onChange={handleChange}
             value={formData.area}
             required
           >
-            <option value="" disabled selected>Selecione uma área</option>
-            <option value="Patrocínio">Patrocínio</option>
-            <option value="Engenharia">Engenharia</option>
-            <option value="Impressão 3D">Impressão 3D</option>
-            <option value="Usinagem">Usinagem</option>
-            <option value="Pintura">Pintura</option>
-            <option value="Marketing">Marketing</option>
-            <option value="Estande">Estande</option>
-            <option value="Viagem">Viagem</option>
+            <option value="" disabled select>Select an area</option>
+            <option value="3D printing">3D printing</option>
+            <option value="Engineering">Engineering</option>
             <option value="Extras">Extras</option>
+            <option value="Marketing">Marketing</option>
+            <option value="Machining">Machining</option>
+            <option value="Painting">Painting</option>
+            <option value="Pit Display">Pit Display</option>
+            <option value="Portfolios">Portfolios</option>
+            <option value="Sponsorship">Sponsorship</option>
+            <option value="Traveling">Traveling</option>
           </select>
           </div>
 
           <div className='centered-container'>
-            <label htmlFor="recurso">Recurso</label>
+            <label htmlFor="recurso">Resource</label>
             <input
               type="text"
               name="recurso"
-              placeholder="Recurso"
+              placeholder="Resource"
               onChange={handleChange}
               value={formData.recurso}
               required
@@ -130,7 +131,7 @@ const Cadastro = ({ onCadastro }) => {
           </div>
 
           <div className='centered-container'>
-            <label htmlFor="plano_a">Plano A</label>
+            <label htmlFor="plano_a">Plan A</label>
             <input
               type="text"
               name="plano_a"
@@ -145,30 +146,30 @@ const Cadastro = ({ onCadastro }) => {
               <input
                 type="radio"
                 name="tipo_a"
-                value="Serviço"
-                checked={formData.tipo_a === 'Serviço'}
+                value="Service"
+                checked={formData.tipo_a === 'Service'}
                 onChange={handleChange}
                 required
               />
               <span class="checkmark"></span>
-              Serviço
+              Service
             </label>
             <label className="container">
               <input
                 type="radio"
                 name="tipo_a"
-                value="Produto"
-                checked={formData.tipo_a === 'Produto'}
+                value="Product"
+                checked={formData.tipo_a === 'Product'}
                 onChange={handleChange}
                 required
               />
               <span class="checkmark"></span>
-              Produto
+              Product
             </label>
           </div>
 
           <div className='centered-container'>
-          <label htmlFor="valor_a">Valor</label>
+          <label htmlFor="valor_a">Value</label>
             <input
               type="number"
               name="valor_a"
@@ -179,7 +180,7 @@ const Cadastro = ({ onCadastro }) => {
           </div>
 
           <div className='centered-container'>
-          <label htmlFor="data_esperada">Data Esperada</label>
+          <label htmlFor="data_esperada">Expected date</label>
             <input
               type="date"
               name="data_esperada"
@@ -190,7 +191,7 @@ const Cadastro = ({ onCadastro }) => {
           </div>
 
           <div className='centered-container'>
-          <label htmlFor="data_limite">Data Limite</label>
+          <label htmlFor="data_limite">Critical date</label>
             <input
               type="date"
               name="data_limite"
@@ -201,7 +202,7 @@ const Cadastro = ({ onCadastro }) => {
           </div>
 
           <div className='centered-container'>
-          <label htmlFor="plano_b">Plano B</label>
+          <label htmlFor="plano_b">Plan B</label>
             <input
               type="text"
               name="plano_b"
@@ -216,30 +217,30 @@ const Cadastro = ({ onCadastro }) => {
               <input
                 type="radio"
                 name="tipo_b"
-                value="Serviço"
-                checked={formData.tipo_b === 'Serviço'}
+                value="Service"
+                checked={formData.tipo_b === 'Service'}
                 onChange={handleChange}
                 required
               />
               <span class="checkmark"></span>
-              Serviço
+              Service
             </label>
             <label className="container">
               <input
                 type="radio"
                 name="tipo_b"
-                value="Produto"
-                checked={formData.tipo_b === 'Produto'}
+                value="Product"
+                checked={formData.tipo_b === 'Product'}
                 onChange={handleChange}
                 required
               />
               <span class="checkmark"></span>
-              Produto
+              Product
             </label>
           </div>
 
           <div className='centered-container'>
-            <label htmlFor="valor_b">Valor</label>
+            <label htmlFor="valor_b">Value</label>
             <input
               type="number"
               name="valor_b"
@@ -249,7 +250,7 @@ const Cadastro = ({ onCadastro }) => {
             />
           </div>
         </div>
-        <button className="botao-cadastro" type="submit">Cadastrar plano</button>
+        <button className="botao-cadastro" type="submit">Register acquisition plan</button>
       </form>
     </div>
   );

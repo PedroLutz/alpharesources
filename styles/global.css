@@ -45,7 +45,7 @@ input {
     margin-right: 10px;
     margin-bottom: 10px;
     padding: 5px;
-    width: 500px;
+    width: 800px;
     font-size: 15px;
     text-align: start; 
     display: flex;
@@ -62,7 +62,7 @@ select {
     margin-bottom: 10px;
     padding: 5px;
     font-size: 15px;
-    width: 513px;
+    width: 813px;
     text-align: start; 
     display: flex;
     gap: 0px; 

@@ -36,10 +36,10 @@ const Tabela = () => {
         });
         setPlanos(data.planos);
       } else {
-        console.error('Erro ao buscar dados dos planos');
+        console.error('Error in getting plan data');
       }
     } catch (error) {
-      console.error('Erro ao buscar dados dos planos', error);
+      console.error('Error in getting plan data', error);
     }
   };
 
@@ -48,7 +48,7 @@ const Tabela = () => {
   }, []);
 
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm('Tem certeza de que deseja excluir este plano?');
+    const confirmDelete = window.confirm('Are you sure you want to delete this plan?');
 
     if (confirmDelete) {
       try {
@@ -57,15 +57,16 @@ const Tabela = () => {
         });
 
         if (response.status === 200) {
-          console.log('Plano excluído com sucesso!');
+          console.log('Plan successfully deleted!');
+          alert("Plan successfully deleted!");
           setDeleteSuccess(true);
           fetchPlanos();
         } else {
-          console.error('Erro ao excluir o plano');
+          console.error('Error in deleting plan');
           setDeleteSuccess(false);
         }
       } catch (error) {
-        console.error('Erro ao excluir o plano', error);
+        console.error('Error in deleting plan', error);
         setDeleteSuccess(false);
       }
     }
@@ -73,22 +74,22 @@ const Tabela = () => {
 
   return (
     <div className="centered-container">
-      <h2>Dados dos Recursos Planejados</h2>
+      <h2>Resource Acquisition Plan</h2>
       <table>
         <thead>
           <tr>
-            <th>Plano</th>
-            <th>Área</th>
-            <th>Recurso</th>
-            <th>Plano A</th>
-            <th>Tipo</th>
-            <th>Valor</th>
-            <th>Data Esperada</th>
-            <th>Data Limite</th>
-            <th>Plano B</th>
-            <th>Tipo</th>
-            <th>Valor</th>
-            <th>Opções</th>
+            <th>Scenario</th>
+            <th>Area</th>
+            <th>Resource</th>
+            <th>Plan A</th>
+            <th>Type</th>
+            <th>Value</th>
+            <th>Expected date</th>
+            <th>Critical date</th>
+            <th>Plan B</th>
+            <th>Type</th>
+            <th>Value</th>
+            <th>Options</th>
           </tr>
         </thead>
         <tbody>

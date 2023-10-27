@@ -69,7 +69,7 @@ crescimentoDosGastos.forEach((area) => {
         setCrescimentoDosGastos(crescimentoDosGastos);
       })
       .catch((error) => {
-        console.error('Erro ao buscar informações de resumo', error);
+        console.error('Error in getting report data', error);
       });
   }, []);
 
@@ -93,10 +93,10 @@ crescimentoDosGastos.forEach((area) => {
   return (
     <div className="h3-resumo">
       
-      <h2 className="centered-container">Resumo</h2>
+      <h2 className="centered-container">Report</h2>
      
       <div>
-        <h3>Cenários de gastos</h3>
+        <h3>Cost scenarios</h3>
 
         {/* Pior cenário */}
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -104,10 +104,10 @@ crescimentoDosGastos.forEach((area) => {
             width={'100%'}
             height={'400px'}
             chartType="PieChart"
-            loader={<div>Carregando Gráfico</div>}
+            loader={<div>Loading graph</div>}
             data={piorPlanoPorAreaGraph}
             options={{ ...estiloGraph,
-              title: 'Pior Cenário',
+              title: 'Worst scenario',
             }}
             rootProps={{ 'data-testid': '1' }}
           />
@@ -115,27 +115,28 @@ crescimentoDosGastos.forEach((area) => {
             width={'100%'}
             height={'400px'}
             chartType="PieChart"
-            loader={<div>Carregando Gráfico</div>}
+            loader={<div>Loading graph</div>}
             data={cenarioIdealPorAreaGraph}
             options={{
               ...estiloGraph,
-              title: 'Cenário Ideal',
+              title: 'Worst scenario',
             }}
             rootProps={{ 'data-testid': '1' }}
           />
         </div>
 
         <div className="centered-container" style={{flexDirection: "row"}}>
-          <span className="custom-span">Pior Cenário: R${somaPiorPlano}</span>
-          <span className="custom-span">Cenário Ideal: R${somaCenarioIdeal}</span>
+          <span className="custom-span">Worst scenario: R${somaPiorPlano}</span>
+          <span className="custom-span">Ideal scenario: R${somaCenarioIdeal}</span>
         </div>
 
-        <h3>Linha do tempo esperada</h3>
+        <h3>Expected timeline</h3>
         <div className="centered-container">
             <Chart
                 width={'90%'}
+                height={'700px'}
                 chartType="Timeline"
-                loader={<div>Carregando Gráfico</div>}
+                loader={<div>Loading graph</div>}
                 data={linhaDoTempoEsperadaGraph}
                 options={{...estiloGraph, 
                   timeline: {
@@ -148,12 +149,13 @@ crescimentoDosGastos.forEach((area) => {
             />
         </div>
 
-        <h3>Linha do tempo crítica</h3>
+        <h3>Critical timeline</h3>
         <div className="centered-container">
             <Chart
                 width={'90%'}
+                height={'700px'}
                 chartType="Timeline"
-                loader={<div>Carregando Gráfico</div>}
+                loader={<div>Loading graph</div>}
                 options={{...estiloGraph,
                   timeline: {
                     rowLabelStyle: {
@@ -166,7 +168,7 @@ crescimentoDosGastos.forEach((area) => {
             />
         </div>
 
-        <h3>Crescimento dos Gastos</h3>
+        <h3>Expected monthly cost growth</h3>
         <div className="centered-container">
           <Chart
               width={'100%'}
