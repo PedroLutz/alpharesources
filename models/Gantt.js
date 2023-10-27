@@ -6,6 +6,7 @@ delete mongoose.connection.models['Gantt'];
 // Defina o modelo 'Person' apenas uma vez com a coleção "financas"
 const GanttSchema = new mongoose.Schema({
   codigo: Number,
+  plano: Boolean,
   item: String,
   area: String,
   inicio: Date,
