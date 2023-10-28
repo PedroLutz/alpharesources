@@ -13,17 +13,23 @@ export default async (req, res) => {
       // Consulta para obter a soma de todos os valores
       const somaValores = await Lancamento.aggregate([
         {
+          $match: {
+            tipo: { $ne: 'Exchange' } // Filtra documentos com tipo diferente de 'Exchange'
+          }
+        },
+        {
           $group: {
             _id: null,
             total: { $sum: '$valor' }
           }
         }
       ]);
+      
 
       const receitasTotais = await Lancamento.aggregate([
         {
           $match: {
-            valor: { $gt: 0 } 
+            tipo: { $in: ['Income', 'Exchange'] } // Filtra documentos com 'tipo' igual a 'Income' ou 'Exchange'
           }
         },
         {
@@ -37,22 +43,23 @@ export default async (req, res) => {
       const despesasTotais = await Lancamento.aggregate([
         {
           $match: {
-            valor: { $lt: 0 }
+            tipo: { $in: ['Expense', 'Exchange'] } // Filtra documentos com 'tipo' igual a 'Expense' ou 'Exchange'
           }
         },
         {
           $group: {
             _id: null,
-            total: { $sum: '$valor' }
+            total: { $sum: { $cond: [{ $eq: ['$tipo', 'Expense'] }, '$valor', { $multiply: ['$valor', -1] }] } }
           }
         }
       ]);
+      
 
       // Consulta para obter os valores agrupados por área
       const receitasPorArea = await Lancamento.aggregate([
         {
           $match: {
-            valor: { $gt: 0 } // Filtra valores maiores que zero
+            tipo: { $in: ['Income', 'Exchange'] }
           }
         },
         {
@@ -66,13 +73,13 @@ export default async (req, res) => {
       const despesasPorArea = await Lancamento.aggregate([
         {
           $match: {
-            valor: { $lt: 0 } // Filtra valores maiores que zero
+            tipo: { $in: ['Expense', 'Exchange'] }
           }
         },
         {
           $group: {
             _id: '$area',
-            total: { $sum: '$valor' }
+            total: { $sum: { $cond: [{ $eq: ['$tipo', 'Expense'] }, '$valor', { $multiply: ['$valor', -1] }] } }
           }
         }
       ]);
@@ -80,7 +87,7 @@ export default async (req, res) => {
       const receitasPorMes = await Lancamento.aggregate([
         {
           $match: {
-            valor: { $gt: 0 } // Filtra valores maiores que zero
+            tipo: { $in: ['Income', 'Exchange'] } // Filtra documentos com 'tipo' igual a 'Income'
           }
         },
         {
@@ -108,7 +115,7 @@ export default async (req, res) => {
       const despesasPorMes = await Lancamento.aggregate([
         {
           $match: {
-            valor: { $lt: 0 } // Filtra valores menores que zero (despesas)
+            tipo: { $in: ['Expense', 'Exchange'] }
           }
         },
         {
@@ -119,19 +126,26 @@ export default async (req, res) => {
                 date: '$data' // Campo da data
               }
             },
-            valor: 1 // Mantém o campo 'valor' no resultado
+            valor: {
+              $cond: [
+                { $eq: ['$tipo', 'Exchange'] },
+                { $multiply: ['$valor', -1] }, // Multiplica por -1 para tornar os valores 'Exchange' negativos
+                '$valor'
+              ]
+            }
           }
         },
         {
           $group: {
             _id: '$monthYear', // Agrupa por mês/ano
-            total: { $sum: '$valor' } // Soma os valores para cada mês/ano
+            total: { $sum: '$valor' }
           }
         },
         {
           $sort: { _id: 1 } // Ordena por mês/ano
         }
-      ]);      
+      ]);
+         
 
       const maiorEMenorValor = await Lancamento.aggregate([
         {

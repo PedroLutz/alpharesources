@@ -87,6 +87,18 @@ const Cadastro = ({ onCadastro }) => {
               <span className="checkmark"></span>
               Expense
             </label>
+            <label className="container">
+              <input
+                type="radio"
+                name="tipo"
+                value="Exchange"
+                checked={formData.tipo === 'Exchange'}
+                onChange={handleChange}
+                required
+              />
+              <span className="checkmark"></span>
+              Exchange
+            </label>
           </div>
           <div className="centered-container">
             <label htmlFor="descricao">Description</label>
@@ -123,7 +135,7 @@ const Cadastro = ({ onCadastro }) => {
             value={formData.area}
             required
           >
-            <option value="" disabled select>Select an area</option>
+            <option value="" disabled>Select an area</option>
             <option value="3D printing">3D printing</option>
             <option value="Engineering">Engineering</option>
             <option value="Extras">Extras</option>
