@@ -75,6 +75,7 @@ const Tabela = () => {
   return (
     <div className="centered-container">
       <h2>Resource Acquisition Plan</h2>
+      <div className="centered-container">
       <table>
         <thead>
           <tr>
@@ -86,9 +87,6 @@ const Tabela = () => {
             <th>Value</th>
             <th>Expected date</th>
             <th>Critical date</th>
-            <th>Plan B</th>
-            <th>Type</th>
-            <th>Value</th>
             <th>Options</th>
           </tr>
         </thead>
@@ -103,9 +101,6 @@ const Tabela = () => {
               <td><b>R${item.valor_a}</b></td>
               <td>{item.data_esperada}</td>
               <td>{item.data_limite}</td>
-              <td>{item.plano_b}</td>
-              <td>{item.tipo_b}</td>
-              <td>R${item.valor_b}</td>
               <td style={{width: '75px'}}>
                 <div className="botoes-acoes">
                   <button style={{color: 'red'}} onClick={() => handleDelete(item._id)}>X</button>
@@ -115,6 +110,40 @@ const Tabela = () => {
           ))}
         </tbody>
       </table>
+      </div>
+
+      <div className="centered-container" style={{marginTop: '50px'}}>
+        <table style={{width: '100%'}}>
+          <thead>
+            <tr>
+              <th>Scenario</th>
+              <th>Area</th>
+              <th>Resource</th>
+              <th>Plan B</th>
+              <th>Type</th>
+              <th>Value</th>
+              <th>Options</th>
+            </tr>
+          </thead>
+          <tbody>
+            {planos.map((item, index) => (
+              <tr key={index}>
+                <td  style={{padding: '10px'}}>{item.plano}</td>
+                <td>{item.area}</td>
+                <td>{item.recurso}</td>
+                <td>{item.plano_b}</td>
+                <td>{item.tipo_b}</td>
+                <td><b>R${item.valor_b}</b></td>
+                <td style={{width: '75px'}}>
+                  <div className="botoes-acoes">
+                    <button style={{color: 'red'}} onClick={() => handleDelete(item._id)}>X</button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
