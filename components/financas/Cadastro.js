@@ -67,25 +67,25 @@ const Cadastro = ({ onCadastro }) => {
               <input
                 type="radio"
                 name="tipo"
-                value="Revenue"
-                checked={formData.tipo === 'Revenue'}
+                value="Income"
+                checked={formData.tipo === 'Income'}
                 onChange={handleChange}
                 required
               />
               <span className="checkmark"></span>
-              Revenue
+              Income
             </label>
             <label className="container">
               <input
                 type="radio"
                 name="tipo"
-                value="Cost"
-                checked={formData.tipo === 'Cost'}
+                value="Expense"
+                checked={formData.tipo === 'Expense'}
                 onChange={handleChange}
                 required
               />
               <span className="checkmark"></span>
-              Cost
+              Expense
             </label>
           </div>
           <div className="centered-container">
