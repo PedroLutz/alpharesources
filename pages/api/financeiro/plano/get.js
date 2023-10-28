@@ -13,7 +13,7 @@ export default async (req, res) => {
       const piorPlanoPorArea = await Plano.aggregate([
         {
           $match: {
-            plano: "Pior Cenário" // Filtra apenas os planos com nome "Pior Plano"
+            plano: "Worst scenario" // Filtra apenas os planos com nome "Pior Plano"
           }
         },
         {
@@ -29,7 +29,7 @@ export default async (req, res) => {
       const cenarioIdealPorArea = await Plano.aggregate([
         {
           $match: {
-            plano: "Cenário Ideal" // Filtra apenas os planos com nome "Pior Plano"
+            plano: "Ideal scenario" // Filtra apenas os planos com nome "Pior Plano"
           }
         },
         {
@@ -45,7 +45,7 @@ export default async (req, res) => {
       const linhaDoTempo = await Plano.aggregate([
         {
           $match: {
-            plano: "Cenário Ideal"
+            plano: "Ideal scenario"
           }
         },
         {
@@ -60,7 +60,7 @@ export default async (req, res) => {
       const crescimentoDosGastos = await Plano.aggregate([
         {
           $match: {
-            plano: "Cenário Ideal"
+            plano: "Ideal scenario"
           }
         },
         {
