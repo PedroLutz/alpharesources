@@ -129,9 +129,9 @@ const Resumo = () => {
         <div>
           <span className="custom-span">Cash value:<br/>R${totalValor}</span>
           <br/>
-          <span className="custom-span">Largest revenue:<br/>R${maiorValor}</span>
+          <span className="custom-span">Largest income:<br/>R${maiorValor}</span>
           <span className="custom-span">Total revenue:<br/>R${receitasTotais}</span>
-          <span className="custom-span">Largest cost:<br/>R${-menorValor}</span>
+          <span className="custom-span">Largest expense:<br/>R${-menorValor}</span>
           <span className="custom-span">Total cost:<br/>R${-despesasTotais}</span>
         </div>
       </div>
