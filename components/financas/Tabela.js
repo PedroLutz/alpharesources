@@ -116,8 +116,8 @@ const Tabela = () => {
             <th>Value</th>
             <th>Date</th>
             <th>Area</th>
-            <th>Origin</th>
-            <th>Destiny</th>
+            <th style={{width:'10%'}}>Origin</th>
+            <th style={{width:'10%'}}>Destiny</th>
             <th>Actions</th>
           </tr>
         </thead>
