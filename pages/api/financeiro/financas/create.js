@@ -9,7 +9,7 @@ export default async (req, res) => {
     if (req.method === 'POST') {
       const { tipo, descricao, valor, data, area, origem, destino } = req.body;
 
-      const valorAjustado = tipo === 'Despesa' ? -1 * valor : valor;
+      const valorAjustado = tipo === 'Expense' ? -1 * valor : valor;
 
       // Crie um novo objeto Person com os dados da solicitação
       const newLancamento = new Lancamento({
