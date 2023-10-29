@@ -74,19 +74,19 @@ crescimentoDosGastos.forEach((area) => {
   }, []);
 
   const estiloGraph = {
-    backgroundColor: '#1B1B1B',
+    backgroundColor: 'transparent',
     titleTextStyle: {
-      color: "white"
+      color: "black"
     },
     legend: {
-      textStyle: {color: 'white'}
+      textStyle: {color: 'black'}
     },
     hAxis: {
-      textStyle: {color: 'white'},
-      gridlines: {color: 'white'}
+      textStyle: {color: 'black'},
+      gridlines: {color: 'black'}
     },
     vAxis: {
-      textStyle: {color: 'white'},
+      textStyle: {color: 'black'},
     },
   }
 
@@ -141,7 +141,7 @@ crescimentoDosGastos.forEach((area) => {
                 options={{...estiloGraph, 
                   timeline: {
                     rowLabelStyle: {
-                      color: 'white'
+                      color: 'black'
                     }
                   }
                 }}
@@ -159,7 +159,7 @@ crescimentoDosGastos.forEach((area) => {
                 options={{...estiloGraph,
                   timeline: {
                     rowLabelStyle: {
-                      color: 'white'
+                      color: 'black'
                     },
                   }
                 }}
@@ -176,7 +176,7 @@ crescimentoDosGastos.forEach((area) => {
               chartType="LineChart"
               loader={<div>Carregando Gráfico</div>}
               data={crescimentoDosGastosGraph}
-              options={{...estiloGraph, }}
+              options={{...estiloGraph, colors: ["#ff00e3"]}}
               rootProps={{ 'data-testid': '1' }}
             />
         </div>

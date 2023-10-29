@@ -105,19 +105,19 @@ const Resumo = () => {
   }, []);
 
   const estiloGraph = {
-    backgroundColor: '#1B1B1B',
+    backgroundColor: 'transparent',
     titleTextStyle: {
-      color: "white"
+      color: "black"
     },
     legend: {
-      textStyle: {color: 'white'}
+      textStyle: {color: 'black'}
     },
     hAxis: {
-      textStyle: {color: 'white'},
-      gridlines: {color: 'white'}
+      textStyle: {color: 'black'},
+      gridlines: {color: 'black'}
     },
     vAxis: {
-      textStyle: {color: 'white'},
+      textStyle: {color: 'black'},
     },
   }
 

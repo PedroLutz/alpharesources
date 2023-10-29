@@ -1,7 +1,7 @@
 body {
     font-family: 'Montserrat';
-    background-color: #1B1B1B;
-    color: white;
+    background-color: white;
+    color: black;
     padding: 0;
     margin: 0;
 }
@@ -14,16 +14,17 @@ body {
     cursor: pointer;
     margin-top: -6px;
     margin-bottom: -10px;
-    color: white;
+    color: rgb(0, 0, 0);
     margin-right: 5px;
 
 }
 
 .botao-cadastro {
     color: white;
+    font-size: 15px;
     font-family: 'Montserrat';
     border-color: white;
-    height: 30px;
+    height: 100%;
     border-radius: 10px;
     padding: 5px;
     margin-right: 5px;
@@ -37,11 +38,11 @@ label {
 }
 
 input {
-    color: white;
+    color: black;
     font-family: 'Montserrat';
     border-radius: 10px;
-    border-color: white;
-    background-color: black;
+    border-color: rgb(0, 0, 0);
+    background-color: rgb(228, 228, 228);
     margin-right: 10px;
     margin-bottom: 10px;
     padding: 5px;
@@ -53,9 +54,9 @@ input {
 }
 
 select {
-    color: white;
-    border-color: white;
-    background-color: black;
+    color: black;
+    border-color: black;
+    background-color: rgb(228, 228, 228);
     font-family: 'Montserrat';
     border-radius: 10px;
     margin-right: 10px;
@@ -74,11 +75,16 @@ select {
 table {
     border-collapse: collapse;
     width: 95%;
-    border: 1px solid white;
+    border: 1px solid rgb(0, 0, 0);
 }
 
 td {
-    border: 1px dotted white;
+    border: 1px dotted rgb(0, 0, 0);
+    padding: 3px; 
+}
+
+th {
+    border: 1px dotted rgb(0, 0, 0);
     padding: 3px; 
 }
 
@@ -92,13 +98,14 @@ span.custom-span {
     padding: 10px;
     border-radius: 15px;
     border: 1px solid #9006e3;
-    background-color: black;
+    background-color: #9006e3;
     font-size: 18px;
     color: white; /* Define a cor do texto como branca */
+    transition: background-color 0.2s ease;
   }
 
 span.custom-span:hover {
-    background-color: #1f0231;
+    background-color: #550586;
 }
 
 @font-face {

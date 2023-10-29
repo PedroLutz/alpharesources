@@ -33,7 +33,7 @@
     left: 0;
     height: 15px;
     width: 15px;
-    background-color: #eee;
+    background-color: rgb(228, 228, 228);
     border-radius: 50%;
   }
 
@@ -48,7 +48,7 @@
   }
 
 .container:hover input ~ .checkmark {
-    background-color: #b392b1;
+    background-color: #f006e3;
 }
 
 .container input:checked ~ .checkmark {

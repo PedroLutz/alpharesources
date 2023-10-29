@@ -104,7 +104,7 @@ const Cadastro = ({ onCadastro }) => {
             value={formData.area}
             required
           >
-            <option value="" disabled select>Select an area</option>
+            <option value="" disabled>Select an area</option>
             <option value="3D printing">3D printing</option>
             <option value="Engineering">Engineering</option>
             <option value="Extras">Extras</option>

@@ -4,8 +4,8 @@ import Link from 'next/link';
 const Navbar = () => {
     return (
 
-      <nav>
-        <h2>Alpha Resources/Acquisition planning</h2>
+      <nav style={{color: 'white'}}>
+        <h2><Link href="/plano/cadastro">Alpha Resources/Acquisition planning</Link></h2>
         <img src={'/images/logo.png'} alt="Logo" style={{width: '80px'}}/>
         <ul>
           <li>

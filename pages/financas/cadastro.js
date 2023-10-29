@@ -1,6 +1,6 @@
 import React from 'react';
-import Cadastro from '../../components/financas/Cadastro';
-import Navbar from '../../components/financas/Navegador';
+import Cadastro from '../../components/financeiro/financas/Cadastro';
+import Navbar from '../../components/financeiro/financas/Navegador';
 
 function CadastroPage() {
   return (
