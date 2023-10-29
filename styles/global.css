@@ -136,3 +136,40 @@ span.custom-span:hover {
 .h3-resumo h3{
     margin: 30px
 }
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Cor de fundo semi-transparente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Certifique-se de que este valor seja maior do que o restante do conteúdo da página */
+  }
+  
+  .modal {
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column; /* Informações dispostas uma em cima da outra */
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .modal p {
+    margin-bottom: 10px; /* Adiciona espaço entre os parágrafos */
+  }
+  
+  .modal button {
+    width: 100px;
+    margin: 5px;
+    display: inline-block; /* Os botões ficarão lado a lado */
+  }
+  
+
+  
