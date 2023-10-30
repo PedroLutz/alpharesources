@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 
 const Cadastro = ({ onCadastro }) => {
+  const [registerSuccess, setRegisterSuccess] = useState(false);
   const [formData, setFormData] = useState({
     tipo: '',
     descricao: '',
@@ -11,6 +12,10 @@ const Cadastro = ({ onCadastro }) => {
     origem: '',
     destino: '',
   });
+
+  const handleCloseModal = () => {
+    setRegisterSuccess(false);
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -33,7 +38,6 @@ const Cadastro = ({ onCadastro }) => {
 
       if (response.ok) {
         console.log('Financial release successfully registered!');
-        alert("Financial release successfully registered!");
 
         if (typeof onCadastro === 'function') {
           onCadastro(formData);
@@ -49,6 +53,8 @@ const Cadastro = ({ onCadastro }) => {
           origem: '',
           destino: '',
         });
+
+        setRegisterSuccess(true);
       } else {
         console.error('Error when registering the release');
       }
@@ -171,6 +177,16 @@ const Cadastro = ({ onCadastro }) => {
           <button className="botao-cadastro" type="submit">Register financial release</button>
         </div>
       </form>
+
+      {registerSuccess && (
+        <div className="overlay">
+          <div className="modal">
+            <p>{registerSuccess ? 'Register successful!' : 'Register failed.'}</p>
+            <button className="botao-cadastro" onClick={handleCloseModal}>Close</button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

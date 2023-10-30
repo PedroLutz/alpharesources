@@ -91,10 +91,10 @@ const Tabela = () => {
       {confirmDeleteItem && (
         <div className="overlay">
             <div className="modal">
-            <p>Tem certeza de que deseja excluir o item: {confirmDeleteItem.item}?</p>
+            <p>Are you sure you want to delete "{confirmDeleteItem.item}"?</p>
                 <div style={{display: 'flex', gap: '10px'}}>
-                    <button onClick={handleConfirmDelete}>Confirmar</button>
-                    <button onClick={() => setConfirmDeleteItem(null)}>Cancelar</button>
+                    <button className="botao-cadastro" onClick={handleConfirmDelete}>Confirm</button>
+                    <button className="botao-cadastro" onClick={() => setConfirmDeleteItem(null)}>Cancel</button>
                 </div>
             </div>
         </div>

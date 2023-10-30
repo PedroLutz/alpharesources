@@ -20,6 +20,41 @@ const formatDate = (dateString) => {
 const Tabela = () => {
   const [lancamentos, setLancamentos] = useState([]);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
+  const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
+  const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
+  const [novosDados, setNovosDados] = useState({
+    tipo: '',
+    descricao: '',
+    valor: '',
+    data: '',
+    area: '',
+    origem: '',
+    destino: ''
+  });
+
+  const handleChange = (e) => {
+    setNovosDados({
+      ...novosDados,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleClick = (item) => {
+    setConfirmDeleteItem(item);
+  };
+
+  const handleUpdateClick = (item) => {
+    setConfirmUpdateItem(item);
+    setNovosDados({
+      tipo: item.tipo,
+      descricao: item.descricao,
+      valor: item.valor,
+      data: item.data,
+      area: item.area,
+      origem: item.origem,
+      destino: item.destino,
+    });
+  };
 
   const fetchLancamentos = async () => {
     try {
@@ -45,56 +80,47 @@ const Tabela = () => {
     fetchLancamentos();
   }, []);
 
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm('Are you sure you want to delete this release?');
-
-    if (confirmDelete) {
-      try {
-        const response = await fetch(`/api/financeiro/financas/delete?id=${String(id)}`, {
-          method: 'DELETE',
-        });
-
-        if (response.status === 200) {
-          console.log('Release deleted successfully!');
-          alert("Release deleted successfully!");
-          setDeleteSuccess(true);
+  const handleConfirmDelete = () => {
+    if (confirmDeleteItem) {
+      fetch(`/api/financeiro/financas/delete?id=${confirmDeleteItem._id}`, {
+        method: 'DELETE',
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data.message); // Exibir uma mensagem de sucesso
+          // Atualize os dados na tabela após a exclusão
+          // Você pode recarregar a página ou atualizar os dados de outra forma
           fetchLancamentos();
-        } else {
-          console.error('Error in deleting the release');
-          setDeleteSuccess(false);
-        }
-      } catch (error) {
-        console.error('Error in deleting the release', error);
-        setDeleteSuccess(false);
-      }
+          setDeleteSuccess(true);
+        })
+        .catch((error) => {
+          console.error('Erro ao excluir elemento', error);
+        });
     }
+    setConfirmDeleteItem(null);
   };
 
-  const handleUpdate = async (id) => {
-    let newValue = prompt('Insert the new value:');
-    if (newValue < 0){
-      alert("Insert a value bigger than zero!");
-    } else if (newValue !== null) {
+  const handleCloseModal = () => {
+    setDeleteSuccess(false);
+  };
 
-      const tipo = lancamentos.find(item => item._id === id)?.tipo;
+  const handleUpdateItem = async () => {
+    if (confirmUpdateItem) {
+      const isExpense = confirmUpdateItem.tipo === "Expense";
+      const newValueWithSign = isExpense ? -novosDados.valor : novosDados.valor;
+      const { tipo, descricao, valor, data, area, origem, destino } = novosDados;
 
-      if (tipo === 'Cost') {
-        newValue = -Math.abs(newValue); // Torna o valor negativo
-      } else if (tipo === 'Revenue') {
-        newValue = Math.abs(newValue); // Torna o valor positivo
-      }
       try {
-        const response = await fetch(`/api/financeiro/financas/update?id=${String(id)}`, {
+        const response = await fetch(`/api/financeiro/financas/update?id=${String(confirmUpdateItem._id)}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ valor: parseFloat(newValue) }), // Converter o novo valor para número
+          body: JSON.stringify({ tipo, descricao, valor: newValueWithSign, data, area, origem, destino }), // Converter o novo valor para número
         });
 
         if (response.status === 200) {
           console.log('Release updated successfully!');
-          alert("Release updated successfully!");
           fetchLancamentos();
         } else {
           console.error('Error in updating release');
@@ -103,7 +129,18 @@ const Tabela = () => {
         console.error('Error in updating release', error);
       }
     }
+    setConfirmUpdateItem(null);
+    setNovosDados({
+      tipo: '',
+      descricao: '',
+      valor: '',
+      data: '',
+      area: '',
+      origem: '',
+      destino: ''
+    })
   };
+
 
   return (
     <div className="centered-container">
@@ -129,7 +166,7 @@ const Tabela = () => {
                 {item.descricao}
               </td>
               <td style={{ color: item.tipo === 'Income' ? 'green' : (item.tipo === 'Exchange' ? '#335EFF' : 'red') }}>
-                <b>R${Math.abs(item.valor)}</b>
+                <b>R${Math.abs(item.valor).toFixed(2)}</b>
               </td>
               <td>{item.data}</td>
               <td>{item.area}</td>
@@ -137,14 +174,149 @@ const Tabela = () => {
               <td>{item.destino}</td>
               <td>
                 <div className="botoes-acoes">
-                  <button style={{color: 'red'}} onClick={() => handleDelete(item._id)}>X</button>
-                  <button onClick={() => handleUpdate(item._id)}>$</button>
+                  <button style={{color: 'red'}} onClick={() => handleClick(item)}>X</button>
+                  <button onClick={() => handleUpdateClick(item)}>$</button>
                 </div>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      {confirmDeleteItem && (
+        <div className="overlay">
+            <div className="modal">
+            <p>Are you sure you want to delete "{confirmDeleteItem.descricao}"?</p>
+                <div style={{display: 'flex', gap: '10px'}}>
+                    <button className="botao-cadastro" onClick={handleConfirmDelete}>Confirm</button>
+                    <button className="botao-cadastro" onClick={() => setConfirmDeleteItem(null)}>Cancel</button>
+                </div>
+            </div>
+        </div>
+      )}
+
+      {deleteSuccess && (
+        <div className="overlay">
+          <div className="modal">
+            <p>{deleteSuccess ? 'Deletion successful!' : 'Deletion failed.'}</p>
+            <button className="botao-cadastro" onClick={handleCloseModal}>Close</button>
+          </div>
+        </div>
+      )}
+
+      {confirmUpdateItem && (
+        <div className="overlay"> 
+          <div className="modal">
+            <div className="containerPai">
+              <label className="container">
+                <input
+                  type="radio"
+                  name="tipo"
+                  value="Income"
+                  checked={novosDados.tipo === 'Income'}
+                  onChange={handleChange}
+                  required
+                />
+                <span className="checkmark"></span>
+                Income
+              </label>
+              <label className="container">
+                <input
+                  type="radio"
+                  name="tipo"
+                  value="Expense"
+                  checked={novosDados.tipo === 'Expense'}
+                  onChange={handleChange}
+                  required
+                />
+                <span className="checkmark"></span>
+                Expense
+              </label>
+              <label className="container">
+                <input
+                  type="radio"
+                  name="tipo"
+                  value="Exchange"
+                  checked={novosDados.tipo === 'Exchange'}
+                  onChange={handleChange}
+                  required
+                />
+                <span className="checkmark"></span>
+                Exchange
+              </label>
+            </div>
+            <div className="centered-container">
+              <label htmlFor="descricao">Description</label>
+              <input
+                type="text"
+                id="descricao"
+                name="descricao"
+                placeholder=""
+                onChange={handleChange}
+                value={novosDados.descricao}
+                required
+              />
+              <label htmlFor="valor">Value</label>
+              <input
+                type="number"
+                name="valor"
+                onChange={handleChange}
+                value={novosDados.valor}
+                required
+              />
+              <label htmlFor="data">Date</label>
+              <input
+                type="date"
+                name="data"
+                onChange={handleChange}
+                value={novosDados.data}
+                required
+              />
+              <label htmlFor="area">Area</label>
+              <select
+                name="area"
+                onChange={handleChange}
+                value={novosDados.area}
+                required
+              >
+                <option value="" disabled>Select an area</option>
+                <option value="3D printing">3D printing</option>
+                <option value="Engineering">Engineering</option>
+                <option value="Extras">Extras</option>
+                <option value="Marketing">Marketing</option>
+                <option value="Machining">Machining</option>
+                <option value="Painting">Painting</option>
+                <option value="Pit Display">Pit Display</option>
+                <option value="Portfolios">Portfolios</option>
+                <option value="Sponsorship">Sponsorship</option>
+                <option value="Traveling">Traveling</option>
+              </select>
+              <label htmlFor="origem">Credited Account (Origin)</label>
+              <input
+                type="text"
+                name="origem"
+                placeholder=""
+                onChange={handleChange}
+                value={novosDados.origem}
+                required
+              />
+              <label htmlFor="destino">Debited Account (Destiny)</label>
+              <input
+                type="text"
+                name="destino"
+                placeholder=""
+                onChange={handleChange}
+                value={novosDados.destino}
+                required
+              />
+            </div>
+            <div style={{display: 'flex', gap: '10px'}}>
+              <button className="botao-cadastro" onClick={handleUpdateItem}>Update</button>
+              <button className="botao-cadastro" onClick={() => setConfirmUpdateItem(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

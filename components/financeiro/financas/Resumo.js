@@ -127,12 +127,12 @@ const Resumo = () => {
         <h2>Report</h2>
 
         <div>
-          <span className="custom-span">Cash value:<br/>R${totalValor}</span>
+          <span className="custom-span">Cash value:<br/>R${Number(totalValor).toFixed(2)}</span>
           <br/>
-          <span className="custom-span">Largest income:<br/>R${maiorValor}</span>
-          <span className="custom-span">Total revenue:<br/>R${receitasTotais}</span>
-          <span className="custom-span">Largest expense:<br/>R${-menorValor}</span>
-          <span className="custom-span">Total cost:<br/>R${-despesasTotais}</span>
+          <span className="custom-span">Largest income:<br/>R${Number(maiorValor).toFixed(2)}</span>
+          <span className="custom-span">Total revenue:<br/>R${Number(receitasTotais).toFixed(2)}</span>
+          <span className="custom-span">Largest expense:<br/>R${Number(-menorValor).toFixed(2)}</span>
+          <span className="custom-span">Total cost:<br/>R${Number(-despesasTotais).toFixed(2)}</span>
         </div>
       </div>
      

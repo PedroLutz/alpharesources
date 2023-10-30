@@ -15,15 +15,15 @@ export default async (req, res) => {
       }
 
       // Os dados atualizados do lançamento podem ser passados no corpo da solicitação
-      const { valor } = req.body; // Você pode adicionar outros campos conforme necessário
+      const { tipo, descricao, valor, data, area, origem, destino } = req.body; // Você pode adicionar outros campos conforme necessário
 
       // Verifique se o valor é fornecido
-      if (!valor) {
+      if (!tipo || !descricao || !valor || !data || !area || !origem || !destino) {
         return res.status(400).json({ error: 'O valor do lançamento é obrigatório para a atualização.' });
       }
 
       // Atualize o lançamento no banco de dados
-      const updatedLancamento = await Lancamento.findByIdAndUpdate(id, { valor }, { new: true });
+      const updatedLancamento = await Lancamento.findByIdAndUpdate(id, { tipo, descricao, valor, data, area, origem, destino }, { new: true });
 
       if (!updatedLancamento) {
         return res.status(404).json({ error: 'Lançamento não encontrado.' });
