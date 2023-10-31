@@ -54,7 +54,8 @@ const Tabela = () => {
   }, []);
 
   return (
-    <div>
+    <div className="centered-container">
+      <h2>Work Breakdown Structure</h2>
       <table>
         <thead>
           <tr>
@@ -69,7 +70,7 @@ const Tabela = () => {
             <td>Itens</td>
             {Object.keys(elementos).map((area, index) => (
               <td key={index}>
-                <ul>
+                <ol>
                   {elementos[area]
                     .sort((a, b) => a.codigo - b.codigo)
                     .map((item, itemIndex) => (
@@ -81,7 +82,7 @@ const Tabela = () => {
                         {item.item}
                       </li>
                     ))}
-                </ul>
+                </ol>
               </td>
             ))}
           </tr>

@@ -5,7 +5,6 @@ delete mongoose.connection.models['Elemento'];
 
 // Defina o modelo 'Person' apenas uma vez com a coleção "financas"
 const workBsSchema = new mongoose.Schema({
-  codigo: Number,
   item: String,
   area: String,
 }, { collection: 'workbs' }); // Defina o nome da coleção aqui

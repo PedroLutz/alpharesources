@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 
 const Cadastro = ({ onCadastro }) => {
   const [formData, setFormData] = useState({
-    codigo: '',
     item: '',
     area: '',
   });
@@ -22,6 +21,7 @@ const Cadastro = ({ onCadastro }) => {
       if (response.status === 200) {
         const data = await response.json();
         setElementos(data.elementos);
+
       } else {
         console.error('Error in searching for financal releases data');
       }
@@ -78,10 +78,10 @@ const Cadastro = ({ onCadastro }) => {
         // Chama a função de cadastro passada como prop
         // Limpa os campos após o envio do formulário
         setFormData({
-            codigo: '',
             item: '',
             area: '',
         });
+        fetchElementos();
       } else {
         console.error('Error when registering the breakdown element');
       }
@@ -96,23 +96,13 @@ const Cadastro = ({ onCadastro }) => {
       <form onSubmit={handleSubmit}>
         <div>
           <div className="centered-container">
-            <label htmlFor="codigo" style={{alignSelf: 'center', marginLeft: -11}}>Code</label>
-            <input
-              style={{width: '50px'}}
-              type="number"
-              id="codigo"
-              name="codigo"
-              placeholder=""
-              onChange={handleChange}
-              value={formData.codigo}
-              required
-            />
-            <label htmlFor="area">Area</label>
+            <label htmlFor="area" style={{alignSelf: 'center', marginLeft: -11}}>Area</label>
             {mostrarInputNovaArea ? (
               <input
                 type="text"
                 id="area"
                 name="area"
+                style={{width:'250px'}}
                 placeholder=""
                 onChange={handleChange}
                 value={formData.area}
@@ -122,6 +112,7 @@ const Cadastro = ({ onCadastro }) => {
               <select
                 name="area"
                 onChange={handleChange}
+                style={{width:'264px', height: '33px'}}
                 value={formData.area}
                 required
               >
@@ -138,12 +129,13 @@ const Cadastro = ({ onCadastro }) => {
           >
             {getButtonLabel()}
           </button>
-            <label htmlFor="area">Item</label>
+            <label htmlFor="item" style={{alignSelf: 'center', marginLeft: -11}}>Item</label>
             <input
                 type="text"
                 id="item"
                 name="item"
                 placeholder=""
+                style={{width:'400px'}}
                 onChange={handleChange}
                 value={formData.item}
                 required

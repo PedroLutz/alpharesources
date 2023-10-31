@@ -44,11 +44,18 @@ const Tabela = () => {
   };
 
   const handleUpdateClick = (item) => {
+    let valorCorrigido = 0;
+    if(Number(item.valor) < 0){
+      valorCorrigido = -Number(item.valor);
+    } else {
+      valorCorrigido = item.valor;
+    }
+
     setConfirmUpdateItem(item);
     setNovosDados({
       tipo: item.tipo,
       descricao: item.descricao,
-      valor: item.valor,
+      valor: valorCorrigido,
       data: item.data,
       area: item.area,
       origem: item.origem,

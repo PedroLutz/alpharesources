@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 
 const Cadastro = ({ onCadastro }) => {
+  const [registerSuccess, setRegisterSuccess] = useState(false);
   const [formData, setFormData] = useState({
     plano: '',
     area: '',
@@ -15,6 +16,10 @@ const Cadastro = ({ onCadastro }) => {
     tipo_b: '',
     valor_b: ''
   });
+
+  const handleCloseModal = () => {
+    setRegisterSuccess(false);
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -36,9 +41,6 @@ const Cadastro = ({ onCadastro }) => {
       });
 
       if (response.ok) {
-        console.log('Plan successfully registered!');
-        alert("Plan successfully registered!");
-
         if (typeof onCadastro === 'function') {
           onCadastro(formData);
         }
@@ -56,7 +58,10 @@ const Cadastro = ({ onCadastro }) => {
           plano_b: '',
           tipo_b: '',
           valor_b: ''
+          
         });
+        console.log('Plan successfully registered!');
+        setRegisterSuccess(true);
       } else {
         console.error('Error in registering the plan');
       }
@@ -252,6 +257,15 @@ const Cadastro = ({ onCadastro }) => {
         </div>
         <button className="botao-cadastro" type="submit">Register acquisition plan</button>
       </form>
+
+      {registerSuccess && (
+        <div className="overlay">
+          <div className="modal">
+            <p>{registerSuccess ? 'Register successful!' : 'Register failed.'}</p>
+            <button className="botao-cadastro" onClick={handleCloseModal}>Close</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

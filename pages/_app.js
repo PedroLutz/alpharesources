@@ -3,7 +3,7 @@ import Head from 'next/head';
 
 import '../styles/global.css';
 import '../styles/radio.css';
-import '../styles/navbar.css'; // Importe seus estilos globais que incluem a fonte Montserrat
+import '../styles/navbar.css';
 
 function MyApp({ Component, pageProps }) {
   

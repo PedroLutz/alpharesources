@@ -21,6 +21,15 @@ const formatDate = (dateString) => {
 const Tabela = () => {
   const [planos, setPlanos] = useState([]);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
+  const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
+
+  const handleClick = (item) => {
+    setConfirmDeleteItem(item);
+  };
+
+  const handleCloseModal = () => {
+    setDeleteSuccess(false);
+  };
 
   const fetchPlanos = async () => {
     try {
@@ -47,29 +56,24 @@ const Tabela = () => {
     fetchPlanos();
   }, []);
 
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm('Are you sure you want to delete this plan?');
-
-    if (confirmDelete) {
-      try {
-        const response = await fetch(`/api/financeiro/plano/delete?id=${String(id)}`, {
-          method: 'DELETE',
-        });
-
-        if (response.status === 200) {
-          console.log('Plan successfully deleted!');
-          alert("Plan successfully deleted!");
-          setDeleteSuccess(true);
+  const handleConfirmDelete = () => {
+    if (confirmDeleteItem) {
+      fetch(`/api/financeiro/plano/delete?id=${confirmDeleteItem._id}`, {
+        method: 'DELETE',
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data.message); // Exibir uma mensagem de sucesso
+          // Atualize os dados na tabela após a exclusão
+          // Você pode recarregar a página ou atualizar os dados de outra forma
           fetchPlanos();
-        } else {
-          console.error('Error in deleting plan');
-          setDeleteSuccess(false);
-        }
-      } catch (error) {
-        console.error('Error in deleting plan', error);
-        setDeleteSuccess(false);
-      }
+          setDeleteSuccess(true);
+        })
+        .catch((error) => {
+          console.error('Erro ao excluir elemento', error);
+        });
     }
+    setConfirmDeleteItem(null);
   };
 
   return (
@@ -103,7 +107,7 @@ const Tabela = () => {
               <td>{item.data_limite}</td>
               <td style={{width: '75px'}}>
                 <div className="botoes-acoes">
-                  <button style={{color: 'red'}} onClick={() => handleDelete(item._id)}>X</button>
+                  <button style={{color: 'red'}} onClick={() => handleClick(item)}>X</button>
                 </div>
               </td>
             </tr>
@@ -136,13 +140,35 @@ const Tabela = () => {
                 <td><b>R${item.valor_b}</b></td>
                 <td style={{width: '75px'}}>
                   <div className="botoes-acoes">
-                    <button style={{color: 'red'}} onClick={() => handleDelete(item._id)}>X</button>
+                    <button style={{color: 'red'}} onClick={() => handleClick(item)}>X</button>
                   </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+        
+        {confirmDeleteItem && (
+        <div className="overlay">
+            <div className="modal">
+            <p>Are you sure you want to delete the plan for "{confirmDeleteItem.recurso}"?</p>
+                <div style={{display: 'flex', gap: '10px'}}>
+                    <button className="botao-cadastro" onClick={handleConfirmDelete}>Confirm</button>
+                    <button className="botao-cadastro" onClick={() => setConfirmDeleteItem(null)}>Cancel</button>
+                </div>
+            </div>
+        </div>
+      )}
+
+      {deleteSuccess && (
+        <div className="overlay">
+          <div className="modal">
+            <p>{deleteSuccess ? 'Deletion successful!' : 'Deletion failed.'}</p>
+            <button className="botao-cadastro" onClick={handleCloseModal}>Close</button>
+          </div>
+        </div>
+      )}
+
       </div>
     </div>
   );

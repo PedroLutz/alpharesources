@@ -1,6 +1,6 @@
 import React from 'react';
 
-import CadastroPage from './financas/cadastro'
+import CadastroPage from './pages/financas/cadastro'
  // Importe o componente Home a partir do arquivo index.js
 
 function index() {
