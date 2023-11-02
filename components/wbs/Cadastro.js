@@ -7,7 +7,6 @@ const Cadastro = ({ onCadastro }) => {
     area: '',
   });
 
-  const [novaArea, setNovaArea] = useState(''); // Estado para a nova área
   const [mostrarInputNovaArea, setMostrarInputNovaArea] = useState(false);
   const [isNovaAreaButton, setIsNovaAreaButton] = useState(true);
   const [elementos, setElementos] = useState([]);
@@ -54,7 +53,7 @@ const Cadastro = ({ onCadastro }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (formData.area && novaArea) {
+    if (formData.area) {
         alert('Preencha apenas um dos campos de área.');
         return;
       }

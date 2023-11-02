@@ -1,6 +1,6 @@
 // pages/api/wbs/get.js
 import connectToDatabase from '../../../lib/db';
-import Elemento from '../../../models/WorkBS';
+import Gantt from '../../../models/Gantt';
 
 export default async (req, res) => {
   try {
@@ -8,9 +8,9 @@ export default async (req, res) => {
 
     if (req.method === 'GET') {
       // Consulte o banco de dados para buscar todas as pessoas
-      const elementos = await Elemento.find();
+      const cronogramas = await Gantt.find();
 
-      res.status(200).json({ elementos });
+      res.status(200).json({ cronogramas });
     } else {
       res.status(405).json({ error: 'Método não permitido' });
     }
