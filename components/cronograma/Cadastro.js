@@ -66,47 +66,9 @@ const Cadastro = ({ onCadastro }) => {
 
   return (
     <div className="centered-container">
-      <h1>Timeline component release</h1>
+      <h1>Timeline component register</h1>
       <form onSubmit={handleSubmit}>
         <div>
-          <div className="containerPai">
-            <label className="container">
-              <input
-                type="radio"
-                name="plano"
-                value="true"
-                checked={formData.tipo === true}
-                onChange={handleChange}
-                required
-              />
-              <span className="checkmark"></span>
-              Part of timeline plan
-            </label>
-            <label className="container">
-              <input
-                type="radio"
-                name="plano"
-                value="false"
-                checked={formData.tipo === false}
-                onChange={handleChange}
-                required
-              />
-              <span className="checkmark"></span>
-              Part of time management
-            </label>
-            <label className="container">
-              <input
-                type="radio"
-                name="tipo"
-                value="Exchange"
-                checked={formData.tipo === 'Exchange'}
-                onChange={handleChange}
-                required
-              />
-              <span className="checkmark"></span>
-              Exchange
-            </label>
-          </div>
           <div className="centered-container">
             <label htmlFor="descricao">Description</label>
             <input

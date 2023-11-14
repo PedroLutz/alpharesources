@@ -9,16 +9,16 @@ const Navbar = () => {
         <img src={'/images/logo.png'} alt="Logo" style={{width: '80px'}}/>
         <ul>
           <li>
-            <Link href="/pages/plano/cadastro">Register</Link>
+            <Link href="/pages/financeiro/plano/cadastro">Register</Link>
           </li>
           <li>
-            <Link href="/pages/plano/tabela">Spreadsheet</Link>
+            <Link href="/pages/financeiro/plano/tabela">Spreadsheet</Link>
           </li>
           <li>
-            <Link href="/pages/plano/resumo">Report</Link>
+            <Link href="/pages/financeiro/plano/resumo">Report</Link>
           </li>
           <li>
-            <Link href="/pages/financas/cadastro">Go to Finances</Link>
+            <Link href="/pages/financeiro/financas/cadastro">Go to Finances</Link>
           </li>
         </ul>
       </nav>
