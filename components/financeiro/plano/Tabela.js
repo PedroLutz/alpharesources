@@ -86,6 +86,34 @@ const Tabela = () => {
             <th>Scenario</th>
             <th>Area</th>
             <th>Resource</th>
+            <th>Use</th>
+            <th>Options</th>
+          </tr>
+        </thead>
+        <tbody>
+          {planos.map((item, index) => (
+            <tr key={index}>
+              <td>{item.plano}</td>
+              <td>{item.area}</td>
+              <td>{item.recurso}</td>
+              <td>{item.uso}</td>
+              <td style={{width: '75px'}}>
+                <div className="botoes-acoes">
+                  <button style={{color: 'red'}} onClick={() => handleClick(item)}>X</button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      </div>
+
+      <div className="centered-container" style={{marginTop: '50px'}}>
+      <table>
+        <thead>
+          <tr>
+            <th>Scenario</th>
+            <th>Resource</th>
             <th>Plan A</th>
             <th>Type</th>
             <th>Value</th>
@@ -98,7 +126,6 @@ const Tabela = () => {
           {planos.map((item, index) => (
             <tr key={index}>
               <td>{item.plano}</td>
-              <td>{item.area}</td>
               <td>{item.recurso}</td>
               <td>{item.plano_a}</td>
               <td>{item.tipo_a}</td>
@@ -121,7 +148,6 @@ const Tabela = () => {
           <thead>
             <tr>
               <th>Scenario</th>
-              <th>Area</th>
               <th>Resource</th>
               <th>Plan B</th>
               <th>Type</th>
@@ -133,7 +159,6 @@ const Tabela = () => {
             {planos.map((item, index) => (
               <tr key={index}>
                 <td  style={{padding: '10px'}}>{item.plano}</td>
-                <td>{item.area}</td>
                 <td>{item.recurso}</td>
                 <td>{item.plano_b}</td>
                 <td>{item.tipo_b}</td>

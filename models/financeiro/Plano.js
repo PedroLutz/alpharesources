@@ -8,6 +8,7 @@ const planoSchema = new mongoose.Schema({
   plano: String,
   area: String,
   recurso: String,
+  uso: String,
   tipo_a: String,
   valor_a: Number,
   plano_a: String,

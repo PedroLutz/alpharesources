@@ -50,6 +50,7 @@ const Cadastro = ({ onCadastro }) => {
           plano: '',
           area: '',
           recurso: '', 
+          uso: '',
           tipo_a: '',
           valor_a: '',
           plano_a: '',
@@ -128,9 +129,21 @@ const Cadastro = ({ onCadastro }) => {
             <input
               type="text"
               name="recurso"
-              placeholder="Resource"
+              placeholder=""
               onChange={handleChange}
               value={formData.recurso}
+              required
+            />
+          </div>
+
+          <div className='centered-container'>
+            <label htmlFor="uso">Use</label>
+            <input
+              type="text"
+              name="uso"
+              placeholder=""
+              onChange={handleChange}
+              value={formData.uso}
               required
             />
           </div>
