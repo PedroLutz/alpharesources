@@ -1,5 +1,5 @@
 // pages/api/update.js
-import connectToDatabase from '../../../../lib/db';
+import connectToDatabase from '../../../lib/db';
 import Gantt from '../../../models/Gantt';
 
 export default async (req, res) => {

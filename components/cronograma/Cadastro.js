@@ -1,17 +1,43 @@
 // components/Cadastro.js
-import React, { useState } from 'react';
+import React, { useState, useEffect} from 'react';
 
 const Cadastro = ({ onCadastro }) => {
+  const [elementos, setElementos] = useState([]);
+  const [itensPorArea, setItensPorArea] = useState([]);
+  const [itensPorAreaDp, setItensPorAreaDp] = useState([]);
   const [registerSuccess, setRegisterSuccess] = useState(false);
   const [formData, setFormData] = useState({
-    tipo: '',
-    descricao: '',
-    valor: '',
-    data: '',
+    plano: '',
+    item: '',
     area: '',
-    origem: '',
-    destino: '',
+    inicio: '',
+    termino: '',
+    dp_item: '',
+    dp_area: '',
+    situacao: '',
   });
+  
+  const fetchElementos = async () => {
+    try {
+      const response = await fetch('/api/wbs/get', {
+        method: 'GET',
+      });
+
+      if (response.status === 200) {
+        const data = await response.json();
+        setElementos(data.elementos);
+
+      } else {
+        console.error('Error in searching for financal releases data');
+      }
+    } catch (error) {
+      console.error('Error in searching for financal releases data', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchElementos();
+  }, []);
 
   const handleCloseModal = () => {
     setRegisterSuccess(false);
@@ -24,24 +50,56 @@ const Cadastro = ({ onCadastro }) => {
     });
   };
 
+  const handleAreaChange = (e) => {
+    const areaSelecionada = e.target.value;
+    const itensDaArea = elementos.filter(item => item.area === areaSelecionada).map(item => item.item);
+    setItensPorArea(itensDaArea);
+
+    // Atualiza o estado formData para refletir a nova área selecionada
+    setFormData({
+      ...formData,
+      area: areaSelecionada,
+      item: '', // Limpa o campo de itens quando a área é alterada
+    });
+  };
+
+  const handleAreaChangeDp = (e) => {
+    const areaSelecionadaDp = e.target.value;
+    const itensDaAreaDp = elementos.filter(item => item.area === areaSelecionadaDp).map(item => item.item);
+    setItensPorAreaDp(itensDaAreaDp);
+
+    // Atualiza o estado formData para refletir a nova área selecionada
+    setFormData({
+      ...formData,
+      dp_area: areaSelecionadaDp,
+      dp_item: '', // Limpa o campo de itens quando a área é alterada
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
-      const response = await fetch('/api/cronograma/create', {
+      // Enviar os dados com plano: true e situacao: 'concluido'
+      const response1 = await fetch('/api/cronograma/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          plano: true,
+          situacao: 'concluido',
+        }),
       });
-
-      if (response.ok) {
+  
+      if (response1.ok) {
         console.log('Cronograma registrado com sucesso!');
-
+  
         if (typeof onCadastro === 'function') {
           onCadastro(formData);
         }
+  
         // Chama a função de cadastro passada como prop
         // Limpa os campos após o envio do formulário
         setFormData({
@@ -54,90 +112,119 @@ const Cadastro = ({ onCadastro }) => {
           dp_area: '',
           situacao: '',
         });
-
+  
         setRegisterSuccess(true);
       } else {
         console.error('Error when registering the release');
+      }
+  
+      // Enviar os dados com plano: false e situacao: 'iniciar'
+      const response2 = await fetch('/api/cronograma/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          plano: false,
+          situacao: 'iniciar',
+        }),
+      });
+  
+      if (response2.ok) {
+        console.log('Cronograma registrado para iniciar!');
+      } else {
+        console.error('Error when registering the release to start');
       }
     } catch (error) {
       console.error('Error when registering the release', error);
     }
   };
-
+  
   return (
     <div className="centered-container">
       <h1>Timeline component register</h1>
       <form onSubmit={handleSubmit}>
         <div>
           <div className="centered-container">
-            <label htmlFor="descricao">Description</label>
+            <select
+                  name="area"
+                  onChange={handleAreaChange}
+                  style={{width:'264px', height: '33px'}}
+                  value={formData.area}
+                  required
+                >
+                  <option value="" disabled>Select an area</option>
+                  {[...new Set(elementos.map(item => item.area))].map((area, index) => (
+                    <option key={index} value={area}>{area}</option>
+              ))};
+            </select>
+
+            <select
+              name="item"
+              onChange={handleChange}
+              style={{ width: '264px', height: '33px' }}
+              value={formData.item}
+              required
+            >
+              <option value="" disabled>Select an item</option>
+              {itensPorArea.map((item, index) => (
+                <option key={index} value={item}>{item}</option>
+              ))}
+            </select>
+
+            <label htmlFor="inicio">Start</label>
             <input
-              type="text"
-              id="descricao"
-              name="descricao"
+              type="date"
+              id="inicio"
+              name="inicio"
               placeholder=""
               onChange={handleChange}
-              value={formData.descricao}
+              value={formData.inicio}
+              required
+            />
+
+            <label htmlFor="termino">End</label>
+            <input
+              type="date"
+              id="termino"
+              name="termino"
+              placeholder=""
+              onChange={handleChange}
+              value={formData.termino}
               required
             />
             <label htmlFor="valor">Value</label>
-          <input
-            type="number"
-            name="valor"
-            placeholder="R$420.69"
-            onChange={handleChange}
-            value={formData.valor}
-            required
-          />
-          <label htmlFor="data">Date</label>
-          <input
-            type="date"
-            name="data"
-            onChange={handleChange}
-            value={formData.data}
-            required
-          />
-          <label htmlFor="area">Area</label>
-          <select
-            name="area"
-            onChange={handleChange}
-            value={formData.area}
-            required
-          >
-            <option value="" disabled>Select an area</option>
-            <option value="3D printing">3D printing</option>
-            <option value="Engineering">Engineering</option>
-            <option value="Extras">Extras</option>
-            <option value="Marketing">Marketing</option>
-            <option value="Machining">Machining</option>
-            <option value="Painting">Painting</option>
-            <option value="Pit Display">Pit Display</option>
-            <option value="Portfolios">Portfolios</option>
-            <option value="Sponsorship">Sponsorship</option>
-            <option value="Traveling">Traveling</option>
-          </select>
-          <label htmlFor="origem">Credited Account (Origin)</label>
-          <input
-            type="text"
-            name="origem"
-            placeholder=""
-            onChange={handleChange}
-            value={formData.origem}
-            required
-          />
-          <label htmlFor="destino">Debited Account (Destiny)</label>
-          <input
-            type="text"
-            name="destino"
-            placeholder=""
-            onChange={handleChange}
-            value={formData.destino}
-            required
-          />
+
+            <select
+                  name="dp_area"
+                  onChange={handleAreaChangeDp}
+                  style={{width:'264px', height: '33px'}}
+                  value={formData.dp_area}
+                  required
+                >
+                  <option value="" disabled>Select an area</option>
+                  {[...new Set(elementos.map(item => item.area))].map((area, index) => (
+                    <option key={index} value={area}>{area}</option>
+              ))};
+            </select>
+
+            <select
+              name="dp_item"
+              onChange={handleChange}
+              style={{ width: '264px', height: '33px' }}
+              value={formData.dp_item}
+              required
+            >
+              <option value="" disabled>Select an item</option>
+              {itensPorAreaDp.map((item, index) => (
+                <option key={index} value={item}>{item}</option>
+              ))}
+            </select>
           </div>
         </div>
         <div>
-          <button className="botao-cadastro" type="submit">Register financial release</button>
+          <button className="botao-cadastro" type="submit">Register timeline component</button>
         </div>
       </form>
 

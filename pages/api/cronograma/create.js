@@ -7,7 +7,7 @@ export default async (req, res) => {
     await connectToDatabase();
 
     if (req.method === 'POST') {
-      const { codigo, item, area, } = req.body;
+      const { plano, item, area, inicio, termino, dp_item, dp_area, situacao} = req.body;
 
       // Crie um novo objeto Person com os dados da solicitação
       const newCronograma = new Gantt({

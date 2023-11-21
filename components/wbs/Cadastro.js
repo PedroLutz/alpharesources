@@ -44,6 +44,11 @@ const Cadastro = ({ onCadastro }) => {
   const handleCadastrarNovaArea = () => {
     setMostrarInputNovaArea(!mostrarInputNovaArea); // Alternar exibição do input
     setIsNovaAreaButton(!isNovaAreaButton); // Alternar texto do botão
+
+    setFormData({
+      ...formData,
+      area: '',
+    });
   };
 
   const getButtonLabel = () => {
@@ -52,11 +57,6 @@ const Cadastro = ({ onCadastro }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (formData.area) {
-        alert('Preencha apenas um dos campos de área.');
-        return;
-      }
 
     try {
       const response = await fetch('/api/wbs/create', {
