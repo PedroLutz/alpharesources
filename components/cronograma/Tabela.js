@@ -14,6 +14,7 @@ const formatDate = (dateString) => {
     day: '2-digit',
   });
 
+  console.log(formattedDate)
   return formattedDate;
 };
 
@@ -21,6 +22,20 @@ const Tabela = () => {
   const [cronogramas, setCronogramas] = useState([]);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
+  const [filtroArea, setFiltroArea] = useState('');
+  const [filtroItem, setFiltroItem] = useState('');
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    if (name === 'area') {
+      setFiltroArea(value);
+    };
+  };
+
+  const filteredCronogramas = cronogramas.filter((item) => {
+    const areaMatch = item.area.toLowerCase().includes(filtroArea.toLowerCase());
+    return areaMatch;
+  });
 
   const handleClick = (item) => {
     setConfirmDeleteItem(item);
@@ -47,26 +62,8 @@ const Tabela = () => {
     }
   };
 
-  const fetchElementos = async () => {
-    try {
-      const response = await fetch('/api/wbs/get', {
-        method: 'GET',
-      });
-
-      if (response.status === 200) {
-        const data = await response.json();
-        setElementos(data.elementos);
-
-      } else {
-        console.error('Error in searching for financal releases data');
-      }
-    } catch (error) {
-      console.error('Error in searching for financal releases data', error);
-    }
-  };
 
   useEffect(() => {
-    fetchElementos();
     fetchCronogramas();
   }, []);
 
@@ -97,6 +94,22 @@ const Tabela = () => {
   return (
     <div className="centered-container">
       <h2>Linha do tempo</h2>
+      <div className="filtro-container">
+        <label htmlFor="filtroArea">Filter by Area:</label>
+        <select
+                  name="area"
+                  onChange={handleFilterChange}
+                  style={{width:'264px', height: '33px'}}
+                  value={filtroArea}
+                  required
+                >
+                  <option value="" disabled>Select an area</option>
+                  {[...new Set(cronogramas.map(item => item.area))].map((area, index) => (
+                    <option key={index} value={area}>{area}</option>
+              ))};
+            </select>
+        
+      </div>
       <table>
         <thead>
           <tr>
@@ -112,7 +125,7 @@ const Tabela = () => {
           </tr>
         </thead>
         <tbody>
-          {cronogramas.map((item, index) => (
+          {filteredCronogramas.map((item, index) => (
             <tr key={index}>
               <td>{item.plano}</td>
               <td>

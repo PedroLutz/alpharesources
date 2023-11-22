@@ -14,18 +14,18 @@ const Resumo = () => {
   const [receitasTotais, setReceitasTotais] = useState([]);
   const [despesasTotais, setDespesasTotais] = useState([]);
 
-  const ReceitasPorAreaGraph = [['Área', 'Valor']];
+  const ReceitasPorAreaGraph = [['Area', 'Value']];
   receitasPorArea.forEach((area) => {
     ReceitasPorAreaGraph.push([area._id, area.total]);
   });
 
-  const DespesasPorAreaGraph = [['Área', 'Valor']];
+  const DespesasPorAreaGraph = [['Area', 'Value']];
   despesasPorArea.forEach((area) => {
     DespesasPorAreaGraph.push([area._id, -area.total]);
   });
 
 
-  const ValoresPorAreaGraph = [['Área', 'Receita', 'Despesa']];
+  const ValoresPorAreaGraph = [['Area', 'Revenue', 'Expense']];
   
   const areasGanhos = new Set(receitasPorArea.map((receitaArea) => receitaArea._id));
   const areasGastos = new Set(despesasPorArea.map((despesaArea) => despesaArea._id));
@@ -44,9 +44,9 @@ const Resumo = () => {
     ValoresPorAreaGraph.push([areaNome, receitaValor, despesaValor]);
   });
 
-  const ValoresPorMesGraph = [['Mês', 'Receita', 'Despesa']];
-  const CaixaMensalGraph = [['Mês', 'Valor']];
-  const CrescimentoDosGastosGraph = [['Mês', 'Valor']];
+  const ValoresPorMesGraph = [['Month', 'Revenue', 'Expense']];
+  const CaixaMensalGraph = [['Month', 'Value']];
+  const CrescimentoDosGastosGraph = [['Month', 'Value']];
   let saldoAcumulado = 0;
   let gastosAcumulados = 0;
 

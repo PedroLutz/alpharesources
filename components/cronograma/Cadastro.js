@@ -3,6 +3,7 @@ import React, { useState, useEffect} from 'react';
 
 const Cadastro = ({ onCadastro }) => {
   const [elementos, setElementos] = useState([]);
+  const [dadosUsados, setDadosUsados] = useState(false);
   const [itensPorArea, setItensPorArea] = useState([]);
   const [itensPorAreaDp, setItensPorAreaDp] = useState([]);
   const [registerSuccess, setRegisterSuccess] = useState(false);
@@ -78,6 +79,35 @@ const Cadastro = ({ onCadastro }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    try {
+      const response = await fetch('/api/cronograma/get', {
+        method: 'GET',
+      });
+
+      if (response.status === 200) {
+        const data = await response.json();
+        const cronogramas = data.cronogramas;
+
+        // Verificar se a combinação de "area" e "item" já foi usada
+        const dadosJaUsados = cronogramas.some(
+          (item) => item.area === formData.area && item.item === formData.item
+        );
+
+        if (dadosJaUsados) {
+          setDadosUsados(true);
+          return;
+        }
+
+        // Continuar com o envio dos dados e lógica de registro
+        // ...
+
+      } else {
+        console.error('Error in fetching cronograma data');
+      }
+    } catch (error) {
+      console.error('Error in fetching cronograma data', error);
+    }
   
     try {
       // Enviar os dados com plano: true e situacao: 'concluido'
@@ -201,7 +231,6 @@ const Cadastro = ({ onCadastro }) => {
                   onChange={handleAreaChangeDp}
                   style={{width:'264px', height: '33px'}}
                   value={formData.dp_area}
-                  required
                 >
                   <option value="" disabled>Select an area</option>
                   {[...new Set(elementos.map(item => item.area))].map((area, index) => (
@@ -214,7 +243,6 @@ const Cadastro = ({ onCadastro }) => {
               onChange={handleChange}
               style={{ width: '264px', height: '33px' }}
               value={formData.dp_item}
-              required
             >
               <option value="" disabled>Select an item</option>
               {itensPorAreaDp.map((item, index) => (
@@ -228,14 +256,27 @@ const Cadastro = ({ onCadastro }) => {
         </div>
       </form>
 
-      {registerSuccess && (
-        <div className="overlay">
-          <div className="modal">
-            <p>{registerSuccess ? 'Register successful!' : 'Register failed.'}</p>
-            <button className="botao-cadastro" onClick={handleCloseModal}>Close</button>
-          </div>
+      {dadosUsados && (
+    <div className="overlay">
+      <div className="modal">
+        <p>Data already in use. Please select different values.</p>
+        <button className="botao-cadastro" onClick={() => setDadosUsados(false)}>
+          Close
+        </button>
+      </div>
+    </div>
+  )}
+
+    {registerSuccess && !dadosUsados && (
+      <div className="overlay">
+        <div className="modal">
+          <p>{registerSuccess ? 'Register successful!' : 'Register failed.'}</p>
+          <button className="botao-cadastro" onClick={handleCloseModal}>
+            Close
+          </button>
         </div>
-      )}
+      </div>
+    )}
 
     </div>
   );

@@ -12,13 +12,13 @@ const Resumo = () => {
   let somaCenarioIdeal = 0;
   let somaDosGastos = 0;
 
-  const piorPlanoPorAreaGraph = [['Área', 'Valor']];
+  const piorPlanoPorAreaGraph = [['Area', 'Value']];
   piorPlanoPorArea.forEach((area) => {
     piorPlanoPorAreaGraph.push([area._id, area.total]);
     somaPiorPlano += area.total
   });
 
-  const cenarioIdealPorAreaGraph = [['Área', 'Valor']];
+  const cenarioIdealPorAreaGraph = [['Area', 'Value']];
   cenarioIdealPorArea.forEach((area) => {
     cenarioIdealPorAreaGraph.push([area._id, area.total]);
     somaCenarioIdeal += area.total
@@ -42,7 +42,7 @@ const Resumo = () => {
     linhaDoTempoLimiteGraph.push([recurso._id, dataInicial, dataLimite]);
   });
 
-  const crescimentoDosGastosGraph = [['Mês', 'Valor']];
+  const crescimentoDosGastosGraph = [['Month', 'Value']];
 crescimentoDosGastos.forEach((area) => {
   somaDosGastos += area.total;
   const dateParts = area._id.split('/');
