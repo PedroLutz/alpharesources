@@ -157,6 +157,8 @@ const Cadastro = ({ onCadastro }) => {
         body: JSON.stringify({
           ...formData,
           plano: false,
+          inicio: null,
+          termino: null,
           situacao: 'iniciar',
         }),
       });

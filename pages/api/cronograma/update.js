@@ -15,15 +15,18 @@ export default async (req, res) => {
       }
 
       // Os dados atualizados do lançamento podem ser passados no corpo da solicitação
-      const { inicio, termino, situacao } = req.body; // Você pode adicionar outros campos conforme necessário
+      const { inicio, termino } = req.body; // Você pode adicionar outros campos conforme necessário
 
-      // Verifique se o valor é fornecido
-      if (!inicio || !termino || !situacao) {
-        return res.status(400).json({ error: 'O valor do lançamento é obrigatório para a atualização.' });
+      const updateFields = {};
+      if (inicio) updateFields.inicio = inicio;
+      if (termino) updateFields.termino = termino;
+
+      if (Object.keys(updateFields).length === 0) {
+        return res.status(400).json({ error: 'Pelo menos um campo deve ser fornecido para a atualização.' });
       }
 
       // Atualize o lançamento no banco de dados
-      const updatedCronograma = await Gantt.findByIdAndUpdate(id, { inicio, termino, situacao }, { new: true });
+      const updatedCronograma = await Gantt.findByIdAndUpdate(id, updateFields, { new: true });
 
       if (!updatedCronograma) {
         return res.status(404).json({ error: 'Lançamento não encontrado.' });
