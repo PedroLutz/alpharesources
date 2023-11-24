@@ -169,11 +169,25 @@ span.custom-span:hover {
     margin-bottom: 10px; /* Adiciona espaço entre os parágrafos */
   }
   
-  .modal button {
+.modal button {
     width: 100px;
     margin: 5px;
     display: inline-block; /* Os botões ficarão lado a lado */
-  }
+}
+
+.mini-input input {
+    width: 250px;
+}
+
+.mini-input select {
+    width: 264px; 
+    height: 33px;
+}
+
+.mesma-linha {
+    display: flex; 
+    gap: 5px
+}
   
 
   

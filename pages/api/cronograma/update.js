@@ -15,11 +15,12 @@ export default async (req, res) => {
       }
 
       // Os dados atualizados do lançamento podem ser passados no corpo da solicitação
-      const { inicio, termino } = req.body; // Você pode adicionar outros campos conforme necessário
+      const { inicio, termino, situacao } = req.body; // Você pode adicionar outros campos conforme necessário
 
       const updateFields = {};
       if (inicio) updateFields.inicio = inicio;
       if (termino) updateFields.termino = termino;
+      if (situacao) updateFields.situacao = situacao;
 
       if (Object.keys(updateFields).length === 0) {
         return res.status(400).json({ error: 'Pelo menos um campo deve ser fornecido para a atualização.' });

@@ -96,12 +96,13 @@ const Cadastro = ({ onCadastro }) => {
         <div>
           <div className="centered-container">
             <label htmlFor="area" style={{alignSelf: 'center', marginLeft: -11}}>Area</label>
+            <div className="mini-input">
             {mostrarInputNovaArea ? (
               <input
+                className='mini-input'
                 type="text"
                 id="area"
                 name="area"
-                style={{width:'250px'}}
                 placeholder=""
                 onChange={handleChange}
                 value={formData.area}
@@ -109,9 +110,9 @@ const Cadastro = ({ onCadastro }) => {
               />
             ) : (
               <select
+                className='mini-input'
                 name="area"
                 onChange={handleChange}
-                style={{width:'264px', height: '33px'}}
                 value={formData.area}
                 required
               >
@@ -121,6 +122,8 @@ const Cadastro = ({ onCadastro }) => {
             ))};
               </select>
             )}
+            </div>
+            
             <button
             className="botao-cadastro"
             type="button"

@@ -5,9 +5,6 @@ const formatDate = (dateString) => {
   // Converte a data da string para um objeto de data
   const date = new Date(dateString);
 
-  // Adiciona um dia à data
-  date.setDate(date.getDate() + 1);
-
   // Formata a data
   const formattedDate = date.toLocaleDateString(undefined, {
     year: 'numeric',
@@ -23,18 +20,82 @@ const formatDateGantt = (dateString) => {
   return new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0]);
 }
 
+const formatInputDate = (dateString) => {
+  var dateParts = dateString.split("-");
+  return new Date(+dateParts[0], dateParts[1] - 1, +dateParts[2])
+}
+
 const Tabela = () => {
   const [cronogramas, setCronogramas] = useState([]);
-  const [deleteSuccess, setDeleteSuccess] = useState(false);
-  const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
+  const [deleteInfo, setDeleteInfo] = useState({ success: false, item: null });
   const [filtroArea, setFiltroArea] = useState('');
   const [filtroAreaSelecionada, setFiltroAreaSelecionada] = useState('');
-  const [dataTermino, setDataTermino] = useState('');
-  const [dataInicio, setDataInicio] = useState('');
+  const [datas, setDatas] = useState({
+    dataInicio: '',
+    dataTermino: '',
+  });
+  const [dataInvalida, setDataInvalida] = useState(false);
+  const [mensagemErroData, setMensagemErroData] = useState('');
+  const [itemSelecionado, setItemSelecionado] = useState('');
+  const [situacaoAtual, setSituacaoAtual] = useState('');
 
   const handleChange = (e) => {
-    setDataTermino(e.target.value)
+    setDatas({ ...datas, dataTermino: e.target.value });
   }
+
+  const validarDatas = () => {
+    if (datas.dataInicio && datas.dataTermino) {
+      const dataInicioObj = new Date(datas.dataInicio);
+      const dataTerminoObj = new Date(datas.dataTermino);
+  
+      if (dataInicioObj > dataTerminoObj) {
+        setDataInvalida(true);
+        setMensagemErroData('A data de início deve ser menor ou igual à data de término.');
+        return false;
+      }
+    }
+  
+    setDataInvalida(false);
+    setMensagemErroData('');
+    return true;
+  };
+
+  const handleAtualizarTarefa = async (situacao) => {
+    try {
+      // Filtra os itens com base na área e no item selecionados
+      const itemParaAtualizar = cronogramas.find(
+        (item) =>
+          item.area.toLowerCase() === filtroAreaSelecionada.toLowerCase() &&
+          item.item === itemSelecionado &&
+          !item.plano
+      );
+  
+      // Verifica se há um item para atualizar
+      if (!itemParaAtualizar) {
+        console.log('Nenhum item para atualizar');
+        return;
+      }
+
+      const response = await fetch(`/api/cronograma/update?id=${itemParaAtualizar._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          situacao: situacao,
+        }),
+      });
+  
+      if (response.status === 200) {
+        console.log('Atualização da situação bem-sucedida');
+        fetchCronogramas(); // Recarregar os dados após a atualização
+      } else {
+        console.error('Erro ao atualizar a situação do cronograma');
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar a situação do cronograma', error);
+    }
+  };
 
   const handleFilterChange = ({ target: { name, value } }) => {
     if (name === 'area') {
@@ -48,37 +109,42 @@ const Tabela = () => {
   });
 
   const handleClick = (item) => {
-    setConfirmDeleteItem(item);
+    setDeleteInfo({ success: false, item }); // Ao clicar, definimos item para confirmação
   };
 
   const handleAtualizarData = async () => {
     try {
-      // Filtra os itens com base na área selecionada e com plano como false
-      const itensParaAtualizar = cronogramas.filter((item) => 
-        item.area.toLowerCase() === filtroAreaSelecionada.toLowerCase() && !item.plano
+      if (!validarDatas()) {
+        // Se as datas forem inválidas, interrompa o processo
+        return;
+      }
+  
+      // Filtra os itens com base na área e no item selecionados
+      const itemParaAtualizar = cronogramas.find(
+        (item) =>
+          item.area.toLowerCase() === filtroAreaSelecionada.toLowerCase() &&
+          item.item === itemSelecionado &&
+          !item.plano
       );
-
-      // Verifica se há itens para atualizar
-      if (!itensParaAtualizar.length) {
+  
+      // Verifica se há um item para atualizar
+      if (!itemParaAtualizar) {
         console.log('Nenhum item para atualizar');
         return;
       }
-
-      // Mapeia os IDs dos itens para criar a URL de atualização
-      const idsParaAtualizar = itensParaAtualizar.map((item) => item._id);
-
-      const response = await fetch(`/api/cronograma/update?id=${idsParaAtualizar}`, {
+  
+      const response = await fetch(`/api/cronograma/update?id=${itemParaAtualizar._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           // Envia apenas os campos preenchidos
-          ...(dataTermino && { termino: dataTermino }),
-          ...(dataInicio && { inicio: dataInicio }),
+          ...(datas.dataTermino && { termino: formatInputDate(datas.dataTermino) }),
+          ...(datas.dataInicio && { inicio: formatInputDate(datas.dataInicio) }),
         }),
       });
-
+  
       if (response.status === 200) {
         console.log('Atualização bem-sucedida');
         fetchCronogramas(); // Recarregar os dados após a atualização
@@ -89,6 +155,7 @@ const Tabela = () => {
       console.error('Erro ao atualizar os dados do cronograma', error);
     }
   };
+  
 
   const fetchCronogramas = async () => {
     try {
@@ -115,30 +182,21 @@ const Tabela = () => {
     fetchCronogramas();
   }, []);
 
-  const handleChangeInicio = (e) => {
-    setDataInicio(e.target.value);
-  };
-
   const handleConfirmDelete = () => {
-    if (confirmDeleteItem) {
-      fetch(`/api/cronograma/delete?id=${confirmDeleteItem._id}`, {
+    if (deleteInfo.item) {
+      fetch(`/api/cronograma/delete?id=${deleteInfo.item._id}`, {
         method: 'DELETE',
       })
         .then((response) => response.json())
         .then((data) => {
           console.log(data.message);
           fetchCronogramas();
-          setDeleteSuccess(true);
+          setDeleteInfo({ success: true, item: null });
         })
         .catch((error) => {
           console.error('Error deleting element', error);
         });
     }
-    setConfirmDeleteItem(null);
-  };
-
-  const handleCloseModal = () => {
-    setDeleteSuccess(false);
   };
 
   const createGanttData = (cronogramas) => {
@@ -166,13 +224,25 @@ const Tabela = () => {
     return ganttData;
   };
 
+  const handleSetDataHoje = (inputName) => {
+    const today = new Date();
+    today.setDate(today.getDate() - 1);
+    const formattedDate = today.toISOString().split('T')[0];
+  
+    // Atualizar o estado apenas para o input correspondente
+    setDatas((prevDatas) => ({
+      ...prevDatas,
+      [inputName]: formattedDate,
+    }));
+  };
+
   const chartData = createGanttData(cronogramas);
 
   return (
     <div className="centered-container">
       <h2>Linha do tempo</h2>
-      <div className="filtro-container">
-        <label htmlFor="filtroArea">Filter by Area:</label>
+      <div>
+      <label htmlFor="filtroArea">Filter by Area:</label>
         <select
                   name="area"
                   onChange={handleFilterChange}
@@ -183,10 +253,10 @@ const Tabela = () => {
                   <option value="" disabled>Select an area</option>
                   {[...new Set(cronogramas.map(item => item.area))].map((area, index) => (
                     <option key={index} value={area}>{area}</option>
-              ))};
+              ))}
             </select>
-        
       </div>
+        
       <table style={{marginBottom: '10px'}}>
         <thead>
           <tr>
@@ -226,31 +296,51 @@ const Tabela = () => {
         </tbody>
       </table>
 
-      {confirmDeleteItem && (
+      {deleteInfo.item && (
         <div className="overlay">
           <div className="modal">
-            <p>Are you sure you want to delete "{confirmDeleteItem.descricao}"?</p>
-            <div style={{display: 'flex', gap: '10px'}}>
-              <button className="botao-cadastro" onClick={handleConfirmDelete}>Confirm</button>
-              <button className="botao-cadastro" onClick={() => setConfirmDeleteItem(null)}>Cancel</button>
+            <p>Are you sure you want to delete "{deleteInfo.item.descricao}"?</p>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button className="botao-cadastro" onClick={handleConfirmDelete}>
+                Confirm
+              </button>
+              <button
+                className="botao-cadastro"
+                onClick={() => setDeleteInfo({ success: false, item: null })}
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {deleteSuccess && (
+{deleteInfo.success && (
         <div className="overlay">
           <div className="modal">
-            <p>{deleteSuccess ? 'Deletion successful!' : 'Deletion failed.'}</p>
-            <button className="botao-cadastro" onClick={handleCloseModal}>Close</button>
+            <p>Deletion successful!</p>
+            <button className="botao-cadastro" onClick={() => setDeleteInfo({ success: false, item: null })}>
+              Close
+            </button>
           </div>
         </div>
       )}
 
+{dataInvalida && (
+  <div className="overlay">
+    <div className="modal">
+      <p>{mensagemErroData}</p>
+      <button className="botao-cadastro" onClick={() => setDataInvalida(false)}>
+        OK
+      </button>
+    </div>
+  </div>
+)}
+
       {/* Gráfico Gantt */}
       <Chart
         width={'90%'}
-        height={'400px'}
+        height={'100%'}
         chartType="Gantt"
         loader={<div>Loading Chart</div>}
         data={chartData}
@@ -261,10 +351,11 @@ const Tabela = () => {
         }}
       />
 
-<label htmlFor="filtroArea">Filter by Area ATUALIAR:</label>
+        
+        <div className='mini-input'>
+        <label htmlFor="filtroArea">Filter by Area ATUALIZAR:</label>
         <select
           name="area"
-          style={{ width: '264px', height: '33px' }}
           value={filtroAreaSelecionada}
           onChange={(e) => setFiltroAreaSelecionada(e.target.value)}
           required
@@ -276,30 +367,71 @@ const Tabela = () => {
             </option>
           ))}
         </select>
+        </div>
 
-        <label htmlFor="inicioAlterado">Início a ser alterado</label>
-      <input
-        type="text"
-        id="inicioAlterado"
-        name="inicioAlterado"
-        placeholder=""
-        onChange={handleChangeInicio}
-        value={dataInicio}
-        required
-      />
-      <br />
-        <label htmlFor="terminoAlterado">Término a ser alterado</label>
-            <input
-              type="text"
+        <div className='mini-input'>
+  <select
+    name="item"
+    value={itemSelecionado}
+    onChange={(e) => setItemSelecionado(e.target.value)}
+    required
+  >
+    <option value="" disabled>Select an item</option>
+    {filteredCronogramas
+      .filter((item) => item.area.toLowerCase() === filtroAreaSelecionada.toLowerCase() && !item.plano)
+      .map((item, index) => (
+        <option key={index} value={item.item}>
+          {item.item}
+        </option>
+      ))}
+  </select>
+</div>
+
+<div className="centered-container">
+        <button className="botao-cadastro" onClick={() => handleAtualizarTarefa('em andamento')}>
+          Iniciar Tarefa
+        </button>
+        <button className="botao-cadastro" onClick={() => handleAtualizarTarefa('concluida')}>
+          Finalizar Tarefa
+        </button>
+    </div>
+        
+        <div className='mini-input'>
+          <label htmlFor="inicioAlterado">Início a ser alterado</label>
+          <div className='mesma-linha'>
+          <input
+            type="date"
+            id="inicioAlterado"
+            name="inicioAlterado"
+            placeholder=""
+            onChange={(e) => setDatas({ ...datas, dataInicio: e.target.value })}
+            value={datas.dataInicio}
+            required
+          />
+          <button className="botao-cadastro" onClick={() => handleSetDataHoje('dataInicio')}>Hoje</button>
+          </div>
+          
+
+        
+          
+          <label htmlFor="terminoAlterado">Término a ser alterado</label>
+          <div className='mesma-linha'>
+          <input
+              type="date"
               id="terminoAlterado"
               name="terminoAlterado"
               placeholder=""
               onChange={handleChange}
-              value={dataTermino}
+              value={datas.dataTermino}
               required
             />
+            <button className="botao-cadastro" onClick={() => handleSetDataHoje('dataTermino')}>Hoje</button>
+          </div>
+            
+        </div>
+        
 
-<button className="botao-cadastro" onClick={handleAtualizarData}>
+      <button className="botao-cadastro" onClick={handleAtualizarData}>
         Atualizar Datas
       </button>
     </div>
