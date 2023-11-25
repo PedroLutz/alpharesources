@@ -37,7 +37,8 @@ const Tabela = () => {
   const [dataInvalida, setDataInvalida] = useState(false);
   const [mensagemErroData, setMensagemErroData] = useState('');
   const [itemSelecionado, setItemSelecionado] = useState('');
-  const [situacaoAtual, setSituacaoAtual] = useState('');
+  const [tarefaSelecionada, setTarefaSelecionada] = useState('');
+  const [exibirModalSemTarefa, setExibirModalSemTarefa] = useState(false);
 
   const handleChange = (e) => {
     setDatas({ ...datas, dataTermino: e.target.value });
@@ -61,6 +62,11 @@ const Tabela = () => {
   };
 
   const handleAtualizarTarefa = async (situacao) => {
+    if (!tarefaSelecionada) {
+      setExibirModalSemTarefa(true);
+      return;
+    }
+    
     try {
       // Filtra os itens com base na área e no item selecionados
       const itemParaAtualizar = cronogramas.find(
@@ -226,7 +232,7 @@ const Tabela = () => {
 
   const handleSetDataHoje = (inputName) => {
     const today = new Date();
-    today.setDate(today.getDate() - 1);
+    today.setDate(today.getDate());
     const formattedDate = today.toISOString().split('T')[0];
   
     // Atualizar o estado apenas para o input correspondente
@@ -337,6 +343,17 @@ const Tabela = () => {
   </div>
 )}
 
+{exibirModalSemTarefa && (
+  <div className="overlay">
+    <div className="modal">
+      <p>Selecione uma tarefa para iniciar/finalizar.</p>
+      <button className="botao-cadastro" onClick={() => setExibirModalSemTarefa(false)}>
+        OK
+      </button>
+    </div>
+  </div>
+)}
+
       {/* Gráfico Gantt */}
       <Chart
         width={'90%'}
@@ -373,7 +390,11 @@ const Tabela = () => {
   <select
     name="item"
     value={itemSelecionado}
-    onChange={(e) => setItemSelecionado(e.target.value)}
+    onChange={(e) => {
+      setItemSelecionado(e.target.value);
+      setTarefaSelecionada(true);
+      setExibirModalSemTarefa(false); // Resetar o estado quando uma tarefa é selecionada
+    }}
     required
   >
     <option value="" disabled>Select an item</option>
@@ -411,23 +432,19 @@ const Tabela = () => {
           <button className="botao-cadastro" onClick={() => handleSetDataHoje('dataInicio')}>Hoje</button>
           </div>
           
-
-        
-          
           <label htmlFor="terminoAlterado">Término a ser alterado</label>
           <div className='mesma-linha'>
-          <input
-              type="date"
-              id="terminoAlterado"
-              name="terminoAlterado"
-              placeholder=""
-              onChange={handleChange}
-              value={datas.dataTermino}
-              required
-            />
-            <button className="botao-cadastro" onClick={() => handleSetDataHoje('dataTermino')}>Hoje</button>
+            <input
+                type="date"
+                id="terminoAlterado"
+                name="terminoAlterado"
+                placeholder=""
+                onChange={handleChange}
+                value={datas.dataTermino}
+                required
+              />
+              <button className="botao-cadastro" onClick={() => handleSetDataHoje('dataTermino')}>Hoje</button>
           </div>
-            
         </div>
         
 
