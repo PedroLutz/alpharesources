@@ -35,11 +35,18 @@ const Tabela = () => {
     dataTermino: '',
   });
   const [dataInvalida, setDataInvalida] = useState(false);
-  const [mensagemErroData, setMensagemErroData] = useState('');
   const [itemSelecionado, setItemSelecionado] = useState('');
   const [tarefaSelecionada, setTarefaSelecionada] = useState('');
   const [exibirModalSemTarefa, setExibirModalSemTarefa] = useState(false);
   const [exibirModalSituacaoInvalida, setExibirModalSituacaoInvalida] = useState(false);
+  const [exibirModalSemDatas, setExibirModalSemDatas] = useState(false);
+  const [mostrarTabela, setMostrarTabela] = useState(false);
+
+  const labelsSituacao = {
+    ainiciar: 'Starting',
+    emandamento: 'Executing',
+    concluida: 'Completed' 
+  }
 
   const handleChange = (e) => {
     setDatas({ ...datas, dataTermino: e.target.value });
@@ -52,13 +59,11 @@ const Tabela = () => {
   
       if (dataInicioObj > dataTerminoObj) {
         setDataInvalida(true);
-        setMensagemErroData('A data de início deve ser menor ou igual à data de término.');
         return false;
       }
     }
   
     setDataInvalida(false);
-    setMensagemErroData('');
     return true;
   };
 
@@ -123,6 +128,11 @@ const Tabela = () => {
     try {
       if (!validarDatas()) {
         // Se as datas forem inválidas, interrompa o processo
+        return;
+      }
+
+      if (!datas.dataInicio && !datas.dataTermino) {
+        setExibirModalSemDatas(true);
         return;
       }
   
@@ -252,61 +262,7 @@ const Tabela = () => {
 
   return (
     <div className="centered-container">
-      <h2>Linha do tempo</h2>
-      <div>
-      <label htmlFor="filtroArea">Filter by Area:</label>
-        <select
-                  name="area"
-                  onChange={handleFilterChange}
-                  style={{width:'264px', height: '33px'}}
-                  value={filtroArea}
-                  required
-                >
-                  <option value="" disabled>Select an area</option>
-                  {[...new Set(cronogramas.map(item => item.area))].map((area, index) => (
-                    <option key={index} value={area}>{area}</option>
-              ))}
-            </select>
-      </div>
-        
-      <table style={{marginBottom: '10px'}}>
-        <thead>
-          <tr>
-            <th>Plan</th>
-            <th>Area</th>
-            <th>Item</th>
-            <th>Start</th>
-            <th>End</th>
-            <th style={{width:'10%'}}>Dependency: Area</th>
-            <th style={{width:'10%'}}>Dependency: Item</th>
-            <th>Situation</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-        {filteredCronogramas.filter((item) => !item.plano).map((item, index) => (
-            <tr key={index}>
-              <td>{item.plano}</td>
-              <td>
-                {item.area}
-              </td>
-              <td>
-                {item.item}
-              </td>
-              <td>{item.inicio}</td>
-              <td>{item.termino}</td>
-              <td>{item.dp_area}</td>
-              <td>{item.dp_item}</td>
-              <td>{item.situacao}</td>
-              <td>
-                <div className="botoes-acoes">
-                  <button style={{color: 'red'}} onClick={() => handleClick(item)}>X</button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <h2>Timeline monitoring</h2>
 
       {deleteInfo.item && (
         <div className="overlay">
@@ -341,7 +297,7 @@ const Tabela = () => {
 {dataInvalida && (
   <div className="overlay">
     <div className="modal">
-      <p>{mensagemErroData}</p>
+      <p>The last execution must be equal to or greater than the start date.</p>
       <button className="botao-cadastro" onClick={() => setDataInvalida(false)}>
         OK
       </button>
@@ -352,7 +308,7 @@ const Tabela = () => {
 {exibirModalSemTarefa && (
   <div className="overlay">
     <div className="modal">
-      <p>Selecione uma tarefa para iniciar/finalizar.</p>
+      <p>Select a task to start/complete</p>
       <button className="botao-cadastro" onClick={() => setExibirModalSemTarefa(false)}>
         OK
       </button>
@@ -363,7 +319,7 @@ const Tabela = () => {
 {exibirModalSituacaoInvalida && (
         <div className="overlay">
           <div className="modal">
-            <p>Você só pode atualizar datas de tarefas em andamento.</p>
+            <p>You can only update the dates of tasks that are in execution.</p>
             <button
               className="botao-cadastro"
               onClick={() => setExibirModalSituacaoInvalida(false)}
@@ -374,10 +330,24 @@ const Tabela = () => {
         </div>
       )}
 
+      {exibirModalSemDatas && (
+        <div className="overlay">
+          <div className="modal">
+            <p>Insert valid dates!</p>
+            <button
+              className="botao-cadastro"
+              onClick={() => setExibirModalSemDatas(false)}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Gráfico Gantt */}
       <Chart
         width={'90%'}
-        height={'100%'}
+        height={'2000px'}
         chartType="Gantt"
         loader={<div>Loading Chart</div>}
         data={chartData}
@@ -390,7 +360,7 @@ const Tabela = () => {
 
         
         <div className='mini-input'>
-        <label htmlFor="filtroArea">Filter by Area ATUALIZAR:</label>
+        <label htmlFor="filtroArea">Select task for updating</label>
         <select
           name="area"
           value={filtroAreaSelecionada}
@@ -432,15 +402,15 @@ const Tabela = () => {
 
 <div className="centered-container">
         <button className="botao-cadastro" onClick={() => handleAtualizarTarefa('em andamento')}>
-          Iniciar Tarefa
+          Start task
         </button>
         <button className="botao-cadastro" onClick={() => handleAtualizarTarefa('concluida')}>
-          Finalizar Tarefa
+          Complete task
         </button>
     </div>
         
         <div className='mini-input'>
-          <label htmlFor="inicioAlterado">Início a ser alterado</label>
+          <label htmlFor="inicioAlterado">Start date</label>
           <div className='mesma-linha'>
           <input
             type="date"
@@ -451,10 +421,10 @@ const Tabela = () => {
             value={datas.dataInicio}
             required
           />
-          <button className="botao-cadastro" onClick={() => handleSetDataHoje('dataInicio')}>Hoje</button>
+          <button className="botao-cadastro" onClick={() => handleSetDataHoje('dataInicio')}>Set today</button>
           </div>
           
-          <label htmlFor="terminoAlterado">Término a ser alterado</label>
+          <label htmlFor="terminoAlterado">Last execution</label>
           <div className='mesma-linha'>
             <input
                 type="date"
@@ -465,14 +435,78 @@ const Tabela = () => {
                 value={datas.dataTermino}
                 required
               />
-              <button className="botao-cadastro" onClick={() => handleSetDataHoje('dataTermino')}>Hoje</button>
+              <button className="botao-cadastro" onClick={() => handleSetDataHoje('dataTermino')}>Set today</button>
           </div>
         </div>
         
 
       <button className="botao-cadastro" onClick={handleAtualizarData}>
-        Atualizar Datas
+        Update dates
       </button>
+
+      <button className="botao-cadastro" onClick={() => {
+        setMostrarTabela(!mostrarTabela);
+        setFiltroArea('');
+        }}>
+      {mostrarTabela ? 'Hide table' : 'Show table'}
+      </button>
+
+      {mostrarTabela && (
+  <div className="centered-container">
+    <div style={{marginTop: '30px'}}>
+      <label htmlFor="filtroArea">Filter Table:</label>
+        <select
+                  name="area"
+                  onChange={handleFilterChange}
+                  style={{width:'264px', height: '33px'}}
+                  value={filtroArea}
+                  required
+                >
+                  <option value="" disabled>Select an area</option>
+                  {[...new Set(cronogramas.map(item => item.area))].map((area, index) => (
+                    <option key={index} value={area}>{area}</option>
+              ))}
+            </select>
+      </div>
+
+      <table style={{marginBottom: '20px'}}>
+        <thead>
+          <tr>
+            <th>Area</th>
+            <th>Task</th>
+            <th>Start</th>
+            <th>End</th>
+            <th style={{width:'11%'}}>Dependency: Area</th>
+            <th style={{width:'11%'}}>Dependency: Item</th>
+            <th>Situation</th>
+            <th style={{width:'5%'}}>Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+        {filteredCronogramas.filter((item) => !item.plano).map((item, index) => (
+            <tr key={index}>
+              <td>
+                {item.area}
+              </td>
+              <td>
+                {item.item}
+              </td>
+              <td>{item.inicio}</td>
+              <td>{item.termino}</td>
+              <td>{item.dp_area || '-'}</td>
+              <td>{item.dp_item|| '-'}</td>
+              <td>{labelsSituacao[item.situacao.toLowerCase().replace(/\s/g, '')] || item.situacao}</td>
+              <td>
+                <div className="botoes-acoes">
+                  <button style={{color: 'red'}} onClick={() => handleClick(item)}>X</button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+  </div>
+)}
     </div>
   );
 };

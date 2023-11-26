@@ -120,62 +120,7 @@ const Tabela = () => {
 
   return (
     <div className="centered-container">
-      <h2>Linha do tempo</h2>
-      <div className="filtro-container">
-        <label htmlFor="filtroArea">Filter by Area:</label>
-        <select
-                  name="area"
-                  onChange={handleFilterChange}
-                  style={{width:'264px', height: '33px'}}
-                  value={filtroArea}
-                  required
-                >
-                  <option value="" disabled>Select an area</option>
-                  {[...new Set(cronogramas.map(item => item.area))].map((area, index) => (
-                    <option key={index} value={area}>{area}</option>
-              ))};
-            </select>
-        
-      </div>
-      <table style={{marginBottom: '10px'}}>
-        <thead>
-          <tr>
-            <th>Plan</th>
-            <th>Area</th>
-            <th>Item</th>
-            <th>Start</th>
-            <th>End</th>
-            <th style={{width:'10%'}}>Dependency: Area</th>
-            <th style={{width:'10%'}}>Dependency: Item</th>
-            <th>Situation</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-        {filteredCronogramas.filter((item) => item.plano).map((item, index) => (
-            <tr key={index}>
-              <td>{item.plano}</td>
-              <td>
-                {item.area}
-              </td>
-              <td>
-                {item.item}
-              </td>
-              <td>{item.inicio}</td>
-              <td>{item.termino}</td>
-              <td>{item.dp_area}</td>
-              <td>{item.dp_item}</td>
-              <td>{item.situacao}</td>
-              <td>
-                <div className="botoes-acoes">
-                  <button style={{color: 'red'}} onClick={() => handleClick(item)}>X</button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
+      <h2>Estimated timeline</h2>
       {confirmDeleteItem && (
         <div className="overlay">
           <div className="modal">
@@ -197,16 +142,71 @@ const Tabela = () => {
         </div>
       )}
 
-      {/* Gráfico Gantt */}
+      
+
+<div className="mini-input">
+        <label htmlFor="filtroArea">Filter table:</label>
+        <select
+                  name="area"
+                  onChange={handleFilterChange}
+                  style={{width:'264px', height: '33px'}}
+                  value={filtroArea}
+                  required
+                >
+                  <option value="" disabled>Select an area</option>
+                  {[...new Set(cronogramas.map(item => item.area))].map((area, index) => (
+                    <option key={index} value={area}>{area}</option>
+              ))};
+            </select>
+        
+      </div>
+      <table style={{marginBottom: '10px'}}>
+        <thead>
+          <tr>
+            <th>Area</th>
+            <th>Task</th>
+            <th>Start</th>
+            <th>End</th>
+            <th style={{width:'11%'}}>Dependency: Area</th>
+            <th style={{width:'11%'}}>Dependency: Item</th>
+            <th style={{width:'5%'}}>Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+        {filteredCronogramas.filter((item) => item.plano).map((item, index) => (
+            <tr key={index}>
+              <td>
+                {item.area}
+              </td>
+              <td>
+                {item.item}
+              </td>
+              <td>{item.inicio}</td>
+              <td>{item.termino}</td>
+              <td>{item.dp_area || '-'}</td>
+              <td>{item.dp_item || '-'}</td>
+              <td>
+                <div className="botoes-acoes">
+                  <button style={{color: 'red'}} onClick={() => handleClick(item)}>X</button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      
+          {/* Gráfico Gantt */}
       <Chart
+      height={'2000px'}
         width={'90%'}
-        height={'400px'}
         chartType="Gantt"
         loader={<div>Loading Chart</div>}
         data={chartData}
         options={{
           gantt: {
             trackHeight: 30,
+            sortTasks: false,
           },
         }}
       />

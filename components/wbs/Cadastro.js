@@ -1,5 +1,6 @@
 // components/Cadastro.js
 import React, { useState, useEffect } from 'react';
+import Tabela from '../../components/wbs/Tabela';
 
 const Cadastro = ({ onCadastro }) => {
   const [formData, setFormData] = useState({
@@ -31,7 +32,6 @@ const Cadastro = ({ onCadastro }) => {
 
   useEffect(() => {
     fetchElementos();
-    elementos.map((item) => console.log(item.area));
   }, []);
 
   const handleChange = (e) => {
@@ -91,7 +91,7 @@ const Cadastro = ({ onCadastro }) => {
 
   return (
     <div className="centered-container">
-      <h1>WBS Element Register</h1>
+      <h1>Work Breakdown Structure</h1>
       <form onSubmit={handleSubmit}>
         <div>
           <div className="centered-container">
@@ -146,7 +146,7 @@ const Cadastro = ({ onCadastro }) => {
           
         </div>
         <div>
-          <button className="botao-cadastro" type="submit">Register financial release</button>
+          <button className="botao-cadastro" type="submit">Register WBS element</button>
         </div>
       </form>
     </div>

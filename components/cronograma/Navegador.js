@@ -5,20 +5,20 @@ const Navbar = () => {
     return (
 
       <nav style={{color: 'white'}}>
-        <h2><Link href="/pages/financas/cadastro">Alpha Management/Finances</Link></h2>
+        <h2><Link href="/pages/cronograma/tabela">Alpha Management/Timeline</Link></h2>
         <img src={'/images/logo.png'} alt="Logo" style={{width: '80px'}}/>
         <ul>
           <li>
-            <Link href="/pages/financeiro/financas/cadastro">Register</Link>
+            <Link href="/pages/cronograma/cadastro">Register</Link>
           </li>
           <li>
-            <Link href="/pages/financeiro/financas/tabela">Spreadsheet</Link>
+            <Link href="/pages/cronograma/tabela">Timeline</Link>
           </li>
           <li>
-            <Link href="/pages/financeiro/financas/resumo">Report</Link>
+            <Link href="/pages/cronograma/monitoramento">Monitoring</Link>
           </li>
           <li>
-            <Link href="/">Go to Menu</Link>
+            <Link href="/">Go to menu</Link>
           </li>
         </ul>
       </nav>

@@ -178,8 +178,9 @@ const Cadastro = ({ onCadastro }) => {
       <h1>Timeline component register</h1>
       <form onSubmit={handleSubmit}>
         <div>
-          <div className="centered-container">
+          <div className="centered-container mini-input">
             <select
+                  className='mini-input'
                   name="area"
                   onChange={handleAreaChange}
                   style={{width:'264px', height: '33px'}}
@@ -226,7 +227,7 @@ const Cadastro = ({ onCadastro }) => {
               value={formData.termino}
               required
             />
-            <label htmlFor="valor">Value</label>
+            <label htmlFor="dependencies">Dependencies</label>
 
             <select
                   name="dp_area"
@@ -261,7 +262,7 @@ const Cadastro = ({ onCadastro }) => {
       {dadosUsados && (
     <div className="overlay">
       <div className="modal">
-        <p>Data already in use. Please select different values.</p>
+        <p>Task already registered. Please select a different task.</p>
         <button className="botao-cadastro" onClick={() => setDadosUsados(false)}>
           Close
         </button>
