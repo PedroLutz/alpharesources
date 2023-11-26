@@ -39,6 +39,7 @@ const Tabela = () => {
   const [itemSelecionado, setItemSelecionado] = useState('');
   const [tarefaSelecionada, setTarefaSelecionada] = useState('');
   const [exibirModalSemTarefa, setExibirModalSemTarefa] = useState(false);
+  const [exibirModalSituacaoInvalida, setExibirModalSituacaoInvalida] = useState(false);
 
   const handleChange = (e) => {
     setDatas({ ...datas, dataTermino: e.target.value });
@@ -136,6 +137,11 @@ const Tabela = () => {
       // Verifica se há um item para atualizar
       if (!itemParaAtualizar) {
         console.log('Nenhum item para atualizar');
+        return;
+      }
+
+      if (itemParaAtualizar.situacao === 'iniciar' || itemParaAtualizar.situacao === 'concluida') {
+        setExibirModalSituacaoInvalida(true);
         return;
       }
   
@@ -354,6 +360,20 @@ const Tabela = () => {
   </div>
 )}
 
+{exibirModalSituacaoInvalida && (
+        <div className="overlay">
+          <div className="modal">
+            <p>Você só pode atualizar datas de tarefas em andamento.</p>
+            <button
+              className="botao-cadastro"
+              onClick={() => setExibirModalSituacaoInvalida(false)}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Gráfico Gantt */}
       <Chart
         width={'90%'}
@@ -374,7 +394,9 @@ const Tabela = () => {
         <select
           name="area"
           value={filtroAreaSelecionada}
-          onChange={(e) => setFiltroAreaSelecionada(e.target.value)}
+          onChange={(e) => {
+            setFiltroAreaSelecionada(e.target.value);
+            setItemSelecionado('');}}
           required
         >
           <option value="" disabled>Select an area</option>
