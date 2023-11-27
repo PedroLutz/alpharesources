@@ -17,12 +17,12 @@ const formatDate = (dateString) => {
 
 const formatDateGantt = (dateString) => {
   var dateParts = dateString.split("/");
-  return new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0]);
+  return new Date(+dateParts[2], dateParts[1] - 1, dateParts[0]);
 }
 
 const formatInputDate = (dateString) => {
   var dateParts = dateString.split("-");
-  return new Date(+dateParts[0], dateParts[1] - 1, +dateParts[2])
+  return new Date(+dateParts[0], dateParts[1] - 1, dateParts[2])
 }
 
 const Tabela = () => {
@@ -43,7 +43,7 @@ const Tabela = () => {
   const [mostrarTabela, setMostrarTabela] = useState(false);
 
   const labelsSituacao = {
-    ainiciar: 'Starting',
+    iniciar: 'Starting',
     emandamento: 'Executing',
     concluida: 'Completed' 
   }
@@ -226,7 +226,7 @@ const Tabela = () => {
     
     cronogramas.forEach((item) => {
       if (!item.plano) {
-        if (item.inicio < item.termino){
+        if (formatDateGantt(item.inicio) < formatDateGantt(item.termino)){
           var dependencies = ''
         const taskID = `${item.area}_${item.item}`;
         const taskName = item.item;
@@ -238,7 +238,7 @@ const Tabela = () => {
         } else { 
           dependencies = `${item.dp_area}_${item.dp_item}`;
         }
-        ganttData.push([taskID, taskName, resource, startDate, endDate, 10, 100, dependencies]);
+        ganttData.push([taskID, taskName, resource, startDate, endDate, 0, 100, dependencies]);
         }
       }
     });
@@ -347,13 +347,14 @@ const Tabela = () => {
       {/* Gráfico Gantt */}
       <Chart
         width={'90%'}
-        height={'2000px'}
+        height={'1300px'}
         chartType="Gantt"
         loader={<div>Loading Chart</div>}
         data={chartData}
         options={{
           gantt: {
             trackHeight: 30,
+            sortTasks: false,
           },
         }}
       />

@@ -142,6 +142,21 @@ const Tabela = () => {
         </div>
       )}
 
+          {/* Gráfico Gantt */}
+          <Chart
+      height={'1300px'}
+        width={'90%'}
+        chartType="Gantt"
+        loader={<div>Loading Chart</div>}
+        data={chartData}
+        options={{
+          gantt: {
+            trackHeight: 30,
+            sortTasks: false,
+          },
+        }}
+      />
+
       
 
 <div className="mini-input">
@@ -195,21 +210,6 @@ const Tabela = () => {
         </tbody>
       </table>
 
-      
-          {/* Gráfico Gantt */}
-      <Chart
-      height={'2000px'}
-        width={'90%'}
-        chartType="Gantt"
-        loader={<div>Loading Chart</div>}
-        data={chartData}
-        options={{
-          gantt: {
-            trackHeight: 30,
-            sortTasks: false,
-          },
-        }}
-      />
     </div>
   );
 };
