@@ -54,10 +54,7 @@
   }
 
   .menuText {
-    position: absolute;
-    top: 20px; /* Ajuste conforme necessário para o posicionamento vertical desejado */
-    left: 50%;
-    transform: translateX(-50%);
+    position: relative;
     text-align: center;
   }
 
