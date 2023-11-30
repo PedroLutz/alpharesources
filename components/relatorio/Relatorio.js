@@ -25,6 +25,9 @@ const Resumo = () => {
   const [selectedMonthData, setSelectedMonthData] = useState([]);
   const [receitasPorMes, setReceitasPorMes] = useState([]);
   const [despesasPorMes, setDespesasPorMes] = useState([]);
+  const [iniciosNoMes, setIniciosNoMes] = useState([]);
+  const [terminosNoMes, setTerminosNoMes] = useState([]);
+  const [iniciosNoMesSeguinte, setIniciosNoMesSeguinte] = useState([]);
 
   useEffect(() => {
     // Fazer uma solicitação para a rota existente que retorna as informações de resumo
@@ -55,6 +58,18 @@ const Resumo = () => {
         .catch((error) => {
           console.error('Erro ao buscar lançamentos do mês', error);
         });
+
+        fetch(`/api/cronograma/get?month=${selectedMonth}&year=${selectedYear}`)
+        .then((response) => response.json())
+        .then((data) => {
+          // Atualizar o estado com os lançamentos do mês selecionado
+          setIniciosNoMes(data.iniciosNoMes);
+          setTerminosNoMes(data.terminosNoMes);
+          setIniciosNoMesSeguinte(data.iniciosNoMesSeguinte);
+        })
+        .catch((error) => {
+          console.error('Erro ao buscar lançamentos do mês', error);
+        });
     }
   }, [selectedMonth, selectedYear]);
 
@@ -76,6 +91,42 @@ const Resumo = () => {
     setSelectedYear(event.target.value);
   };
 
+  const areasIniciosMap = {};
+  iniciosNoMes.forEach((elemento) => {
+    if (!elemento.plano) {
+      if (!areasIniciosMap[elemento.area]) {
+        areasIniciosMap[elemento.area] = [];
+      }
+  
+      areasIniciosMap[elemento.area].push(elemento);
+    }
+  });
+
+  const areasTerminosMap = {};
+  terminosNoMes.forEach((elemento) => {
+    if (!elemento.plano && elemento.situacao === 'concluida' ) {
+      if (!areasTerminosMap[elemento.area]) {
+        areasTerminosMap[elemento.area] = [];
+      }
+  
+      areasTerminosMap[elemento.area].push(elemento);
+    }
+  });
+
+  const areasIniciosProxMesMap = {};
+  iniciosNoMesSeguinte.forEach((elemento) => {
+    if (elemento.plano) {
+      if (!areasIniciosProxMesMap[elemento.area]) {
+        areasIniciosProxMesMap[elemento.area] = [];
+      }
+  
+      areasIniciosProxMesMap[elemento.area].push(elemento);
+    }
+  });
+
+
+
+
   // Filtra os ganhos e gastos com base no mês e ano selecionados
   const filteredReceitasPorMes = receitasPorMes.filter((receita) => receita._id === `${selectedYear}/${selectedMonth}`);
   const filteredDespesasPorMes = despesasPorMes.filter((despesa) => despesa._id === `${selectedYear}/${selectedMonth}`);
@@ -88,6 +139,53 @@ const Resumo = () => {
         <div id='pdf-content'>
           <span>Total revenue:<br/>R${Number(receitasTotais).toFixed(2)}</span>
           <span>Total cost:<br/>R${Number(-despesasTotais).toFixed(2)}</span>
+
+          {iniciosNoMes.length > 0 && (
+  <div>
+<div>
+<b style={{fontSize: '25px'}}>Início</b>
+{Object.entries(areasIniciosMap).map(([area, itens]) => (
+  <div key={area}>
+    <p style={{ fontSize: '16px', fontWeight: 'bold' }}>{area}</p>
+    {itens.map((item) => (
+      <p key={item.item} style={{ fontSize: '13px', marginBottom: '' }}>
+        {item.item} ({new Date(item.inicio).toLocaleDateString()})
+      </p>
+    ))}
+  </div>
+))}
+</div>
+
+<div>
+  <b style={{fontSize: '25px'}}>Terminos</b>
+{Object.entries(areasTerminosMap).map(([area, itens]) => (
+  <div key={area}>
+    <p style={{ fontSize: '16px', fontWeight: 'bold' }}>{area}</p>
+    {itens.map((item) => (
+      <p key={item.item} style={{ fontSize: '13px', marginBottom: '' }}>
+        {item.item} ({new Date(item.termino).toLocaleDateString()})
+      </p>
+    ))}
+  </div>
+))}
+</div>
+
+<div>
+  <b style={{fontSize: '25px'}}>Planejadas</b>
+{Object.entries(areasIniciosProxMesMap).map(([area, itens]) => (
+  <div key={area}>
+    <p style={{ fontSize: '16px', fontWeight: 'bold' }}>{area}</p>
+    {itens.map((item) => (
+      <p key={item.item} style={{ fontSize: '13px', marginBottom: '' }}>
+        {item.item} ({new Date(item.inicio).toLocaleDateString()})
+      </p>
+    ))}
+  </div>
+))}
+</div>
+    
+  </div>
+)}
 
           {selectedMonth && selectedYear && (
           <div>

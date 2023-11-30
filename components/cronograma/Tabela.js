@@ -60,7 +60,7 @@ const Tabela = () => {
         });
         setCronogramas(data.cronogramas);
       } else {
-        console.error('Error in searching for financial releases data');
+        console.error('Error in searching for timeline data');
       }
     } catch (error) {
       console.error('Error in searching for financial releases data', error);
