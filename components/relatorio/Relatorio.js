@@ -15,7 +15,7 @@ const months = [
   { value: '12', label: 'December' },
 ];
 
-const years = ['2022', '2023']; // Adicione os anos necessários
+const years = ['2023', '2024']; // Adicione os anos necessários
 
 const Resumo = () => {
   const [receitasTotais, setReceitasTotais] = useState([]);
@@ -23,11 +23,14 @@ const Resumo = () => {
   const [selectedMonth, setSelectedMonth] = useState('');
   const [selectedYear, setSelectedYear] = useState('');
   const [selectedMonthData, setSelectedMonthData] = useState([]);
-  const [receitasPorMes, setReceitasPorMes] = useState([]);
-  const [despesasPorMes, setDespesasPorMes] = useState([]);
   const [iniciosNoMes, setIniciosNoMes] = useState([]);
   const [terminosNoMes, setTerminosNoMes] = useState([]);
   const [iniciosNoMesSeguinte, setIniciosNoMesSeguinte] = useState([]);
+  const [customText, setCustomText] = useState(''); // Estado para armazenar o texto do input
+
+  const handleCustomTextChange = (event) => {
+    setCustomText(event.target.value);
+  };
 
   useEffect(() => {
     // Fazer uma solicitação para a rota existente que retorna as informações de resumo
@@ -35,13 +38,11 @@ const Resumo = () => {
       .then((response) => response.json())
       .then((data) => {
         // Extrair os valores do objeto de resposta
-        const { receitasTotais, despesasTotais, receitasPorMes, despesasPorMes } = data;
+        const { receitasTotais, despesasTotais } = data;
 
         // Definir o estado com os valores obtidos
         setReceitasTotais(receitasTotais[0]?.total || 0);
         setDespesasTotais(despesasTotais[0]?.total || 0);
-        setReceitasPorMes(receitasPorMes);
-        setDespesasPorMes(despesasPorMes);
       })
       .catch((error) => {
         console.error('Erro ao buscar informações de resumo', error);
@@ -52,8 +53,14 @@ const Resumo = () => {
       fetch(`/api/financeiro/financas/get?month=${selectedMonth}&year=${selectedYear}`)
         .then((response) => response.json())
         .then((data) => {
+          const lancamentosDoMes = data.lancamentos.map((lancamento) => {
+            const dataLancamento = new Date(lancamento.data);
+            dataLancamento.setDate(dataLancamento.getDate() + 1);
+            return { ...lancamento, data: dataLancamento.toISOString() };
+          });
+  
           // Atualizar o estado com os lançamentos do mês selecionado
-          setSelectedMonthData(data.lancamentos);
+          setSelectedMonthData(lancamentosDoMes);
         })
         .catch((error) => {
           console.error('Erro ao buscar lançamentos do mês', error);
@@ -124,21 +131,58 @@ const Resumo = () => {
     }
   });
 
-
+  const lancamentosPorTipo = {};
+    selectedMonthData.forEach((lancamento) => {
+      const tipo = lancamento.tipo;
+      if (!lancamentosPorTipo[tipo]) {
+        lancamentosPorTipo[tipo] = [];
+      }
+      lancamentosPorTipo[tipo].push(lancamento);
+    });
+    const tiposOrdenados = Object.keys(lancamentosPorTipo).sort((a, b) => b.localeCompare(a));
 
 
   // Filtra os ganhos e gastos com base no mês e ano selecionados
-  const filteredReceitasPorMes = receitasPorMes.filter((receita) => receita._id === `${selectedYear}/${selectedMonth}`);
-  const filteredDespesasPorMes = despesasPorMes.filter((despesa) => despesa._id === `${selectedYear}/${selectedMonth}`);
-
+  const filteredLancamentosPorMes = selectedMonthData.filter((lancamento) => {
+    const lancamentoDate = new Date(lancamento.data);
+    return (
+      lancamentoDate.getMonth() === parseInt(selectedMonth, 10) - 1 &&
+      lancamentoDate.getFullYear() === parseInt(selectedYear, 10)
+    );
+  });
+  
   return (
     <div className="h3-resumo">
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
-        <h2>Report</h2>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
+        <h2>Status Report</h2>
+
+        <div>
+          <label>Select Month:</label>
+          <select value={selectedMonth} onChange={handleMonthChange}>
+            <option value="">--Select Month--</option>
+            {months.map((month) => (
+              <option key={month.value} value={month.value}>{month.label}</option>
+            ))}
+          </select>
+
+          <label>Select Year:</label>
+          <select value={selectedYear} onChange={handleYearChange}>
+            <option value="">--Select Year--</option>
+            {years.map((year) => (
+              <option key={year} value={year}>{year}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label>Comments:</label>
+          <input type="text" value={customText} onChange={handleCustomTextChange} />
+        </div>
+
+        <button onClick={generatePDF}>Generate PDF</button>
 
         <div id='pdf-content'>
-          <span>Total revenue:<br/>R${Number(receitasTotais).toFixed(2)}</span>
-          <span>Total cost:<br/>R${Number(-despesasTotais).toFixed(2)}</span>
+        <h3>{`Details for ${selectedMonth}/${selectedYear}`}</h3>
 
           {iniciosNoMes.length > 0 && (
   <div>
@@ -189,62 +233,44 @@ const Resumo = () => {
 
           {selectedMonth && selectedYear && (
           <div>
-            <h3>{`Details for ${selectedMonth}/${selectedYear}`}</h3>
-            <span>Total revenue: R${filteredReceitasPorMes.length > 0 ? filteredReceitasPorMes[0].total.toFixed(2) : '0.00'}</span>
-            <span>Total cost: R${filteredDespesasPorMes.length > 0 ? -filteredDespesasPorMes[0].total.toFixed(2) : '0.00'}</span>
+            
 
-            {filteredReceitasPorMes.length > 0 || filteredDespesasPorMes.length > 0 ? (
-      <div>
-        <h4>Lançamentos do mês:</h4>
-        <table>
-          <thead>
-            <tr>
-              <th>Descrição</th>
-              <th>Data</th>
-              <th>Valor</th>
-              <th>Tipo</th>
-            </tr>
-          </thead>
-          <tbody>
-            {selectedMonthData.map((lancamento) => (
-              <tr key={lancamento._id}>
-                <td>{lancamento.descricao}</td>
-                <td>{new Date(new Date(lancamento.data).setDate(new Date(lancamento.data).getDate() + 1)).toLocaleDateString()}</td>
-                <td>{lancamento.valor.toFixed(2)}</td>
-                <td>{lancamento.tipo}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+            <div>
+            <span>Total revenue:<br/>R${Number(receitasTotais).toFixed(2)}<br/></span>
+          <span>Total cost:<br/>R${Number(-despesasTotais).toFixed(2)}</span>
+  <h4>Lançamentos do mês:</h4>
+
+  {selectedMonthData.length > 0 ? (
+
+    // Renderizar lançamentos por tipo
+    tiposOrdenados.map((tipo) => (
+      <div key={tipo}>
+        <h5>{tipo}</h5>
+        <ul>
+        {filteredLancamentosPorMes
+        .filter((lancamento) => lancamento.tipo === tipo)
+        .map((lancamento) => (
+
+            <li key={lancamento._id}>
+              {lancamento.descricao} - R${Math. abs(lancamento.valor.toFixed(2))} ({new Date(lancamento.data).toLocaleDateString()})
+            </li>
+          ))}
+        </ul>
       </div>
-    ) : (
-      <p>Nenhum lançamento para o mês selecionado.</p>
-    )}
+    ))
+  ) : (
+    <p>Nenhum lançamento para o mês selecionado.</p>
+  )}
+</div>
+
+<label>Comments:</label>
+<p>{customText}</p>
+
           </div>
         )}
         </div>
 
-        <div>
-          <label>Select Month:</label>
-          <select value={selectedMonth} onChange={handleMonthChange}>
-            <option value="">--Select Month--</option>
-            {months.map((month) => (
-              <option key={month.value} value={month.value}>{month.label}</option>
-            ))}
-          </select>
-
-          <label>Select Year:</label>
-          <select value={selectedYear} onChange={handleYearChange}>
-            <option value="">--Select Year--</option>
-            {years.map((year) => (
-              <option key={year} value={year}>{year}</option>
-            ))}
-          </select>
-        </div>
-
         
-
-        <button onClick={generatePDF}>Generate PDF</button>
       </div>
     </div>
   );
