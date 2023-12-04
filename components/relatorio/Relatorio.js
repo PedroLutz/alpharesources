@@ -20,6 +20,8 @@ const years = ['2023', '2024']; // Adicione os anos necessários
 const Resumo = () => {
   const [receitasTotais, setReceitasTotais] = useState([]);
   const [despesasTotais, setDespesasTotais] = useState([]);
+  const [receitasPorMes, setReceitasPorMes] = useState([]);
+  const [despesasPorMes, setDespesasPorMes] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState('');
   const [selectedYear, setSelectedYear] = useState('');
   const [selectedMonthData, setSelectedMonthData] = useState([]);
@@ -38,11 +40,11 @@ const Resumo = () => {
       .then((response) => response.json())
       .then((data) => {
         // Extrair os valores do objeto de resposta
-        const { receitasTotais, despesasTotais } = data;
+        const { receitasPorMes, despesasPorMes } = data;
 
         // Definir o estado com os valores obtidos
-        setReceitasTotais(receitasTotais[0]?.total || 0);
-        setDespesasTotais(despesasTotais[0]?.total || 0);
+        setReceitasPorMes(receitasPorMes || 0);
+        setDespesasPorMes(despesasPorMes || 0);
       })
       .catch((error) => {
         console.error('Erro ao buscar informações de resumo', error);
@@ -81,14 +83,25 @@ const Resumo = () => {
   }, [selectedMonth, selectedYear]);
 
   const generatePDF = () => {
-    import('html2pdf.js').then((html2pdfModule) => {
-      const html2pdf = html2pdfModule.default;
+  import('html2pdf.js').then((html2pdfModule) => {
+    const html2pdf = html2pdfModule.default;
 
-      const content = document.getElementById('pdf-content');
+    const content = document.getElementById('pdf-content');
 
-      html2pdf(content);
-    });
-  };
+    // Opções de configuração do PDF
+    const pdfOptions = {
+      margin: 10,
+      filename: `status_report_${selectedMonth}/${selectedYear}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      // Adicionando um cabeçalho personalizado para cada página
+    };
+
+    html2pdf().from(content).set(pdfOptions).save();
+  });
+};
+
 
   const handleMonthChange = (event) => {
     setSelectedMonth(event.target.value);
@@ -179,15 +192,19 @@ const Resumo = () => {
           <input type="text" value={customText} onChange={handleCustomTextChange} />
         </div>
 
-        <button onClick={generatePDF}>Generate PDF</button>
+        <button onClick={generatePDF} className="botao-cadastro">Generate PDF</button>
 
-        <div id='pdf-content'>
-        <h3>{`Details for ${selectedMonth}/${selectedYear}`}</h3>
+        <div id='pdf-content' style={{width: '700px'}}>
+
 
           {iniciosNoMes.length > 0 && (
   <div>
-<div>
-<b style={{fontSize: '25px'}}>Início</b>
+    <div className="cabecario">
+            <img src={'/images/logo.png'} alt="Logo" style={{width: '80px', marginRight: '20px'}}/>
+            <b>Alpha - Status Report {selectedMonth}/{selectedYear}</b>
+          </div>
+<div style={{marginTop: '10px'}}>
+<b style={{fontSize: '25px', color: '#ff00e3'}}>Initiated tasks</b>
 {Object.entries(areasIniciosMap).map(([area, itens]) => (
   <div key={area}>
     <p style={{ fontSize: '16px', fontWeight: 'bold' }}>{area}</p>
@@ -198,10 +215,11 @@ const Resumo = () => {
     ))}
   </div>
 ))}
+<div> - </div>
 </div>
 
 <div>
-  <b style={{fontSize: '25px'}}>Terminos</b>
+  <b style={{fontSize: '25px', color: '#ff00e3'}}>Completed tasks</b>
 {Object.entries(areasTerminosMap).map(([area, itens]) => (
   <div key={area}>
     <p style={{ fontSize: '16px', fontWeight: 'bold' }}>{area}</p>
@@ -212,10 +230,11 @@ const Resumo = () => {
     ))}
   </div>
 ))}
+<div> - </div>
 </div>
 
 <div>
-  <b style={{fontSize: '25px'}}>Planejadas</b>
+  <b style={{fontSize: '25px', color: '#ff00e3'}}>Planned tasks</b>
 {Object.entries(areasIniciosProxMesMap).map(([area, itens]) => (
   <div key={area}>
     <p style={{ fontSize: '16px', fontWeight: 'bold' }}>{area}</p>
@@ -230,15 +249,18 @@ const Resumo = () => {
     
   </div>
 )}
+<div className="html2pdf__page-break"></div>
 
           {selectedMonth && selectedYear && (
           <div>
-            
-
-            <div>
-            <span>Total revenue:<br/>R${Number(receitasTotais).toFixed(2)}<br/></span>
-          <span>Total cost:<br/>R${Number(-despesasTotais).toFixed(2)}</span>
-  <h4>Lançamentos do mês:</h4>
+            <div className="cabecario" style={{marginTop: '10px'}}>
+            <img src={'/images/logo.png'} alt="Logo" style={{width: '80px', marginRight: '20px'}}/>
+            <b>Alpha - Status Report {selectedMonth}/{selectedYear}</b>
+          </div>
+            <div style={{marginTop: '10px'}}>
+            <b style={{fontSize: '25px', color: '#ff00e3'}}>Financial results</b><br/>
+              
+  <h4>Monthly releases</h4>
 
   {selectedMonthData.length > 0 ? (
 
@@ -256,15 +278,34 @@ const Resumo = () => {
             </li>
           ))}
         </ul>
+        <div> - </div>
       </div>
     ))
   ) : (
     <p>Nenhum lançamento para o mês selecionado.</p>
   )}
+  <div style={{marginTop: '10px'}}>
+    <div>
+    <span style={{fontSize: '20px'}}><b>Total revenue: </b>
+            R${Number(receitasPorMes.find(
+              item => item._id === `${selectedYear}/${selectedMonth}`
+            )?.total || 0).toFixed(2)}
+            </span>
+    </div>
+            
+              
+            <div style={{marginBottom: '20px'}}>
+            <span style={{fontSize: '20px'}}><b>Total cost: </b>R${Number(-despesasPorMes.find(
+              item => item._id === `${selectedYear}/${selectedMonth}`
+            )?.total || 0).toFixed(2)}
+            <br/></span>
+              </div>
+          
+            </div>
 </div>
 
-<label>Comments:</label>
-<p>{customText}</p>
+<label style={{fontWeight: 'bold'}}>Comments:</label>
+<p style={{border: '1px dotted #000000', borderRadius: '10px', padding: '5px'}}>{customText}</p>
 
           </div>
         )}

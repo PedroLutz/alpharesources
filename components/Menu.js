@@ -35,6 +35,12 @@ const Menu = () => {
                 Timeline management
             </Link>
         </span>
+        <span>
+            <Link href="/pages/report">
+                <img src={'/images/report_logo.png'} alt="Planning Logo" style={{width: '80px'}}/>
+                Report generator
+            </Link>
+        </span>
       </div>
     </div>
   );
