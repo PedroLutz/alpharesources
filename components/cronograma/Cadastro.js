@@ -110,7 +110,7 @@ const Cadastro = ({ onCadastro }) => {
     }
   
     try {
-      // Enviar os dados com plano: true e situacao: 'concluido'
+      // Enviar os dados com plano: true e situacao: 'concluida'
       const response1 = await fetch('/api/cronograma/create', {
         method: 'POST',
         headers: {
@@ -119,7 +119,7 @@ const Cadastro = ({ onCadastro }) => {
         body: JSON.stringify({
           ...formData,
           plano: true,
-          situacao: 'concluido',
+          situacao: 'concluida',
         }),
       });
   

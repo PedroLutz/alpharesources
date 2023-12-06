@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { Chart } from "react-google-charts";
+import { getStaticPaths } from 'next';
 
 const months = [
   { value: '01', label: 'January' },
@@ -29,6 +31,7 @@ const Resumo = () => {
   const [terminosNoMes, setTerminosNoMes] = useState([]);
   const [iniciosNoMesSeguinte, setIniciosNoMesSeguinte] = useState([]);
   const [customText, setCustomText] = useState(''); // Estado para armazenar o texto do input
+  const [cronogramaData, setCronogramaData] = useState([]);
 
   const handleCustomTextChange = (event) => {
     setCustomText(event.target.value);
@@ -68,6 +71,17 @@ const Resumo = () => {
           console.error('Erro ao buscar lançamentos do mês', error);
         });
 
+        fetch(`/api/cronograma/get`)
+        .then((response) => response.json())
+        .then((data) => {
+          // Atualizar o estado com os lançamentos do mês selecionado
+          setCronogramaData(data.cronogramas || []);
+          console.log(cronogramaData);
+        })
+        .catch((error) => {
+          console.error('Erro ao buscar lançamentos do mês', error);
+        });
+
         fetch(`/api/cronograma/get?month=${selectedMonth}&year=${selectedYear}`)
         .then((response) => response.json())
         .then((data) => {
@@ -81,6 +95,44 @@ const Resumo = () => {
         });
     }
   }, [selectedMonth, selectedYear]);
+
+  const generateChartData = () => {
+    const chartData = [['Month', 'Estimated', 'Real']];
+    const selectedMonthIndex = months.findIndex((month) => month.value === selectedMonth);
+    const selectedYearInt = parseInt(selectedYear, 10);
+    const startYear = 2023;
+    const startMonth = 7;
+  
+    const totalMonths = (selectedYearInt - startYear) * 12 + selectedMonthIndex - startMonth + 1;
+  
+    let totalPlanoTrue = 0;
+    let totalPlanoFalse = 0;
+  
+    for (let i = 0; i < totalMonths; i++) {
+      const currentDate = new Date(startYear, startMonth + i, 1);
+      const monthData = cronogramaData.filter((item) => {
+        const itemDate = new Date(item.termino);
+        return (
+          itemDate.getMonth() === currentDate.getMonth() &&
+          itemDate.getFullYear() === currentDate.getFullYear() &&
+          item.situacao === 'concluida'
+        );
+      });
+  
+      totalPlanoTrue += monthData.reduce((acc, item) => (item.plano ? acc + 1 : acc), 0);
+      totalPlanoFalse += monthData.reduce((acc, item) => (!item.plano ? acc + 1 : acc), 0);
+  
+      const monthLabel = months[(startMonth + i) % 12].label;
+  
+      chartData.push([monthLabel, totalPlanoTrue, totalPlanoFalse]);
+    }
+  
+    return chartData;
+  };
+  
+  
+  
+  
 
   const generatePDF = () => {
   import('html2pdf.js').then((html2pdfModule) => {
@@ -199,58 +251,93 @@ const Resumo = () => {
 
           {iniciosNoMes.length > 0 && (
   <div>
-    <div className="cabecario">
+    
+          {Object.entries(areasIniciosMap).map(([area, itensIniciados]) => (
+  <div key={area}>
+    <div className="cabecario" style={{marginTop: '10px'}}>
             <img src={'/images/logo.png'} alt="Logo" style={{width: '80px', marginRight: '20px'}}/>
             <b>Alpha - Status Report {selectedMonth}/{selectedYear}</b>
           </div>
-<div style={{marginTop: '10px'}}>
-<b style={{fontSize: '25px', color: '#ff00e3'}}>Initiated tasks</b>
-{Object.entries(areasIniciosMap).map(([area, itens]) => (
-  <div key={area}>
-    <p style={{ fontSize: '16px', fontWeight: 'bold' }}>{area}</p>
-    {itens.map((item) => (
-      <p key={item.item} style={{ fontSize: '13px', marginBottom: '' }}>
-        {item.item} ({new Date(item.inicio).toLocaleDateString()})
-      </p>
-    ))}
-  </div>
-))}
-<div> - </div>
-</div>
 
-<div>
-  <b style={{fontSize: '25px', color: '#ff00e3'}}>Completed tasks</b>
-{Object.entries(areasTerminosMap).map(([area, itens]) => (
-  <div key={area}>
-    <p style={{ fontSize: '16px', fontWeight: 'bold' }}>{area}</p>
-    {itens.map((item) => (
-      <p key={item.item} style={{ fontSize: '13px', marginBottom: '' }}>
-        {item.item} ({new Date(item.termino).toLocaleDateString()})
-      </p>
-    ))}
-  </div>
-))}
-<div> - </div>
-</div>
+    <div style={{ marginTop: '10px' }}>
+      <div style={{marginBottom: '20px'}}>
+      <b style={{ fontSize: '25px', color: '#ff00e3' }}>{area}</b>
+        </div>
+      
+      
+      {/* Iniciadas */}
+      <div>
+        <b style={{ fontSize: '20px', color: '#ff00e3' }}>Initiated tasks</b>
+        {itensIniciados.map((item) => (
+          <li key={item.item} style={{ fontSize: '13px', marginBottom: '10px', marginTop: '10px' }}>
+            {item.item} ({new Date(item.inicio).toLocaleDateString()})
+          </li>
+        ))}
+      </div>
 
-<div>
-  <b style={{fontSize: '25px', color: '#ff00e3'}}>Planned tasks</b>
-{Object.entries(areasIniciosProxMesMap).map(([area, itens]) => (
-  <div key={area}>
-    <p style={{ fontSize: '16px', fontWeight: 'bold' }}>{area}</p>
-    {itens.map((item) => (
-      <p key={item.item} style={{ fontSize: '13px', marginBottom: '' }}>
-        {item.item} ({new Date(item.inicio).toLocaleDateString()})
-      </p>
-    ))}
+      {/* Finalizadas */}
+      <div>
+        <b style={{ fontSize: '20px', color: '#ff00e3' }}>Completed tasks</b>
+        {areasTerminosMap[area]?.map((item) => (
+          <li key={item.item} style={{ fontSize: '13px', marginBottom: '10px', marginTop: '10px' }}>
+            {item.item} ({new Date(item.termino).toLocaleDateString()})
+          </li>
+        ))}
+      </div>
+
+      {/* Planejadas */}
+      <div>
+        <b style={{ fontSize: '20px', color: '#ff00e3' }}>Planned tasks</b>
+        {areasIniciosProxMesMap[area]?.map((item) => (
+          <li key={item.item} style={{ fontSize: '13px', marginBottom: '10px', marginTop: '10px' }}>
+            {item.item} ({new Date(item.inicio).toLocaleDateString()})
+          </li>
+        ))}
+      </div>
+    </div>
+
+    <div className="html2pdf__page-break"/>
   </div>
 ))}
-</div>
-    
   </div>
 )}
-<div className="html2pdf__page-break"></div>
 
+{cronogramaData.length > 0 && (
+          <div>
+            <div className="cabecario" style={{marginTop: '10px'}}>
+            <img src={'/images/logo.png'} alt="Logo" style={{width: '80px', marginRight: '20px'}}/>
+            <b>Alpha - Status Report {selectedMonth}/{selectedYear}</b>
+            </div>
+            
+            <div style={{ marginTop: '10px' }}>
+              <b style={{ fontSize: '25px', color: '#ff00e3' }}>Completed Tasks: Estimated X Real</b>
+
+              <Chart
+                width={'100%'}
+                height={'400px'}
+                chartType="LineChart"
+                loader={<div>Loading Chart</div>}
+                data={generateChartData()}
+                options={{
+                  title: 'Tasks completed per month',
+                  hAxis: { title: 'Month', titleTextStyle: { color: '#333', fontName: 'Montserrat' } },
+                  vAxis: { minValue: 0 },
+                  series: {
+                    0: { axis: 'Estimated Schedule' },
+                    1: { axis: 'Real Timeline' },
+                  },
+                  axes: {
+                    y: {
+                      'Estimated Schedule': { label: 'Estimated Schedule' },
+                      'Real Timeline': { label: 'Real Timeline' },
+                    },
+                  },
+                }}
+              />
+            </div>
+          </div>
+        )}
+                    <div className="html2pdf__page-break"/>
           {selectedMonth && selectedYear && (
           <div>
             <div className="cabecario" style={{marginTop: '10px'}}>
@@ -278,7 +365,6 @@ const Resumo = () => {
             </li>
           ))}
         </ul>
-        <div> - </div>
       </div>
     ))
   ) : (
