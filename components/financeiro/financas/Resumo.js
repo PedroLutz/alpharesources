@@ -31,13 +31,10 @@ const Resumo = () => {
   const areasGastos = new Set(despesasPorArea.map((despesaArea) => despesaArea._id));
   const todasAreas = Array.from(new Set([...areasGanhos, ...areasGastos]));
 
-  // Percorra a lista de meses
   todasAreas.forEach((areaNome) => {
-    // Encontre o correspondente da receita para o mês
     const receitaArea = receitasPorArea.find((receita) => receita._id === areaNome);
     const receitaValor = receitaArea ? receitaArea.total : 0;
 
-    // Encontre o correspondente da despesa para o mês
     const despesaArea = despesasPorArea.find((despesa) => despesa._id === areaNome);
     const despesaValor = despesaArea ? -despesaArea.total : 0;
 
@@ -54,13 +51,11 @@ const Resumo = () => {
   const mesesGastos = new Set(despesasPorMes.map((despesaMes) => despesaMes._id));
   const todosMeses = sortBy(Array.from(new Set([...mesesGanhos, ...mesesGastos])));
 
-  // Percorra a lista de meses
+
   todosMeses.forEach((mesNome) => {
-    // Encontre o correspondente da receita para o mês
     const receitaMes = receitasPorMes.find((receita) => receita._id === mesNome);
     const receitaValor = receitaMes ? receitaMes.total : 0;
 
-    // Encontre o correspondente da despesa para o mês
     const despesaMes = despesasPorMes.find((despesa) => despesa._id === mesNome);
     const despesaValor = despesaMes ? -despesaMes.total : 0;
 
@@ -77,18 +72,12 @@ const Resumo = () => {
       CrescimentoDosGastosGraph.push([formattedDate, gastosAcumulados]);
   });
 
-// Agora ValoresPorMesGraph conterá os valores para todos os meses, mesmo que não haja receita ou despesa para um mês específico
-
-
   useEffect(() => {
-    // Fazer uma solicitação para a rota existente que retorna as informações de resumo
     fetch('/api/financeiro/financas/get')
       .then((response) => response.json())
       .then((data) => {
-        // Extrair os valores do objeto de resposta
         const { somaValores, receitasPorArea, despesasPorArea, receitasPorMes, despesasPorMes , maiorEMenorValor, receitasTotais, despesasTotais } = data;
 
-        // Definir o estado com os valores obtidos
         setTotalValor(somaValores[0]?.total || 0);
         setReceitasPorArea(receitasPorArea);
         setDespesasPorArea(despesasPorArea);
@@ -136,7 +125,6 @@ const Resumo = () => {
         </div>
       </div>
      
-     {/* div Lançamentos por Área*/}
       <div>
         <h3>Releases per area</h3>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -177,9 +165,7 @@ const Resumo = () => {
             />
         </div>
       </div>
-      {/* fim div Lançamentos por Área*/}
 
-      {/* div Lançamentos por Mês*/}
       <div>
       <h3>Releases per month</h3>
         <div>
@@ -209,16 +195,13 @@ const Resumo = () => {
                 colors: ["#ff00e3"], 
                 series: {
                 0: {
-                  lineWidth: 5, // Largura da linha da série 0
+                  lineWidth: 5, 
                 },
               },}}
               rootProps={{ 'data-testid': '1' }}
             />
         </div>
 
-        {/* fim div Lançamentos por Mês*/}
-
-        {/* div Crescimento dos Gastos*/}
         <div>
           <h3>Cost growth per month</h3>
           <Chart
@@ -230,7 +213,7 @@ const Resumo = () => {
               options={{...estiloGraph, colors: ["#ff00e3"], 
               series: {
                 0: {
-                  lineWidth: 5, // Largura da linha da série 0
+                  lineWidth: 5,
                 },
               }
               }}

@@ -2,21 +2,25 @@
 import React, { useState } from 'react';
 
 const Cadastro = ({ onCadastro }) => {
-  const [registerSuccess, setRegisterSuccess] = useState(false);
-  const [formData, setFormData] = useState({
-    tipo: '',
-    descricao: '',
-    valor: '',
-    data: '',
-    area: '',
-    origem: '',
-    destino: '',
-  });
+    //estado para gerar o modal de sucesso
+    const [registerSuccess, setRegisterSuccess] = useState(false);
+    //estado para controlar os dados dos inputs
+    const [formData, setFormData] = useState({
+      tipo: '',
+      descricao: '',
+      valor: '',
+      data: '',
+      area: '',
+      origem: '',
+      destino: '',
+    });
 
+  //função para fechar o modal de sucesso
   const handleCloseModal = () => {
     setRegisterSuccess(false);
   };
 
+  //função para atualizar os dados dos inputs
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -24,9 +28,11 @@ const Cadastro = ({ onCadastro }) => {
     });
   };
 
+  //função para cadastrar os dados
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    //chamar api de cadastro de finanças
     try {
       const response = await fetch('/api/financeiro/financas/create', {
         method: 'POST',
@@ -36,14 +42,16 @@ const Cadastro = ({ onCadastro }) => {
         body: JSON.stringify(formData),
       });
 
+      //verifica se deu certo
       if (response.ok) {
         console.log('Financial release successfully registered!');
 
+        //
         if (typeof onCadastro === 'function') {
           onCadastro(formData);
         }
-        // Chama a função de cadastro passada como prop
-        // Limpa os campos após o envio do formulário
+
+        //reseta os dados dos inputs para deixá-los em branco
         setFormData({
           tipo: '',
           descricao: '',
@@ -54,6 +62,7 @@ const Cadastro = ({ onCadastro }) => {
           destino: '',
         });
 
+        //habilita o modal de sucesso
         setRegisterSuccess(true);
       } else {
         console.error('Error when registering the release');
@@ -66,9 +75,14 @@ const Cadastro = ({ onCadastro }) => {
   return (
     <div className="centered-container">
       <h1>Register Financial Release</h1>
+
       <form onSubmit={handleSubmit}>
+        {/*Inputs*/}
         <div>
+
+          {/*Inputs radio*/}
           <div className="containerPai">
+
             <label className="container">
               <input
                 type="radio"
@@ -81,6 +95,7 @@ const Cadastro = ({ onCadastro }) => {
               <span className="checkmark"></span>
               Income
             </label>
+
             <label className="container">
               <input
                 type="radio"
@@ -93,6 +108,7 @@ const Cadastro = ({ onCadastro }) => {
               <span className="checkmark"></span>
               Expense
             </label>
+
             <label className="container">
               <input
                 type="radio"
@@ -105,8 +121,13 @@ const Cadastro = ({ onCadastro }) => {
               <span className="checkmark"></span>
               Exchange
             </label>
+          {/*fim inputs Radio*/}
           </div>
+
+          {/*outros inputs*/}
           <div className="centered-container">
+            
+            {/*input descricao*/}
             <label htmlFor="descricao">Description</label>
             <input
               type="text"
@@ -117,67 +138,84 @@ const Cadastro = ({ onCadastro }) => {
               value={formData.descricao}
               required
             />
+
+            {/*input valor*/}
             <label htmlFor="valor">Value</label>
-          <input
-            type="number"
-            name="valor"
-            placeholder="R$420.69"
-            onChange={handleChange}
-            value={formData.valor}
-            required
-          />
-          <label htmlFor="data">Date</label>
-          <input
-            type="date"
-            name="data"
-            onChange={handleChange}
-            value={formData.data}
-            required
-          />
-          <label htmlFor="area">Area</label>
-          <select
-            name="area"
-            onChange={handleChange}
-            value={formData.area}
-            required
-          >
-            <option value="" disabled>Select an area</option>
-            <option value="3D printing">3D printing</option>
-            <option value="Engineering">Engineering</option>
-            <option value="Extras">Extras</option>
-            <option value="Marketing">Marketing</option>
-            <option value="Machining">Machining</option>
-            <option value="Painting">Painting</option>
-            <option value="Pit Display">Pit Display</option>
-            <option value="Portfolios">Portfolios</option>
-            <option value="Sponsorship">Sponsorship</option>
-            <option value="Traveling">Traveling</option>
-          </select>
-          <label htmlFor="origem">Credited Account (Origin)</label>
-          <input
-            type="text"
-            name="origem"
-            placeholder=""
-            onChange={handleChange}
-            value={formData.origem}
-            required
-          />
-          <label htmlFor="destino">Debited Account (Destiny)</label>
-          <input
-            type="text"
-            name="destino"
-            placeholder=""
-            onChange={handleChange}
-            value={formData.destino}
-            required
-          />
+            <input
+              type="number"
+              name="valor"
+              placeholder="R$420.69"
+              onChange={handleChange}
+              value={formData.valor}
+              required
+            />
+
+            {/*input data*/}
+            <label htmlFor="data">Date</label>
+            <input
+              type="date"
+              name="data"
+              onChange={handleChange}
+              value={formData.data}
+              required
+            />
+
+            {/*select area*/}
+            <label htmlFor="area">Area</label>
+            <select
+              name="area"
+              onChange={handleChange}
+              value={formData.area}
+              required
+            >
+              <option value="" disabled>Select an area</option>
+              <option value="3D printing">3D printing</option>
+              <option value="Engineering">Engineering</option>
+              <option value="Extras">Extras</option>
+              <option value="Marketing">Marketing</option>
+              <option value="Machining">Machining</option>
+              <option value="Painting">Painting</option>
+              <option value="Pit Display">Pit Display</option>
+              <option value="Portfolios">Portfolios</option>
+              <option value="Sponsorship">Sponsorship</option>
+              <option value="Traveling">Traveling</option>
+            </select>
+
+            {/*select origem*/}
+            <label htmlFor="origem">Credited Account (Origin)</label>
+            <input
+              type="text"
+              name="origem"
+              placeholder=""
+              onChange={handleChange}
+              value={formData.origem}
+              required
+            />
+
+            {/*select destino*/}
+            <label htmlFor="destino">Debited Account (Destiny)</label>
+            <input
+              type="text"
+              name="destino"
+              placeholder=""
+              onChange={handleChange}
+              value={formData.destino}
+              required
+            />
+
+          {/*fim outros inputs*/}
           </div>
+
+        {/*fim inputs*/}
         </div>
+
+        {/*botao cadastro*/}
         <div>
           <button className="botao-cadastro" type="submit">Register financial release</button>
         </div>
       </form>
 
+      {/*Modal de sucesso*/}
       {registerSuccess && (
         <div className="overlay">
           <div className="modal">
@@ -187,6 +225,7 @@ const Cadastro = ({ onCadastro }) => {
         </div>
       )}
 
+    {/*fim componente*/}
     </div>
   );
 };
