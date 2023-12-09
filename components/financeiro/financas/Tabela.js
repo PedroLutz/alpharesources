@@ -17,6 +17,12 @@ const formatDate = (dateString) => {
   return formattedDate;
 };
 
+const labelsTipo = {
+  Income: 'Income',
+  Expense: 'Cost',
+  Exchange: 'Exchange' 
+}
+
 const Tabela = () => {
   const [lancamentos, setLancamentos] = useState([]);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
@@ -168,7 +174,7 @@ const Tabela = () => {
         <tbody>
           {lancamentos.map((item, index) => (
             <tr key={index}>
-              <td>{item.tipo}</td>
+              <td>{labelsTipo[item.tipo]}</td>
               <td style={{ color: item.tipo === 'Income' ? 'green' : (item.tipo === 'Exchange' ? '#335EFF' : 'red') }}>
                 {item.descricao}
               </td>

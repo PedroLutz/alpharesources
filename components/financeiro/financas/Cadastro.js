@@ -106,7 +106,7 @@ const Cadastro = ({ onCadastro }) => {
                 required
               />
               <span className="checkmark"></span>
-              Expense
+              Cost
             </label>
 
             <label className="container">

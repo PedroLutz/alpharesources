@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Chart } from "react-google-charts";
-import { getStaticPaths } from 'next';
 
 const months = [
   { value: '01', label: 'January' },
@@ -20,8 +19,6 @@ const months = [
 const years = ['2023', '2024']; // Adicione os anos necessários
 
 const Resumo = () => {
-  const [receitasTotais, setReceitasTotais] = useState([]);
-  const [despesasTotais, setDespesasTotais] = useState([]);
   const [receitasPorMes, setReceitasPorMes] = useState([]);
   const [despesasPorMes, setDespesasPorMes] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState('');
@@ -130,10 +127,6 @@ const Resumo = () => {
     return chartData;
   };
   
-  
-  
-  
-
   const generatePDF = () => {
   import('html2pdf.js').then((html2pdfModule) => {
     const html2pdf = html2pdfModule.default;
@@ -147,7 +140,6 @@ const Resumo = () => {
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      // Adicionando um cabeçalho personalizado para cada página
     };
 
     html2pdf().from(content).set(pdfOptions).save();
@@ -249,10 +241,11 @@ const Resumo = () => {
         <div id='pdf-content' style={{width: '700px'}}>
 
 
-          {iniciosNoMes.length > 0 && (
+
   <div>
     
-          {Object.entries(areasIniciosMap).map(([area, itensIniciados]) => (
+  {Array.from(new Set([...Object.keys(areasIniciosMap), ...Object.keys(areasTerminosMap), ...Object.keys(areasIniciosProxMesMap)]))
+        .map((area) => (
   <div key={area}>
     <div className="cabecario" style={{marginTop: '10px'}}>
             <img src={'/images/logo.png'} alt="Logo" style={{width: '80px', marginRight: '20px'}}/>
@@ -268,7 +261,7 @@ const Resumo = () => {
       {/* Iniciadas */}
       <div>
         <b style={{ fontSize: '20px', color: '#ff00e3' }}>Initiated tasks</b>
-        {itensIniciados.map((item) => (
+        {areasIniciosMap[area]?.map((item) => (
           <li key={item.item} style={{ fontSize: '13px', marginBottom: '10px', marginTop: '10px' }}>
             {item.item} ({new Date(item.inicio).toLocaleDateString()})
           </li>
@@ -300,7 +293,7 @@ const Resumo = () => {
   </div>
 ))}
   </div>
-)}
+
 
 {cronogramaData.length > 0 && (
           <div>

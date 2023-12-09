@@ -14,7 +14,7 @@ function MyApp({ Component, pageProps }) {
 
   const FormularioLogin = () => {
     const [usuario, setUsuario] = useState("");
-    const [usuarioBanco, setUsuarioBanco] = useState("");
+    const [userInfo, setUserInfo] = useState("");
     const [senha, setSenha] = useState("");
 
     const fetchAutenticacao = async () => {
@@ -25,7 +25,7 @@ function MyApp({ Component, pageProps }) {
   
         if (response.status === 200) {
           const data = await response.json();
-          setUsuarioBanco(data.usuario[0]);
+          setUserInfo(data.usuario[0]);
         } else {
           console.error('Error in searching for timeline data');
         }
@@ -40,8 +40,7 @@ function MyApp({ Component, pageProps }) {
   
     const handleSubmit = (e) => {
       e.preventDefault();
-      console.log(usuarioBanco.senha, usuarioBanco.usuario)
-      if (senha === usuarioBanco.senha|| usuario === usuarioBanco.usuario) {
+      if (senha === userInfo.senha && usuario === userInfo.usuario) {
         setAutenticado(true);
       } else {
         // Senha incorreta
@@ -51,18 +50,24 @@ function MyApp({ Component, pageProps }) {
   
     return (
       <form onSubmit={handleSubmit}>
-        <div>
-          <div>
+        <div className="centered-container" style={{height: '100vh'}}>
+          <div className="modal-login">
             <div>
-              <input type="text" placeholder="Usuário" value={usuario} onChange={(e) => setUsuario(e.target.value)} className="form-control" />
+              <img src={'/images/logo.png'} alt="Logo" style={{width: '150px'}}/>
+              <b className="gradient-text" style={{fontSize: '20px'}}>Alpha Management</b>
+            </div>
+            <div className="mini-input">
+              <div>
+                <input type="text" placeholder="Username" value={usuario} onChange={(e) => setUsuario(e.target.value)}/>
+              </div>
+              <div>
+                <input type="password" placeholder="Password" value={senha} onChange={(e) => setSenha(e.target.value)} />
+              </div>
             </div>
             <div>
-              <input type="password" placeholder="Senha" value={senha} onChange={(e) => setSenha(e.target.value)} className="form-control" />
-            </div>
-          </div>
-          <div>
-            <div >
-              <button type="submit">Entrar</button>
+              <div >
+                <button className="botao-cadastro" type="submit">Login</button>
+              </div>
             </div>
           </div>
         </div>
@@ -71,22 +76,22 @@ function MyApp({ Component, pageProps }) {
   };
 
   if (autenticado){
-  return (
-    <div>
-      <Head>
-        <title>Alpha Management</title>
-        <link rel="icon" href="/images/logo.png" /> {/* Adicione esta linha */}
-      </Head>
-        <Component {...pageProps} />
-    </div>
-  );
-} else {
-  return (
-    <>
-      <FormularioLogin/>
-    </>
-  );
-}
+    return (
+      <div>
+        <Head>
+          <title>Alpha Management</title>
+          <link rel="icon" href="/images/logo.png" /> {/* Adicione esta linha */}
+        </Head>
+          <Component {...pageProps} />
+      </div>
+    );
+  } else {
+    return (
+      <>
+        <FormularioLogin/>
+      </>
+    );
+  }
 }
 
 export default MyApp;
