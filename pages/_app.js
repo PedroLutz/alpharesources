@@ -40,7 +40,7 @@ function MyApp({ Component, pageProps }) {
   
     const handleSubmit = (e) => {
       e.preventDefault();
-      if (senha === userInfo.senha && usuario === userInfo.usuario) {
+      if (senha === userInfo.senha && usuario === userInfo.usuario.trim()) {
         setAutenticado(true);
       } else {
         // Senha incorreta
