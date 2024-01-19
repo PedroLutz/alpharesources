@@ -54,7 +54,7 @@ function MyApp({ Component, pageProps }) {
           <div className="modal-login">
             <div>
               <img src={'/images/logo.png'} alt="Logo" style={{width: '150px'}}/>
-              <b className="gradient-text" style={{fontSize: '20px'}}>Alpha Management</b>
+              <b className="gradient-text" style={{fontSize: '20px'}}>teste foda</b>
             </div>
             <div className="mini-input">
               <div>
