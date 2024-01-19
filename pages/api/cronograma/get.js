@@ -33,7 +33,7 @@ export default async (req, res) => {
 
       const iniciosNoMesSeguinte = cronogramas
       .filter((elemento) => {
-        return elemento.inicio >= dataInicioProxMes && elemento.termino <= dataFimProxMes;
+        return elemento.inicio >= dataInicioProxMes && elemento.inicio <= dataFimProxMes;
       })
       .map((elemento) => {
         // Ajuste da data para iniciosNoMesSeguinte
