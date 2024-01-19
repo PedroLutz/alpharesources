@@ -85,13 +85,7 @@ const Resumo = () => {
           // Atualizar o estado com os lançamentos do mês selecionado
           setIniciosNoMes(data.iniciosNoMes);
           setTerminosNoMes(data.terminosNoMes);
-          const adjustedIniciosNoMesSeguinte = data.iniciosNoMesSeguinte.map((item) => {
-            // Adiciona um dia aos dados antes de definir o estado
-            const dataInicio = new Date(item.inicio);
-            dataInicio.setDate(dataInicio.getDate() + 1);
-            return { ...item, inicio: dataInicio.toISOString() };
-          });
-          setIniciosNoMesSeguinte(adjustedIniciosNoMesSeguinte);
+          setIniciosNoMesSeguinte(data.iniciosNoMesSeguinte);
         })
         .catch((error) => {
           console.error('Erro ao buscar lançamentos do mês', error);
