@@ -31,9 +31,16 @@ export default async (req, res) => {
         return elemento.termino >= startDate && elemento.termino <= endDate;
       });
 
-      const iniciosNoMesSeguinte = cronogramas.filter((elemento) => {
-        return elemento.inicio >= dataInicioProxMes && elemento.inicio <= dataFimProxMes;
-      });
+      const iniciosNoMesSeguinte = cronogramas
+  .filter((elemento) => {
+    return elemento.inicio >= dataInicioProxMes && elemento.inicio <= dataFimProxMes;
+  })
+  .map((elemento) => {
+    // Ajuste da data para iniciosNoMesSeguinte
+    const adjustedInicio = new Date(elemento.inicio);
+    adjustedInicio.setDate(adjustedInicio.getDate() + 1);
+    return { ...elemento, inicio: adjustedInicio.toISOString() };
+  });
 
 
       res.status(200).json({ cronogramas, iniciosNoMes, terminosNoMes, iniciosNoMesSeguinte});
