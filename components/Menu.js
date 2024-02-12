@@ -43,13 +43,14 @@ const Menu = () => {
                     Timeline management
                 </Link>
             </span>
-            {/*Item Report*/}
+            {/*Item Report
             <span>
                 <Link href="/pages/report">
                     <img src={'/images/report_logo.png'} alt="Planning Logo" className="logoItem"/>
                     Report generator
                 </Link>
             </span>
+            */}
         </div>
     </div>
   );
