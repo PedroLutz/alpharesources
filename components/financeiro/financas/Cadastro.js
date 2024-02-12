@@ -144,7 +144,7 @@ const Cadastro = ({ onCadastro }) => {
             <input
               type="number"
               name="valor"
-              placeholder="R$420.69"
+              placeholder="950.99"
               onChange={handleChange}
               value={formData.valor}
               required
