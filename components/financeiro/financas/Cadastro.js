@@ -28,6 +28,18 @@ const Cadastro = ({ onCadastro }) => {
     });
   };
 
+  //função para chamar o dia de hoje
+  const handleSetDataHoje = (inputName) => {
+    const today = new Date();
+    today.setDate(today.getDate() - 1);
+    const formattedDate = today.toISOString().split('T')[0];
+  
+    setFormData((formData) => ({
+      ...formData,
+      [inputName]: formattedDate,
+    }));
+  };
+
   //função para cadastrar os dados
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -159,6 +171,7 @@ const Cadastro = ({ onCadastro }) => {
               value={formData.data}
               required
             />
+            {/* <button className="botao-cadastro" onClick={() => handleSetDataHoje('data')}>Set today</button> */}
 
             {/*select area*/}
             <label htmlFor="area">Area</label>
