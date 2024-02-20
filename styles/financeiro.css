@@ -1,0 +1,57 @@
+.input-data input{
+    max-width: 710px;
+}
+
+.input-data button {
+    color: black;
+    font-size: 15px;
+    font-family: 'Montserrat';
+    background-color: rgb(228, 228, 228);
+    height: 100%;
+    font-size: 14px;
+    border-color:rgb(113, 113, 113);
+    border-style: solid;
+    border-radius: 10px;
+    padding: 5px;
+    margin-right: 10px;
+    width: 80px;
+    height: 36px;
+}
+
+.input-data input, button {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.financeiro{
+    input {
+        color: black;
+        font-family: 'Montserrat';
+        border-color: -internal-light-dark(rgb(118, 118, 118), rgb(133, 133, 133));
+        border-radius: 10px;
+        border-width: 2px;
+        border-style: solid;
+        background-color: rgb(228, 228, 228);
+        margin: 10px;
+        padding: 5px;
+        width: 800px;
+        font-size: 15px;
+        text-align: start; 
+        gap: 0px;
+    }
+    select {
+        color: black;
+        border-style: solid;
+        background-color: rgb(228, 228, 228);
+        border-color: -internal-light-dark(rgb(118, 118, 118), rgb(133, 133, 133));
+        font-family: 'Montserrat';
+        border-radius: 10px;
+        margin: 10px;
+        padding: 5px;
+        font-size: 15px;
+        width: 813px;
+        text-align: start; 
+        gap: 0px; 
+        border-width: 2px;
+    }
+}

@@ -56,10 +56,10 @@ label {
 input {
     color: black;
     font-family: 'Montserrat';
+    border-color: -internal-light-dark(rgb(118, 118, 118), rgb(133, 133, 133));
     border-radius: 10px;
     border-width: 2px;
-    border-style: inset;
-    border-color: -internal-light-dark(rgb(118, 118, 118), rgb(133, 133, 133));
+    border-style: solid;
     background-color: rgb(228, 228, 228);
     margin: 10px;
     padding: 5px;
@@ -72,8 +72,9 @@ input {
 
 select {
     color: black;
-    border-color: black;
+    border-style: solid;
     background-color: rgb(228, 228, 228);
+    border-color: -internal-light-dark(rgb(118, 118, 118), rgb(133, 133, 133));
     font-family: 'Montserrat';
     border-radius: 10px;
     margin: 10px;
@@ -84,8 +85,6 @@ select {
     display: flex;
     gap: 0px; 
     border-width: 2px;
-    border-style: inset;
-    border-color: -internal-light-dark(rgb(118, 118, 118), rgb(133, 133, 133));
 }
 
 table {

@@ -1,8 +1,8 @@
 import React from 'react';
 import Head from 'next/head';
-import { getStaticPaths, getStaticProps } from 'next';
 import { useState, useEffect } from "react";
 
+import '../styles/financeiro.css';
 import '../styles/global.css';
 import '../styles/radio.css';
 import '../styles/navbar.css';
@@ -75,7 +75,7 @@ function MyApp({ Component, pageProps }) {
     );
   };
 
-  if (autenticado){
+  if (!autenticado){
     return (
       <div>
         <Head>

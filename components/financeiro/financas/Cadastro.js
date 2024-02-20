@@ -31,8 +31,7 @@ const Cadastro = ({ onCadastro }) => {
   //função para chamar o dia de hoje
   const handleSetDataHoje = (inputName) => {
     const today = new Date();
-    today.setDate(today.getDate() - 1);
-    const formattedDate = today.toISOString().split('T')[0];
+    const formattedDate = today.toLocaleString('en-CA', {year: 'numeric', month: '2-digit', day: '2-digit'}).split(',')[0];
   
     setFormData((formData) => ({
       ...formData,
@@ -85,7 +84,7 @@ const Cadastro = ({ onCadastro }) => {
   };
 
   return (
-    <div className="centered-container">
+    <div className="centered-container financeiro">
       <h1>Register Financial Release</h1>
 
       <form onSubmit={handleSubmit}>
@@ -164,14 +163,18 @@ const Cadastro = ({ onCadastro }) => {
 
             {/*input data*/}
             <label htmlFor="data">Date</label>
-            <input
-              type="date"
-              name="data"
-              onChange={handleChange}
-              value={formData.data}
-              required
-            />
-            {/* <button className="botao-cadastro" onClick={() => handleSetDataHoje('data')}>Set today</button> */}
+            <div className='input-data'>
+              <input
+                type="date"
+                name="data"
+                onChange={handleChange}
+                value={formData.data}
+                required
+              />
+              <button onClick={() => handleSetDataHoje('data')}>Set today</button>
+            </div>
+            
+            
 
             {/*select area*/}
             <label htmlFor="area">Area</label>
