@@ -35,6 +35,7 @@
     width: 15px;
     background-color: rgb(228, 228, 228);
     border-radius: 50%;
+    transition: background-color 0.2s
   }
 
   .checkmark:after {

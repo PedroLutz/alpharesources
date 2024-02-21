@@ -16,6 +16,12 @@
     margin-right: 10px;
     width: 80px;
     height: 36px;
+    transition: background-color 0.1s, color 0.1s;
+}
+
+.input-data button:active {
+    background-color: #999;
+    color: #fff;
 }
 
 .input-data input, button {
