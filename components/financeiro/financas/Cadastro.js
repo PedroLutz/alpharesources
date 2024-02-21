@@ -171,7 +171,7 @@ const Cadastro = ({ onCadastro }) => {
                 value={formData.data}
                 required
               />
-              <button onClick={() => handleSetDataHoje('data')}>Set today</button>
+              <button type="button" onClick={() => handleSetDataHoje('data')}>Set today</button>
             </div>
             
             
