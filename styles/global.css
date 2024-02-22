@@ -35,6 +35,11 @@ text {
     margin-right: 5px;
     margin-bottom: 5px;
     background-image: linear-gradient(to left, #830074 0%, #500380 100%);
+    transition: font-size 0.1s;
+}
+
+.botao-cadastro:active {
+    font-size: 14px;
 }
 
 label {
@@ -145,9 +150,8 @@ span.custom-span:hover {
 
 .centered-container label:not(.container) {
     font-size: 12px;
-    align-self: flex-start;
-    margin-left: 10px;
-    margin-bottom: 0px;
+    width: 810px; /* Adjust the width as needed */
+    text-align: left; /* Align text to the right */
 }
 
 .h3-resumo h3{

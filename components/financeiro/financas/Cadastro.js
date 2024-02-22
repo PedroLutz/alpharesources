@@ -164,13 +164,13 @@ const Cadastro = ({ onCadastro }) => {
             {/*input data*/}
             <label htmlFor="data">Date</label>
             <div className='input-data'>
-              <input
-                type="date"
-                name="data"
-                onChange={handleChange}
-                value={formData.data}
-                required
-              />
+                <input
+                    type="date"
+                    name="data"
+                    onChange={handleChange}
+                    value={formData.data}
+                    required
+                />
               <button type="button" onClick={() => handleSetDataHoje('data')}>Set today</button>
             </div>
             
