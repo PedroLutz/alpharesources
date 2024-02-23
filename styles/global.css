@@ -20,6 +20,7 @@ text {
     margin-bottom: -10px;
     color: rgb(0, 0, 0);
     margin-right: 5px;
+    margin: 0px;
 
 }
 
@@ -62,7 +63,7 @@ label {
 input {
     color: black;
     font-family: 'Montserrat';
-    border-color: -internal-light-dark(rgb(118, 118, 118), rgb(133, 133, 133));
+    border-color: rgb(133, 133, 133);
     border-radius: 10px;
     border-width: 2px;
     border-style: solid;
@@ -80,7 +81,7 @@ select {
     color: black;
     border-style: solid;
     background-color: rgb(228, 228, 228);
-    border-color: -internal-light-dark(rgb(118, 118, 118), rgb(133, 133, 133));
+    border-color: rgb(133, 133, 133);
     font-family: 'Montserrat';
     border-radius: 10px;
     margin: 10px;
@@ -96,17 +97,21 @@ select {
 table {
     border-collapse: collapse;
     width: 95%;
-    border: 1px solid rgb(0, 0, 0);
+    border: 1px solid  rgb(168, 168, 168);
 }
 
 td {
-    border: 1px dotted rgb(0, 0, 0);
+    border: 1px solid rgb(168, 168, 168);
     padding: 3px; 
 }
 
 th {
-    border: 1px dotted rgb(0, 0, 0);
-    padding: 3px; 
+    border: 1px solid rgb(168, 168, 168);
+    font-size: 18px;
+    background-color: #ffbaf7;
+    padding: 3px;
+    padding-top: 10px;
+    padding-bottom: 10px; 
 }
 
 span.custom-span {

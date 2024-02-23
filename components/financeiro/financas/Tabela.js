@@ -154,10 +154,30 @@ const Tabela = () => {
     })
   };
 
+  const generatePDF = () => {
+    import('html2pdf.js').then((html2pdfModule) => {
+      const html2pdf = html2pdfModule.default;
+  
+      const content = document.getElementById('report');
+  
+      // Opções de configuração do PDF
+      const pdfOptions = {
+        margin: 10,
+        filename: `report.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 1 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+      };
+  
+      html2pdf().from(content).set(pdfOptions).save();
+    });
+  };
 
-  return (
-    <div className="centered-container">
-      <h2>Financial Releases Data</h2>
+return (
+  <div className="centered-container">
+    <h2>Financial Releases Data</h2>
+    <button onClick={generatePDF} className="botao-cadastro" style={{marginTop: '-10px', marginBottom: '30px'}}>Export Table</button>
+    <div id="report">
       <table>
         <thead>
           <tr>
@@ -166,19 +186,21 @@ const Tabela = () => {
             <th>Value</th>
             <th>Date</th>
             <th>Area</th>
-            <th style={{width:'10%'}}>Origin</th>
-            <th style={{width:'10%'}}>Destiny</th>
+            <th style={{ width: '10%' }}>Origin</th>
+            <th style={{ width: '10%' }}>Destiny</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {lancamentos.map((item, index) => (
+        {lancamentos.map((item, index) => (
+          <>
+            {index % 12 === 0 && index !== 0 && <div className="html2pdf__page-break"/>}
             <tr key={index}>
               <td>{labelsTipo[item.tipo]}</td>
-              <td style={{ color: item.tipo === 'Income' ? 'green' : (item.tipo === 'Exchange' ? '#335EFF' : 'red') }}>
+              <td style={{ color: item.tipo === 'Income' ? 'green' : item.tipo === 'Exchange' ? '#335EFF' : 'red' }}>
                 {item.descricao}
               </td>
-              <td style={{ color: item.tipo === 'Income' ? 'green' : (item.tipo === 'Exchange' ? '#335EFF' : 'red') }}>
+              <td style={{ color: item.tipo === 'Income' ? 'green' : item.tipo === 'Exchange' ? '#335EFF' : 'red' }}>
                 <b>R${Math.abs(item.valor).toFixed(2)}</b>
               </td>
               <td>{item.data}</td>
@@ -187,14 +209,18 @@ const Tabela = () => {
               <td>{item.destino}</td>
               <td>
                 <div className="botoes-acoes">
-                  <button style={{color: 'red'}} onClick={() => handleClick(item)}>X</button>
+                  <button style={{ color: 'red' }} onClick={() => handleClick(item)}>
+                    X
+                  </button>
                   <button onClick={() => handleUpdateClick(item)}>$</button>
                 </div>
               </td>
             </tr>
-          ))}
+          </>
+        ))}
         </tbody>
       </table>
+    </div>
 
       {confirmDeleteItem && (
         <div className="overlay">
