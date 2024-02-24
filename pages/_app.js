@@ -4,8 +4,6 @@ import { useState, useEffect } from "react";
 
 import '../styles/financeiro.css';
 import '../styles/global.css';
-import '../styles/radio.css';
-import '../styles/navbar.css';
 import '../styles/menu.css';
 import '../styles/wbs.css';
 

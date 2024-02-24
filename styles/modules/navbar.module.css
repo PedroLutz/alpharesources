@@ -1,4 +1,4 @@
-nav, .cabecario {
+.nav {
   background-image: linear-gradient(45deg, rgba(144,6,227,1) 0%, rgba(255,0,227,1) 100%);
   padding: 10px; /* Espaçamento interno para afastar o conteúdo da borda */
   display: flex;
@@ -10,47 +10,55 @@ nav, .cabecario {
 }
 
 .cabecario {
+  background-image: linear-gradient(45deg, rgba(144,6,227,1) 0%, rgba(255,0,227,1) 100%);
+  padding: 10px; /* Espaçamento interno para afastar o conteúdo da borda */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+  position: relative;
+  color: white;
   border-radius: 20px;
 }
 
-nav h2 {
+.nav h2 {
   position: absolute;
   top: 0%;
   left: 3%;
 }
 
-nav img {
+.nav img {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
 
-nav ul {
+.nav ul {
   position: absolute;
   top: 15%;
   right: 3%;
 }
 
-nav li {
+.nav li {
   display: inline;
   margin-right: 10px;   
 }
 
-nav h2 a:link,
-nav ul li a:link {
+.nav h2 a:link,
+.nav ul li a:link {
     color: white; 
     text-decoration: none; 
     transition: color 0.2s ease;
   }
-  nav h2 a:visited,
-  nav ul li a:visited {
+  .nav h2 a:visited,
+  .nav ul li a:visited {
     color: inherit;
     text-decoration: none; 
     transition: color 0.2s ease;
   }
   
-  nav ul li a:hover {
+  .nav ul li a:hover {
     color: #46205e; 
     text-decoration: none; 
   }

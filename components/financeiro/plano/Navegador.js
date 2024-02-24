@@ -1,10 +1,11 @@
 import React from 'react';
 import Link from 'next/link';
+import styles from '../../../styles/modules/navbar.module.css';
 
 const Navbar = () => {
     return (
 
-      <nav style={{color: 'white'}}>
+      <nav className={styles.nav} style={{color: 'white'}}>
         <h2><Link href="/pages/financial/plan/register">Alpha Management/Acquisition planning</Link></h2>
         <img src={'/images/logo.png'} alt="Logo" style={{width: '80px'}}/>
         <ul>

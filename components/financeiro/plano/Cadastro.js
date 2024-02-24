@@ -1,5 +1,6 @@
 // components/Cadastro.js
 import React, { useState } from 'react';
+import styles from '../../../styles/modules/radio.module.css';
 
 const Cadastro = ({ onCadastro }) => {
   const [registerSuccess, setRegisterSuccess] = useState(false);
@@ -72,12 +73,12 @@ const Cadastro = ({ onCadastro }) => {
   };
 
   return (
-    <div className="centered-container">
-      <h1>Register Acquisition Plan</h1>
+    <div className="centered-container financeiro">
+      <h2>Register Acquisition Plan</h2>
       <form onSubmit={handleSubmit}>
       <div >
-          <div class="containerPai">
-            <label className="container">
+          <div className={styles.containerPai}>
+            <label className={styles.container}>
               <input
                 type="radio"
                 name="plano"
@@ -86,10 +87,10 @@ const Cadastro = ({ onCadastro }) => {
                 onChange={handleChange}
                 required
               />
-              <span class="checkmark"></span>
+              <span className={styles.checkmark}></span>
               Worst scenario
             </label>
-            <label className="container">
+            <label  className={styles.container}>
               <input
                 type="radio"
                 name="plano"
@@ -98,7 +99,7 @@ const Cadastro = ({ onCadastro }) => {
                 onChange={handleChange}
                 required
               />
-              <span class="checkmark"></span>
+              <span className={styles.checkmark}></span>
               Ideal scenario
             </label>
           </div>
@@ -159,8 +160,8 @@ const Cadastro = ({ onCadastro }) => {
             />
           </div>
 
-          <div class="containerPai">
-            <label className="container">
+          <div className={styles.containerPai}>
+            <label className={styles.container}>
               <input
                 type="radio"
                 name="tipo_a"
@@ -169,10 +170,10 @@ const Cadastro = ({ onCadastro }) => {
                 onChange={handleChange}
                 required
               />
-              <span class="checkmark"></span>
+              <span className={styles.checkmark}></span>
               Service
             </label>
-            <label className="container">
+            <label className={styles.container}>
               <input
                 type="radio"
                 name="tipo_a"
@@ -181,7 +182,7 @@ const Cadastro = ({ onCadastro }) => {
                 onChange={handleChange}
                 required
               />
-              <span class="checkmark"></span>
+              <span className={styles.checkmark}></span>
               Product
             </label>
           </div>
@@ -230,8 +231,8 @@ const Cadastro = ({ onCadastro }) => {
             />
           </div>
 
-          <div class="containerPai">
-            <label className="container">
+          <div className={styles.containerPai}>
+            <label className={styles.container}>
               <input
                 type="radio"
                 name="tipo_b"
@@ -240,10 +241,10 @@ const Cadastro = ({ onCadastro }) => {
                 onChange={handleChange}
                 required
               />
-              <span class="checkmark"></span>
+              <span className={styles.checkmark}></span>
               Service
             </label>
-            <label className="container">
+            <label className={styles.container}>
               <input
                 type="radio"
                 name="tipo_b"
@@ -252,7 +253,7 @@ const Cadastro = ({ onCadastro }) => {
                 onChange={handleChange}
                 required
               />
-              <span class="checkmark"></span>
+              <span className={styles.checkmark}></span>
               Product
             </label>
           </div>

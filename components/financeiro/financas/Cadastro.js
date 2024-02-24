@@ -1,10 +1,8 @@
-// components/Cadastro.js
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
+import styles from '../../../styles/modules/radio.module.css';
 
 const Cadastro = ({ onCadastro }) => {
-    //estado para gerar o modal de sucesso
     const [registerSuccess, setRegisterSuccess] = useState(false);
-    //estado para controlar os dados dos inputs
     const [formData, setFormData] = useState({
       tipo: '',
       descricao: '',
@@ -15,86 +13,87 @@ const Cadastro = ({ onCadastro }) => {
       destino: '',
     });
 
-  //função para fechar o modal de sucesso
-  const handleCloseModal = () => {
-    setRegisterSuccess(false);
-  };
+    const handleCloseModal = () => {
+      setRegisterSuccess(false);
+    };
 
-  //função para atualizar os dados dos inputs
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  //função para chamar o dia de hoje
-  const handleSetDataHoje = (inputName) => {
-    const today = new Date();
-    const formattedDate = today.toLocaleString('en-CA', {year: 'numeric', month: '2-digit', day: '2-digit'}).split(',')[0];
-  
-    setFormData((formData) => ({
-      ...formData,
-      [inputName]: formattedDate,
-    }));
-  };
-
-  //função para cadastrar os dados
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    //chamar api de cadastro de finanças
-    try {
-      const response = await fetch('/api/financeiro/financas/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+    const handleChange = (e) => {
+      setFormData({
+        ...formData,
+        [e.target.name]: e.target.value,
       });
+    };
 
-      //verifica se deu certo
-      if (response.ok) {
-        console.log('Financial release successfully registered!');
+    const handleSetDataHoje = (inputName) => {
+      const today = new Date();
+      const formattedDate = today.toLocaleString('en-CA', {year: 'numeric', month: '2-digit', day: '2-digit'}).split(',')[0];
+    
+      setFormData((formData) => ({
+        ...formData,
+        [inputName]: formattedDate,
+      }));
+    };
 
-        //
-        if (typeof onCadastro === 'function') {
-          onCadastro(formData);
-        }
+    const handleSubmit = async (e) => {
+      e.preventDefault();
 
-        //reseta os dados dos inputs para deixá-los em branco
-        setFormData({
-          tipo: '',
-          descricao: '',
-          valor: '',
-          data: '',
-          area: '',
-          origem: '',
-          destino: '',
+      try {
+        const response = await fetch('/api/financeiro/financas/create', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
         });
 
-        //habilita o modal de sucesso
-        setRegisterSuccess(true);
-      } else {
-        console.error('Error when registering the release');
+        if (response.ok) {
+          console.log('Financial release successfully registered!');
+
+          if (typeof onCadastro === 'function') {
+            onCadastro(formData);
+          }
+
+          setFormData({
+            tipo: '',
+            descricao: '',
+            valor: '',
+            data: '',
+            area: '',
+            origem: '',
+            destino: '',
+          });
+
+          setRegisterSuccess(true);
+        } else {
+          console.error('Error when registering the release');
+        }
+      } catch (error) {
+        console.error('Error when registering the release', error);
       }
-    } catch (error) {
-      console.error('Error when registering the release', error);
-    }
-  };
+    };
 
-  return (
-    <div className="centered-container financeiro">
-      <h1>Register Financial Release</h1>
+    // Modal component
+    const Modal = () => (
+      <div className="overlay">
+        <div className="modal">
+          <p>{registerSuccess ? 'Register successful!' : 'Register failed.'}</p>
+          <button className="botao-cadastro" onClick={handleCloseModal}>Close</button>
+        </div>
+      </div>
+    );
 
-      <form onSubmit={handleSubmit}>
-        {/*Inputs*/}
+    return (
+      <div className="centered-container financeiro">
+        <h2>Register Financial Release</h2>
+
+        <form onSubmit={handleSubmit}>
+           {/*Inputs*/}
         <div>
 
           {/*Inputs radio*/}
-          <div className="containerPai">
+          <div className={styles.containerPai}>
 
-            <label className="container">
+            <label className={styles.container}>
               <input
                 type="radio"
                 name="tipo"
@@ -103,11 +102,11 @@ const Cadastro = ({ onCadastro }) => {
                 onChange={handleChange}
                 required
               />
-              <span className="checkmark"></span>
+              <span className={styles.checkmark}></span>
               Income
             </label>
 
-            <label className="container">
+            <label className={styles.container}>
               <input
                 type="radio"
                 name="tipo"
@@ -116,11 +115,11 @@ const Cadastro = ({ onCadastro }) => {
                 onChange={handleChange}
                 required
               />
-              <span className="checkmark"></span>
+              <span className={styles.checkmark}></span>
               Cost
             </label>
 
-            <label className="container">
+            <label className={styles.container}>
               <input
                 type="radio"
                 name="tipo"
@@ -129,7 +128,7 @@ const Cadastro = ({ onCadastro }) => {
                 onChange={handleChange}
                 required
               />
-              <span className="checkmark"></span>
+              <span className={styles.checkmark}></span>
               Exchange
             </label>
           {/*fim inputs Radio*/}
@@ -225,25 +224,17 @@ const Cadastro = ({ onCadastro }) => {
         {/*fim inputs*/}
         </div>
 
-        {/*botao cadastro*/}
-        <div>
-          <button className="botao-cadastro" type="submit">Register financial release</button>
-        </div>
-      </form>
-
-      {/*Modal de sucesso*/}
-      {registerSuccess && (
-        <div className="overlay">
-          <div className="modal">
-            <p>{registerSuccess ? 'Register successful!' : 'Register failed.'}</p>
-            <button className="botao-cadastro" onClick={handleCloseModal}>Close</button>
+          <div>
+            <button className="botao-cadastro" type="submit">Register financial release</button>
           </div>
-        </div>
-      )}
+        </form>
 
-    {/*fim componente*/}
-    </div>
-  );
+        {/* Lazy loaded modal */}
+        <Suspense fallback={<div>Loading...</div>}>
+          {registerSuccess && <Modal />}
+        </Suspense>
+      </div>
+    );
 };
 
 export default Cadastro;

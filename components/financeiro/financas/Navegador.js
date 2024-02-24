@@ -1,9 +1,10 @@
 import React from 'react';
 import Link from 'next/link';
+import styles from '../../../styles/modules/navbar.module.css';
 
 const Navbar = () => {
     return (
-      <nav>
+      <nav className={styles.nav}>
 
         {/*titulo e logo*/}
         <h2><Link href="/pages/financial/finances/register">Alpha Management/Finances</Link></h2>
