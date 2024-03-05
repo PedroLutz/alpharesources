@@ -156,7 +156,7 @@ span.custom-span:hover {
 .centered-container > label:not(.containerPai) {
     font-size: 12px;
     width: 810px; /* Adjust the width as needed */
-    text-align: left; /* Align text to the right */
+    text-align: left; /* Align text to the right */ 
 }
 
 .h3-resumo h3{

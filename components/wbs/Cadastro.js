@@ -95,7 +95,7 @@ const Cadastro = ({ onCadastro }) => {
       <form onSubmit={handleSubmit}>
         <div>
           <div className="centered-container">
-            <label htmlFor="area" style={{alignSelf: 'center', marginLeft: -11}}>Area</label>
+            <label htmlFor="area" style={{alignSelf: 'center', textAlign: 'center', marginLeft: -11}}>Area</label>
             <div className="mini-input">
             {mostrarInputNovaArea ? (
               <input
@@ -131,7 +131,7 @@ const Cadastro = ({ onCadastro }) => {
           >
             {getButtonLabel()}
           </button>
-            <label htmlFor="item" style={{alignSelf: 'center', marginLeft: -11}}>Item</label>
+            <label htmlFor="item" style={{alignSelf: 'center', textAlign: 'center', marginLeft: -11}}>Item</label>
             <input
                 type="text"
                 id="item"

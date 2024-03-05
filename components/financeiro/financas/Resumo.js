@@ -127,7 +127,8 @@ const Resumo = () => {
      
       <div>
         <h3>Releases per area</h3>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex'}}>
+          <div style={{marginLeft: '200px', width:"100%"}}>
           <Chart
             width={"100%"}
             height={"400px"}
@@ -140,6 +141,8 @@ const Resumo = () => {
             }}
             rootProps={{ 'data-testid': '1' }}
           />
+          </div>
+          <div style={{marginRight: '200px', width: '100%'}}>
           <Chart
             width={"100%"}
             height={"400px"}
@@ -152,6 +155,7 @@ const Resumo = () => {
             }}
             rootProps={{ 'data-testid': '1' }}
           />
+          </div>
         </div>
         <div>
           <Chart
