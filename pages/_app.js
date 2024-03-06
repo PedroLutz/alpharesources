@@ -5,7 +5,6 @@ import { useState, useEffect } from "react";
 import '../styles/financeiro.css';
 import '../styles/global.css';
 import '../styles/menu.css';
-import '../styles/wbs.css';
 
 function MyApp({ Component, pageProps }) {
   const [autenticado, setAutenticado] = useState(false);

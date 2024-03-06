@@ -14,23 +14,23 @@ const Resumo = () => {
   const [receitasTotais, setReceitasTotais] = useState([]);
   const [despesasTotais, setDespesasTotais] = useState([]);
 
+  //gerar Array do grafico de pizza Receitas Por Area
   const ReceitasPorAreaGraph = [['Area', 'Value']];
   receitasPorArea.forEach((area) => {
     ReceitasPorAreaGraph.push([area._id, area.total]);
   });
 
+  //gerar Array do grafico de pizza Despesas por Area
   const DespesasPorAreaGraph = [['Area', 'Value']];
   despesasPorArea.forEach((area) => {
     DespesasPorAreaGraph.push([area._id, -area.total]);
   });
 
-
+  //gerar Array do grafico de colunas de valores por area
   const ValoresPorAreaGraph = [['Area', 'Revenue', 'Expense']];
-  
   const areasGanhos = new Set(receitasPorArea.map((receitaArea) => receitaArea._id));
   const areasGastos = new Set(despesasPorArea.map((despesaArea) => despesaArea._id));
   const todasAreas = Array.from(new Set([...areasGanhos, ...areasGastos]));
-
   todasAreas.forEach((areaNome) => {
     const receitaArea = receitasPorArea.find((receita) => receita._id === areaNome);
     const receitaValor = receitaArea ? receitaArea.total : 0;
@@ -41,6 +41,7 @@ const Resumo = () => {
     ValoresPorAreaGraph.push([areaNome, receitaValor, despesaValor]);
   });
 
+  //gerar Array do grafico de colunas de valores por mês, crescimento mensal e gasto mensal
   const ValoresPorMesGraph = [['Month', 'Revenue', 'Expense']];
   const CaixaMensalGraph = [['Month', 'Value']];
   const CrescimentoDosGastosGraph = [['Month', 'Value']];
@@ -50,8 +51,6 @@ const Resumo = () => {
   const mesesGanhos = new Set(receitasPorMes.map((receitaMes) => receitaMes._id));
   const mesesGastos = new Set(despesasPorMes.map((despesaMes) => despesaMes._id));
   const todosMeses = sortBy(Array.from(new Set([...mesesGanhos, ...mesesGastos])));
-
-
   todosMeses.forEach((mesNome) => {
     const receitaMes = receitasPorMes.find((receita) => receita._id === mesNome);
     const receitaValor = receitaMes ? receitaMes.total : 0;
@@ -72,11 +71,14 @@ const Resumo = () => {
       CrescimentoDosGastosGraph.push([formattedDate, gastosAcumulados]);
   });
 
+  //receber dados das financas
   useEffect(() => {
     fetch('/api/financeiro/financas/get')
       .then((response) => response.json())
       .then((data) => {
-        const { somaValores, receitasPorArea, despesasPorArea, receitasPorMes, despesasPorMes , maiorEMenorValor, receitasTotais, despesasTotais } = data;
+        const { somaValores, receitasPorArea, despesasPorArea,
+          receitasPorMes, despesasPorMes , maiorEMenorValor,
+          receitasTotais, despesasTotais } = data;
 
         setTotalValor(somaValores[0]?.total || 0);
         setReceitasPorArea(receitasPorArea);
@@ -123,43 +125,47 @@ const Resumo = () => {
           <span className="custom-span">Largest expense:<br/>R${Number(-menorValor).toFixed(2)}</span>
           <span className="custom-span">Total cost:<br/>R${Number(-despesasTotais).toFixed(2)}</span>
         </div>
+
       </div>
-     
+      
       <div>
         <h3>Releases per area</h3>
+
         <div style={{ display: 'flex'}}>
           <div style={{marginLeft: '200px', width:"100%"}}>
-          <Chart
-            width={"100%"}
-            height={"400px"}
-            chartType="PieChart"
-            loader={<div>Loading graph</div>}
-            data={ReceitasPorAreaGraph}
-            options={{
-              ...estiloGraph,
-              title: 'Revenues per area',
-            }}
-            rootProps={{ 'data-testid': '1' }}
-          />
+            <Chart
+              width={"100%"}
+              height={"400px"}
+              chartType="PieChart"
+              loader={<div>Loading graph</div>}
+              data={ReceitasPorAreaGraph}
+              options={{
+                ...estiloGraph,
+                title: 'Revenues per area',
+              }}
+              rootProps={{ 'data-testid': '1' }}
+            />
           </div>
+
           <div style={{marginRight: '200px', width: '100%'}}>
-          <Chart
-            width={"100%"}
-            height={"400px"}
-            chartType="PieChart"
-            loader={<div>Loading graph</div>}
-            data={DespesasPorAreaGraph}
-            options={{
-              ...estiloGraph,
-              title: 'Costs per area',
-            }}
-            rootProps={{ 'data-testid': '1' }}
-          />
+            <Chart
+              width={"100%"}
+              height={"400px"}
+              chartType="PieChart"
+              loader={<div>Loading graph</div>}
+              data={DespesasPorAreaGraph}
+              options={{
+                ...estiloGraph,
+                title: 'Costs per area',
+              }}
+              rootProps={{ 'data-testid': '1' }}
+            />
           </div>
         </div>
-        <div>
+
+        <div className="grafico">
           <Chart
-              width={"100%"}
+              width={"90%"}
               height={"400px"}
               chartType="ColumnChart"
               loader={<div>Loading graph</div>}
@@ -171,10 +177,10 @@ const Resumo = () => {
       </div>
 
       <div>
-      <h3>Releases per month</h3>
-        <div>
+        <h3>Releases per month</h3>
+        <div className="grafico">
           <Chart
-              width={"100%"}
+              width={"90%"}
               height={"400px"}
               chartType="ColumnChart"
               loader={<div>Loading graph</div>}
@@ -187,10 +193,11 @@ const Resumo = () => {
               rootProps={{ 'data-testid': '1' }}
             />
         </div>
-        <div>
+
+        <div className="grafico">
           <h3>Cash value per month</h3>
           <Chart
-              width={"100%"}
+              width={"90%"}
               height={"400px"}
               chartType="LineChart"
               loader={<div>Loading graph</div>}
@@ -206,10 +213,10 @@ const Resumo = () => {
             />
         </div>
 
-        <div>
+        <div className="grafico">
           <h3>Cost growth per month</h3>
           <Chart
-              width={"100%"}
+              width={"90%"}
               height={"400px"}
               chartType="LineChart"
               loader={<div>Loading graph</div>}

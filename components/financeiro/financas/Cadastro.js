@@ -1,4 +1,4 @@
-import React, { useState, lazy, Suspense } from 'react';
+import React, { useState, Suspense } from 'react';
 import styles from '../../../styles/modules/radio.module.css';
 
 const Cadastro = ({ onCadastro }) => {

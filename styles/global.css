@@ -13,7 +13,7 @@ text {
 .botoes-acoes button {
     border-color: transparent;
     background-color: transparent;
-    font-size: 25px;
+    font-size: 12px;
     font-weight: bold;
     cursor: pointer;
     margin-top: -6px;
@@ -147,13 +147,21 @@ span.custom-span:hover {
     text-align: center;
 }
 
+h3 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center; 
+}
+
 /* Estilo para os elementos internos dentro da div */
 .centered-container input,
 .centered-container select{
     margin-bottom: 10px; /* Espaçamento entre os elementos */
 }
 
-.centered-container > label:not(.containerPai) {
+.centered-container > label:not(.containerPai){
     font-size: 12px;
     width: 810px; /* Adjust the width as needed */
     text-align: left; /* Align text to the right */ 
@@ -206,9 +214,21 @@ span.custom-span:hover {
     height: 33px;
 }
 
+.mini-input-text {
+    width: 260px;
+}
+
 .mesma-linha {
     display: flex; 
-    gap: 5px
+    gap: 5px;
+}
+
+.botoes-cronograma {
+    margin-bottom: 30px; 
+    margin-top: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
 }
   
 

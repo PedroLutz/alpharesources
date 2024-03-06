@@ -99,30 +99,35 @@ crescimentoDosGastos.forEach((area) => {
         <h3>Cost scenarios</h3>
 
         {/* Pior cenário */}
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Chart
-            width={'100%'}
-            height={'400px'}
-            chartType="PieChart"
-            loader={<div>Loading graph</div>}
-            data={piorPlanoPorAreaGraph}
-            options={{ ...estiloGraph,
-              title: 'Worst scenario',
-            }}
-            rootProps={{ 'data-testid': '1' }}
-          />
-          <Chart
-            width={'100%'}
-            height={'400px'}
-            chartType="PieChart"
-            loader={<div>Loading graph</div>}
-            data={cenarioIdealPorAreaGraph}
-            options={{
-              ...estiloGraph,
-              title: 'Worst scenario',
-            }}
-            rootProps={{ 'data-testid': '1' }}
-          />
+        <div style={{ display: 'flex' }}>
+          <div style={{marginLeft: '200px', width:"100%"}}>
+            <Chart
+              width={'100%'}
+              height={'400px'}
+              chartType="PieChart"
+              loader={<div>Loading graph</div>}
+              data={piorPlanoPorAreaGraph}
+              options={{ ...estiloGraph,
+                title: 'Worst scenario',
+              }}
+              rootProps={{ 'data-testid': '1' }}
+            />
+          </div>
+          
+          <div style={{marginRight: '200px', width:"100%"}}>
+            <Chart
+              width={'100%'}
+              height={'400px'}
+              chartType="PieChart"
+              loader={<div>Loading graph</div>}
+              data={cenarioIdealPorAreaGraph}
+              options={{
+                ...estiloGraph,
+                title: 'Ideal scenario',
+              }}
+              rootProps={{ 'data-testid': '1' }}
+            />
+          </div>
         </div>
 
         <div className="centered-container" style={{flexDirection: "row"}}>
@@ -131,7 +136,7 @@ crescimentoDosGastos.forEach((area) => {
         </div>
 
         <h3>Expected timeline</h3>
-        <div className="centered-container">
+        <div className="grafico">
             <Chart
                 width={'90%'}
                 height={'700px'}
@@ -150,7 +155,7 @@ crescimentoDosGastos.forEach((area) => {
         </div>
 
         <h3>Critical timeline</h3>
-        <div className="centered-container">
+        <div className="grafico">
             <Chart
                 width={'90%'}
                 height={'700px'}
@@ -169,14 +174,21 @@ crescimentoDosGastos.forEach((area) => {
         </div>
 
         <h3>Expected monthly cost growth</h3>
-        <div className="centered-container">
+        <div className="grafico">
           <Chart
-              width={'100%'}
+              width={'90%'}
               height={'400px'}
               chartType="LineChart"
               loader={<div>Carregando Gráfico</div>}
               data={crescimentoDosGastosGraph}
-              options={{...estiloGraph, colors: ["#ff00e3"]}}
+              options={{...estiloGraph, 
+                colors: ["#ff00e3"],
+                series: {
+                  0: {
+                    lineWidth: 5, 
+                  },
+                }
+              }}
               rootProps={{ 'data-testid': '1' }}
             />
         </div>

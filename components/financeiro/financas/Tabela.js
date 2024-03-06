@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import styles from '../../../styles/modules/radio.module.css';
 
 const formatDate = (dateString) => {
   // Converte a data da string para um objeto de data
@@ -57,12 +58,15 @@ const Tabela = () => {
       valorCorrigido = item.valor;
     }
 
+    const parts = item.data.split('/');
+    const itemDate = new Date(parts[2], parts[1] - 1, parts[0]); 
+  
     setConfirmUpdateItem(item);
     setNovosDados({
       tipo: item.tipo,
       descricao: item.descricao,
       valor: valorCorrigido,
-      data: item.data,
+      data: itemDate.toISOString().split('T')[0], 
       area: item.area,
       origem: item.origem,
       destino: item.destino,
@@ -129,7 +133,7 @@ const Tabela = () => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ tipo, descricao, valor: newValueWithSign, data, area, origem, destino }), // Converter o novo valor para número
+          body: JSON.stringify({ tipo, descricao, valor: newValueWithSign, data, area, origem, destino }),
         });
 
         if (response.status === 200) {
@@ -164,7 +168,7 @@ const Tabela = () => {
       const pdfOptions = {
         margin: 10,
         filename: `report.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
+        image: { type: 'png', quality: 1 },
         html2canvas: { scale: 1 },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
       };
@@ -209,10 +213,8 @@ return (
               <td>{item.destino}</td>
               <td>
                 <div className="botoes-acoes">
-                  <button style={{ color: 'red' }} onClick={() => handleClick(item)}>
-                    X
-                  </button>
-                  <button onClick={() => handleUpdateClick(item)}>$</button>
+                  <button style={{ color: 'red' }} onClick={() => handleClick(item)}>❌</button>
+                  <button onClick={() => handleUpdateClick(item)}>⚙️</button>
                 </div>
               </td>
             </tr>
@@ -246,8 +248,8 @@ return (
       {confirmUpdateItem && (
         <div className="overlay"> 
           <div className="modal">
-            <div className="containerPai">
-              <label className="container">
+            <div className={styles.containerPai}>
+              <label className={styles.container}>
                 <input
                   type="radio"
                   name="tipo"
@@ -256,10 +258,10 @@ return (
                   onChange={handleChange}
                   required
                 />
-                <span className="checkmark"></span>
+                <span className={styles.checkmark}></span>
                 Income
               </label>
-              <label className="container">
+              <label className={styles.container}>
                 <input
                   type="radio"
                   name="tipo"
@@ -268,10 +270,10 @@ return (
                   onChange={handleChange}
                   required
                 />
-                <span className="checkmark"></span>
+                <span className={styles.checkmark}></span>
                 Expense
               </label>
-              <label className="container">
+              <label className={styles.container}>
                 <input
                   type="radio"
                   name="tipo"
@@ -280,7 +282,7 @@ return (
                   onChange={handleChange}
                   required
                 />
-                <span className="checkmark"></span>
+                <span className={styles.checkmark}></span>
                 Exchange
               </label>
             </div>

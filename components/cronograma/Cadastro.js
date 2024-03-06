@@ -99,9 +99,6 @@ const Cadastro = ({ onCadastro }) => {
           return;
         }
 
-        // Continuar com o envio dos dados e lógica de registro
-        // ...
-
       } else {
         console.error('Error in fetching cronograma data');
       }
@@ -180,7 +177,6 @@ const Cadastro = ({ onCadastro }) => {
         <div>
           <div className="centered-container mini-input">
             <select
-                  className='mini-input'
                   name="area"
                   onChange={handleAreaChange}
                   style={{width:'264px', height: '33px'}}
@@ -206,7 +202,7 @@ const Cadastro = ({ onCadastro }) => {
               ))}
             </select>
 
-            <label htmlFor="inicio">Start</label>
+            <label htmlFor="inicio" style={{width: '260px'}}>Start</label>
             <input
               type="date"
               id="inicio"
@@ -217,7 +213,7 @@ const Cadastro = ({ onCadastro }) => {
               required
             />
 
-            <label htmlFor="termino">End</label>
+            <label htmlFor="termino" style={{width: '260px'}}>End</label>
             <input
               type="date"
               id="termino"
@@ -227,7 +223,7 @@ const Cadastro = ({ onCadastro }) => {
               value={formData.termino}
               required
             />
-            <label htmlFor="dependencies">Dependencies</label>
+            <label htmlFor="dependencies"style={{width: '260px'}} >Dependencies</label>
 
             <select
                   name="dp_area"

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import styles from '../../styles/modules/wbs.module.css';
 
 const WBS = () => {
   const [elementos, setElementos] = useState([]);
@@ -35,9 +36,7 @@ const WBS = () => {
       })
         .then((response) => response.json())
         .then((data) => {
-          console.log(data.message); // Exibir uma mensagem de sucesso
-          // Atualize os dados na tabela após a exclusão
-          // Você pode recarregar a página ou atualizar os dados de outra forma
+          console.log(data.message); 
           fetchElementos();
         })
         .catch((error) => {
@@ -53,18 +52,18 @@ const WBS = () => {
 
   const renderWBS = () => {
     return (
-      <div className="wbs-container">
+      <div className={styles.wbsContainer}>
         {Object.keys(elementos).map((area, index) => (
-          <div className="wbs-area" key={index}>
+          <div className={styles.wbsArea} key={index}>
             <h3>{area}</h3>
-            <div className="wbs-items">
+            <div className={styles.wbsItems}>
               {elementos[area]
                 .sort((a, b) => a.codigo - b.codigo)
                 .map((item, itemIndex) => (
                   <div
                     key={itemIndex}
                     onClick={() => handleItemClick(item)}
-                    className="wbs-item"
+                    className={styles.wbsItem}
                   >
                     {item.item}
                   </div>
