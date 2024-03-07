@@ -1,12 +1,12 @@
 import React from 'react';
-import Cadastro from '../../../../components/responsabilidades/membros/Cadastro';
+import Tabela from '../../../../components/responsabilidades/raci/Tabela';
 import Navbar from '../../../../components/responsabilidades/membros/Nav';
 
 function CadastroPage() {
   return (
     <div>
         <Navbar />
-      <Cadastro />
+      <Tabela />
     </div>
   );
 }
