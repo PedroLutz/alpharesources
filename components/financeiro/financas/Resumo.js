@@ -132,7 +132,7 @@ const Resumo = () => {
         <h3>Releases per area</h3>
 
         <div style={{ display: 'flex'}}>
-          <div style={{marginLeft: '200px', width:"100%"}}>
+          <div className="pie-esquerda">
             <Chart
               width={"100%"}
               height={"400px"}
@@ -147,7 +147,7 @@ const Resumo = () => {
             />
           </div>
 
-          <div style={{marginRight: '200px', width: '100%'}}>
+          <div className="pie-direita">
             <Chart
               width={"100%"}
               height={"400px"}

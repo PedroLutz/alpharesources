@@ -7,7 +7,7 @@ const Navbar = () => {
 
       <nav className={styles.nav} style={{color: 'white'}}>
         <h2><Link href="/pages/financial/plan/register">Alpha Management/Acquisition planning</Link></h2>
-        <img src={'/images/logo.png'} alt="Logo" style={{width: '80px'}}/>
+        <img src={'/images/logo.png'} alt="Logo"/>
         <ul>
           <li>
             <Link href="/pages/financial/plan/register">Register</Link>

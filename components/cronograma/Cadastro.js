@@ -179,7 +179,6 @@ const Cadastro = ({ onCadastro }) => {
             <select
                   name="area"
                   onChange={handleAreaChange}
-                  style={{width:'264px', height: '33px'}}
                   value={formData.area}
                   required
                 >
@@ -192,7 +191,6 @@ const Cadastro = ({ onCadastro }) => {
             <select
               name="item"
               onChange={handleChange}
-              style={{ width: '264px', height: '33px' }}
               value={formData.item}
               required
             >
@@ -223,12 +221,11 @@ const Cadastro = ({ onCadastro }) => {
               value={formData.termino}
               required
             />
-            <label htmlFor="dependencies"style={{width: '260px'}} >Dependencies</label>
 
+            <label htmlFor="dp_area"style={{width: '260px'}} >Dependencies</label>
             <select
                   name="dp_area"
                   onChange={handleAreaChangeDp}
-                  style={{width:'264px', height: '33px'}}
                   value={formData.dp_area}
                 >
                   <option value="" disabled>Select an area</option>
@@ -240,7 +237,6 @@ const Cadastro = ({ onCadastro }) => {
             <select
               name="dp_item"
               onChange={handleChange}
-              style={{ width: '264px', height: '33px' }}
               value={formData.dp_item}
             >
               <option value="" disabled>Select an item</option>
@@ -256,27 +252,26 @@ const Cadastro = ({ onCadastro }) => {
       </form>
 
       {dadosUsados && (
-    <div className="overlay">
-      <div className="modal">
-        <p>Task already registered. Please select a different task.</p>
-        <button className="botao-cadastro" onClick={() => setDadosUsados(false)}>
-          Close
-        </button>
-      </div>
-    </div>
-  )}
-
-    {registerSuccess && !dadosUsados && (
-      <div className="overlay">
-        <div className="modal">
-          <p>{registerSuccess ? 'Register successful!' : 'Register failed.'}</p>
-          <button className="botao-cadastro" onClick={handleCloseModal}>
-            Close
-          </button>
+        <div className="overlay">
+          <div className="modal">
+            <p>Task already registered. Please select a different task.</p>
+            <button className="botao-cadastro" onClick={() => setDadosUsados(false)}>
+              Close
+            </button>
+          </div>
         </div>
-      </div>
-    )}
+      )}
 
+      {registerSuccess && !dadosUsados && (
+        <div className="overlay">
+          <div className="modal">
+            <p>{registerSuccess ? 'Register successful!' : 'Register failed.'}</p>
+            <button className="botao-cadastro" onClick={handleCloseModal}>
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

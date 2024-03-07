@@ -21,7 +21,6 @@ text {
     color: rgb(0, 0, 0);
     margin-right: 5px;
     margin: 0px;
-
 }
 
 .botao-cadastro {
@@ -60,7 +59,7 @@ label {
     height: 350px;
 }
 
-input {
+input, textarea {
     color: black;
     font-family: 'Montserrat';
     border-color: rgb(133, 133, 133);
@@ -205,17 +204,30 @@ h3 {
     display: inline-block; /* Os botões ficarão lado a lado */
 }
 
-.mini-input input {
-    width: 250px;
-}
-
-.mini-input select {
-    width: 264px; 
-    height: 33px;
-}
-
-.mini-input-text {
-    width: 260px;
+.mini-input {
+    input, textarea{
+        width: 250px;
+        transition: 0.2s
+    }
+    select{
+        width: 264px; 
+        height: 33px;
+    }
+    label{
+        width: 260px;
+        font-size: 12px;
+        display: inline-block;
+        text-align: left;
+        line-height: normal;
+    }
+    input:focus{
+        height: 25px !important;
+        width: 260px !important;
+    }
+    textarea:focus{
+        width: 260px !important;
+        height: 50px !important;
+    }
 }
 
 .mesma-linha {

@@ -461,12 +461,11 @@ const Tabela = () => {
 
         {mostrarTabela && (
           <div className="centered-container">
-            <div style={{marginTop: '30px'}}>
+            <div style={{marginTop: '30px'}} className='mini-input'>
               <label htmlFor="filtroArea">Filter Table:</label>
               <select
                 name="area"
                 onChange={handleFilterChange}
-                style={{width:'264px', height: '33px'}}
                 value={filtroArea}
                 required
               >

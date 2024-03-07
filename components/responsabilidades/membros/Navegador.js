@@ -1,23 +1,23 @@
 import React from 'react';
 import Link from 'next/link';
 
-import styles from '../../styles/modules/navbar.module.css';
+import styles from '../../../styles/modules/navbar.module.css';
 
 const Navbar = () => {
     return (
 
       <nav className={styles.nav} style={{color: 'white'}}>
-        <h2><Link href="/pages/timeline/table">Alpha Management/Timeline</Link></h2>
+        <h2><Link href="/pages/timeline/table">Alpha Management/Responsibilities</Link></h2>
         <img src={'/images/logo.png'} alt="Logo"/>
         <ul>
           <li>
-            <Link href="/pages/timeline/register">Register</Link>
+            <Link href="/pages/responsibilities/members/register">Register members</Link>
           </li>
           <li>
-            <Link href="/pages/timeline/timeline_plan">Timeline</Link>
+            <Link href="/pages/responsibilities/members/list">Members</Link>
           </li>
           <li>
-            <Link href="/pages/timeline/monitoring">Monitoring</Link>
+            <Link href="/pages/responsibilities/raci">RACI Matrix</Link>
           </li>
           <li>
             <Link href="/">Go to menu</Link>

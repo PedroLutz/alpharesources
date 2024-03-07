@@ -8,7 +8,7 @@ const Navbar = () => {
 
         {/*titulo e logo*/}
         <h2><Link href="/pages/financial/finances/register">Alpha Management/Finances</Link></h2>
-        <img src={'/images/logo.png'} alt="Logo" style={{width: '80px'}}/>
+        <img src={'/images/logo.png'} alt="Logo"/>
 
         {/*links*/}
         <ul>
