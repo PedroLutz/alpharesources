@@ -1,6 +1,5 @@
 // components/Cadastro.js
 import React, { useState, useEffect } from 'react';
-import Tabela from '../../components/wbs/Tabela';
 
 const Cadastro = ({ onCadastro }) => {
   const [formData, setFormData] = useState({
