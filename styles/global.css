@@ -228,6 +228,10 @@ h3 {
         width: 260px !important;
         height: 50px !important;
     }
+    select:focus{
+        width: 274px; 
+        height: 37px;
+    }
 }
 
 .mesma-linha {

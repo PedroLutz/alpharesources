@@ -6,54 +6,41 @@ const Tabela = () => {
   const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
   const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
-  const [novosDados, setNovosDados] = useState({
+  const [formData, setFormData] = useState({
     area: "",
     item: "",
     responsabilidades: ""
   });
 
   const handleChange = (e) => {
-    setNovosDados({
-      ...novosDados,
+    setFormData(({
+      ...formData,
       [e.target.name]: e.target.value,
-    });
+    }));
   };
 
   const handleClick = (item) => {
     setConfirmDeleteItem(item);
+    console.log(confirmDeleteItem);
   };
 
   const handleUpdateClick = (item) => {
-    let valorCorrigido = 0;
-    if(Number(item.valor) < 0){
-      valorCorrigido = -Number(item.valor);
-    } else {
-      valorCorrigido = item.valor;
-    }
-
-    const parts = item.data.split('/');
-    const itemDate = new Date(parts[2], parts[1] - 1, parts[0]); 
-  
-    setConfirmUpdateItem(item);
-    setNovosDados({
-      tipo: item.tipo,
-      descricao: item.descricao,
-      valor: valorCorrigido,
-      data: itemDate.toISOString().split('T')[0], 
+    setConfirmUpdateItem(item); 
+    const responsabilidadesArray = item.responsabilidades.split(", ");
+    setFormData({
       area: item.area,
-      origem: item.origem,
-      destino: item.destino,
+      item: item.item
+    });
+
+    inputNames.forEach((membro, index) => {
+      const responsabilidade = responsabilidadesArray[index % responsabilidadesArray.length];
+      setFormData(prevFormData => ({
+        ...prevFormData,
+        [`input${getCleanName(membro)}`]: responsabilidade
+      }));
     });
   };
 
-  const handleCellClick = (value) => {
-    setEditCell(value);
-    setEditValue(value);
-  };
-
-  const handleSelectChange = (e) => {
-    setEditValue(e.target.value);
-  };
 
   const fetchItensRaci = async () => {
     try {
@@ -69,7 +56,7 @@ const Tabela = () => {
       }
     } catch (error) {
       console.error('Error in searching for RACI items data', error);
-    }
+    };
   };
 
   const fetchNomesMembros = async () => {
@@ -86,12 +73,50 @@ const Tabela = () => {
       }
     } catch (error) {
       console.error('Error in searching for RACI items data', error);
-    }
+    };
+  };
+
+  const generateInputNames = () => {
+    const firstNames = new Map();
+    const inputNames = [];
+  
+    nomesMembros.forEach((membro) => {
+      const nomeCompleto = membro.nome;
+      const firstName = nomeCompleto.split(' ')[0];
+      const lastName = nomeCompleto.split(' ')[1];
+  
+      if (firstNames.has(firstName)) {
+        const existingHeader = firstNames.get(firstName);
+        inputNames.push(`${existingHeader} ${lastName}`);
+      } else {
+        firstNames.set(firstName, nomeCompleto.split(' ')[0]);
+        inputNames.push(nomeCompleto.split(' ')[0]);
+      }
+    });
+    return inputNames;
+  };
+  const inputNames = generateInputNames();
+
+  const generateFormData = () => {
+    inputNames.forEach((membro) => {
+        setFormData(({
+            ...formData,
+            [`input${getCleanName(membro)}`]: ''
+        }));
+    });
+  };
+
+  const getCleanName = (str) => {
+    const removeAccents = (str) => {
+        return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      };
+    return removeAccents(str.split(" ").join(""));
   };
 
   useEffect(() => {
     fetchNomesMembros();
     fetchItensRaci();
+    generateFormData();
   }, []);
 
   const handleConfirmDelete = () => {
@@ -101,16 +126,14 @@ const Tabela = () => {
       })
         .then((response) => response.json())
         .then((data) => {
-          console.log(data.message); // Exibir uma mensagem de sucesso
-          // Atualize os dados na tabela após a exclusão
-          // Você pode recarregar a página ou atualizar os dados de outra forma
+          console.log(data.message); 
           fetchItensRaci();
           setDeleteSuccess(true);
         })
         .catch((error) => {
           console.error('Erro ao excluir elemento', error);
         });
-    }
+    };
     setConfirmDeleteItem(null);
   };
 
@@ -133,7 +156,7 @@ const Tabela = () => {
       } else {
         firstNames.set(firstName, nomeCompleto.split(' ')[0]);
         headers.push(nomeCompleto.split(' ')[0]);
-      }
+      };
     });
   
     return headers;
@@ -143,9 +166,10 @@ const Tabela = () => {
 
   const handleUpdateItem = async () => {
     if (confirmUpdateItem) {
-      const isExpense = confirmUpdateItem.tipo === "Expense";
-      const newValueWithSign = isExpense ? -novosDados.valor : novosDados.valor;
-      const { tipo, descricao, valor, data, area, origem, destino } = novosDados;
+      const responsabilidadesString = Object.keys(formData)
+      .filter(key => key.startsWith('input'))
+      .map(key => formData[key]).join(', ');
+      const { area, item } = formData;
 
       try {
         const response = await fetch(`/api/responsabilidades/raci/update?id=${String(confirmUpdateItem._id)}`, {
@@ -153,66 +177,60 @@ const Tabela = () => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ tipo, descricao, valor: newValueWithSign, data, area, origem, destino }),
+          body: JSON.stringify({ area, item, responsabilidades: responsabilidadesString}),
         });
 
         if (response.status === 200) {
-          console.log('Release updated successfully!');
-          fetchLancamentos();
+          console.log('RACI item updated successfully!');
+          fetchItensRaci();
         } else {
-          console.error('Error in updating release');
+          console.error('Error in updating RACI item');
         }
       } catch (error) {
-        console.error('Error in updating release', error);
+        console.error('Error in updating RACI item', error);
       }
     }
     setConfirmUpdateItem(null);
-    setNovosDados({
-      tipo: '',
-      descricao: '',
-      valor: '',
-      data: '',
-      area: '',
-      origem: '',
-      destino: ''
-    })
+    generateFormData();
   };
 
-return (
-  <div className="centered-container">
-    <h2>RACI Matrix</h2>
-    <div id="report">
-    <table>
-        <thead>
-          <tr>
-            <th>Area</th>
-            {tableHeaders.map((membro, index) => (
-              <th key={index}>{membro}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {itensRaci.map((item, index) => (
-            <tr key={index}>
-              <td>{`${item.area} ${item.item}`}</td>
-              {item.responsabilidades.split(', ').map((responsabilidade, index) => (
-                <td key={index}>{responsabilidade}</td>
+  return (
+    <div className="centered-container">
+      <h2>RACI Matrix</h2>
+      <div id="report">
+        <table>
+          <thead>
+            <tr>
+              <th>Area</th>
+              {tableHeaders.map((membro, index) => (
+                <th key={index}>{membro}</th>
               ))}
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {itensRaci.map((item, index) => (
+              <tr key={index}>
+                <td onClick={() => handleUpdateClick(item)}>{`${item.area} ${item.item}`}</td>
+                {item.responsabilidades.split(', ').map((responsabilidade, index) => (
+                  <td key={index} onClick={() => handleUpdateClick(item)}>{responsabilidade}</td>
+                ))}
+                <td onClick={() => handleClick(item)}x>❌</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {confirmDeleteItem && (
         <div className="overlay">
-            <div className="modal">
-            <p>Are you sure you want to delete "{confirmDeleteItem.descricao}"?</p>
-                <div style={{display: 'flex', gap: '10px'}}>
-                    <button className="botao-cadastro" onClick={handleConfirmDelete}>Confirm</button>
-                    <button className="botao-cadastro" onClick={() => setConfirmDeleteItem(null)}>Cancel</button>
-                </div>
+          <div className="modal">
+            <p>Are you sure you want to delete "{confirmDeleteItem.area} - {confirmDeleteItem.item}"?</p>
+            <div style={{display: 'flex', gap: '10px'}}>
+              <button className="botao-cadastro" onClick={handleConfirmDelete}>Confirm</button>
+              <button className="botao-cadastro" onClick={() => setConfirmDeleteItem(null)}>Cancel</button>
             </div>
+          </div>
         </div>
       )}
 
@@ -226,8 +244,44 @@ return (
       )}
 
       {confirmUpdateItem && (
-        <div>
-          
+        <div className="overlay">
+          <div className="modal">
+            <form onSubmit={handleUpdateItem}>
+              {/*Inputs*/}
+              <div>
+
+                {/*outros inputs*/}
+                <div className="centered-container">
+                  <div>{formData.area} - {formData.item}</div>
+                  {inputNames.map((membro, index) => (
+                    <div className="mini-input" key={index}>
+                    <label htmlFor={"input" + getCleanName(membro)}>{membro}</label>
+                      <select
+                          type="text"
+                          id={"input" + getCleanName(membro)}
+                          name={"input" + getCleanName(membro)}
+                          placeholder=""
+                          onChange={handleChange}
+                          value={formData["input" + getCleanName(membro)]}
+                          required
+                      >
+                          <option value="" disabled>Select responsibility</option>
+                          <option value="R">Responsible</option>
+                          <option value="A">Accountable</option>
+                          <option value="C">Consulted</option>
+                          <option value="I">Informed</option>
+                      </select>
+                  </div>
+
+                  ))}
+                </div>
+              </div>
+              <div>
+                <button className="botao-cadastro" type="submit">Register RACI item</button>
+                <button className="botao-cadastro" onClick={() => setConfirmUpdateItem(null)}>Cancel</button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>
