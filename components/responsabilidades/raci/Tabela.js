@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import members from '../../../styles/modules/members.module.css';
 
 const Tabela = () => {
   const [itensRaci, setItensRaci] = useState([]);
@@ -143,26 +144,45 @@ const Tabela = () => {
 
   const generateTableHeaders = () => {
     const firstNames = new Map();
+    const fullNames = [];
     const headers = [];
   
     nomesMembros.forEach((membro) => {
       const nomeCompleto = membro.nome;
       const firstName = nomeCompleto.split(' ')[0];
       const lastName = nomeCompleto.split(' ')[1];
+      const corrigirNomeCompleto = () => {
+        let index = fullNames.findIndex(x => x.includes(firstName));
+        let otherLastName = fullNames[index].split(' ')[1];
+        headers[index] = `${firstName} ${otherLastName}`;
+      };
   
       if (firstNames.has(firstName)) {
         const existingHeader = firstNames.get(firstName);
         headers.push(`${existingHeader} ${lastName}`);
+        fullNames.push(`${firstName} ${lastName}`);
+        corrigirNomeCompleto();
       } else {
         firstNames.set(firstName, nomeCompleto.split(' ')[0]);
-        headers.push(nomeCompleto.split(' ')[0]);
+        headers.push(firstName);
+        fullNames.push(`${firstName} ${lastName}`);
       };
     });
-  
     return headers;
   };
-  
   const tableHeaders = generateTableHeaders();
+
+  function calculateRowSpan(itensRaci, currentArea, currentIndex) {
+    let rowSpan = 1;
+    for (let i = currentIndex + 1; i < itensRaci.length; i++) {
+      if (itensRaci[i].area === currentArea) {
+        rowSpan++;
+      } else {
+        break;
+      }
+    }
+    return rowSpan;
+  }
 
   const handleUpdateItem = async () => {
     if (confirmUpdateItem) {
@@ -198,29 +218,35 @@ const Tabela = () => {
     <div className="centered-container">
       <h2>RACI Matrix</h2>
       <div id="report">
-        <table>
-          <thead>
-            <tr>
-              <th>Area</th>
-              {tableHeaders.map((membro, index) => (
-                <th key={index}>{membro}</th>
-              ))}
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {itensRaci.map((item, index) => (
-              <tr key={index}>
-                <td onClick={() => handleUpdateClick(item)}>{`${item.area} ${item.item}`}</td>
-                {item.responsabilidades.split(', ').map((responsabilidade, index) => (
-                  <td key={index} onClick={() => handleUpdateClick(item)}>{responsabilidade}</td>
-                ))}
-                <td onClick={() => handleClick(item)}x>❌</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+  <table className={members.tabelaRaci}>
+    <thead>
+      <tr>
+        <th>Area</th>
+        <th>Item</th>
+        {tableHeaders.map((membro, index) => (
+          <th key={index}>{membro}</th>
+        ))}
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {itensRaci.map((item, index) => (
+        <tr key={index}>
+          {index === 0 || itensRaci[index - 1].area !== item.area ? (
+            <td rowSpan={calculateRowSpan(itensRaci, item.area, index)} 
+            onClick={() => handleUpdateClick(item)} className={members.areaTc}>{item.area}</td>
+          ) : null}
+          <td onClick={() => handleUpdateClick(item)} className={members.itemTc}>{item.item}</td>
+          {item.responsabilidades.split(', ').map((responsabilidade, index) => (
+            <td key={index} onClick={() => handleUpdateClick(item)}>{responsabilidade}</td>
+          ))}
+          <td onClick={() => handleClick(item)}>❌</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
 
       {confirmDeleteItem && (
         <div className="overlay">
@@ -252,7 +278,7 @@ const Tabela = () => {
 
                 {/*outros inputs*/}
                 <div className="centered-container">
-                  <div>{formData.area} - {formData.item}</div>
+                  <div style={{marginBottom: '20px'}}><b>{formData.area} -<br/>{formData.item}</b></div>
                   {inputNames.map((membro, index) => (
                     <div className="mini-input" key={index}>
                     <label htmlFor={"input" + getCleanName(membro)}>{membro}</label>

@@ -13,6 +13,7 @@
   
   .menuGroup img {
     margin: 10px;
+    flex-direction: column;
   }
   
   .menuGroup span {

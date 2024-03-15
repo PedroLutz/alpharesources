@@ -109,22 +109,30 @@ const Cadastro = ({ onCadastro }) => {
 
   const generateInputNames = () => {
     const firstNames = new Map();
+    const fullNames = [];
     const inputNames = [];
-      
+  
     nomesMembros.forEach((membro) => {
       const nomeCompleto = membro.nome;
       const firstName = nomeCompleto.split(' ')[0];
       const lastName = nomeCompleto.split(' ')[1];
-      
+      const corrigirNomeCompleto = () => {
+        let index = fullNames.findIndex(x => x.includes(firstName));
+        let otherLastName = fullNames[index].split(' ')[1];
+        inputNames[index] = `${firstName} ${otherLastName}`;
+      };
+  
       if (firstNames.has(firstName)) {
         const existingHeader = firstNames.get(firstName);
         inputNames.push(`${existingHeader} ${lastName}`);
+        fullNames.push(`${firstName} ${lastName}`);
+        corrigirNomeCompleto();
       } else {
         firstNames.set(firstName, nomeCompleto.split(' ')[0]);
-        inputNames.push(nomeCompleto.split(' ')[0]);
-      }
+        inputNames.push(firstName);
+        fullNames.push(`${firstName} ${lastName}`);
+      };
     });
-      
     return inputNames;
   };
   const inputNames = generateInputNames();
@@ -159,9 +167,9 @@ const Cadastro = ({ onCadastro }) => {
     <div className="centered-container financeiro">
       <h2>Register RACI item</h2>
       <form onSubmit={handleSubmit}>
-        <div className="centered-container">
+        <div className="centered-container column-container">
           {inputNames.map((membro, index) => (
-            <div key={index} className="mini-input">
+            <div key={index} className="mini-input column">
               <label htmlFor={"input" + getCleanName(membro)}>{membro}</label>
               <select
                 type="text"

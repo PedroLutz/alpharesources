@@ -25,6 +25,15 @@ const Menu = () => {
                     Acquisition planning
                 </Link>
             </span>
+            {/*Item Responsabilidades*/}
+            <span>
+                <Link href="/pages/responsibilities/raci/table">
+                    <div>
+                        <img src={'/images/members_logo.png'} alt="Members Logo" className="logoItem"/>
+                    </div>
+                    Roles & Responsibilities
+                </Link>
+            </span>
         </div>
 
         {/*Itens do Menu, linha 2*/}
