@@ -52,6 +52,7 @@
 }
 
 .tabelaRaci th{
+    cursor: default;
     width: 0px;
     padding-left: 0.5rem !important;
     padding-right: 0.5rem !important;

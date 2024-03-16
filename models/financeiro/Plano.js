@@ -1,9 +1,7 @@
 import mongoose from 'mongoose';
 
-// Limpe o cache do Mongoose para o modelo 'Person' (se já estiver definido)
 delete mongoose.connection.models['Plano'];
 
-// Defina o modelo 'Person' apenas uma vez com a coleção "financas"
 const planoSchema = new mongoose.Schema({
   plano: String,
   area: String,
@@ -17,6 +15,6 @@ const planoSchema = new mongoose.Schema({
   plano_b: String,
   tipo_b: String,
   valor_b: Number
-}, { collection: 'planos' }); // Defina o nome da coleção aqui
+}, { collection: 'planos' });
 
 export default mongoose.models['Plano'] || mongoose.model('Plano', planoSchema);

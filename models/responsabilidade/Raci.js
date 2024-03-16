@@ -8,6 +8,6 @@ const raciSchema = new mongoose.Schema({
   area: String,
   item: String,
   responsabilidades: String
-}, { collection: 'raci' }); // Defina o nome da coleção aqui
+}, { collection: 'raci' }); 
 
 export default mongoose.models['Raci'] || mongoose.model('Raci', raciSchema);

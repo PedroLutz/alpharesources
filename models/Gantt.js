@@ -1,9 +1,7 @@
 import mongoose from 'mongoose';
 
-// Limpe o cache do Mongoose para o modelo 'Person' (se já estiver definido)
 delete mongoose.connection.models['Gantt'];
 
-// Defina o modelo 'Person' apenas uma vez com a coleção "financas"
 const GanttSchema = new mongoose.Schema({
   plano: Boolean,
   item: String,
@@ -13,6 +11,6 @@ const GanttSchema = new mongoose.Schema({
   dp_item: String,
   dp_area: String,
   situacao: String,
-}, { collection: 'gantt' }); // Defina o nome da coleção aqui
+}, { collection: 'gantt' }); 
 
 export default mongoose.models['Gantt'] || mongoose.model('Gantt', GanttSchema);

@@ -218,34 +218,34 @@ const Tabela = () => {
     <div className="centered-container">
       <h2>RACI Matrix</h2>
       <div id="report">
-  <table className={members.tabelaRaci}>
-    <thead>
-      <tr>
-        <th>Area</th>
-        <th>Item</th>
-        {tableHeaders.map((membro, index) => (
-          <th key={index}>{membro}</th>
-        ))}
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {itensRaci.map((item, index) => (
-        <tr key={index}>
-          {index === 0 || itensRaci[index - 1].area !== item.area ? (
-            <td rowSpan={calculateRowSpan(itensRaci, item.area, index)} 
-            onClick={() => handleUpdateClick(item)} className={members.areaTc}>{item.area}</td>
-          ) : null}
-          <td onClick={() => handleUpdateClick(item)} className={members.itemTc}>{item.item}</td>
-          {item.responsabilidades.split(', ').map((responsabilidade, index) => (
-            <td key={index} onClick={() => handleUpdateClick(item)}>{responsabilidade}</td>
-          ))}
-          <td onClick={() => handleClick(item)}>❌</td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
+        <table className={members.tabelaRaci}>
+          <thead>
+            <tr>
+              <th>Area</th>
+              <th>Item</th>
+              {tableHeaders.map((membro, index) => (
+                <th key={index}>{membro}</th>
+              ))}
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {itensRaci.map((item, index) => (
+              <tr key={index}>
+                {index === 0 || itensRaci[index - 1].area !== item.area ? (
+                  <td rowSpan={calculateRowSpan(itensRaci, item.area, index)} 
+                  onClick={() => handleUpdateClick(item)} className={members.areaTc}>{item.area}</td>
+                ) : null}
+                <td onClick={() => handleUpdateClick(item)} className={members.itemTc}>{item.item}</td>
+                {item.responsabilidades.split(', ').map((responsabilidade, index) => (
+                  <td key={index} onClick={() => handleUpdateClick(item)}>{responsabilidade}</td>
+                ))}
+                <td onClick={() => handleClick(item)}>❌</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
 
       {confirmDeleteItem && (
@@ -303,7 +303,7 @@ const Tabela = () => {
                 </div>
               </div>
               <div>
-                <button className="botao-cadastro" type="submit">Register RACI item</button>
+                <button className="botao-cadastro" style={{width: "55%"}} type="submit">Register RACI item</button>
                 <button className="botao-cadastro" onClick={() => setConfirmUpdateItem(null)}>Cancel</button>
               </div>
             </form>
