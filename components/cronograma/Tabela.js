@@ -152,7 +152,7 @@ const Tabela = () => {
         options={{
           gantt: {
             trackHeight: 30,
-            sortTasks: true,
+            sortTasks: false,
           },
         }}
       />
