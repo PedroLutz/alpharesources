@@ -1,12 +1,16 @@
 // components/Cadastro.js
-import React, { useState } from 'react';
+import React, { useState , useEffect } from 'react';
 import styles from '../../../styles/modules/radio.module.css';
 
 const Cadastro = ({ onCadastro }) => {
   const [registerSuccess, setRegisterSuccess] = useState(false);
+  const [elementosWBS, setElementosWBS] = useState([]);
+  const [itensPorArea, setItensPorArea] = useState([]);
+  const [viewUsage, setViewUsage] = useState(true);
   const [formData, setFormData] = useState({
     plano: '',
     area: '',
+    item: '',
     recurso: '', 
     tipo_a: '',
     valor_a: '',
@@ -22,12 +26,47 @@ const Cadastro = ({ onCadastro }) => {
     setRegisterSuccess(false);
   };
 
+  const handleAreaChange = (e) => {
+    const areaSelecionada = e.target.value;
+    const itensDaArea = elementosWBS.filter(item => item.area === areaSelecionada).map(item => item.item);
+    setItensPorArea(itensDaArea);
+
+    // Atualiza o estado formData para refletir a nova área selecionada
+    setFormData({
+      ...formData,
+      area: areaSelecionada,
+      item: '', // Limpa o campo de itens quando a área é alterada
+    });
+  };
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
   };
+
+  const fetchElementos = async () => {
+    try {
+      const response = await fetch('/api/wbs/get', {
+        method: 'GET',
+      });
+
+      if (response.status === 200) {
+        const data = await response.json();
+        setElementosWBS(data.elementos);
+
+      } else {
+        console.error('Error in searching for financal releases data');
+      }
+    } catch (error) {
+      console.error('Error in searching for financal releases data', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchElementos();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -50,6 +89,7 @@ const Cadastro = ({ onCadastro }) => {
         setFormData({
           plano: '',
           area: '',
+          item: '',
           recurso: '', 
           uso: '',
           tipo_a: '',
@@ -103,27 +143,6 @@ const Cadastro = ({ onCadastro }) => {
               Ideal scenario
             </label>
           </div>
-          <div className="centered-container">
-          <label htmlFor="area">Area</label>
-          <select
-            name="area"
-            onChange={handleChange}
-            value={formData.area}
-            required
-          >
-            <option value="" disabled>Select an area</option>
-            <option value="3D printing">3D printing</option>
-            <option value="Engineering">Engineering</option>
-            <option value="Extras">Extras</option>
-            <option value="Marketing">Marketing</option>
-            <option value="Machining">Machining</option>
-            <option value="Painting">Painting</option>
-            <option value="Pit Display">Pit Display</option>
-            <option value="Portfolios">Portfolios</option>
-            <option value="Sponsorship">Sponsorship</option>
-            <option value="Traveling">Traveling</option>
-          </select>
-          </div>
 
           <div className='centered-container'>
             <label htmlFor="recurso">Resource</label>
@@ -136,8 +155,49 @@ const Cadastro = ({ onCadastro }) => {
               required
             />
           </div>
+          
+          <button type='button'
+          className="botao-cadastro"
+          onClick={() => setViewUsage(!viewUsage)}>
+            {viewUsage ? 
+              ('Change to Acquisition Planning'
+            ) : (
+              'Change to Usage Planning')}
+          </button>
 
-          <div className='centered-container'>
+          {viewUsage ? (
+            <div>
+              <div className="centered-container">
+            <label htmlFor="area">Area</label>
+            <select
+                    name="area"
+                    onChange={handleAreaChange}
+                    value={formData.area}
+                    required
+                  >
+                    <option value="" disabled>Select an area</option>
+                    {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
+                      <option key={index} value={area}>{area}</option>
+                ))};
+              </select>
+            </div>
+  
+            <div className="centered-container">
+            <label htmlFor="item">Item</label>
+            <select
+                name="item"
+                onChange={handleChange}
+                value={formData.item}
+                required
+              >
+                <option value="" disabled>Select an item</option>
+                {itensPorArea.map((item, index) => (
+                  <option key={index} value={item}>{item}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className='centered-container'>
             <label htmlFor="uso">Use</label>
             <input
               type="text"
@@ -148,8 +208,10 @@ const Cadastro = ({ onCadastro }) => {
               required
             />
           </div>
-
-          <div className='centered-container'>
+            </div>
+          ):(
+            <div>
+              <div className='centered-container'>
             <label htmlFor="plano_a">Plan A</label>
             <input
               type="text"
@@ -268,6 +330,8 @@ const Cadastro = ({ onCadastro }) => {
               required
             />
           </div>
+            </div>
+          )}
         </div>
         <button className="botao-cadastro" type="submit">Register acquisition plan</button>
       </form>

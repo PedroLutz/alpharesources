@@ -1,8 +1,9 @@
-import React, { useState, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import styles from '../../../styles/modules/radio.module.css';
 
 const Cadastro = ({ onCadastro }) => {
     const [registerSuccess, setRegisterSuccess] = useState(false);
+    const [elementosWBS, setElementosWBS] = useState([]);
     const [formData, setFormData] = useState({
       tipo: '',
       descricao: '',
@@ -12,6 +13,24 @@ const Cadastro = ({ onCadastro }) => {
       origem: '',
       destino: '',
     });
+
+    const fetchElementos = async () => {
+      try {
+        const response = await fetch('/api/wbs/get', {
+          method: 'GET',
+        });
+  
+        if (response.status === 200) {
+          const data = await response.json();
+          setElementosWBS(data.elementos);
+  
+        } else {
+          console.error('Error in searching for financal releases data');
+        }
+      } catch (error) {
+        console.error('Error in searching for financal releases data', error);
+      }
+    };
 
     const handleCloseModal = () => {
       setRegisterSuccess(false);
@@ -33,6 +52,10 @@ const Cadastro = ({ onCadastro }) => {
         [inputName]: formattedDate,
       }));
     };
+
+    useEffect(() => {
+      fetchElementos();
+    }, []);
 
     const handleSubmit = async (e) => {
       e.preventDefault();
@@ -178,22 +201,15 @@ const Cadastro = ({ onCadastro }) => {
             {/*select area*/}
             <label htmlFor="area">Area</label>
             <select
-              name="area"
-              onChange={handleChange}
-              value={formData.area}
-              required
-            >
-              <option value="" disabled>Select an area</option>
-              <option value="3D printing">3D printing</option>
-              <option value="Engineering">Engineering</option>
-              <option value="Extras">Extras</option>
-              <option value="Marketing">Marketing</option>
-              <option value="Machining">Machining</option>
-              <option value="Painting">Painting</option>
-              <option value="Pit Display">Pit Display</option>
-              <option value="Portfolios">Portfolios</option>
-              <option value="Sponsorship">Sponsorship</option>
-              <option value="Traveling">Traveling</option>
+                  name="area"
+                  onChange={handleChange}
+                  value={formData.area}
+                  required
+                >
+                  <option value="" disabled>Select an area</option>
+                  {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
+                    <option key={index} value={area}>{area}</option>
+              ))};
             </select>
 
             {/*select origem*/}

@@ -5,6 +5,7 @@ delete mongoose.connection.models['Plano'];
 const planoSchema = new mongoose.Schema({
   plano: String,
   area: String,
+  item: String,
   recurso: String,
   uso: String,
   tipo_a: String,

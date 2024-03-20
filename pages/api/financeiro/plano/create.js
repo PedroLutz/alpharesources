@@ -7,12 +7,13 @@ export default async (req, res) => {
     await connectToDatabase();
 
     if (req.method === 'POST') {
-      const { plano, area, recurso, uso,  tipo_a, valor_a, plano_a, data_esperada, data_limite, plano_b, tipo_b, valor_b } = req.body;
+      const { plano, area, item, recurso, uso,  tipo_a, valor_a, plano_a, data_esperada, data_limite, plano_b, tipo_b, valor_b } = req.body;
 
       // Crie um novo objeto Person com os dados da solicitação
       const newPlano = new Plano({
         plano, 
-        area, 
+        area,
+        item, 
         recurso, 
         uso, 
         tipo_a, 

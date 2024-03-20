@@ -1,6 +1,7 @@
 import React from 'react';
 import Head from 'next/head';
 import { useState, useEffect } from "react";
+import Footer from '../components/Footer';
 
 import '../styles/financeiro.css';
 import '../styles/global.css';
@@ -80,12 +81,14 @@ function MyApp({ Component, pageProps }) {
           <link rel="icon" href="/images/logo.png" /> {/* Adicione esta linha */}
         </Head>
           <Component {...pageProps} />
+          <Footer/>
       </div>
     );
   } else {
     return (
       <>
         <FormularioLogin/>
+        <Footer/>
       </>
     );
   }
