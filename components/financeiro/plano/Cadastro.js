@@ -156,14 +156,16 @@ const Cadastro = ({ onCadastro }) => {
             />
           </div>
           
-          <button type='button'
-          className="botao-cadastro"
-          onClick={() => setViewUsage(!viewUsage)}>
-            {viewUsage ? 
-              ('Change to Acquisition Planning'
-            ) : (
-              'Change to Usage Planning')}
-          </button>
+          <div className="input-data" style={{width: '100%'}}>
+            <button type='button'
+            style={{width: '16rem'}}
+            onClick={() => setViewUsage(!viewUsage)}>
+              {viewUsage ? 
+                ('Change to Acquisition Planning'
+              ) : (
+                'Change to Usage Planning')}
+            </button>
+          </div>
 
           {viewUsage ? (
             <div>

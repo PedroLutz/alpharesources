@@ -54,11 +54,17 @@ const Tabela = () => {
       if (response.status === 200) {
         const data = await response.json();
         data.cronogramas.forEach((item) => {
-          console.log(item.inicio)
           item.inicio = formatDate(item.inicio);
           item.termino = formatDate(item.termino);
         });
+        data.cronogramas.sort((a, b) => {
+          if (a.area < b.area) return -1;
+          if (a.area > b.area) return 1;
+          return 0;
+        });
+        
         setCronogramas(data.cronogramas);
+        console.log(cronogramas);;
       } else {
         console.error('Error in searching for timeline data');
       }

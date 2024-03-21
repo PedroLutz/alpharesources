@@ -77,6 +77,20 @@ const Cadastro = ({ onCadastro }) => {
     });
   };
 
+  const cleanInputs = () => {
+    setFormData({
+      plano: '',
+      item: '',
+      area: '',
+      inicio: '',
+      termino: '',
+      dp_item: '',
+      dp_area: '',
+      situacao: '',
+    });
+  }
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -248,6 +262,7 @@ const Cadastro = ({ onCadastro }) => {
         </div>
         <div>
           <button className="botao-cadastro" type="submit">Register timeline component</button>
+          <button className="botao-cadastro" type="button" onClick={()=> cleanInputs()}>Clean inputs</button>
         </div>
       </form>
 

@@ -5,7 +5,7 @@ const Footer = () => {
     return (
         <footer className={footer.footer}>
             <div>
-                Copyright © Alpha Scuderia. 2024. All rights reserved.
+                Coded by Pedro Guilherme for Team Alpha! All rights reserved (to me).
             </div>
         </footer>
     );

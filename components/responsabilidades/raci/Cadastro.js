@@ -15,7 +15,7 @@ const Cadastro = ({ onCadastro }) => {
     const areaSelecionada = e.target.value;
     const itensDaArea = elementos.filter(item => item.area === areaSelecionada).map(item => item.item);
     setItensPorArea(itensDaArea);
-    
+    console.log(e.target.name + "=" + e.target.value)
     setFormData({
       ...formData,
       area: areaSelecionada,
@@ -32,6 +32,7 @@ const Cadastro = ({ onCadastro }) => {
       ...formData,
       [e.target.name]: e.target.value,
     }));
+    console.log(e.target.name + "=" + e.target.value)
   };
 
   const handleSubmit = async (e) => {
@@ -44,18 +45,21 @@ const Cadastro = ({ onCadastro }) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({...formData,
-          responsabilidades: Object.keys(formData).filter(key => key.startsWith('input')).map(key => formData[key]).join(', ')}),
+          responsabilidades: inputNames.map(inputName => formData["input" + getCleanName(inputName)]).join(', ')}),
       });
 
       if (response.ok) {
         if (typeof onCadastro === 'function') {
           onCadastro(formData);
         };
+        
+        console.log(formData);
         setFormData({
           area: "",
           item: "",
           responsabilidades: ""
         });
+        
         setRegisterSuccess(true);
       } else {
         console.error('Error when registering the RACI item');
@@ -144,18 +148,15 @@ const Cadastro = ({ onCadastro }) => {
             [`input${getCleanName(membro)}`]: ''
         }));
     });
-    setFormData(({
-      ...formData,
-      responsabilidades: Object.keys(formData).filter(key => key.startsWith('input')).map(key => formData[key]).join(', ')
-    })); 
   };
 
   const getCleanName = (str) => {
     const removeAccents = (str) => {
         return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
       };
-    return removeAccents(str.split(" ").join(""));
+        return removeAccents(str.split(" ").join(""));
   };
+  
 
   useEffect(() => {
     fetchNomesMembros();

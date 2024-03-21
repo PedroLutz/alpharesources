@@ -22,6 +22,14 @@ export default async (req, res) => {
       // Use a query 'cronogramas' para buscar todos os elementos de Gantt
       const cronogramas = await Gantt.find();
 
+      cronogramas.sort((a, b) => {
+        if (a.area < b.area) return -1;
+        if (a.area > b.area) return 1;
+        if (a.inicio < b.inicio) return -1;
+        if (a.inicio > b.inicio) return 1;
+        return 0;
+      });
+
       // Crie uma nova query filtrando os elementos com base na data de início
       const iniciosNoMes = cronogramas.filter((elemento) => {
         return elemento.inicio >= startDate && elemento.inicio <= endDate;

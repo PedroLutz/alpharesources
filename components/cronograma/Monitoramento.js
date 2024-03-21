@@ -191,6 +191,11 @@ const Tabela = () => {
           item.inicio = formatDate(item.inicio);
           item.termino = formatDate(item.termino);
         });
+        data.cronogramas.sort((a, b) => {
+          if (a.area < b.area) return -1;
+          if (a.area > b.area) return 1;
+          return 0;
+        });
         setCronogramas(data.cronogramas);
       } else {
         console.error('Error in searching for financial releases data');
