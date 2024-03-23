@@ -184,7 +184,9 @@ const Tabela = () => {
     return rowSpan;
   }
 
-  const handleUpdateItem = async () => {
+  const handleUpdateItem = async (e) => {
+    e.preventDefault();
+    
     if (confirmUpdateItem) {
       const responsabilidadesString = Object.keys(formData)
       .filter(key => key.startsWith('input'))
@@ -234,13 +236,18 @@ const Tabela = () => {
               <tr key={index}>
                 {index === 0 || itensRaci[index - 1].area !== item.area ? (
                   <td rowSpan={calculateRowSpan(itensRaci, item.area, index)} 
-                  onClick={() => handleUpdateClick(item)} className={members.areaTc}>{item.area}</td>
+                  className={members.areaTc}>{item.area}</td>
                 ) : null}
-                <td onClick={() => handleUpdateClick(item)} className={members.itemTc}>{item.item}</td>
+                <td  className={members.itemTc}>{item.item}</td>
                 {item.responsabilidades.split(', ').map((responsabilidade, index) => (
-                  <td key={index} onClick={() => handleUpdateClick(item)}>{responsabilidade}</td>
+                  <td key={index}>{responsabilidade}</td>
                 ))}
-                <td onClick={() => handleClick(item)}>❌</td>
+                <td>
+                  <div className="botoes-acoes">
+                    <button type="button" onClick={() => handleClick(item)}>❌</button>
+                    <button type="button" onClick={() => handleUpdateClick(item)}>⚙️</button>
+                  </div>                
+                </td>
               </tr>
             ))}
           </tbody>

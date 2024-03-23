@@ -73,7 +73,7 @@ function MyApp({ Component, pageProps }) {
     );
   };
 
-  if (autenticado){
+  if (!autenticado){
     return (
       <div>
         <Head>

@@ -1,11 +1,101 @@
 import React, { useEffect, useState } from 'react';
 import { Chart } from 'react-google-charts';
 
+const formatInputDate = (dateString) => {
+  var dateParts = dateString.split("-");
+  return new Date(+dateParts[0], dateParts[1] - 1, dateParts[2] - 1)
+}
+
 const Tabela = () => {
   const [cronogramas, setCronogramas] = useState([]);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
+  const [elementos, setElementos] = useState([]);
+  const [itensPorAreaDp, setItensPorAreaDp] = useState([]);
+  const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
   const [filtroArea, setFiltroArea] = useState('');
+  const [novosDados, setNovosDados] = useState({
+    inicio: '',
+    termino: '',
+    dp_item: '',
+    dp_area: '',
+    situacao: '',
+  });
+
+  const handleAreaChangeDp = (e) => {
+    const areaSelecionadaDp = e.target.value;
+    const itensDaAreaDp = elementos.filter(item => item.area === areaSelecionadaDp).map(item => item.item);
+    setItensPorAreaDp(itensDaAreaDp);
+
+    // Atualiza o estado formData para refletir a nova área selecionada
+    setNovosDados({
+      ...novosDados,
+      dp_area: areaSelecionadaDp,
+      dp_item: '', // Limpa o campo de itens quando a área é alterada
+    });
+  };
+
+  const fetchElementos = async () => {
+    try {
+      const response = await fetch('/api/wbs/get', {
+        method: 'GET',
+      });
+
+      if (response.status === 200) {
+        const data = await response.json();
+        setElementos(data.elementos);
+
+      } else {
+        console.error('Error in searching for financal releases data');
+      }
+    } catch (error) {
+      console.error('Error in searching for financal releases data', error);
+    }
+  };
+
+  const handleChange = (e) => {
+    setNovosDados({
+      ...novosDados,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleUpdateItem = async (e) => {
+    e.preventDefault;
+
+    if (confirmUpdateItem) {
+      const inicioConsertado = formatInputDate(novosDados.inicio);
+      const terminoConsertado = formatInputDate(novosDados.termino);
+      const { dp_item, dp_area, situacao } = novosDados;
+
+      try {
+        const response = await fetch(`/api/cronograma/update?id=${String(confirmUpdateItem._id)}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ inicio: inicioConsertado, termino: terminoConsertado, dp_item, dp_area, situacao }),
+        });
+
+        if (response.status === 200) {
+          console.log('Timeline component updated successfully!');
+          fetchCronogramas();
+        } else {
+          console.error('Error in updating timeline component');
+        }
+      } catch (error) {
+        console.error('Error in updating timeline component', error);
+      }
+    }
+    setConfirmUpdateItem(null);
+    setNovosDados({
+      inicio: '',
+      termino: '',
+      dp_item: '',
+      dp_area: '',
+      situacao: '',
+    })
+  };
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -14,13 +104,24 @@ const Tabela = () => {
     }
   };
 
+  const handleUpdateClick = (item) => {
+    setConfirmUpdateItem(item);
+    setNovosDados({
+      inicio: item.inicio,
+      termino: item.termino,
+      dp_item: item.dp_item,
+      dp_area: item.dp_area,
+      situacao: item.situacao,
+    });
+  };
+
   const formatDate = (dateString) => {
     // Converte a data da string para um objeto de data
     const date = new Date(dateString);
   
     // Adiciona um dia à data
     date.setDate(date.getDate() + 1);
-  
+
     // Formata a data
     const formattedDate = date.toLocaleDateString(undefined, {
       year: 'numeric',
@@ -62,7 +163,7 @@ const Tabela = () => {
           if (a.area > b.area) return 1;
           return 0;
         });
-        
+
         setCronogramas(data.cronogramas);
         console.log(cronogramas);;
       } else {
@@ -74,6 +175,7 @@ const Tabela = () => {
   };
 
   useEffect(() => {
+    fetchElementos();
     fetchCronogramas();
   }, []);
 
@@ -101,7 +203,7 @@ const Tabela = () => {
 
   const createGanttData = (cronogramas) => {
     const ganttData = [['Task ID', 'Task Name', 'Resource', 'Start Date', 'End Date', 'Duration', 'Percent Complete', 'Dependencies']];
-    
+
     cronogramas.forEach((item) => {
       if (item.plano) {
         var dependencies = ''
@@ -130,7 +232,7 @@ const Tabela = () => {
       {confirmDeleteItem && (
         <div className="overlay">
           <div className="modal">
-            <p>Are you sure you want to delete "{confirmDeleteItem.descricao}"?</p>
+            <p>Are you sure you want to delete "{confirmDeleteItem.item}"?</p>
             <div style={{display: 'flex', gap: '10px'}}>
               <button className="botao-cadastro" onClick={handleConfirmDelete}>Confirm</button>
               <button className="botao-cadastro" onClick={() => setConfirmDeleteItem(null)}>Cancel</button>
@@ -148,39 +250,37 @@ const Tabela = () => {
         </div>
       )}
 
-          {/* Gráfico Gantt */}
-          <Chart
-      height={'1300px'}
-        width={'90%'}
-        chartType="Gantt"
-        loader={<div>Loading Chart</div>}
-        data={chartData}
-        options={{
-          gantt: {
-            trackHeight: 30,
-            sortTasks: false,
-          },
-        }}
+      {/* Gráfico Gantt */}
+      <Chart
+        height={'1300px'}
+          width={'90%'}
+          chartType="Gantt"
+          loader={<div>Loading Chart</div>}
+          data={chartData}
+          options={{
+            gantt: {
+              trackHeight: 30,
+              sortTasks: false,
+            },
+          }}
       />
 
-      
-
-<div className="mini-input">
+      <div className="mini-input">
         <label htmlFor="filtroArea">Filter table:</label>
         <select
-                  name="area"
-                  onChange={handleFilterChange}
-                  style={{width:'264px', height: '33px'}}
-                  value={filtroArea}
-                  required
-                >
-                  <option value="" disabled>Select an area</option>
-                  {[...new Set(cronogramas.map(item => item.area))].map((area, index) => (
-                    <option key={index} value={area}>{area}</option>
-              ))};
-            </select>
-        
+          name="area"
+          onChange={handleFilterChange}
+          style={{width:'264px', height: '33px'}}
+          value={filtroArea}
+          required
+        >
+          <option value="" disabled>Select an area</option>
+          {[...new Set(cronogramas.map(item => item.area))].map((area, index) => (
+            <option key={index} value={area}>{area}</option>
+          ))};
+        </select>
       </div>
+
       <table style={{marginBottom: '10px'}}>
         <thead>
           <tr>
@@ -190,7 +290,7 @@ const Tabela = () => {
             <th>End</th>
             <th style={{width:'11%'}}>Dependency: Area</th>
             <th style={{width:'11%'}}>Dependency: Item</th>
-            <th style={{width:'5%'}}>Delete</th>
+            <th style={{width:'5%'}}>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -208,7 +308,8 @@ const Tabela = () => {
               <td>{item.dp_item || '-'}</td>
               <td>
                 <div className="botoes-acoes">
-                  <button style={{color: 'red'}} onClick={() => handleClick(item)}>X</button>
+                  <button onClick={() => handleClick(item)}>❌</button>
+                  <button onClick={() => handleUpdateClick(item)}>⚙️</button>
                 </div>
               </td>
             </tr>
@@ -216,6 +317,62 @@ const Tabela = () => {
         </tbody>
       </table>
 
+      {confirmUpdateItem && (
+        <div className="overlay"> 
+          <div className="modal">
+          <div className="centered-container mini-input">
+            <label htmlFor="inicio" style={{width: '260px'}}>Start</label>
+            <input
+              type="date"
+              id="inicio"
+              name="inicio"
+              placeholder=""
+              onChange={handleChange}
+              value={novosDados.inicio}
+              required
+            />
+
+            <label htmlFor="termino" style={{width: '260px'}}>End</label>
+            <input
+              type="date"
+              id="termino"
+              name="termino"
+              placeholder=""
+              onChange={handleChange}
+              value={novosDados.termino}
+              required
+            />
+
+            <label htmlFor="dp_area"style={{width: '260px'}} >Dependencies</label>
+            <select
+                  name="dp_area"
+                  onChange={handleAreaChangeDp}
+                  value={novosDados.dp_area}
+                >
+                  <option value="" disabled>Select an area</option>
+                  {[...new Set(elementos.map(item => item.area))].map((area, index) => (
+                    <option key={index} value={area}>{area}</option>
+              ))};
+            </select>
+
+            <select
+              name="dp_item"
+              onChange={handleChange}
+              value={novosDados.dp_item}
+            >
+              <option value="" disabled>Select an item</option>
+              {itensPorAreaDp.map((item, index) => (
+                <option key={index} value={item}>{item}</option>
+              ))}
+            </select>
+          </div>
+            <div style={{display: 'flex', gap: '10px'}}>
+              <button className="botao-cadastro" onClick={handleUpdateItem}>Update</button>
+              <button className="botao-cadastro" onClick={() => setConfirmUpdateItem(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -125,7 +125,7 @@ const Tabela = () => {
     if (confirmUpdateItem) {
       const isExpense = confirmUpdateItem.tipo === "Expense";
       const newValueWithSign = isExpense ? -novosDados.valor : novosDados.valor;
-      const { tipo, descricao, valor, data, area, origem, destino } = novosDados;
+      const { tipo, descricao, data, area, origem, destino } = novosDados;
 
       try {
         const response = await fetch(`/api/financeiro/financas/update?id=${String(confirmUpdateItem._id)}`, {
@@ -213,7 +213,7 @@ return (
               <td>{item.destino}</td>
               <td>
                 <div className="botoes-acoes">
-                  <button style={{ color: 'red' }} onClick={() => handleClick(item)}>❌</button>
+                  <button onClick={() => handleClick(item)}>❌</button>
                   <button onClick={() => handleUpdateClick(item)}>⚙️</button>
                 </div>
               </td>
