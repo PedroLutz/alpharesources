@@ -1,5 +1,5 @@
 // pages/api/update.js
-import connectToDatabase from '../../../../lib/db';
+import connectToDatabase from '../../../lib/db';
 import Elemento from '../../../models/WorkBS';
 
 export default async (req, res) => {
