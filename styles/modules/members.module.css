@@ -48,7 +48,6 @@
 
 .tabelaRaci {
     font-size: 15px;
-    cursor: pointer;
 }
 
 .tabelaRaci th{
@@ -56,28 +55,29 @@
     width: 0px;
     padding-left: 0.5rem !important;
     padding-right: 0.5rem !important;
+    padding: 0.1rem;
     font-size: 15px;
     border-spacing: 0px;
     font-weight: bold;
 }
 
 .tabelaRaci tr{
-    padding: 10px;
+    font-size: 14px;
 }
 
 .areaTc{
     text-align: start;
     padding: 0.5rem;
-    width: auto; /* Allow the width to adjust based on content */
+    width: auto; 
     font-weight: bold;
 }
 
 .itemTc {
     text-align: start;
-    padding: 0.5rem;
-    width: auto; /* Allow the width to adjust based on content */
-    overflow: hidden; /* Hide any content that overflows the width */
-    white-space: nowrap; /* Prevent wrapping of text */
+    padding: 0.2rem;
+    width: auto; 
+    overflow: hidden;
+    white-space: nowrap; 
 }
 
 

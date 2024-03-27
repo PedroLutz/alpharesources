@@ -1,4 +1,3 @@
-// pages/api/create.js
 import connectToDatabase from '../../../../lib/db';
 import Lancamento from '../../../../models/financeiro/Lancamento';
 
@@ -11,7 +10,6 @@ export default async (req, res) => {
 
       const valorAjustado = tipo === 'Expense' ? -1 * valor : valor;
 
-      // Crie um novo objeto Person com os dados da solicitação
       const newLancamento = new Lancamento({
         tipo,
         descricao,
@@ -22,7 +20,6 @@ export default async (req, res) => {
         destino,
       });
 
-      // Salve no banco de dados
       await newLancamento.save();
 
       res.status(201).json({ message: 'Lançamento cadastrado com sucesso!' });

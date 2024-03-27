@@ -15,6 +15,7 @@ const Cadastro = ({ onCadastro }) => {
     tipo_a: '',
     valor_a: '',
     plano_a: '',
+    data_inicial: '',
     data_esperada: '',
     data_limite: '',
     plano_b: '',
@@ -95,12 +96,12 @@ const Cadastro = ({ onCadastro }) => {
           tipo_a: '',
           valor_a: '',
           plano_a: '',
+          data_inicial: '',
           data_esperada: '',
           data_limite: '',
           plano_b: '',
           tipo_b: '',
           valor_b: ''
-          
         });
         console.log('Plan successfully registered!');
         setRegisterSuccess(true);
@@ -128,7 +129,7 @@ const Cadastro = ({ onCadastro }) => {
                 required
               />
               <span className={styles.checkmark}></span>
-              Worst scenario
+              Essential scenario
             </label>
             <label  className={styles.container}>
               <input
@@ -262,27 +263,42 @@ const Cadastro = ({ onCadastro }) => {
             />
           </div>
 
-          <div className='centered-container'>
-          <label htmlFor="data_esperada">Expected date</label>
-            <input
-              type="date"
-              name="data_esperada"
-              onChange={handleChange}
-              value={formData.data_esperada}
-              required
-            />
+          <div className="container-inputs-pequenins">
+            <div className='centered-container input-pequenin'>
+              <label htmlFor="data_inicial">Starting date</label>
+              <input
+                className="input-pequenin"
+                type="date"
+                name="data_inicial"
+                onChange={handleChange}
+                value={formData.data_inicial}
+                required
+              />
+            </div>
+
+            <div className='centered-container input-pequenin'>
+              <label htmlFor="data_esperada">Expected date</label>
+              <input
+                type="date"
+                name="data_esperada"
+                onChange={handleChange}
+                value={formData.data_esperada}
+                required
+              />
+            </div>
+
+            <div className='centered-container input-pequenin'>
+              <label htmlFor="data_limite">Critical date</label>
+              <input
+                type="date"
+                name="data_limite"
+                onChange={handleChange}
+                value={formData.data_limite}
+                required
+              />
+            </div>
           </div>
 
-          <div className='centered-container'>
-          <label htmlFor="data_limite">Critical date</label>
-            <input
-              type="date"
-              name="data_limite"
-              onChange={handleChange}
-              value={formData.data_limite}
-              required
-            />
-          </div>
 
           <div className='centered-container'>
           <label htmlFor="plano_b">Plan B</label>

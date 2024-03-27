@@ -1,4 +1,3 @@
-// pages/api/update.js
 import connectToDatabase from '../../../../lib/db';
 import Lancamento from '../../../../models/financeiro/Lancamento';
 
@@ -6,23 +5,19 @@ export default async (req, res) => {
   try {
     await connectToDatabase();
 
-    if (req.method === 'PUT') { // Use o método PUT para atualizar
-      const { id } = req.query; // O id do lançamento a ser atualizado
+    if (req.method === 'PUT') { 
+      const { id } = req.query; 
 
-      // Verifique se o id é fornecido
       if (!id) {
         return res.status(400).json({ error: 'O ID do lançamento é obrigatório para a atualização.' });
       }
 
-      // Os dados atualizados do lançamento podem ser passados no corpo da solicitação
-      const { tipo, descricao, valor, data, area, origem, destino } = req.body; // Você pode adicionar outros campos conforme necessário
+      const { tipo, descricao, valor, data, area, origem, destino } = req.body;
 
-      // Verifique se o valor é fornecido
       if (!tipo || !descricao || !valor || !data || !area || !origem || !destino) {
         return res.status(400).json({ error: 'O valor do lançamento é obrigatório para a atualização.' });
       }
 
-      // Atualize o lançamento no banco de dados
       const updatedLancamento = await Lancamento.findByIdAndUpdate(id, { tipo, descricao, valor, data, area, origem, destino }, { new: true });
 
       if (!updatedLancamento) {

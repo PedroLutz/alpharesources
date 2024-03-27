@@ -114,3 +114,22 @@
     margin-right: 200px; 
     width: 100%
 }
+
+.input-pequenin {
+    input {
+        width: 240px;
+    };
+    input:focus {
+        width: 250px !important;
+    }
+    label {
+        width: 240px !important;
+    };
+}
+
+.container-inputs-pequenins {
+    display: flex;
+    justify-content: center;
+}
+
+

@@ -11,6 +11,7 @@ const planoSchema = new mongoose.Schema({
   tipo_a: String,
   valor_a: Number,
   plano_a: String,
+  data_inicial: Date,
   data_esperada: Date,
   data_limite: Date,
   plano_b: String,

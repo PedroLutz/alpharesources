@@ -51,6 +51,7 @@ export default async (req, res) => {
         {
           $group: {
             _id: "$recurso",
+            data_inicial: { $first: "$data_inicial" },
             data_esperada: { $first: "$data_esperada" },
             data_limite: { $first: "$data_limite" }
           }

@@ -1,4 +1,3 @@
-// pages/api/create.js
 import connectToDatabase from '../../../lib/db';
 import Gantt from '../../../models/Gantt';
 
@@ -9,7 +8,6 @@ export default async (req, res) => {
     if (req.method === 'POST') {
       const { plano, item, area, inicio, termino, dp_item, dp_area, situacao} = req.body;
 
-      // Crie um novo objeto Person com os dados da solicitação
       const newCronograma = new Gantt({
         plano,
         item,
@@ -21,7 +19,6 @@ export default async (req, res) => {
         situacao
       });
 
-      // Salve no banco de dados
       await newCronograma.save();
 
       res.status(201).json({ message: 'Cronograma cadastrado com sucesso!' });

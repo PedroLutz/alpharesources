@@ -1,4 +1,3 @@
-// pages/api/delete.js
 import connectToDatabase from '../../../../lib/db';
 import Lancamento from '../../../../models/financeiro/Lancamento';
 
@@ -7,12 +6,10 @@ export default async (req, res) => {
     await connectToDatabase();
 
     if (req.method === 'DELETE') {
-      // Verifique se o ID da pessoa a ser excluída é fornecido na solicitação
       if (!req.query.id) {
         return res.status(400).json({ error: 'O ID do lançamento não foi fornecido' });
       }
 
-      // Tente encontrar e excluir a pessoa com base no ID
       const deletedLancamento = await Lancamento.findByIdAndDelete(req.query.id);
 
       if (!deletedLancamento) {

@@ -504,13 +504,13 @@ const Tabela = () => {
                       {item.item}
                     </td>
                     <td>{item.inicio === '31/12/1969' ? '-' : item.inicio}</td>
-                    <td>{item.inicio === '31/12/1969' ? '-' : item.inicio}</td>
+                    <td>{item.termino === '31/12/1969' ? '-' : item.termino}</td>
                     <td>{item.dp_area || '-'}</td>
                     <td>{item.dp_item|| '-'}</td>
-                    <td>{labelsSituacao[item.situacao.toLowerCase().replace(/\s/g, '')] || item.situacao}</td>
+                    <td>{labelsSituacao[item.situacao.toLowerCase().replace(/\s/g, '')] || '-'}</td>
                     <td>
                       <div className="botoes-acoes">
-                        <button style={{color: 'red'}} onClick={() => handleClick(item)}>X</button>
+                        <button onClick={() => handleClick(item)}>❌</button>
                       </div>
                     </td>
                   </tr>

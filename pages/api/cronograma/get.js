@@ -1,4 +1,3 @@
-// pages/api/wbs/get.js
 import connectToDatabase from '../../../lib/db';
 import Gantt from '../../../models/Gantt';
 
@@ -9,17 +8,14 @@ export default async (req, res) => {
     if (req.method === 'GET') {
       const { year, month } = req.query;
 
-      // Converta year e month para números inteiros
       const selectedYear = parseInt(year, 10);
       const selectedMonth = parseInt(month, 10);
 
-      // Crie uma data de início e uma data de término para o mês selecionado
       const startDate = new Date(selectedYear, selectedMonth - 1, 1);
       const endDate = new Date(selectedYear, selectedMonth, 0, 23, 59, 59, 999);
       const dataInicioProxMes = new Date(selectedYear, selectedMonth, 1);
       const dataFimProxMes = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59, 999);
 
-      // Use a query 'cronogramas' para buscar todos os elementos de Gantt
       const cronogramas = await Gantt.find();
 
       cronogramas.sort((a, b) => {
@@ -30,7 +26,6 @@ export default async (req, res) => {
         return 0;
       });
 
-      // Crie uma nova query filtrando os elementos com base na data de início
       const iniciosNoMes = cronogramas.filter((elemento) => {
         return elemento.inicio >= startDate && elemento.inicio <= endDate;
       });
@@ -42,7 +37,6 @@ export default async (req, res) => {
       const iniciosNoMesSeguinte = cronogramas.filter((elemento) => {
         return elemento.inicio >= dataInicioProxMes && elemento.inicio <= dataFimProxMes;
       });
-
 
       res.status(200).json({ cronogramas, iniciosNoMes, terminosNoMes, iniciosNoMesSeguinte});
     } else {

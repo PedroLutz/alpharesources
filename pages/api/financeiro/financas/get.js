@@ -1,4 +1,3 @@
-// pages/api/get.js
 import connectToDatabase from '../../../../lib/db';
 import Lancamento from '../../../../models/financeiro/Lancamento';
 
@@ -7,14 +6,12 @@ export default async (req, res) => {
     await connectToDatabase();
 
     if (req.method === 'GET') {
-      // Consulte o banco de dados para buscar todas as pessoas
       const lancamentos = await Lancamento.find().sort({ data: -1 });
 
-      // Consulta para obter a soma de todos os valores
       const somaValores = await Lancamento.aggregate([
         {
           $match: {
-            tipo: { $ne: 'Exchange' } // Filtra documentos com tipo diferente de 'Exchange'
+            tipo: { $ne: 'Exchange' }
           }
         },
         {
@@ -29,7 +26,7 @@ export default async (req, res) => {
       const receitasTotais = await Lancamento.aggregate([
         {
           $match: {
-            tipo: { $in: ['Income', 'Exchange'] } // Filtra documentos com 'tipo' igual a 'Income' ou 'Exchange'
+            tipo: { $in: ['Income', 'Exchange'] }
           }
         },
         {
@@ -43,7 +40,7 @@ export default async (req, res) => {
       const despesasTotais = await Lancamento.aggregate([
         {
           $match: {
-            tipo: { $in: ['Expense', 'Exchange'] } // Filtra documentos com 'tipo' igual a 'Expense' ou 'Exchange'
+            tipo: { $in: ['Expense', 'Exchange'] }
           }
         },
         {
@@ -55,7 +52,6 @@ export default async (req, res) => {
       ]);
       
 
-      // Consulta para obter os valores agrupados por área
       const receitasPorArea = await Lancamento.aggregate([
         {
           $match: {
@@ -87,28 +83,28 @@ export default async (req, res) => {
       const receitasPorMes = await Lancamento.aggregate([
         {
           $match: {
-            tipo: { $in: ['Income', 'Exchange'] } // Filtra documentos com 'tipo' igual a 'Income'
+            tipo: { $in: ['Income', 'Exchange'] }
           }
         },
         {
           $project: {
             monthYear: {
               $dateToString: {
-                format: '%Y/%m', // Formato MM/AAAA
-                date: '$data' // Campo da data
+                format: '%Y/%m', 
+                date: '$data' 
               }
             },
-            valor: 1 // Mantém o campo 'valor' no resultado
+            valor: 1
           }
         },
         {
           $group: {
-            _id: '$monthYear', // Agrupa por mês/ano
-            total: { $sum: '$valor' } // Soma os valores para cada mês/ano
+            _id: '$monthYear',
+            total: { $sum: '$valor' }
           }
         },
         {
-          $sort: { _id: 1 } // Ordena por mês/ano
+          $sort: { _id: 1 }
         }
       ]);
 
@@ -122,14 +118,14 @@ export default async (req, res) => {
           $project: {
             monthYear: {
               $dateToString: {
-                format: '%Y/%m', // Formato MM/AAAA
-                date: '$data' // Campo da data
+                format: '%Y/%m',
+                date: '$data'
               }
             },
             valor: {
               $cond: [
                 { $eq: ['$tipo', 'Exchange'] },
-                { $multiply: ['$valor', -1] }, // Multiplica por -1 para tornar os valores 'Exchange' negativos
+                { $multiply: ['$valor', -1] },
                 '$valor'
               ]
             }
@@ -137,12 +133,12 @@ export default async (req, res) => {
         },
         {
           $group: {
-            _id: '$monthYear', // Agrupa por mês/ano
+            _id: '$monthYear',
             total: { $sum: '$valor' }
           }
         },
         {
-          $sort: { _id: 1 } // Ordena por mês/ano
+          $sort: { _id: 1 }
         }
       ]);
          

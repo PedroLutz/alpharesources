@@ -22,19 +22,6 @@ const Tabela = () => {
     situacao: '',
   });
 
-  const handleAreaChangeDp = (e) => {
-    const areaSelecionadaDp = e.target.value;
-    const itensDaAreaDp = elementos.filter(item => item.area === areaSelecionadaDp).map(item => item.item);
-    setItensPorAreaDp(itensDaAreaDp);
-
-    // Atualiza o estado formData para refletir a nova área selecionada
-    setNovosDados({
-      ...novosDados,
-      dp_area: areaSelecionadaDp,
-      dp_item: '', // Limpa o campo de itens quando a área é alterada
-    });
-  };
-
   const fetchElementos = async () => {
     try {
       const response = await fetch('/api/wbs/get', {
@@ -104,11 +91,37 @@ const Tabela = () => {
     }
   };
 
+  const updateDpItem = (areaSelecionadaDp) => {
+    const itensDaAreaDp = elementos.filter(item => item.area === areaSelecionadaDp).map(item => item.item);
+    setItensPorAreaDp(itensDaAreaDp);
+  
+    // Verifica se o item selecionado ainda pertence à nova lista de itens
+    const novoItemSelecionado = itensDaAreaDp.includes(novosDados.dp_item) ? novosDados.dp_item : '';
+  
+    // Atualiza o estado formData para refletir a nova área selecionada
+    setNovosDados(prevState => ({
+      ...prevState,
+      dp_area: areaSelecionadaDp,
+      dp_item: novoItemSelecionado,
+    }));
+  };
+  
+  const handleAreaChangeDp = (e) => {
+    const areaSelecionadaDp = e.target.value;
+    updateDpItem(areaSelecionadaDp);
+  };  
+
   const handleUpdateClick = (item) => {
+    const fixDate = (data) => {
+      const parts = data.split('/');
+      const itemDate = new Date(parts[2], parts[1] - 1, parts[0]); 
+      return itemDate.toISOString().split('T')[0];
+    };
+
     setConfirmUpdateItem(item);
     setNovosDados({
-      inicio: item.inicio,
-      termino: item.termino,
+      inicio: fixDate(item.inicio),
+      termino: fixDate(item.termino),
       dp_item: item.dp_item,
       dp_area: item.dp_area,
       situacao: item.situacao,
@@ -177,7 +190,10 @@ const Tabela = () => {
   useEffect(() => {
     fetchElementos();
     fetchCronogramas();
-  }, []);
+    if (novosDados.dp_area) {
+      updateDpItem(novosDados.dp_area);
+    }
+  }, [novosDados.dp_area]);
 
   const handleConfirmDelete = () => {
     if (confirmDeleteItem) {

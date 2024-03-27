@@ -154,17 +154,17 @@ const Tabela = () => {
       const corrigirNomeCompleto = () => {
         let index = fullNames.findIndex(x => x.includes(firstName));
         let otherLastName = fullNames[index].split(' ')[1];
-        headers[index] = `${firstName} ${otherLastName}`;
+        headers[index] = `${firstName.charAt(0)}${otherLastName.charAt(0)}`;
       };
   
       if (firstNames.has(firstName)) {
         const existingHeader = firstNames.get(firstName);
-        headers.push(`${existingHeader} ${lastName}`);
+        headers.push(existingHeader.charAt(0)+lastName.charAt(0));
         fullNames.push(`${firstName} ${lastName}`);
         corrigirNomeCompleto();
       } else {
         firstNames.set(firstName, nomeCompleto.split(' ')[0]);
-        headers.push(firstName);
+        headers.push(firstName.charAt(0));
         fullNames.push(`${firstName} ${lastName}`);
       };
     });
@@ -172,7 +172,7 @@ const Tabela = () => {
   };
   const tableHeaders = generateTableHeaders();
 
-  function calculateRowSpan(itensRaci, currentArea, currentIndex) {
+  const calculateRowSpan = (itensRaci, currentArea, currentIndex) => {
     let rowSpan = 1;
     for (let i = currentIndex + 1; i < itensRaci.length; i++) {
       if (itensRaci[i].area === currentArea) {
@@ -182,7 +182,7 @@ const Tabela = () => {
       }
     }
     return rowSpan;
-  }
+  };
 
   const handleUpdateItem = async (e) => {
     e.preventDefault();
@@ -239,8 +239,8 @@ const Tabela = () => {
                   className={members.areaTc}>{item.area}</td>
                 ) : null}
                 <td  className={members.itemTc}>{item.item}</td>
-                {item.responsabilidades.split(', ').map((responsabilidade, index) => (
-                  <td key={index}>{responsabilidade}</td>
+                {tableHeaders.map((membro, index) => (
+                  <td key={index}>{item.responsabilidades.split(', ')[tableHeaders.indexOf(membro)] || '-'}</td>
                 ))}
                 <td>
                   <div className="botoes-acoes">

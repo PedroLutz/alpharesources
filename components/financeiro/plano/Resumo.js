@@ -26,8 +26,7 @@ const Resumo = () => {
 
   const linhaDoTempoEsperadaGraph = [['Resource', 'Start', 'End']];
   linhaDoTempo.forEach((recurso) => {
-    // Data inicial fixa em 5 de agosto de 2023
-    const dataInicial = new Date('2023-08-05T00:00:00.000Z');
+    const dataInicial = new Date(recurso.data_inicial);
     const dataEsperada = new Date(recurso.data_esperada);
     
     linhaDoTempoEsperadaGraph.push([recurso._id, dataInicial, dataEsperada]);
@@ -35,8 +34,7 @@ const Resumo = () => {
 
   const linhaDoTempoLimiteGraph = [['Resource', 'Start', 'End']];
   linhaDoTempo.forEach((recurso) => {
-    // Data inicial fixa em 5 de agosto de 2023
-    const dataInicial = new Date('2023-08-05T00:00:00.000Z');
+    const dataInicial = new Date(recurso.data_inicial);
     const dataLimite = new Date(recurso.data_limite);
     
     linhaDoTempoLimiteGraph.push([recurso._id, dataInicial, dataLimite]);
@@ -108,7 +106,7 @@ crescimentoDosGastos.forEach((area) => {
               loader={<div>Loading graph</div>}
               data={piorPlanoPorAreaGraph}
               options={{ ...estiloGraph,
-                title: 'Worst scenario',
+                title: 'Essential scenario',
               }}
               rootProps={{ 'data-testid': '1' }}
             />
@@ -131,7 +129,7 @@ crescimentoDosGastos.forEach((area) => {
         </div>
 
         <div className="centered-container" style={{flexDirection: "row"}}>
-          <span className="custom-span">Worst scenario: R${somaPiorPlano}</span>
+          <span className="custom-span">Essential scenario: R${somaPiorPlano}</span>
           <span className="custom-span">Ideal scenario: R${somaCenarioIdeal}</span>
         </div>
 
@@ -139,7 +137,7 @@ crescimentoDosGastos.forEach((area) => {
         <div className="grafico">
             <Chart
                 width={'90%'}
-                height={'700px'}
+                height={'100%'}
                 chartType="Timeline"
                 loader={<div>Loading graph</div>}
                 data={linhaDoTempoEsperadaGraph}
@@ -158,7 +156,7 @@ crescimentoDosGastos.forEach((area) => {
         <div className="grafico">
             <Chart
                 width={'90%'}
-                height={'700px'}
+                height={'100%'}
                 chartType="Timeline"
                 loader={<div>Loading graph</div>}
                 options={{...estiloGraph,
