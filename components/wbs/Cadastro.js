@@ -1,7 +1,7 @@
 // components/Cadastro.js
 import React, { useState, useEffect } from 'react';
 
-const Cadastro = ({ onCadastro }) => {
+const Cadastro = () => {
   const [formData, setFormData] = useState({
     item: '',
     area: '',
@@ -70,11 +70,6 @@ const Cadastro = ({ onCadastro }) => {
         console.log('WBS element successfully registered!');
         alert("WBS element successfully registered!");
 
-        if (typeof onCadastro === 'function') {
-          onCadastro(formData);
-        }
-        // Chama a função de cadastro passada como prop
-        // Limpa os campos após o envio do formulário
         setFormData({
             item: '',
             area: '',

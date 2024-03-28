@@ -7,7 +7,7 @@ function Wbs() {
   return (
     <div>
       <Navbar />
-      <Cadastro />
+      <Cadastro/>
       <Tabela />
     </div>
   );
