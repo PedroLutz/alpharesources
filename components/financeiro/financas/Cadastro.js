@@ -210,6 +210,7 @@ const Cadastro = ({ onCadastro }) => {
                   {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
                     <option key={index} value={area}>{area}</option>
               ))};
+              <option value="Extras">Extras</option>
             </select>
 
             {/*select origem*/}

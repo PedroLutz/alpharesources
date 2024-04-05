@@ -130,7 +130,7 @@ const WBS = () => {
 
       {confirmUpdateItem && (
         <div className="overlay">
-          <div className="modal">
+          <div className="modal" style={{width: '20%'}}>
         <div className="centered-container">
           <label htmlFor="area" style={{alignSelf: 'center', textAlign: 'center', marginLeft: -11}}>Area</label>
           <div className="mini-input">
@@ -153,7 +153,7 @@ const WBS = () => {
               id="item"
               name="item"
               placeholder=""
-              style={{width:'400px'}}
+              style={{width: '250px'}}
               onChange={handleChange}
               value={formData.item}
               required
