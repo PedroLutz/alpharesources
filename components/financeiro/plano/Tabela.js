@@ -255,7 +255,7 @@ const Tabela = () => {
                       <tr key={index}>
                         <td>{item.area || '-'}</td>
                         <td>{item.item || '-'}</td>
-                        <td>{item.recurso | '-'}</td>
+                        <td>{item.recurso || '-'}</td>
                         <td>{item.uso || '-'}</td>
                         <td style={{width: '75px'}}>
                           <div className="botoes-acoes">
