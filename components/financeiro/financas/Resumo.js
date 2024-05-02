@@ -2,6 +2,7 @@ import React from 'react';
 import { useEffect, useState } from 'react';
 import { Chart } from 'react-google-charts';
 import { sortBy } from 'lodash';
+import Loading from '../../Loading';
 
 const Resumo = () => {
   const [totalValor, setTotalValor] = useState(0);
@@ -13,6 +14,7 @@ const Resumo = () => {
   const [menorValor, setMenorValor] = useState([]);
   const [receitasTotais, setReceitasTotais] = useState([]);
   const [despesasTotais, setDespesasTotais] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   //gerar Array do grafico de pizza Receitas Por Area
   const ReceitasPorAreaGraph = [['Area', 'Value']];
@@ -92,7 +94,8 @@ const Resumo = () => {
       })
       .catch((error) => {
         console.error('Erro ao buscar informações de resumo', error);
-      });
+      }).finally(() => {
+        setLoading(false);})
   }, []);
 
   const estiloGraph = {
@@ -114,6 +117,7 @@ const Resumo = () => {
 
   return (
     <div className="h3-resumo">
+      {loading && <Loading/>}
       <div className="centered-container">
         <h2>Report</h2>
 

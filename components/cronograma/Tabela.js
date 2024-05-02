@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Chart } from 'react-google-charts';
+import Loading from '../../Loading';
 
 const formatInputDate = (dateString) => {
   var dateParts = dateString.split("-");
@@ -13,6 +14,7 @@ const Tabela = () => {
   const [elementos, setElementos] = useState([]);
   const [itensPorAreaDp, setItensPorAreaDp] = useState([]);
   const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [filtroArea, setFiltroArea] = useState('');
   const [novosDados, setNovosDados] = useState({
     inicio: '',
@@ -37,6 +39,8 @@ const Tabela = () => {
       }
     } catch (error) {
       console.error('Error in searching for financal releases data', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -244,6 +248,7 @@ const Tabela = () => {
 
   return (
     <div className="centered-container">
+      {loading && <Loading/>}
       <h2>Estimated timeline</h2>
       {confirmDeleteItem && (
         <div className="overlay">

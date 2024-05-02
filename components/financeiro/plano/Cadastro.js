@@ -1,5 +1,5 @@
 // components/Cadastro.js
-import React, { useState , useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from '../../../styles/modules/radio.module.css';
 
 const Cadastro = ({ onCadastro }) => {
@@ -11,7 +11,7 @@ const Cadastro = ({ onCadastro }) => {
     plano: '',
     area: '',
     item: '',
-    recurso: '', 
+    recurso: '',
     tipo_a: '',
     valor_a: '',
     plano_a: '',
@@ -91,7 +91,7 @@ const Cadastro = ({ onCadastro }) => {
           plano: '',
           area: '',
           item: '',
-          recurso: '', 
+          recurso: '',
           uso: '',
           tipo_a: '',
           valor_a: '',
@@ -117,7 +117,7 @@ const Cadastro = ({ onCadastro }) => {
     <div className="centered-container financeiro">
       <h2>Register Acquisition Plan</h2>
       <form onSubmit={handleSubmit}>
-      <div >
+        <div >
           <div className={styles.containerPai}>
             <label className={styles.container}>
               <input
@@ -131,7 +131,7 @@ const Cadastro = ({ onCadastro }) => {
               <span className={styles.checkmark}></span>
               Essential scenario
             </label>
-            <label  className={styles.container}>
+            <label className={styles.container}>
               <input
                 type="radio"
                 name="plano"
@@ -156,200 +156,200 @@ const Cadastro = ({ onCadastro }) => {
               required
             />
           </div>
-          
-          <div className="input-data" style={{width: '100%'}}>
+
+          <div className="input-data" style={{ width: '100%' }}>
             <button type='button'
-            style={{width: '16rem'}}
-            onClick={() => setViewUsage(!viewUsage)}>
-              {viewUsage ? 
+              style={{ width: '16rem' }}
+              onClick={() => setViewUsage(!viewUsage)}>
+              {viewUsage ?
                 ('Change to Acquisition Planning'
-              ) : (
-                'Change to Usage Planning')}
+                ) : (
+                  'Change to Usage Planning')}
             </button>
           </div>
 
           {viewUsage ? (
             <div>
               <div className="centered-container">
-            <label htmlFor="area">Area</label>
-            <select
-                    name="area"
-                    onChange={handleAreaChange}
-                    value={formData.area}
-                    required
-                  >
-                    <option value="" disabled>Select an area</option>
-                    {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
-                      <option key={index} value={area}>{area}</option>
-                ))};
-                <option value="Extras">Extras</option>
-              </select>
-            </div>
-  
-            <div className="centered-container">
-            <label htmlFor="item">Item</label>
-            <select
-                name="item"
-                onChange={handleChange}
-                value={formData.item}
-                required
-              >
-                <option value="" disabled>Select an item</option>
-                {itensPorArea.map((item, index) => (
-                  <option key={index} value={item}>{item}</option>
-                ))}
-              </select>
-              <option value="Extras">Extras</option>
-            </div>
+                <label htmlFor="area">Area</label>
+                <select
+                  name="area"
+                  onChange={handleAreaChange}
+                  value={formData.area}
+                  required
+                >
+                  <option value="" disabled>Select an area</option>
+                  {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
+                    <option key={index} value={area}>{area}</option>
+                  ))};
+                  <option value="Extras">Extras</option>
+                </select>
+              </div>
 
-            <div className='centered-container'>
-            <label htmlFor="uso">Use</label>
-            <input
-              type="text"
-              name="uso"
-              placeholder=""
-              onChange={handleChange}
-              value={formData.uso}
-              required
-            />
-          </div>
+              <div className="centered-container">
+                <label htmlFor="item">Item</label>
+                <select
+                  name="item"
+                  onChange={handleChange}
+                  value={formData.item}
+                  required
+                >
+                  <option value="" disabled>Select an item</option>
+                  {itensPorArea.map((item, index) => (
+                    <option key={index} value={item}>{item}</option>
+                  ))}
+                </select>
+                <option value="Extras">Extras</option>
+              </div>
+
+              <div className='centered-container'>
+                <label htmlFor="uso">Use</label>
+                <input
+                  type="text"
+                  name="uso"
+                  placeholder=""
+                  onChange={handleChange}
+                  value={formData.uso}
+                  required
+                />
+              </div>
             </div>
-          ):(
+          ) : (
             <div>
               <div className='centered-container'>
-            <label htmlFor="plano_a">Plan A</label>
-            <input
-              type="text"
-              name="plano_a"
-              onChange={handleChange}
-              value={formData.plano_a}
-              required
-            />
-          </div>
+                <label htmlFor="plano_a">Plan A</label>
+                <input
+                  type="text"
+                  name="plano_a"
+                  onChange={handleChange}
+                  value={formData.plano_a}
+                  required
+                />
+              </div>
 
-          <div className={styles.containerPai}>
-            <label className={styles.container}>
-              <input
-                type="radio"
-                name="tipo_a"
-                value="Service"
-                checked={formData.tipo_a === 'Service'}
-                onChange={handleChange}
-                required
-              />
-              <span className={styles.checkmark}></span>
-              Service
-            </label>
-            <label className={styles.container}>
-              <input
-                type="radio"
-                name="tipo_a"
-                value="Product"
-                checked={formData.tipo_a === 'Product'}
-                onChange={handleChange}
-                required
-              />
-              <span className={styles.checkmark}></span>
-              Product
-            </label>
-          </div>
+              <div className={styles.containerPai}>
+                <label className={styles.container}>
+                  <input
+                    type="radio"
+                    name="tipo_a"
+                    value="Service"
+                    checked={formData.tipo_a === 'Service'}
+                    onChange={handleChange}
+                    required
+                  />
+                  <span className={styles.checkmark}></span>
+                  Service
+                </label>
+                <label className={styles.container}>
+                  <input
+                    type="radio"
+                    name="tipo_a"
+                    value="Product"
+                    checked={formData.tipo_a === 'Product'}
+                    onChange={handleChange}
+                    required
+                  />
+                  <span className={styles.checkmark}></span>
+                  Product
+                </label>
+              </div>
 
-          <div className='centered-container'>
-          <label htmlFor="valor_a">Value</label>
-            <input
-              type="number"
-              name="valor_a"
-              onChange={handleChange}
-              value={formData.valor_a}
-              required
-            />
-          </div>
+              <div className='centered-container'>
+                <label htmlFor="valor_a">Value</label>
+                <input
+                  type="number"
+                  name="valor_a"
+                  onChange={handleChange}
+                  value={formData.valor_a}
+                  required
+                />
+              </div>
 
-          <div className="container-inputs-pequenins">
-            <div className='centered-container input-pequenin'>
-              <label htmlFor="data_inicial">Starting date</label>
-              <input
-                className="input-pequenin"
-                type="date"
-                name="data_inicial"
-                onChange={handleChange}
-                value={formData.data_inicial}
-                required
-              />
-            </div>
+              <div className="container-inputs-pequenins">
+                <div className='centered-container input-pequenin'>
+                  <label htmlFor="data_inicial">Starting date</label>
+                  <input
+                    className="input-pequenin"
+                    type="date"
+                    name="data_inicial"
+                    onChange={handleChange}
+                    value={formData.data_inicial}
+                    required
+                  />
+                </div>
 
-            <div className='centered-container input-pequenin'>
-              <label htmlFor="data_esperada">Expected date</label>
-              <input
-                type="date"
-                name="data_esperada"
-                onChange={handleChange}
-                value={formData.data_esperada}
-                required
-              />
-            </div>
+                <div className='centered-container input-pequenin'>
+                  <label htmlFor="data_esperada">Expected date</label>
+                  <input
+                    type="date"
+                    name="data_esperada"
+                    onChange={handleChange}
+                    value={formData.data_esperada}
+                    required
+                  />
+                </div>
 
-            <div className='centered-container input-pequenin'>
-              <label htmlFor="data_limite">Critical date</label>
-              <input
-                type="date"
-                name="data_limite"
-                onChange={handleChange}
-                value={formData.data_limite}
-                required
-              />
-            </div>
-          </div>
+                <div className='centered-container input-pequenin'>
+                  <label htmlFor="data_limite">Critical date</label>
+                  <input
+                    type="date"
+                    name="data_limite"
+                    onChange={handleChange}
+                    value={formData.data_limite}
+                    required
+                  />
+                </div>
+              </div>
 
 
-          <div className='centered-container'>
-          <label htmlFor="plano_b">Plan B</label>
-            <input
-              type="text"
-              name="plano_b"
-              onChange={handleChange}
-              value={formData.plano_b}
-              required
-            />
-          </div>
+              <div className='centered-container'>
+                <label htmlFor="plano_b">Plan B</label>
+                <input
+                  type="text"
+                  name="plano_b"
+                  onChange={handleChange}
+                  value={formData.plano_b}
+                  required
+                />
+              </div>
 
-          <div className={styles.containerPai}>
-            <label className={styles.container}>
-              <input
-                type="radio"
-                name="tipo_b"
-                value="Service"
-                checked={formData.tipo_b === 'Service'}
-                onChange={handleChange}
-                required
-              />
-              <span className={styles.checkmark}></span>
-              Service
-            </label>
-            <label className={styles.container}>
-              <input
-                type="radio"
-                name="tipo_b"
-                value="Product"
-                checked={formData.tipo_b === 'Product'}
-                onChange={handleChange}
-                required
-              />
-              <span className={styles.checkmark}></span>
-              Product
-            </label>
-          </div>
+              <div className={styles.containerPai}>
+                <label className={styles.container}>
+                  <input
+                    type="radio"
+                    name="tipo_b"
+                    value="Service"
+                    checked={formData.tipo_b === 'Service'}
+                    onChange={handleChange}
+                    required
+                  />
+                  <span className={styles.checkmark}></span>
+                  Service
+                </label>
+                <label className={styles.container}>
+                  <input
+                    type="radio"
+                    name="tipo_b"
+                    value="Product"
+                    checked={formData.tipo_b === 'Product'}
+                    onChange={handleChange}
+                    required
+                  />
+                  <span className={styles.checkmark}></span>
+                  Product
+                </label>
+              </div>
 
-          <div className='centered-container'>
-            <label htmlFor="valor_b">Value</label>
-            <input
-              type="number"
-              name="valor_b"
-              onChange={handleChange}
-              value={formData.valor_b}
-              required
-            />
-          </div>
+              <div className='centered-container'>
+                <label htmlFor="valor_b">Value</label>
+                <input
+                  type="number"
+                  name="valor_b"
+                  onChange={handleChange}
+                  value={formData.valor_b}
+                  required
+                />
+              </div>
             </div>
           )}
         </div>

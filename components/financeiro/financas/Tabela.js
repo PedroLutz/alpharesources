@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Loading from '../../Loading';
 import styles from '../../../styles/modules/radio.module.css';
 
 const formatDate = (dateString) => {
@@ -29,6 +30,7 @@ const Tabela = () => {
   const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
   const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [novosDados, setNovosDados] = useState({
     tipo: '',
     descricao: '',
@@ -90,6 +92,8 @@ const Tabela = () => {
       }
     } catch (error) {
       console.error('Error in searching for financal releases data', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -179,6 +183,7 @@ const Tabela = () => {
 
 return (
   <div className="centered-container">
+    {loading && <Loading/>}
     <h2>Financial Releases Data</h2>
     <button onClick={generatePDF} className="botao-cadastro" style={{marginTop: '-10px', marginBottom: '30px'}}>Export Table</button>
     <div id="report">

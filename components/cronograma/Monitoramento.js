@@ -45,7 +45,7 @@ const Tabela = () => {
   const labelsSituacao = {
     iniciar: 'Starting',
     emandamento: 'Executing',
-    concluida: 'Completed' 
+    concluida: 'Completed'
   }
 
   const handleChange = (e) => {
@@ -56,13 +56,13 @@ const Tabela = () => {
     if (datas.dataInicio && datas.dataTermino) {
       const dataInicioObj = new Date(datas.dataInicio);
       const dataTerminoObj = new Date(datas.dataTermino);
-  
+
       if (dataInicioObj > dataTerminoObj) {
         setDataInvalida(true);
         return false;
       }
     }
-  
+
     setDataInvalida(false);
     return true;
   };
@@ -72,7 +72,7 @@ const Tabela = () => {
       setExibirModalSemTarefa(true);
       return;
     }
-    
+
     try {
       // Filtra os itens com base na área e no item selecionados
       const itemParaAtualizar = cronogramas.find(
@@ -81,7 +81,7 @@ const Tabela = () => {
           item.item === itemSelecionado &&
           !item.plano
       );
-  
+
       // Verifica se há um item para atualizar
       if (!itemParaAtualizar) {
         console.log('Nenhum item para atualizar');
@@ -97,7 +97,7 @@ const Tabela = () => {
           situacao: situacao,
         }),
       });
-  
+
       if (response.status === 200) {
         console.log('Atualização da situação bem-sucedida');
         fetchCronogramas(); // Recarregar os dados após a atualização
@@ -127,7 +127,6 @@ const Tabela = () => {
   const handleAtualizarData = async () => {
     try {
       if (!validarDatas()) {
-        // Se as datas forem inválidas, interrompa o processo
         return;
       }
 
@@ -135,16 +134,14 @@ const Tabela = () => {
         setExibirModalSemDatas(true);
         return;
       }
-  
-      // Filtra os itens com base na área e no item selecionados
+
       const itemParaAtualizar = cronogramas.find(
         (item) =>
           item.area.toLowerCase() === filtroAreaSelecionada.toLowerCase() &&
           item.item === itemSelecionado &&
           !item.plano
       );
-  
-      // Verifica se há um item para atualizar
+
       if (!itemParaAtualizar) {
         console.log('Nenhum item para atualizar');
         return;
@@ -154,22 +151,21 @@ const Tabela = () => {
         setExibirModalSituacaoInvalida(true);
         return;
       }
-  
+
       const response = await fetch(`/api/cronograma/update?id=${itemParaAtualizar._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          // Envia apenas os campos preenchidos
           ...(datas.dataTermino && { termino: formatInputDate(datas.dataTermino) }),
           ...(datas.dataInicio && { inicio: formatInputDate(datas.dataInicio) }),
         }),
       });
-  
+
       if (response.status === 200) {
         console.log('Atualização bem-sucedida');
-        fetchCronogramas(); // Recarregar os dados após a atualização
+        fetchCronogramas(); 
       } else {
         console.error('Erro ao atualizar os dados do cronograma');
       }
@@ -177,7 +173,7 @@ const Tabela = () => {
       console.error('Erro ao atualizar os dados do cronograma', error);
     }
   };
-  
+
 
   const fetchCronogramas = async () => {
     try {
@@ -214,36 +210,36 @@ const Tabela = () => {
       fetch(`/api/cronograma/delete?id=${deleteInfo.item._id}`, {
         method: 'DELETE',
       })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data.message);
-        fetchCronogramas();
-        setDeleteInfo({ success: true, item: null });
-      })
-      .catch((error) => {
-        console.error('Error deleting element', error);
-      });
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data.message);
+          fetchCronogramas();
+          setDeleteInfo({ success: true, item: null });
+        })
+        .catch((error) => {
+          console.error('Error deleting element', error);
+        });
     }
   };
 
   const createGanttData = (cronogramas) => {
     const ganttData = [['Task ID', 'Task Name', 'Resource', 'Start Date', 'End Date', 'Duration', 'Percent Complete', 'Dependencies']];
-    
+
     cronogramas.forEach((item) => {
       if (!item.plano) {
-        if (formatDateGantt(item.inicio) < formatDateGantt(item.termino)){
+        if (formatDateGantt(item.inicio) < formatDateGantt(item.termino)) {
           var dependencies = ''
-        const taskID = `${item.area}_${item.item}`;
-        const taskName = item.item;
-        const resource = item.area;
-        const startDate = formatDateGantt(item.inicio);
-        const endDate = formatDateGantt(item.termino);
-        if (!item.dp_area && !item.dp_item){
-          dependencies = null;
-        } else { 
-          dependencies = `${item.dp_area}_${item.dp_item}`;
-        }
-        ganttData.push([taskID, taskName, resource, startDate, endDate, 0, 100, dependencies]);
+          const taskID = `${item.area}_${item.item}`;
+          const taskName = item.item;
+          const resource = item.area;
+          const startDate = formatDateGantt(item.inicio);
+          const endDate = formatDateGantt(item.termino);
+          if (!item.dp_area && !item.dp_item) {
+            dependencies = null;
+          } else {
+            dependencies = `${item.dp_area}_${item.dp_item}`;
+          }
+          ganttData.push([taskID, taskName, resource, startDate, endDate, 0, 100, dependencies]);
         }
       }
     });
@@ -255,7 +251,7 @@ const Tabela = () => {
     const today = new Date();
     today.setDate(today.getDate());
     const formattedDate = today.toISOString().split('T')[0];
-  
+
     setDatas((prevDatas) => ({
       ...prevDatas,
       [inputName]: formattedDate,
@@ -362,7 +358,7 @@ const Tabela = () => {
           },
         }}
       />
-      
+
       <div className='mini-input'>
         <label htmlFor="filtroArea">Select task for updating</label>
         <select
@@ -370,7 +366,8 @@ const Tabela = () => {
           value={filtroAreaSelecionada}
           onChange={(e) => {
             setFiltroAreaSelecionada(e.target.value);
-            setItemSelecionado('');}}
+            setItemSelecionado('');
+          }}
           required
         >
           <option value="" disabled>Select an area</option>
@@ -382,143 +379,143 @@ const Tabela = () => {
         </select>
       </div>
 
-        <div className='mini-input'>
-          <select
-            name="item"
-            value={itemSelecionado}
-            onChange={(e) => {
-              setItemSelecionado(e.target.value);
-              setTarefaSelecionada(true);
-              setExibirModalSemTarefa(false); // Resetar o estado quando uma tarefa é selecionada
-            }}
-            required
-          >
-            <option value="" disabled>Select an item</option>
-            {filteredCronogramas
-              .filter((item) => item.area.toLowerCase() === filtroAreaSelecionada.toLowerCase() && !item.plano)
-              .map((item, index) => (
-                <option key={index} value={item.item}>
-                  {item.item}
-                </option>
-              ))}
-          </select>
-        </div>
+      <div className='mini-input'>
+        <select
+          name="item"
+          value={itemSelecionado}
+          onChange={(e) => {
+            setItemSelecionado(e.target.value);
+            setTarefaSelecionada(true);
+            setExibirModalSemTarefa(false); // Resetar o estado quando uma tarefa é selecionada
+          }}
+          required
+        >
+          <option value="" disabled>Select an item</option>
+          {filteredCronogramas
+            .filter((item) => item.area.toLowerCase() === filtroAreaSelecionada.toLowerCase() && !item.plano)
+            .map((item, index) => (
+              <option key={index} value={item.item}>
+                {item.item}
+              </option>
+            ))}
+        </select>
+      </div>
 
-        <div className="input-data botoes-cronograma">
-            <button onClick={() => handleAtualizarTarefa('em andamento')} style={{width: '100px'}}>
-              Start task
-            </button>
-            <button onClick={() => handleAtualizarTarefa('concluida')} style={{width: '150px'}}>
-              Complete task
-            </button>
-        </div>
-        
-        <div className='mini-input'>
-          <label htmlFor="inicioAlterado">Start date</label>
-          <div className='mesma-linha input-data'>
-            <input
-              type="date"
-              id="inicioAlterado"
-              name="inicioAlterado"
-              style={{maxWidth: '250px'}}
-              placeholder=""
-              onChange={(e) => setDatas({ ...datas, dataInicio: e.target.value })}
-              value={datas.dataInicio}
-              required
-            />
-            <button
-            style={{marginTop:'9px', marginLeft: '-10px'}}
-            onClick={() => handleSetDataHoje('dataInicio')}>Set today</button>
-          </div>
-          
-          <label htmlFor="terminoAlterado">Last execution</label>
-          <div className='mesma-linha input-data'>
-            <input
-                type="date"
-                id="terminoAlterado"
-                name="terminoAlterado"
-                style={{maxWidth: '250px'}}
-                placeholder=""
-                onChange={handleChange}
-                value={datas.dataTermino}
-                required
-              />
-              <button
-              style={{marginTop:'9px', marginLeft: '-10px'}}
-              onClick={() => handleSetDataHoje('dataTermino')}>Set today</button>
-          </div>
-        </div>
-        
-
-        <button className="botao-cadastro" 
-        onClick={handleAtualizarData}>
-          Update dates
+      <div className="input-data botoes-cronograma">
+        <button onClick={() => handleAtualizarTarefa('em andamento')} style={{ width: '100px' }}>
+          Start task
         </button>
+        <button onClick={() => handleAtualizarTarefa('concluida')} style={{ width: '150px' }}>
+          Complete task
+        </button>
+      </div>
 
-        <button className="botao-cadastro"
-        style={{marginTop: '20px'}}
+      <div className='mini-input'>
+        <label htmlFor="inicioAlterado">Start date</label>
+        <div className='mesma-linha input-data'>
+          <input
+            type="date"
+            id="inicioAlterado"
+            name="inicioAlterado"
+            style={{ maxWidth: '250px' }}
+            placeholder=""
+            onChange={(e) => setDatas({ ...datas, dataInicio: e.target.value })}
+            value={datas.dataInicio}
+            required
+          />
+          <button
+            style={{ marginTop: '9px', marginLeft: '-10px' }}
+            onClick={() => handleSetDataHoje('dataInicio')}>Set today</button>
+        </div>
+
+        <label htmlFor="terminoAlterado">Last execution</label>
+        <div className='mesma-linha input-data'>
+          <input
+            type="date"
+            id="terminoAlterado"
+            name="terminoAlterado"
+            style={{ maxWidth: '250px' }}
+            placeholder=""
+            onChange={handleChange}
+            value={datas.dataTermino}
+            required
+          />
+          <button
+            style={{ marginTop: '9px', marginLeft: '-10px' }}
+            onClick={() => handleSetDataHoje('dataTermino')}>Set today</button>
+        </div>
+      </div>
+
+
+      <button className="botao-cadastro"
+        onClick={handleAtualizarData}>
+        Update dates
+      </button>
+
+      <button className="botao-cadastro"
+        style={{ marginTop: '20px' }}
         onClick={() => {
           setMostrarTabela(!mostrarTabela);
           setFiltroArea('');
-          }}>
+        }}>
         {mostrarTabela ? 'Hide table' : 'Show table'}
-        </button>
+      </button>
 
-        {mostrarTabela && (
-          <div className="centered-container">
-            <div style={{marginTop: '30px'}} className='mini-input'>
-              <label htmlFor="filtroArea">Filter Table:</label>
-              <select
-                name="area"
-                onChange={handleFilterChange}
-                value={filtroArea}
-                required
-              >
-                <option value="" disabled>Select an area</option>
-                  {[...new Set(cronogramas.map(item => item.area))].map((area, index) => (
-                      <option key={index} value={area}>{area}</option>
-                  ))}
-              </select>
-            </div>
-
-            <table style={{marginBottom: '20px'}}>
-              <thead>
-                <tr>
-                  <th>Area</th>
-                  <th>Task</th>
-                  <th>Start</th>
-                  <th>End</th>
-                  <th style={{width:'11%'}}>Dependency: Area</th>
-                  <th style={{width:'11%'}}>Dependency: Item</th>
-                  <th>Situation</th>
-                  <th style={{width:'5%'}}>Delete</th>
-                </tr>
-              </thead>
-              <tbody>
-              {filteredCronogramas.filter((item) => !item.plano).map((item, index) => (
-                  <tr key={index}>
-                    <td>
-                      {item.area}
-                    </td>
-                    <td>
-                      {item.item}
-                    </td>
-                    <td>{item.inicio === '31/12/1969' ? '-' : item.inicio}</td>
-                    <td>{item.termino === '31/12/1969' ? '-' : item.termino}</td>
-                    <td>{item.dp_area || '-'}</td>
-                    <td>{item.dp_item|| '-'}</td>
-                    <td>{labelsSituacao[item.situacao.toLowerCase().replace(/\s/g, '')] || '-'}</td>
-                    <td>
-                      <div className="botoes-acoes">
-                        <button onClick={() => handleClick(item)}>❌</button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {mostrarTabela && (
+        <div className="centered-container">
+          <div style={{ marginTop: '30px' }} className='mini-input'>
+            <label htmlFor="filtroArea">Filter Table:</label>
+            <select
+              name="area"
+              onChange={handleFilterChange}
+              value={filtroArea}
+              required
+            >
+              <option value="" disabled>Select an area</option>
+              {[...new Set(cronogramas.map(item => item.area))].map((area, index) => (
+                <option key={index} value={area}>{area}</option>
+              ))}
+            </select>
           </div>
-        )}
+
+          <table style={{ marginBottom: '20px' }}>
+            <thead>
+              <tr>
+                <th>Area</th>
+                <th>Task</th>
+                <th>Start</th>
+                <th>End</th>
+                <th style={{ width: '11%' }}>Dependency: Area</th>
+                <th style={{ width: '11%' }}>Dependency: Item</th>
+                <th>Situation</th>
+                <th style={{ width: '5%' }}>Delete</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredCronogramas.filter((item) => !item.plano).map((item, index) => (
+                <tr key={index}>
+                  <td>
+                    {item.area}
+                  </td>
+                  <td>
+                    {item.item}
+                  </td>
+                  <td>{item.inicio === '31/12/1969' ? '-' : item.inicio}</td>
+                  <td>{item.termino === '31/12/1969' ? '-' : item.termino}</td>
+                  <td>{item.dp_area || '-'}</td>
+                  <td>{item.dp_item || '-'}</td>
+                  <td>{labelsSituacao[item.situacao.toLowerCase().replace(/\s/g, '')] || '-'}</td>
+                  <td>
+                    <div className="botoes-acoes">
+                      <button onClick={() => handleClick(item)}>❌</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };
