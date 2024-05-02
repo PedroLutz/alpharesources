@@ -197,8 +197,8 @@ const Cadastro = ({ onCadastro }) => {
                 {itensPorArea.map((item, index) => (
                   <option key={index} value={item}>{item}</option>
                 ))}
+                <option value="Extras">Extras</option>
               </select>
-              <option value="Extras">Extras</option>
             </div>
 
             <div className='centered-container'>
