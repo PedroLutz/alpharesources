@@ -182,7 +182,6 @@ const Cadastro = ({ onCadastro }) => {
                   {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
                     <option key={index} value={area}>{area}</option>
                   ))};
-                  <option value="Extras">Extras</option>
                 </select>
               </div>
 
@@ -198,8 +197,8 @@ const Cadastro = ({ onCadastro }) => {
                   {itensPorArea.map((item, index) => (
                     <option key={index} value={item}>{item}</option>
                   ))}
+                  <option value="Extras">Extras</option>
                 </select>
-                <option value="Extras">Extras</option>
               </div>
 
               <div className='centered-container'>
