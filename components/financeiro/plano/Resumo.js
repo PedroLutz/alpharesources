@@ -1,11 +1,13 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { Chart } from 'react-google-charts';
+import Loading from '../../Loading';
 
 const Resumo = () => {
   const [piorPlanoPorArea, setPiorPlanoPorArea] = useState([]);
   const [cenarioIdealPorArea, setCenarioIdealPorArea] = useState([]);
   const [linhaDoTempo, setLinhaDoTempo] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [crescimentoDosGastos , setCrescimentoDosGastos] = useState([]);
 
   let somaPiorPlano = 0;
@@ -26,8 +28,10 @@ const Resumo = () => {
 
   const linhaDoTempoEsperadaGraph = [['Resource', 'Start', 'End']];
   linhaDoTempo.forEach((recurso) => {
-    const dataInicial = new Date(recurso.data_inicial);
-    const dataEsperada = new Date(recurso.data_esperada);
+    let dataInicial = new Date(recurso.data_inicial);
+    let dataEsperada = new Date(recurso.data_esperada);
+    dataInicial.setDate(dataInicial.getDate() + 1);
+    dataEsperada.setDate(dataEsperada.getDate() + 1);
     
     linhaDoTempoEsperadaGraph.push([recurso._id, dataInicial, dataEsperada]);
   });
@@ -53,7 +57,6 @@ crescimentoDosGastos.forEach((area) => {
 
 
   useEffect(() => {
-    // Fazer uma solicitação para a rota existente que retorna as informações de resumo
     fetch('/api/financeiro/plano/get')
       .then((response) => response.json())
       .then((data) => {
@@ -68,6 +71,8 @@ crescimentoDosGastos.forEach((area) => {
       })
       .catch((error) => {
         console.error('Error in getting report data', error);
+      }).finally(() => {
+        setLoading(false);
       });
   }, []);
 
@@ -90,7 +95,7 @@ crescimentoDosGastos.forEach((area) => {
 
   return (
     <div className="h3-resumo">
-      
+      {loading && <Loading/>}
       <h2 className="centered-container">Report</h2>
      
       <div>
