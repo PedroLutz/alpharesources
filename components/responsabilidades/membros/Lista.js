@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import members from '../../../styles/modules/members.module.css';
+import Loading from '../../Loading';
 
 const Tabela = () => {
   const [membros, setMembros] = useState([]);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
   const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [novosDados, setNovosDados] = useState({
     nome: '',
     softskills: '',
@@ -46,7 +48,8 @@ const Tabela = () => {
       }
     } catch (error) {
       console.error('Error in searching for members data', error);
-    }
+    } finally {
+      setLoading(false)};
   };
 
   useEffect(() => {
@@ -127,6 +130,7 @@ const Tabela = () => {
 
 return (
   <div className="centered-container">
+    {loading && <Loading/>}
     <h2>Team members</h2>
     <div id="report" className={members.containerPai}>
     {membros.map((item, index) => (

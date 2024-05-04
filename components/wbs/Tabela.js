@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import styles from '../../styles/modules/wbs.module.css';
+import Loading from '../Loading';
 
 const WBS = () => {
   const [elementosPorArea, setElementosPorArea] = useState([]);
@@ -7,6 +8,7 @@ const WBS = () => {
   const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
   const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
   const [actionChoice, setActionChoice] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     item: '',
     area: '',
@@ -45,7 +47,8 @@ const WBS = () => {
       })
       .catch((error) => {
         console.error('Erro ao buscar dados da API', error);
-      });
+      }).finally(() => {
+        setLoading(false);});
   };
 
   const handleConfirmDelete = () => {
@@ -125,7 +128,8 @@ const WBS = () => {
   };
 
   return (
-    <div className="centered-container" style={{marginTop: '20px'}}>
+    <div className="centered-container" style={{marginTop: '20px'}}>  
+    {loading && <Loading/>}
       {renderWBS()}
 
       {confirmUpdateItem && (

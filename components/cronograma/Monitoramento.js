@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Chart } from 'react-google-charts';
+import Loading from '../Loading';
 
 const formatDate = (dateString) => {
   // Converte a data da string para um objeto de data
@@ -37,6 +38,7 @@ const Tabela = () => {
   const [exibirModalSituacaoInvalida, setExibirModalSituacaoInvalida] = useState(false);
   const [exibirModalSemDatas, setExibirModalSemDatas] = useState(false);
   const [mostrarTabela, setMostrarTabela] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [datas, setDatas] = useState({
     dataInicio: '',
     dataTermino: '',
@@ -202,7 +204,8 @@ const Tabela = () => {
       }
     } catch (error) {
       console.error('Error in searching for financial releases data', error);
-    }
+    } finally {
+      setLoading(false)};
   };
 
   useEffect(() => {
@@ -266,6 +269,7 @@ const Tabela = () => {
 
   return (
     <div className="centered-container">
+      {loading && <Loading/>}
       <h2>Timeline monitoring</h2>
 
       {deleteInfo.item && (

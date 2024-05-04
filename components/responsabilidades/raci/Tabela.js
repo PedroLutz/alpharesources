@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import members from '../../../styles/modules/members.module.css';
+import Loading from '../../Loading';
 
 const Tabela = () => {
   const [itensRaci, setItensRaci] = useState([]);
@@ -7,6 +8,7 @@ const Tabela = () => {
   const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
   const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     area: "",
     item: "",
@@ -57,6 +59,8 @@ const Tabela = () => {
       }
     } catch (error) {
       console.error('Error in searching for RACI items data', error);
+    } finally {
+      setLoading(false);
     };
   };
 
@@ -74,6 +78,8 @@ const Tabela = () => {
       }
     } catch (error) {
       console.error('Error in searching for RACI items data', error);
+    } finally {
+      setLoading(false);
     };
   };
 
@@ -218,6 +224,7 @@ const Tabela = () => {
 
   return (
     <div className="centered-container">
+      {loading && <Loading/>}
       <h2>RACI Matrix</h2>
       <div id="report">
         <table className={members.tabelaRaci}>
