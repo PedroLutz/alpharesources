@@ -1,28 +1,30 @@
-// pages/api/create.js
-import connectToDatabase from '../../../../lib/db';
-import Raci from '../../../../models/responsabilidade/Raci';
+import connectToDatabase from '../../../lib/db';
+import RaciModel from '../../../../models/responsabilidade/Raci';
+
+const { Raci, RaciSchema } = RaciModel;
 
 export default async (req, res) => {
   try {
     await connectToDatabase();
 
     if (req.method === 'POST') {
-      const { area, item, responsabilidades } = req.body;
+      const propriedadesNomes = Object.keys(RaciSchema.paths);
 
-      // Crie um novo objeto Person com os dados da solicitação
-      const newRaci = new Raci({
-        area, item, responsabilidades
+      const requestBodyObject = {};
+      propriedadesNomes.forEach(prop => {
+        requestBodyObject[prop] = req.body[prop];
       });
 
-      // Salve no banco de dados
-      await newRaci.save();
+      const newData = new Raci(requestBodyObject);
 
-      res.status(201).json({ message: 'Item RACI cadastrado com sucesso!' });
+      await newData.save();
+
+      res.status(201).json({ message: 'Raci cadastrado com sucesso!' });
     } else {
       res.status(405).json({ error: 'Método não permitido' });
     }
   } catch (error) {
-    console.error('Erro ao cadastrar o item RACI', error);
-    res.status(500).json({ error: 'Erro ao cadastrar o item RACI' });
+    console.error('Erro ao cadastrar o Raci', error);
+    res.status(500).json({ error: 'Erro ao cadastrar o Raci' });
   }
 };

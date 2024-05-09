@@ -1,5 +1,7 @@
 import connectToDatabase from '../../../../lib/db';
-import Lancamento from '../../../../models/financeiro/Lancamento';
+import LancamentoModel from '../../../../models/financeiro/Lancamento';
+
+const { Lancamento } = LancamentoModel;
 
 export default async (req, res) => {
   try {
@@ -7,21 +9,21 @@ export default async (req, res) => {
 
     if (req.method === 'DELETE') {
       if (!req.query.id) {
-        return res.status(400).json({ error: 'O ID do lançamento não foi fornecido' });
+        return res.status(400).json({ error: 'O ID do Lancamento não foi fornecido' });
       }
 
-      const deletedLancamento = await Lancamento.findByIdAndDelete(req.query.id);
+      const deletedData = await Lancamento.findByIdAndDelete(req.query.id);
 
-      if (!deletedLancamento) {
-        return res.status(404).json({ error: 'Lançamento não encontrado' });
+      if (!deletedData) {
+        return res.status(404).json({ error: 'Lancamento não encontrado' });
       }
 
-      res.status(200).json({ message: 'Lançamento excluído com sucesso' });
+      res.status(200).json({ message: 'Lancamento excluído com sucesso' });
     } else {
       res.status(405).json({ error: 'Método não permitido' });
     }
   } catch (error) {
-    console.error('Erro ao excluir lançamento', error);
-    res.status(500).json({ error: 'Erro ao excluir lançamento' });
+    console.error('Erro ao excluir Lancamento', error);
+    res.status(500).json({ error: 'Erro ao excluir Lancamento' });
   }
 };

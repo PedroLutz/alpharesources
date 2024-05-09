@@ -13,4 +13,5 @@ const GanttSchema = new mongoose.Schema({
   situacao: String,
 }, { collection: 'gantt' }); 
 
-export default mongoose.models['Gantt'] || mongoose.model('Gantt', GanttSchema);
+const Gantt = mongoose.models['Gantt'] || mongoose.model('Gantt', GanttSchema);
+export default {Gantt, GanttSchema};

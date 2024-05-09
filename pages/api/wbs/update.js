@@ -1,40 +1,48 @@
-// pages/api/update.js
 import connectToDatabase from '../../../lib/db';
-import Elemento from '../../../models/WorkBS';
+import WbsModel from '../../../models/WorkBS';
+
+const { Wbs, WbsSchema } = WbsModel;
 
 export default async (req, res) => {
   try {
     await connectToDatabase();
 
-    if (req.method === 'PUT') { // Use o método PUT para atualizar
-      const { id } = req.query; // O id do lançamento a ser atualizado
+    if (req.method === 'PUT') {
+      const { id } = req.query;
 
-      // Verifique se o id é fornecido
       if (!id) {
-        return res.status(400).json({ error: 'O ID do lançamento é obrigatório para a atualização.' });
+        return res.status(400).json({ error: 'O ID do Wbs é obrigatório para a atualização.' });
       }
 
-      // Os dados atualizados do lançamento podem ser passados no corpo da solicitação
-      const { item, area } = req.body; // Você pode adicionar outros campos conforme necessário
-
-      // Verifique se o valor é fornecido
-      if (!area || !item) {
-        return res.status(400).json({ error: 'O valor do lançamento é obrigatório para a atualização.' });
+      const propriedadesNomes = Object.keys(WbsSchema.paths);
+      const updateFields = {};
+      
+      for (const key in req.body) {
+        if (req.body[key]) {
+          if (propriedadesNomes.includes(key)) {
+            updateFields[key] = req.body[key];
+          } else {
+            return res.status(400).json({ error: 'Os campos fornecidos não são compatíveis com o do modelo!' });
+          }
+        }
       }
 
-      // Atualize o lançamento no banco de dados
-      const updatedElemento = await Elemento.findByIdAndUpdate(id, { item, area }, { new: true });
-
-      if (!updatedElemento) {
-        return res.status(404).json({ error: 'Lançamento não encontrado.' });
+      if (Object.keys(updateFields).length === 0) {
+        return res.status(400).json({ error: 'Pelo menos um campo deve ser fornecido para a atualização.' });
       }
 
-      return res.status(200).json(updatedElemento);
+      const updatedData = await Wbs.findByIdAndUpdate(id, updateFields, { new: true });
+
+      if (!updatedData) {
+        return res.status(404).json({ error: 'Wbs não encontrado.' });
+      }
+
+      return res.status(200).json(updatedData);
     } else {
       res.status(405).json({ error: 'Método não permitido' });
     }
   } catch (error) {
-    console.error('Erro ao atualizar o lançamento', error);
-    res.status(500).json({ error: 'Erro ao atualizar o lançamento' });
+    console.error('Erro ao atualizar o Wbs', error);
+    res.status(500).json({ error: 'Erro ao atualizar o Wbs' });
   }
 };

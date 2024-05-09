@@ -1,30 +1,30 @@
-// pages/api/create.js
-import connectToDatabase from '../../../../lib/db';
-import Membro from '../../../../models/responsabilidade/Membro';
+import connectToDatabase from '../../../lib/db';
+import MembroModel from '../../../../models/responsabilidade/Membro';
+
+const { Membro, MembroSchema } = MembroModel;
 
 export default async (req, res) => {
   try {
     await connectToDatabase();
 
     if (req.method === 'POST') {
-      const { nome, softskills, hardskills } = req.body;
+      const propriedadesNomes = Object.keys(MembroSchema.paths);
 
-      // Crie um novo objeto Person com os dados da solicitação
-      const newMembro = new Membro({
-        nome,
-        softskills,
-        hardskills
+      const requestBodyObject = {};
+      propriedadesNomes.forEach(prop => {
+        requestBodyObject[prop] = req.body[prop];
       });
 
-      // Salve no banco de dados
-      await newMembro.save();
+      const newData = new Membro(requestBodyObject);
+
+      await newData.save();
 
       res.status(201).json({ message: 'Membro cadastrado com sucesso!' });
     } else {
       res.status(405).json({ error: 'Método não permitido' });
     }
   } catch (error) {
-    console.error('Erro ao cadastrar o membro', error);
-    res.status(500).json({ error: 'Erro ao cadastrar o membro' });
+    console.error('Erro ao cadastrar o Membro', error);
+    res.status(500).json({ error: 'Erro ao cadastrar o Membro' });
   }
 };

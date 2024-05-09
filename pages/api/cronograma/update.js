@@ -1,43 +1,48 @@
 import connectToDatabase from '../../../lib/db';
-import Gantt from '../../../models/Gantt';
+import GanttModel from '../../../models/Gantt';
+
+const { Gantt, GanttSchema } = GanttModel;
 
 export default async (req, res) => {
   try {
     await connectToDatabase();
 
-    if (req.method === 'PUT') { 
-      const { id } = req.query; 
+    if (req.method === 'PUT') {
+      const { id } = req.query;
 
       if (!id) {
-        return res.status(400).json({ error: 'O ID do lançamento é obrigatório para a atualização.' });
+        return res.status(400).json({ error: 'O ID do Gantt é obrigatório para a atualização.' });
       }
 
-      const { inicio,termino, dp_item, dp_area, situacao,} = req.body; 
-
+      const propriedadesNomes = Object.keys(GanttSchema.paths);
       const updateFields = {};
-      if (inicio) updateFields.inicio = inicio;
-      if (termino) updateFields.termino = termino;
-      if (situacao) updateFields.situacao = situacao;
-      if (dp_item) updateFields.termino = termino;
-      if (dp_area) updateFields.situacao = situacao;
-
+      
+      for (const key in req.body) {
+        if (req.body[key]) {
+          if (propriedadesNomes.includes(key)) {
+            updateFields[key] = req.body[key];
+          } else {
+            return res.status(400).json({ error: 'Os campos fornecidos não são compatíveis com o do modelo!' });
+          }
+        }
+      }
 
       if (Object.keys(updateFields).length === 0) {
         return res.status(400).json({ error: 'Pelo menos um campo deve ser fornecido para a atualização.' });
       }
 
-      const updatedCronograma = await Gantt.findByIdAndUpdate(id, updateFields, { new: true });
+      const updatedData = await Gantt.findByIdAndUpdate(id, updateFields, { new: true });
 
-      if (!updatedCronograma) {
-        return res.status(404).json({ error: 'Cronograma não encontrado.' });
+      if (!updatedData) {
+        return res.status(404).json({ error: 'Gantt não encontrado.' });
       }
 
-      return res.status(200).json(updatedCronograma);
+      return res.status(200).json(updatedData);
     } else {
       res.status(405).json({ error: 'Método não permitido' });
     }
   } catch (error) {
-    console.error('Erro ao atualizar o cronograma', error);
-    res.status(500).json({ error: 'Erro ao atualizar o cronograma' });
+    console.error('Erro ao atualizar o Gantt', error);
+    res.status(500).json({ error: 'Erro ao atualizar o Gantt' });
   }
 };

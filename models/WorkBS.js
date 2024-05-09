@@ -1,10 +1,11 @@
 import mongoose from 'mongoose';
 
-delete mongoose.connection.models['Elemento'];
+delete mongoose.connection.models['Wbs'];
 
-const workBsSchema = new mongoose.Schema({
+const WbsSchema = new mongoose.Schema({
   item: String,
   area: String,
 }, { collection: 'workbs' });
 
-export default mongoose.models['Elemento'] || mongoose.model('Elemento', workBsSchema);
+const Wbs = mongoose.models['Wbs'] || mongoose.model('Wbs', WbsSchema);
+export default { Wbs , WbsSchema };

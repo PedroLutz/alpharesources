@@ -1,65 +1,64 @@
-const handleSubmit = async (route, dados) => {
-    if (!route) {
+const handleSubmit = async (o) => {
+    if (!o.route) {
         console.error(`Requisição de submit feita sem uma rota!`);
         return;
     }
 
-    if (!dados) {
+    if (!o.dados) {
         console.error(`Requisição de submit feita sem dados!`);
         return;
     }
 
     try {
-        const response = await fetch(`/api/${route}/create`, {
+        const response = await fetch(`/api/${o.route}/create`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(dados),
+            body: JSON.stringify(o.dados),
         });
 
         if (response.ok) {
-            console.log(`${route} registrado(a) com sucesso!`);
-            alert(`${route} registrado(a) com sucesso!`);
+            console.log(`${o.route} registrado(a) com sucesso!`);
             return true;
         } else {
-            console.error(`Erro ao registrar ${route}`);
+            console.error(`Erro ao registrar ${o.route}`);
             return false;
         }
     } catch (error) {
-        console.error(`Erro ao registrar ${route}`, error);
+        console.error(`Erro ao registrar ${o.route}`, error);
         return false;
     }
 };
 
 
 
-const handleDelete = async (route, item, fetchDados) => {
-    if (!route) {
+const handleDelete = async (o) => {
+    if (!o.route) {
         console.error(`Requisição de submit feita sem uma rota!`);
         return;
     }
 
-    if (!item) {
+    if (!o.item) {
         console.error(`Requisição de submit feita sem um item!`);
         return;
     }
 
     try {
-        const response = await fetch(`/api/${route}/delete?id=${item._id}`, {
+        const response = await fetch(`/api/${route}/delete?id=${o.item._id}`, {
             method: 'DELETE',
         });
 
         const data = await response.json();
         console.log(data.message);
 
-        if (fetchDados) {
-            fetchDados();
+        if (o.fetchDados) {
+            o.fetchDados();
         }
 
         return true;
     } catch (error) {
-        console.error(`Erro ao excluir ${route}`, error);
+        console.error(`Erro ao excluir ${o.route}`, error);
         return false;
     }
 };
@@ -90,41 +89,39 @@ const fetchData = async (route) => {
 
 
 
-const handleUpdate = async (item, route, dados, fetchDados) => {
-    if (!item) {
+const handleUpdate = async (o) => {
+    if (!o.item) {
         console.error(`Requisição de update feita sem um item!`);
         return;
     }
 
-    if (!route) {
+    if (!o.route) {
         console.error(`Requisição de update feita sem uma rota!`);
         return;
     }
 
-    if (!dados) {
+    if (!o.dados) {
         console.error(`Requisição de update feita sem dados!`);
         return;
     }
 
     try {
-        const response = await fetch(`/api/${route}/update?id=${String(item._id)}`, {
+        const response = await fetch(`/api/${o.route}/update?id=${String(o.item._id)}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ dados }),
+            body: JSON.stringify(o.dados),
         });
 
         if (response.status === 200) {
-            console.log(`${route} atualizado com sucesso!`);
-            if (fetchDados) fetchDados();
+            console.log(`${o.route} atualizado com sucesso!`);
         } else {
-            console.error(`Erro ao atualizar ${route}`);
+            console.error(`Erro ao atualizar ${o.route}`);
         }
     } catch (error) {
-        console.error(`Erro ao atualizar ${route}, error`);
+        console.error(`Erro ao atualizar ${o.route}, error`);
     }
-    return null;
 };
 
 export { handleSubmit, handleDelete, fetchData, handleUpdate };

@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 delete mongoose.connection.models['Plano'];
 
-const planoSchema = new mongoose.Schema({
+const PlanoSchema = new mongoose.Schema({
   plano: String,
   area: String,
   item: String,
@@ -19,4 +19,6 @@ const planoSchema = new mongoose.Schema({
   valor_b: Number
 }, { collection: 'planos' });
 
-export default mongoose.models['Plano'] || mongoose.model('Plano', planoSchema);
+const Plano = mongoose.models['Plano'] || mongoose.model('Plano', PlanoSchema);
+
+export default {Plano, PlanoSchema}; 

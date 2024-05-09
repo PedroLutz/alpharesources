@@ -1,21 +1,20 @@
-// pages/api/delete.js
-import connectToDatabase from '../../../../lib/db';
-import Plano from '../../../../models/financeiro/Plano';
+import connectToDatabase from '../../../lib/db';
+import PlanoModel from '../../../../models/financeiro/Plano';
+
+const { Plano } = PlanoModel;
 
 export default async (req, res) => {
   try {
     await connectToDatabase();
 
     if (req.method === 'DELETE') {
-      // Verifique se o ID da pessoa a ser excluída é fornecido na solicitação
       if (!req.query.id) {
-        return res.status(400).json({ error: 'O ID do plano não foi fornecido' });
+        return res.status(400).json({ error: 'O ID do Plano não foi fornecido' });
       }
 
-      // Tente encontrar e excluir a pessoa com base no ID
-      const deletedPlano = await Plano.findByIdAndDelete(req.query.id);
+      const deletedData = await Plano.findByIdAndDelete(req.query.id);
 
-      if (!deletedPlano) {
+      if (!deletedData) {
         return res.status(404).json({ error: 'Plano não encontrado' });
       }
 
@@ -24,7 +23,7 @@ export default async (req, res) => {
       res.status(405).json({ error: 'Método não permitido' });
     }
   } catch (error) {
-    console.error('Erro ao excluir plano', error);
-    res.status(500).json({ error: 'Erro ao excluir plano' });
+    console.error('Erro ao excluir Plano', error);
+    res.status(500).json({ error: 'Erro ao excluir Plano' });
   }
 };

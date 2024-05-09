@@ -1,5 +1,7 @@
 import connectToDatabase from '../../../../lib/db';
-import Lancamento from '../../../../models/financeiro/Lancamento';
+import LancamentoModel from '../../../../models/financeiro/Lancamento';
+
+const { Lancamento } = LancamentoModel;
 
 export default async (req, res) => {
   try {
@@ -153,12 +155,21 @@ export default async (req, res) => {
         }
       ])
 
-      res.status(200).json({ lancamentos, somaValores, receitasPorArea, despesasPorArea, receitasPorMes, despesasPorMes, maiorEMenorValor, receitasTotais, despesasTotais });
+      res.status(200).json({ 
+        lancamentos, 
+        somaValores, 
+        receitasPorArea, 
+        despesasPorArea, 
+        receitasPorMes, 
+        despesasPorMes, 
+        maiorEMenorValor, 
+        receitasTotais, 
+        despesasTotais });
     } else {
       res.status(405).json({ error: 'Método não permitido' });
     }
   } catch (error) {
-    console.error('Erro ao buscar lançamentos', error);
-    res.status(500).json({ error: 'Erro ao buscar lançamentos' });
+    console.error('Erro ao buscar os Lancamentos', error);
+    res.status(500).json({ error: 'Erro ao buscar os Lancamentos' });
   }
 };

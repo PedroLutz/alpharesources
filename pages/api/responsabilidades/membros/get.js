@@ -1,13 +1,13 @@
-// pages/api/get.js
 import connectToDatabase from '../../../../lib/db';
-import Membro from '../../../../models/responsabilidade/Membro';
+import MembroModel from '../../../../models/responsabilidade/Membro';
+
+const { Membro } = MembroModel;
 
 export default async (req, res) => {
   try {
     await connectToDatabase();
 
     if (req.method === 'GET') {
-      // Consulte o banco de dados para buscar todas as pessoas
       const membros = await Membro.find();
       
       const nomes = await Membro.find().select('nome');
