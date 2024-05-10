@@ -1,5 +1,5 @@
 // components/Cadastro.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 
 const Cadastro = () => {
   const [formData, setFormData] = useState({
@@ -10,6 +10,7 @@ const Cadastro = () => {
   const [mostrarInputNovaArea, setMostrarInputNovaArea] = useState(false);
   const [isNovaAreaButton, setIsNovaAreaButton] = useState(true);
   const [elementos, setElementos] = useState([]);
+  const [registerSuccess, setRegisterSuccess] = useState(false);
 
   const fetchElementos = async () => {
     try {
@@ -32,6 +33,10 @@ const Cadastro = () => {
   useEffect(() => {
     fetchElementos();
   }, []);
+
+  const handleCloseModal = () => {
+    setRegisterSuccess(false);
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -68,13 +73,13 @@ const Cadastro = () => {
 
       if (response.ok) {
         console.log('WBS element successfully registered!');
-        alert("WBS element successfully registered!");
 
         setFormData({
             item: '',
             area: '',
         });
         fetchElementos();
+        setRegisterSuccess(true);
       } else {
         console.error('Error when registering the breakdown element');
       }
@@ -83,6 +88,15 @@ const Cadastro = () => {
     }
   };
 
+  const Modal = () => (
+    <div className="overlay">
+      <div className="modal">
+        <p>{registerSuccess ? 'Register successful!' : 'Register failed.'}</p>
+        <button className="botao-cadastro" onClick={handleCloseModal}>Close</button>
+      </div>
+    </div>
+  );
+  
   return (
     <div className="centered-container">
       <h1>Work Breakdown Structure</h1>
@@ -142,6 +156,10 @@ const Cadastro = () => {
         <div>
           <button className="botao-cadastro" type="submit">Register WBS element</button>
         </div>
+
+        <Suspense fallback={<div>Loading...</div>}>
+          {registerSuccess && <Modal />}
+        </Suspense>
       </form>
     </div>
   );

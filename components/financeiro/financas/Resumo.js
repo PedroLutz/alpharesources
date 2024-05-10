@@ -124,7 +124,7 @@ const Resumo = () => {
         <div>
           <span className="custom-span">Cash value:<br/>R${Number(totalValor).toFixed(2)}</span>
           <br/>
-          <span className="custom-span">Largest income:<br/>R${Number(maiorValor).toFixed(2)}</span>
+          <span className="custom-span">Largest income:<br/>{Number(maiorValor).toFixed(2) > 0 ? `R$${Number(maiorValor).toFixed(2)}` : 'R$0.00'}</span>
           <span className="custom-span">Total revenue:<br/>R${Number(receitasTotais).toFixed(2)}</span>
           <span className="custom-span">Largest expense:<br/>{menorValor < 0 ? `R$${Number(-menorValor).toFixed(2)}` : 'R$0.00'}</span>
           <span className="custom-span">Total cost:<br/>R${Number(-despesasTotais).toFixed(2)}</span>

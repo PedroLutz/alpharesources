@@ -14,6 +14,8 @@ const Tabela = () => {
   const [itensPorAreaDp, setItensPorAreaDp] = useState([]);
   const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
   const [filtroArea, setFiltroArea] = useState('');
+  const [chartHeight, setChartHeight] = useState('100px'); 
+  const [chartDataLoaded, setChartDataLoaded] = useState(false);
   const [novosDados, setNovosDados] = useState({
     inicio: '',
     termino: '',
@@ -161,24 +163,23 @@ const Tabela = () => {
 
   const fetchCronogramas = async () => {
     try {
-      const response = await fetch('/api/cronograma/get', {
+      const response = await fetch('/api/cronograma/get/planos', {
         method: 'GET',
       });
 
       if (response.status === 200) {
         const data = await response.json();
-        data.cronogramas.forEach((item) => {
+        data.cronogramaPlanos.forEach((item) => {
           item.inicio = formatDate(item.inicio);
           item.termino = formatDate(item.termino);
         });
-        data.cronogramas.sort((a, b) => {
+        data.cronogramaPlanos.sort((a, b) => {
           if (a.area < b.area) return -1;
           if (a.area > b.area) return 1;
           return 0;
         });
 
-        setCronogramas(data.cronogramas);
-        console.log(cronogramas);;
+        setCronogramas(data.cronogramaPlanos);
       } else {
         console.error('Error in searching for timeline data');
       }
@@ -241,6 +242,14 @@ const Tabela = () => {
   };
 
   const chartData = createGanttData(cronogramas);
+  useEffect(() => {
+    if (chartData.length > 1) {
+      const linhaHeight = 30; // Altura de cada linha do gráfico
+      const novaAltura = ((chartData.length * linhaHeight) + 50) + 'px';
+      setChartHeight(novaAltura);
+      setChartDataLoaded(true); // Define como true quando os dados do gráfico estiverem prontos
+    }
+  }, [chartData]); // Executa sempre que chartData muda
 
   return (
     <div className="centered-container">
@@ -266,9 +275,9 @@ const Tabela = () => {
         </div>
       )}
 
-      {/* Gráfico Gantt */}
-      <Chart
-        height={'1300px'}
+      {chartDataLoaded && (
+        <Chart
+        height={chartHeight}
           width={'90%'}
           chartType="Gantt"
           loader={<div>Loading Chart</div>}
@@ -280,7 +289,8 @@ const Tabela = () => {
             },
           }}
       />
-
+      )}
+      
       <div className="mini-input">
         <label htmlFor="filtroArea">Filter table:</label>
         <select

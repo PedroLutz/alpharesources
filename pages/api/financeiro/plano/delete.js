@@ -1,4 +1,4 @@
-import connectToDatabase from '../../../lib/db';
+import connectToDatabase from '../../../../lib/db';
 import PlanoModel from '../../../../models/financeiro/Plano';
 
 const { Plano } = PlanoModel;

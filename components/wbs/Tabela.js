@@ -103,29 +103,44 @@ const WBS = () => {
   };
 
   const renderWBS = () => {
+    const areasPorLinha = 4;
+    const gruposDeAreas = Object.keys(elementosPorArea).reduce((grupos, area, index) => {
+      const grupoIndex = Math.floor(index / areasPorLinha);
+      if (!grupos[grupoIndex]) {
+        grupos[grupoIndex] = [];
+      }
+      grupos[grupoIndex].push({ area, elementos: elementosPorArea[area] });
+      return grupos;
+    }, []);
+  
     return (
-      <div className={styles.wbsContainer}>
-        {Object.keys(elementosPorArea).map((area, index) => (
-          <div className={styles.wbsArea} key={index}>
-            <h3>{area}</h3>
-            <div className={styles.wbsItems}>
-              {elementosPorArea[area]
-                .sort((a, b) => a.codigo - b.codigo)
-                .map((item, itemIndex) => (
-                  <div
-                    key={itemIndex}
-                    onClick={() => setActionChoice(item)}
-                    className={styles.wbsItem}
-                  >
-                    {item.item}
-                  </div>
-                ))}
-            </div>
+      <div>
+        {gruposDeAreas.map((grupo, index) => (
+          <div className={styles.wbsContainer} key={index}>
+            {grupo.map(({ area, elementos }) => (
+              <div className={styles.wbsArea} key={area}>
+                <h3>{area}</h3>
+                <div className={styles.wbsItems}>
+                  {elementos
+                    .sort((a, b) => a.codigo - b.codigo)
+                    .map((item, itemIndex) => (
+                      <div
+                        key={itemIndex}
+                        onClick={() => setActionChoice(item)}
+                        className={styles.wbsItem}
+                      >
+                        {item.item}
+                      </div>
+                    ))}
+                </div>
+              </div>
+            ))}
           </div>
         ))}
       </div>
     );
   };
+  
 
   return (
     <div className="centered-container" style={{marginTop: '20px'}}>  

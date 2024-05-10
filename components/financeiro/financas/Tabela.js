@@ -22,7 +22,7 @@ const formatDate = (dateString) => {
 const labelsTipo = {
   Income: 'Income',
   Expense: 'Cost',
-  Exchange: 'Exchange' 
+  Exchange: 'Exchange'
 }
 
 const Tabela = () => {
@@ -54,21 +54,21 @@ const Tabela = () => {
 
   const handleUpdateClick = (item) => {
     let valorCorrigido = 0;
-    if(Number(item.valor) < 0){
+    if (Number(item.valor) < 0) {
       valorCorrigido = -Number(item.valor);
     } else {
       valorCorrigido = item.valor;
     }
 
     const parts = item.data.split('/');
-    const itemDate = new Date(parts[2], parts[1] - 1, parts[0]); 
-  
+    const itemDate = new Date(parts[2], parts[1] - 1, parts[0]);
+
     setConfirmUpdateItem(item);
     setNovosDados({
       tipo: item.tipo,
       descricao: item.descricao,
       valor: valorCorrigido,
-      data: itemDate.toISOString().split('T')[0], 
+      data: itemDate.toISOString().split('T')[0],
       area: item.area,
       origem: item.origem,
       destino: item.destino,
@@ -165,9 +165,9 @@ const Tabela = () => {
   const generatePDF = () => {
     import('html2pdf.js').then((html2pdfModule) => {
       const html2pdf = html2pdfModule.default;
-  
+
       const content = document.getElementById('report');
-  
+
       // Opções de configuração do PDF
       const pdfOptions = {
         margin: 10,
@@ -176,68 +176,69 @@ const Tabela = () => {
         html2canvas: { scale: 1 },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
       };
-  
+
       html2pdf().from(content).set(pdfOptions).save();
     });
   };
 
-return (
-  <div className="centered-container">
-    {loading && <Loading/>}
-    <h2>Financial Releases Data</h2>
-    <button onClick={generatePDF} className="botao-cadastro" style={{marginTop: '-10px', marginBottom: '30px'}}>Export Table</button>
-    <div id="report">
-      <table>
-        <thead>
-          <tr>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Value</th>
-            <th>Date</th>
-            <th>Area</th>
-            <th style={{ width: '10%' }}>Origin</th>
-            <th style={{ width: '10%' }}>Destiny</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-        {lancamentos.map((item, index) => (
-          <>
-            {index % 12 === 0 && index !== 0 && <div className="html2pdf__page-break"/>}
-            <tr key={index}>
-              <td>{labelsTipo[item.tipo]}</td>
-              <td style={{ color: item.tipo === 'Income' ? 'green' : item.tipo === 'Exchange' ? '#335EFF' : 'red' }}>
-                {item.descricao}
-              </td>
-              <td style={{ color: item.tipo === 'Income' ? 'green' : item.tipo === 'Exchange' ? '#335EFF' : 'red' }}>
-                <b>R${Math.abs(item.valor).toFixed(2)}</b>
-              </td>
-              <td>{item.data}</td>
-              <td>{item.area}</td>
-              <td>{item.origem}</td>
-              <td>{item.destino}</td>
-              <td>
-                <div className="botoes-acoes">
-                  <button onClick={() => handleClick(item)}>❌</button>
-                  <button onClick={() => handleUpdateClick(item)}>⚙️</button>
-                </div>
-              </td>
+  return (
+    <div className="centered-container">
+      {loading && <Loading />}
+      <h2>Financial Releases Data</h2>
+      <button onClick={generatePDF} className="botao-cadastro" style={{ marginTop: '-10px', marginBottom: '30px' }}>Export Table</button>
+      <div id="report">
+        <table>
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Description</th>
+              <th>Value</th>
+              <th>Date</th>
+              <th>Area</th>
+              <th style={{ width: '10%' }}>Origin</th>
+              <th style={{ width: '10%' }}>Destiny</th>
+              <th>Actions</th>
             </tr>
-          </>
-        ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {lancamentos.map((item, index) => (
+              <React.Fragment key={item._id}>
+                {index % 12 === 0 && index !== 0 && <div className="html2pdf__page-break" />}
+                <tr>
+                  <td>{labelsTipo[item.tipo]}</td>
+                  <td style={{ color: item.tipo === 'Income' ? 'green' : item.tipo === 'Exchange' ? '#335EFF' : 'red' }}>
+                    {item.descricao}
+                  </td>
+                  <td style={{ color: item.tipo === 'Income' ? 'green' : item.tipo === 'Exchange' ? '#335EFF' : 'red' }}>
+                    <b>R${Math.abs(item.valor).toFixed(2)}</b>
+                  </td>
+                  <td>{item.data}</td>
+                  <td>{item.area}</td>
+                  <td>{item.origem}</td>
+                  <td>{item.destino}</td>
+                  <td>
+                    <div className="botoes-acoes">
+                      <button onClick={() => handleClick(item)}>❌</button>
+                      <button onClick={() => handleUpdateClick(item)}>⚙️</button>
+                    </div>
+                  </td>
+                </tr>
+              </React.Fragment>
+            ))}
+
+          </tbody>
+        </table>
+      </div>
 
       {confirmDeleteItem && (
         <div className="overlay">
-            <div className="modal">
+          <div className="modal">
             <p>Are you sure you want to delete "{confirmDeleteItem.descricao}"?</p>
-                <div style={{display: 'flex', gap: '10px'}}>
-                    <button className="botao-cadastro" onClick={handleConfirmDelete}>Confirm</button>
-                    <button className="botao-cadastro" onClick={() => setConfirmDeleteItem(null)}>Cancel</button>
-                </div>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button className="botao-cadastro" onClick={handleConfirmDelete}>Confirm</button>
+              <button className="botao-cadastro" onClick={() => setConfirmDeleteItem(null)}>Cancel</button>
             </div>
+          </div>
         </div>
       )}
 
@@ -251,7 +252,7 @@ return (
       )}
 
       {confirmUpdateItem && (
-        <div className="overlay"> 
+        <div className="overlay">
           <div className="modal">
             <div className={styles.containerPai}>
               <label className={styles.container}>
@@ -356,7 +357,7 @@ return (
                 required
               />
             </div>
-            <div style={{display: 'flex', gap: '10px'}}>
+            <div style={{ display: 'flex', gap: '10px' }}>
               <button className="botao-cadastro" onClick={handleUpdateItem}>Update</button>
               <button className="botao-cadastro" onClick={() => setConfirmUpdateItem(null)}>Cancel</button>
             </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import styles from '../../../styles/modules/radio.module.css';
 
-const Cadastro = ({ onCadastro }) => {
+const Cadastro = () => {
     const [registerSuccess, setRegisterSuccess] = useState(false);
     const [elementosWBS, setElementosWBS] = useState([]);
     const [formData, setFormData] = useState({
@@ -61,20 +61,25 @@ const Cadastro = ({ onCadastro }) => {
       e.preventDefault();
 
       try {
+        const isExpense = formData.tipo === 'Expense';
+
+        const valor = isExpense ? -parseFloat(formData.valor) : parseFloat(formData.valor);
+
+        const updatedFormData = {
+          ...formData,
+          valor: valor
+        };
+
         const response = await fetch('/api/financeiro/financas/create', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(updatedFormData)
         });
 
         if (response.ok) {
           console.log('Financial release successfully registered!');
-
-          if (typeof onCadastro === 'function') {
-            onCadastro(formData);
-          }
 
           setFormData({
             tipo: '',
@@ -85,7 +90,7 @@ const Cadastro = ({ onCadastro }) => {
             origem: '',
             destino: '',
           });
-
+  
           setRegisterSuccess(true);
         } else {
           console.error('Error when registering the release');

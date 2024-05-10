@@ -1,4 +1,4 @@
-import connectToDatabase from '../../../lib/db';
+import connectToDatabase from '../../../../lib/db';
 import MembroModel from '../../../../models/responsabilidade/Membro';
 
 const { Membro, MembroSchema } = MembroModel;

@@ -1,5 +1,5 @@
-import connectToDatabase from '../../../lib/db';
-import GanttModel from '../../../models/Gantt';
+import connectToDatabase from '../../../../lib/db';
+import GanttModel from '../../../../models/Gantt';
 
 const { Gantt } = GanttModel;
 
@@ -12,13 +12,19 @@ export default async (req, res) => {
         const cronogramaPlanos = await Gantt.find({ plano: true });
         const cronogramaGantts = await Gantt.find({ plano: false});
 
-        cronogramas.sort((a, b) => {
-          if (a.area < b.area) return -1;
-          if (a.area > b.area) return 1;
-          if (a.inicio < b.inicio) return -1;
-          if (a.inicio > b.inicio) return 1;
-          return 0;
-        });
+        function sort(query) {
+          query.sort((a, b) => {
+            if (a.area < b.area) return -1;
+            if (a.area > b.area) return 1;
+            if (a.inicio < b.inicio) return -1;
+            if (a.inicio > b.inicio) return 1;
+            return 0;
+          });
+        }
+
+        sort(cronogramas);
+        sort(cronogramaPlanos);
+        sort(cronogramaGantts);
   
         res.status(200).json({ cronogramas, cronogramaPlanos, cronogramaGantts });
     } else {

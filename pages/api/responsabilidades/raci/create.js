@@ -1,4 +1,4 @@
-import connectToDatabase from '../../../lib/db';
+import connectToDatabase from '../../../../lib/db';
 import RaciModel from '../../../../models/responsabilidade/Raci';
 
 const { Raci, RaciSchema } = RaciModel;

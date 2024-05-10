@@ -38,6 +38,8 @@ const Tabela = () => {
   const [exibirModalSituacaoInvalida, setExibirModalSituacaoInvalida] = useState(false);
   const [exibirModalSemDatas, setExibirModalSemDatas] = useState(false);
   const [mostrarTabela, setMostrarTabela] = useState(false);
+  const [chartHeight, setChartHeight] = useState('100px'); 
+  const [chartDataLoaded, setChartDataLoaded] = useState(false); 
   const [loading, setLoading] = useState(true);
   const [datas, setDatas] = useState({
     dataInicio: '',
@@ -49,6 +51,8 @@ const Tabela = () => {
     emandamento: 'Executing',
     concluida: 'Completed' 
   }
+
+  
 
   const handleChange = (e) => {
     setDatas({ ...datas, dataTermino: e.target.value });
@@ -183,22 +187,23 @@ const Tabela = () => {
 
   const fetchCronogramas = async () => {
     try {
-      const response = await fetch('/api/cronograma/get', {
+      const response = await fetch('/api/cronograma/get/gantts', {
         method: 'GET',
       });
 
       if (response.status === 200) {
         const data = await response.json();
-        data.cronogramas.forEach((item) => {
+        console.log(data.cronogramaGantts);
+        data.cronogramaGantts.forEach((item) => {
           item.inicio = formatDate(item.inicio);
           item.termino = formatDate(item.termino);
         });
-        data.cronogramas.sort((a, b) => {
+        data.cronogramaGantts.sort((a, b) => {
           if (a.area < b.area) return -1;
           if (a.area > b.area) return 1;
           return 0;
         });
-        setCronogramas(data.cronogramas);
+        setCronogramas(data.cronogramaGantts);
       } else {
         console.error('Error in searching for financial releases data');
       }
@@ -254,6 +259,8 @@ const Tabela = () => {
     return ganttData;
   };
 
+  
+
   const handleSetDataHoje = (inputName) => {
     const today = new Date();
     today.setDate(today.getDate());
@@ -267,6 +274,16 @@ const Tabela = () => {
 
   const chartData = createGanttData(cronogramas);
 
+  useEffect(() => {
+    if (chartData.length > 1) {
+      const linhaHeight = 30; // Altura de cada linha do gráfico
+      const novaAltura = ((chartData.length * linhaHeight) + 50) + 'px';
+      console.log('Nova altura do gráfico:', novaAltura); // Adiciona um console.log para debugar
+      setChartHeight(novaAltura);
+      setChartDataLoaded(true); // Define como true quando os dados do gráfico estiverem prontos
+    }
+  }, [chartData]); // Executa sempre que chartData mudar
+  
   return (
     <div className="centered-container">
       {loading && <Loading/>}
@@ -353,19 +370,21 @@ const Tabela = () => {
       )}
 
       {/* Gráfico Gantt */}
+      {chartDataLoaded && (
       <Chart
         width={'90%'}
-        height={'1300px'}
+        height={chartHeight}
         chartType="Gantt"
         loader={<div>Loading Chart</div>}
         data={chartData}
         options={{
           gantt: {
-            trackHeight: 30,
+            trackHeight: 30, // Altura de cada linha do gráfico
             sortTasks: false,
           },
         }}
       />
+    )}
       
       <div className='mini-input'>
         <label htmlFor="filtroArea">Select task for updating</label>

@@ -126,7 +126,7 @@ const Cadastro = ({ onCadastro }) => {
                 value="Worst scenario"
                 checked={formData.plano === 'Worst scenario'}
                 onChange={handleChange}
-                required
+                
               />
               <span className={styles.checkmark}></span>
               Essential scenario
@@ -138,7 +138,7 @@ const Cadastro = ({ onCadastro }) => {
                 value="Ideal scenario"
                 checked={formData.plano === 'Ideal scenario'}
                 onChange={handleChange}
-                required
+                
               />
               <span className={styles.checkmark}></span>
               Ideal scenario
@@ -153,7 +153,7 @@ const Cadastro = ({ onCadastro }) => {
               placeholder=""
               onChange={handleChange}
               value={formData.recurso}
-              required
+              
             />
           </div>
           
@@ -176,7 +176,7 @@ const Cadastro = ({ onCadastro }) => {
                     name="area"
                     onChange={handleAreaChange}
                     value={formData.area}
-                    required
+                    
                   >
                     <option value="" disabled>Select an area</option>
                     {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
@@ -191,7 +191,7 @@ const Cadastro = ({ onCadastro }) => {
                 name="item"
                 onChange={handleChange}
                 value={formData.item}
-                required
+                
               >
                 <option value="" disabled>Select an item</option>
                 {itensPorArea.map((item, index) => (
@@ -209,7 +209,7 @@ const Cadastro = ({ onCadastro }) => {
               placeholder=""
               onChange={handleChange}
               value={formData.uso}
-              required
+              
             />
           </div>
             </div>
@@ -222,7 +222,7 @@ const Cadastro = ({ onCadastro }) => {
               name="plano_a"
               onChange={handleChange}
               value={formData.plano_a}
-              required
+              
             />
           </div>
 
@@ -234,7 +234,7 @@ const Cadastro = ({ onCadastro }) => {
                 value="Service"
                 checked={formData.tipo_a === 'Service'}
                 onChange={handleChange}
-                required
+                
               />
               <span className={styles.checkmark}></span>
               Service
@@ -246,7 +246,7 @@ const Cadastro = ({ onCadastro }) => {
                 value="Product"
                 checked={formData.tipo_a === 'Product'}
                 onChange={handleChange}
-                required
+                
               />
               <span className={styles.checkmark}></span>
               Product
@@ -260,7 +260,7 @@ const Cadastro = ({ onCadastro }) => {
               name="valor_a"
               onChange={handleChange}
               value={formData.valor_a}
-              required
+              
             />
           </div>
 
@@ -273,7 +273,7 @@ const Cadastro = ({ onCadastro }) => {
                 name="data_inicial"
                 onChange={handleChange}
                 value={formData.data_inicial}
-                required
+                
               />
             </div>
 
@@ -284,7 +284,7 @@ const Cadastro = ({ onCadastro }) => {
                 name="data_esperada"
                 onChange={handleChange}
                 value={formData.data_esperada}
-                required
+                
               />
             </div>
 
@@ -295,7 +295,7 @@ const Cadastro = ({ onCadastro }) => {
                 name="data_limite"
                 onChange={handleChange}
                 value={formData.data_limite}
-                required
+                
               />
             </div>
           </div>
@@ -308,7 +308,7 @@ const Cadastro = ({ onCadastro }) => {
               name="plano_b"
               onChange={handleChange}
               value={formData.plano_b}
-              required
+              
             />
           </div>
 
@@ -320,7 +320,7 @@ const Cadastro = ({ onCadastro }) => {
                 value="Service"
                 checked={formData.tipo_b === 'Service'}
                 onChange={handleChange}
-                required
+                
               />
               <span className={styles.checkmark}></span>
               Service
@@ -332,7 +332,7 @@ const Cadastro = ({ onCadastro }) => {
                 value="Product"
                 checked={formData.tipo_b === 'Product'}
                 onChange={handleChange}
-                required
+                
               />
               <span className={styles.checkmark}></span>
               Product
@@ -346,7 +346,7 @@ const Cadastro = ({ onCadastro }) => {
               name="valor_b"
               onChange={handleChange}
               value={formData.valor_b}
-              required
+              
             />
           </div>
             </div>
