@@ -165,7 +165,7 @@ const Tabela = () => {
 
   const fetchPlanos = async () => {
     try {
-      const response = await fetch('/api/financeiro/plano/get', {
+      const response = await fetch('/api/financeiro/plano/get/planos', {
         method: 'GET',
       });
 

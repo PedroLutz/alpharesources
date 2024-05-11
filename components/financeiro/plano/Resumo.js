@@ -57,7 +57,7 @@ crescimentoDosGastos.forEach((area) => {
 
 
   useEffect(() => {
-    fetch('/api/financeiro/plano/get')
+    fetch('/api/financeiro/plano/get/resumo')
       .then((response) => response.json())
       .then((data) => {
         // Extrair os valores do objeto de resposta

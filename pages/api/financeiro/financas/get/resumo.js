@@ -1,5 +1,5 @@
-import connectToDatabase from '../../../../lib/db';
-import LancamentoModel from '../../../../models/financeiro/Lancamento';
+import connectToDatabase from '../../../../../lib/db';
+import LancamentoModel from '../../../../../models/financeiro/Lancamento';
 
 const { Lancamento } = LancamentoModel;
 
@@ -8,8 +8,6 @@ export default async (req, res) => {
     await connectToDatabase();
 
     if (req.method === 'GET') {
-      const lancamentos = await Lancamento.find().sort({ data: -1 });
-
       const somaValores = await Lancamento.aggregate([
         {
           $match: {
@@ -156,7 +154,6 @@ export default async (req, res) => {
       ])
 
       res.status(200).json({ 
-        lancamentos, 
         somaValores, 
         receitasPorArea, 
         despesasPorArea, 

@@ -20,6 +20,7 @@ const handleSubmit = async (o) => {
 
         if (response.ok) {
             console.log(`${o.route} registrado(a) com sucesso!`);
+            if(o.registroSucesso) o.registroSucesso(true);
             return true;
         } else {
             console.error(`Erro ao registrar ${o.route}`);
@@ -72,7 +73,7 @@ const fetchData = async (route) => {
     }
 
     try {
-        const response = await fetch(`/api/${route}/get`, {
+        const response = await fetch(`/api/${route}`, {
             method: 'GET',
         });
 

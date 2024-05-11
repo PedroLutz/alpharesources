@@ -75,7 +75,7 @@ const Resumo = () => {
 
   //receber dados das financas
   useEffect(() => {
-    fetch('/api/financeiro/financas/get')
+    fetch('/api/financeiro/financas/get/resumo')
       .then((response) => response.json())
       .then((data) => {
         const { somaValores, receitasPorArea, despesasPorArea,

@@ -1,121 +1,88 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import styles from '../../../styles/modules/radio.module.css';
+import { handleSubmit , fetchData } from '../../../functions/crud'
 
 const Cadastro = () => {
-    const [registerSuccess, setRegisterSuccess] = useState(false);
-    const [elementosWBS, setElementosWBS] = useState([]);
-    const [formData, setFormData] = useState({
+  const [registerSuccess, setRegisterSuccess] = useState(false);
+  const [elementosWBS, setElementosWBS] = useState([]);
+  const [formData, setFormData] = useState({
+    tipo: '',
+    descricao: '',
+    valor: '',
+    data: '',
+    area: '',
+    origem: '',
+    destino: '',
+  });
+
+  const fetchElementos = async () => {
+    const data = await fetchData('wbs/get');
+    setElementosWBS(data.elementos);
+  };
+
+  const handleCloseModal = () => {
+    setRegisterSuccess(false);
+  };
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSetDataHoje = (inputName) => {
+    const today = new Date();
+    const formattedDate = today.toLocaleString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }).split(',')[0];
+
+    setFormData((formData) => ({
+      ...formData,
+      [inputName]: formattedDate,
+    }));
+  };
+
+  useEffect(() => {
+    fetchElementos();
+  }, []);
+
+  const enviar = async (e) => {
+    e.preventDefault();
+    const isExpense = formData.tipo === 'Expense';
+    const valor = isExpense ? -parseFloat(formData.valor) : parseFloat(formData.valor);
+    const updatedFormData = {
+      ...formData,
+      valor: valor
+    };
+
+    const o = { route: 'financeiro/financas', dados: updatedFormData, registroSucesso: setRegisterSuccess }
+    handleSubmit(o);
+
+    setFormData({
       tipo: '',
       descricao: '',
       valor: '',
       data: '',
       area: '',
       origem: '',
-      destino: '',
-    });
+      destino: ''
+    })
+  };
 
-    const fetchElementos = async () => {
-      try {
-        const response = await fetch('/api/wbs/get', {
-          method: 'GET',
-        });
-  
-        if (response.status === 200) {
-          const data = await response.json();
-          setElementosWBS(data.elementos);
-  
-        } else {
-          console.error('Error in searching for financal releases data');
-        }
-      } catch (error) {
-        console.error('Error in searching for financal releases data', error);
-      }
-    };
-
-    const handleCloseModal = () => {
-      setRegisterSuccess(false);
-    };
-
-    const handleChange = (e) => {
-      setFormData({
-        ...formData,
-        [e.target.name]: e.target.value,
-      });
-    };
-
-    const handleSetDataHoje = (inputName) => {
-      const today = new Date();
-      const formattedDate = today.toLocaleString('en-CA', {year: 'numeric', month: '2-digit', day: '2-digit'}).split(',')[0];
-    
-      setFormData((formData) => ({
-        ...formData,
-        [inputName]: formattedDate,
-      }));
-    };
-
-    useEffect(() => {
-      fetchElementos();
-    }, []);
-
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-
-      try {
-        const isExpense = formData.tipo === 'Expense';
-
-        const valor = isExpense ? -parseFloat(formData.valor) : parseFloat(formData.valor);
-
-        const updatedFormData = {
-          ...formData,
-          valor: valor
-        };
-
-        const response = await fetch('/api/financeiro/financas/create', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(updatedFormData)
-        });
-
-        if (response.ok) {
-          console.log('Financial release successfully registered!');
-
-          setFormData({
-            tipo: '',
-            descricao: '',
-            valor: '',
-            data: '',
-            area: '',
-            origem: '',
-            destino: '',
-          });
-  
-          setRegisterSuccess(true);
-        } else {
-          console.error('Error when registering the release');
-        }
-      } catch (error) {
-        console.error('Error when registering the release', error);
-      }
-    };
-
-    // Modal component
-    const Modal = () => (
-      <div className="overlay">
-        <div className="modal">
-          <p>{registerSuccess ? 'Register successful!' : 'Register failed.'}</p>
-          <button className="botao-cadastro" onClick={handleCloseModal}>Close</button>
-        </div>
+  const Modal = () => (
+    <div className="overlay">
+      <div className="modal">
+        <p>{registerSuccess ? 'Register successful!' : 'Register failed.'}</p>
+        <button className="botao-cadastro" onClick={handleCloseModal}>Close</button>
       </div>
-    );
+    </div>
+  );
 
-    return (
-      <div className="centered-container financeiro">
-        <h2>Register Financial Release</h2>
+  return (
+    <div className="centered-container financeiro">
+      <h2>Register Financial Release</h2>
 
-        <form onSubmit={handleSubmit}>
-           {/*Inputs*/}
+      <form onSubmit={enviar}>
+        {/*Inputs*/}
         <div>
 
           {/*Inputs radio*/}
@@ -159,12 +126,12 @@ const Cadastro = () => {
               <span className={styles.checkmark}></span>
               Exchange
             </label>
-          {/*fim inputs Radio*/}
+            {/*fim inputs Radio*/}
           </div>
 
           {/*outros inputs*/}
           <div className="centered-container">
-            
+
             {/*input descricao*/}
             <label htmlFor="descricao">Description</label>
             <input
@@ -191,29 +158,29 @@ const Cadastro = () => {
             {/*input data*/}
             <label htmlFor="data">Date</label>
             <div className='input-data'>
-                <input
-                    type="date"
-                    name="data"
-                    onChange={handleChange}
-                    value={formData.data}
-                    required
-                />
+              <input
+                type="date"
+                name="data"
+                onChange={handleChange}
+                value={formData.data}
+                required
+              />
               <button type="button" onClick={() => handleSetDataHoje('data')}>Set today</button>
             </div>
-            
-            
+
+
 
             {/*select area*/}
             <label htmlFor="area">Area</label>
             <select
-                  name="area"
-                  onChange={handleChange}
-                  value={formData.area}
-                  required
-                >
-                  <option value="" disabled>Select an area</option>
-                  {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
-                    <option key={index} value={area}>{area}</option>
+              name="area"
+              onChange={handleChange}
+              value={formData.area}
+              required
+            >
+              <option value="" disabled>Select an area</option>
+              {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
+                <option key={index} value={area}>{area}</option>
               ))};
               <option value="Extras">Extras</option>
             </select>
@@ -240,23 +207,23 @@ const Cadastro = () => {
               required
             />
 
-          {/*fim outros inputs*/}
+            {/*fim outros inputs*/}
           </div>
 
-        {/*fim inputs*/}
+          {/*fim inputs*/}
         </div>
 
-          <div>
-            <button className="botao-cadastro" type="submit">Register financial release</button>
-          </div>
-        </form>
+        <div>
+          <button className="botao-cadastro" type="submit">Register financial release</button>
+        </div>
+      </form>
 
-        {/* Lazy loaded modal */}
-        <Suspense fallback={<div>Loading...</div>}>
-          {registerSuccess && <Modal />}
-        </Suspense>
-      </div>
-    );
+      {/* Lazy loaded modal */}
+      <Suspense fallback={<div>Loading...</div>}>
+        {registerSuccess && <Modal />}
+      </Suspense>
+    </div>
+  );
 };
 
 export default Cadastro;

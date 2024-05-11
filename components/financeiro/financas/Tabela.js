@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Loading from '../../Loading';
 import styles from '../../../styles/modules/radio.module.css';
+import { fetchData, handleDelete } from '../../../functions/crud';
 
 const formatDate = (dateString) => {
   // Converte a data da string para um objeto de data
@@ -77,21 +78,11 @@ const Tabela = () => {
 
   const fetchLancamentos = async () => {
     try {
-      const response = await fetch('/api/financeiro/financas/get', {
-        method: 'GET',
+      const data = await fetchData('financeiro/financas/get/lancamentos');
+      data.lancamentos.forEach((item) => {
+        item.data = formatDate(item.data);
       });
-
-      if (response.status === 200) {
-        const data = await response.json();
-        data.lancamentos.forEach((item) => {
-          item.data = formatDate(item.data);
-        });
-        setLancamentos(data.lancamentos);
-      } else {
-        console.error('Error in searching for financal releases data');
-      }
-    } catch (error) {
-      console.error('Error in searching for financal releases data', error);
+      setLancamentos(data.lancamentos);
     } finally {
       setLoading(false);
     }
