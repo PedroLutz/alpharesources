@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Chart } from 'react-google-charts';
 import { sortBy } from 'lodash';
 import Loading from '../../Loading';
+import { fetchData } from '../../../functions/crud';
 
 const Resumo = () => {
   const [totalValor, setTotalValor] = useState(0);
@@ -73,15 +74,13 @@ const Resumo = () => {
       CrescimentoDosGastosGraph.push([formattedDate, gastosAcumulados]);
   });
 
-  //receber dados das financas
-  useEffect(() => {
-    fetch('/api/financeiro/financas/get/resumo')
-      .then((response) => response.json())
-      .then((data) => {
-        const { somaValores, receitasPorArea, despesasPorArea,
-          receitasPorMes, despesasPorMes , maiorEMenorValor,
-          receitasTotais, despesasTotais } = data;
-
+    //receber dados das financas
+  const fetchResumos = async () => {
+    try {
+      const data = await fetchData('financeiro/financas/get/resumo');
+      const { somaValores, receitasPorArea, despesasPorArea,
+        receitasPorMes, despesasPorMes , maiorEMenorValor,
+        receitasTotais, despesasTotais } = data;
         setTotalValor(somaValores[0]?.total || 0);
         setReceitasPorArea(receitasPorArea);
         setDespesasPorArea(despesasPorArea);
@@ -91,11 +90,13 @@ const Resumo = () => {
         setMenorValor(maiorEMenorValor[0]?.min || 0);
         setReceitasTotais(receitasTotais[0]?.total || 0); 
         setDespesasTotais(despesasTotais[0]?.total || 0); 
-      })
-      .catch((error) => {
-        console.error('Erro ao buscar informações de resumo', error);
-      }).finally(() => {
-        setLoading(false);})
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchResumos();
   }, []);
 
   const estiloGraph = {

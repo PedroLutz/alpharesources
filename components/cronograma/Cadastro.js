@@ -1,7 +1,8 @@
 // components/Cadastro.js
 import React, { useState, useEffect} from 'react';
+import { handleSubmit , fetchData } from '../../functions/crud'
 
-const Cadastro = ({ onCadastro }) => {
+const Cadastro = () => {
   const [elementos, setElementos] = useState([]);
   const [dadosUsados, setDadosUsados] = useState(false);
   const [itensPorArea, setItensPorArea] = useState([]);
@@ -19,21 +20,8 @@ const Cadastro = ({ onCadastro }) => {
   });
   
   const fetchElementos = async () => {
-    try {
-      const response = await fetch('/api/wbs/get', {
-        method: 'GET',
-      });
-
-      if (response.status === 200) {
-        const data = await response.json();
-        setElementos(data.elementos);
-
-      } else {
-        console.error('Error in searching for financal releases data');
-      }
-    } catch (error) {
-      console.error('Error in searching for financal releases data', error);
-    }
+    const data = await fetchData('wbs/get');
+    setElementos(data.elementos);
   };
 
   useEffect(() => {
@@ -51,30 +39,24 @@ const Cadastro = ({ onCadastro }) => {
     });
   };
 
-  const handleAreaChange = (e) => {
+  const handleAreaChange = (e, isDp) => {
     const areaSelecionada = e.target.value;
     const itensDaArea = elementos.filter(item => item.area === areaSelecionada).map(item => item.item);
-    setItensPorArea(itensDaArea);
-
-    // Atualiza o estado formData para refletir a nova área selecionada
-    setFormData({
-      ...formData,
-      area: areaSelecionada,
-      item: '', // Limpa o campo de itens quando a área é alterada
-    });
-  };
-
-  const handleAreaChangeDp = (e) => {
-    const areaSelecionadaDp = e.target.value;
-    const itensDaAreaDp = elementos.filter(item => item.area === areaSelecionadaDp).map(item => item.item);
-    setItensPorAreaDp(itensDaAreaDp);
-
-    // Atualiza o estado formData para refletir a nova área selecionada
-    setFormData({
-      ...formData,
-      dp_area: areaSelecionadaDp,
-      dp_item: '', // Limpa o campo de itens quando a área é alterada
-    });
+    if(isDp){ 
+      setItensPorAreaDp(itensDaArea);
+      setFormData({
+        ...formData,
+        dp_area: areaSelecionada,
+        dp_item: '',
+      });
+    } else { 
+      setItensPorArea(itensDaArea);
+      setFormData({
+        ...formData,
+        area: areaSelecionada,
+        item: '', 
+      });
+    };
   };
 
   const cleanInputs = () => {
@@ -91,108 +73,37 @@ const Cadastro = ({ onCadastro }) => {
   }
 
 
-  const handleSubmit = async (e) => {
+  const enviar = async (e) => {
     e.preventDefault();
+    const data = await fetchData('cronograma/get/all');
+    const cronogramas = data.cronogramas;
 
-    try {
-      const response = await fetch('/api/cronograma/get', {
-        method: 'GET',
-      });
+    const dadosJaUsados = cronogramas.some(
+      (item) => item.area === formData.area && item.item === formData.item
+    );
 
-      if (response.status === 200) {
-        const data = await response.json();
-        const cronogramas = data.cronogramas;
-
-        // Verificar se a combinação de "area" e "item" já foi usada
-        const dadosJaUsados = cronogramas.some(
-          (item) => item.area === formData.area && item.item === formData.item
-        );
-
-        if (dadosJaUsados) {
-          setDadosUsados(true);
-          return;
-        }
-
-      } else {
-        console.error('Error in fetching cronograma data');
-      }
-    } catch (error) {
-      console.error('Error in fetching cronograma data', error);
+    if (dadosJaUsados) {
+      setDadosUsados(true);
+      return;
     }
-  
-    try {
-      // Enviar os dados com plano: true e situacao: 'concluida'
-      const response1 = await fetch('/api/cronograma/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          plano: true,
-          situacao: 'concluida',
-        }),
-      });
-  
-      if (response1.ok) {
-        console.log('Cronograma registrado com sucesso!');
-  
-        if (typeof onCadastro === 'function') {
-          onCadastro(formData);
-        }
-  
-        // Chama a função de cadastro passada como prop
-        // Limpa os campos após o envio do formulário
-        setFormData({
-          plano: '',
-          item: '',
-          area: '',
-          inicio: '',
-          termino: '',
-          dp_item: '',
-          dp_area: '',
-          situacao: '',
-        });
-  
-        setRegisterSuccess(true);
-      } else {
-        console.error('Error when registering the release');
-      }
-  
-      // Enviar os dados com plano: false e situacao: 'iniciar'
-      const response2 = await fetch('/api/cronograma/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          plano: false,
-          inicio: null,
-          termino: null,
-          situacao: 'iniciar',
-        }),
-      });
-  
-      if (response2.ok) {
-        console.log('Cronograma registrado para iniciar!');
-      } else {
-        console.error('Error when registering the release to start');
-      }
-    } catch (error) {
-      console.error('Error when registering the release', error);
-    }
-  };
+    const formDataPlano = {...formData, plano: true, situacao: 'concluida'};
+    const formDataGantt = {...formData, plano: false, inicio: null, termino: null, situacao: 'iniciar'}
+
+    const objPlano = { route: 'cronograma', dados: formDataPlano, registroSucesso: setRegisterSuccess }
+    handleSubmit(objPlano);
+    const objGantt = { ...objPlano, dados: formDataGantt}
+    handleSubmit(objGantt);
+  }
   
   return (
     <div className="centered-container">
       <h1>Timeline component register</h1>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={enviar}>
         <div>
           <div className="centered-container mini-input">
             <select
                   name="area"
-                  onChange={handleAreaChange}
+                  onChange={(event) => handleAreaChange(event, false)}
                   value={formData.area}
                   required
                 >
@@ -239,7 +150,7 @@ const Cadastro = ({ onCadastro }) => {
             <label htmlFor="dp_area"style={{width: '260px'}} >Dependencies</label>
             <select
                   name="dp_area"
-                  onChange={handleAreaChangeDp}
+                  onChange={(event) => handleAreaChange(event, true)}
                   value={formData.dp_area}
                 >
                   <option value="" disabled>Select an area</option>

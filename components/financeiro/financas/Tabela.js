@@ -1,16 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import Loading from '../../Loading';
 import styles from '../../../styles/modules/radio.module.css';
-import { fetchData, handleDelete } from '../../../functions/crud';
+import { fetchData, handleDelete, handleUpdate } from '../../../functions/crud';
 
-const formatDate = (dateString) => {
-  // Converte a data da string para um objeto de data
+const stringToDate = (dateString) => {
   const date = new Date(dateString);
-
-  // Adiciona um dia à data
   date.setDate(date.getDate() + 1);
 
-  // Formata a data
   const formattedDate = date.toLocaleDateString(undefined, {
     year: 'numeric',
     month: '2-digit',
@@ -20,11 +16,18 @@ const formatDate = (dateString) => {
   return formattedDate;
 };
 
+const stringToIsoDate = (dateString) => {
+  const parts = dateString.split('/');
+  const dataFormatada = new Date(parts[2], parts[1] - 1, parts[0]);
+  return dataFormatada.toISOString().split('T')[0];
+}
+
 const labelsTipo = {
   Income: 'Income',
   Expense: 'Cost',
   Exchange: 'Exchange'
-}
+};
+
 
 const Tabela = () => {
   const [lancamentos, setLancamentos] = useState([]);
@@ -49,38 +52,11 @@ const Tabela = () => {
     });
   };
 
-  const handleClick = (item) => {
-    setConfirmDeleteItem(item);
-  };
-
-  const handleUpdateClick = (item) => {
-    let valorCorrigido = 0;
-    if (Number(item.valor) < 0) {
-      valorCorrigido = -Number(item.valor);
-    } else {
-      valorCorrigido = item.valor;
-    }
-
-    const parts = item.data.split('/');
-    const itemDate = new Date(parts[2], parts[1] - 1, parts[0]);
-
-    setConfirmUpdateItem(item);
-    setNovosDados({
-      tipo: item.tipo,
-      descricao: item.descricao,
-      valor: valorCorrigido,
-      data: itemDate.toISOString().split('T')[0],
-      area: item.area,
-      origem: item.origem,
-      destino: item.destino,
-    });
-  };
-
   const fetchLancamentos = async () => {
     try {
       const data = await fetchData('financeiro/financas/get/lancamentos');
       data.lancamentos.forEach((item) => {
-        item.data = formatDate(item.data);
+        item.data = stringToDate(item.data);
       });
       setLancamentos(data.lancamentos);
     } finally {
@@ -94,63 +70,64 @@ const Tabela = () => {
 
   const handleConfirmDelete = () => {
     if (confirmDeleteItem) {
-      fetch(`/api/financeiro/financas/delete?id=${confirmDeleteItem._id}`, {
-        method: 'DELETE',
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log(data.message); // Exibir uma mensagem de sucesso
-          // Atualize os dados na tabela após a exclusão
-          // Você pode recarregar a página ou atualizar os dados de outra forma
-          fetchLancamentos();
-          setDeleteSuccess(true);
-        })
-        .catch((error) => {
-          console.error('Erro ao excluir elemento', error);
-        });
+      const o = {
+        route: 'financeiro/financas', 
+        item: confirmDeleteItem, 
+        fetchDados: fetchLancamentos
+      };
+      var getDeleteSuccess = false;
+      try {
+        getDeleteSuccess = handleDelete(o);
+      } finally {
+        setDeleteSuccess(getDeleteSuccess);
+      }
     }
     setConfirmDeleteItem(null);
   };
 
-  const handleCloseModal = () => {
-    setDeleteSuccess(false);
+  const handleUpdateClick = (item) => {
+    let valorCorrigido = 0;
+    if (Number(item.valor) < 0) {
+      valorCorrigido = item.valor * -1;
+    } else {
+      valorCorrigido = item.valor;
+    }
+
+    setConfirmUpdateItem(item);
+    setNovosDados({
+      tipo: item.tipo,
+      descricao: item.descricao,
+      valor: valorCorrigido,
+      data: stringToIsoDate(item.data),
+      area: item.area,
+      origem: item.origem,
+      destino: item.destino,
+    });
   };
 
   const handleUpdateItem = async () => {
     if (confirmUpdateItem) {
       const isExpense = confirmUpdateItem.tipo === "Expense";
-      const newValueWithSign = isExpense ? -novosDados.valor : novosDados.valor;
-      const { tipo, descricao, data, area, origem, destino } = novosDados;
+      const valorInverso = isExpense ? novosDados.valor * -1 : novosDados.valor;
+      const updatedItem = { ...confirmUpdateItem, ...novosDados, valor: valorInverso };
 
+      const updatedLancamentos = lancamentos.map(item =>
+        item._id === updatedItem._id ? { ...updatedItem, data: stringToDate(updatedItem.data) } : item
+      );
+      setLancamentos(updatedLancamentos);
+      setConfirmUpdateItem(null);
       try {
-        const response = await fetch(`/api/financeiro/financas/update?id=${String(confirmUpdateItem._id)}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ tipo, descricao, valor: newValueWithSign, data, area, origem, destino }),
+        await handleUpdate({
+          route: 'financeiro/financas',
+          dados: updatedItem,
+          item: confirmUpdateItem
         });
-
-        if (response.status === 200) {
-          console.log('Release updated successfully!');
-          fetchLancamentos();
-        } else {
-          console.error('Error in updating release');
-        }
       } catch (error) {
-        console.error('Error in updating release', error);
+        setLancamentos(lancamentos); 
+        setConfirmUpdateItem(confirmUpdateItem);
+        console.error("Update failed:", error);
       }
     }
-    setConfirmUpdateItem(null);
-    setNovosDados({
-      tipo: '',
-      descricao: '',
-      valor: '',
-      data: '',
-      area: '',
-      origem: '',
-      destino: ''
-    })
   };
 
   const generatePDF = () => {
@@ -209,14 +186,13 @@ const Tabela = () => {
                   <td>{item.destino}</td>
                   <td>
                     <div className="botoes-acoes">
-                      <button onClick={() => handleClick(item)}>❌</button>
+                      <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
                       <button onClick={() => handleUpdateClick(item)}>⚙️</button>
                     </div>
                   </td>
                 </tr>
               </React.Fragment>
             ))}
-
           </tbody>
         </table>
       </div>
@@ -237,7 +213,7 @@ const Tabela = () => {
         <div className="overlay">
           <div className="modal">
             <p>{deleteSuccess ? 'Deletion successful!' : 'Deletion failed.'}</p>
-            <button className="botao-cadastro" onClick={handleCloseModal}>Close</button>
+            <button className="botao-cadastro" onClick={() => setDeleteSuccess(false)}>Close</button>
           </div>
         </div>
       )}

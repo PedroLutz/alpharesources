@@ -36,27 +36,24 @@ const handleSubmit = async (o) => {
 
 const handleDelete = async (o) => {
     if (!o.route) {
-        console.error(`Requisição de submit feita sem uma rota!`);
+        console.error(`Requisição de delete feita sem uma rota!`);
         return;
     }
 
     if (!o.item) {
-        console.error(`Requisição de submit feita sem um item!`);
+        console.error(`Requisição de delete feita sem um item!`);
         return;
     }
 
     try {
-        const response = await fetch(`/api/${route}/delete?id=${o.item._id}`, {
+        const response = await fetch(`/api/${o.route}/delete?id=${o.item._id}`, {
             method: 'DELETE',
         });
 
         const data = await response.json();
         console.log(data.message);
 
-        if (o.fetchDados) {
-            o.fetchDados();
-        }
-
+        if (o.fetchDados) o.fetchDados();
         return true;
     } catch (error) {
         console.error(`Erro ao excluir ${o.route}`, error);
