@@ -1,6 +1,7 @@
 // components/Cadastro.js
 import React, { useState, useEffect} from 'react';
 import { handleSubmit , fetchData } from '../../functions/crud'
+import { cleanInputs } from '../../functions/general'
 
 const Cadastro = () => {
   const [elementos, setElementos] = useState([]);
@@ -28,10 +29,6 @@ const Cadastro = () => {
     fetchElementos();
   }, []);
 
-  const handleCloseModal = () => {
-    setRegisterSuccess(false);
-  };
-
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -42,35 +39,13 @@ const Cadastro = () => {
   const handleAreaChange = (e, isDp) => {
     const areaSelecionada = e.target.value;
     const itensDaArea = elementos.filter(item => item.area === areaSelecionada).map(item => item.item);
-    if(isDp){ 
-      setItensPorAreaDp(itensDaArea);
-      setFormData({
-        ...formData,
-        dp_area: areaSelecionada,
-        dp_item: '',
-      });
-    } else { 
-      setItensPorArea(itensDaArea);
-      setFormData({
-        ...formData,
-        area: areaSelecionada,
-        item: '', 
-      });
-    };
-  };
-
-  const cleanInputs = () => {
+    isDp ? setItensPorAreaDp(itensDaArea) : setItensPorArea(itensDaArea);
     setFormData({
-      plano: '',
-      item: '',
-      area: '',
-      inicio: '',
-      termino: '',
-      dp_item: '',
-      dp_area: '',
-      situacao: '',
-    });
-  }
+      ...formData,
+      [isDp ? 'dp_area' : 'area']: areaSelecionada,
+      [isDp ? 'dp_item' : 'item']: '', 
+    })
+  };
 
 
   const enviar = async (e) => {
@@ -79,8 +54,7 @@ const Cadastro = () => {
     const cronogramas = data.cronogramas;
 
     const dadosJaUsados = cronogramas.some(
-      (item) => item.area === formData.area && item.item === formData.item
-    );
+      (item) => item.area === formData.area && item.item === formData.item);
 
     if (dadosJaUsados) {
       setDadosUsados(true);
@@ -89,11 +63,17 @@ const Cadastro = () => {
     const formDataPlano = {...formData, plano: true, situacao: 'concluida'};
     const formDataGantt = {...formData, plano: false, inicio: null, termino: null, situacao: 'iniciar'}
 
-    const objPlano = { route: 'cronograma', dados: formDataPlano, registroSucesso: setRegisterSuccess }
-    handleSubmit(objPlano);
-    const objGantt = { ...objPlano, dados: formDataGantt}
-    handleSubmit(objGantt);
-  }
+    handleSubmit({
+      route: 'cronograma', 
+      dados: formDataPlano, 
+      registroSucesso: setRegisterSuccess
+    });
+    handleSubmit({
+      route: 'cronograma', 
+      dados: formDataGantt, 
+      registroSucesso: setRegisterSuccess});
+    cleanInputs(formData, setFormData);
+  };
   
   return (
     <div className="centered-container">
@@ -173,7 +153,7 @@ const Cadastro = () => {
         </div>
         <div>
           <button className="botao-cadastro" type="submit">Register timeline component</button>
-          <button className="botao-cadastro" type="button" onClick={()=> cleanInputs()}>Clean inputs</button>
+          <button className="botao-cadastro" type="button" onClick={()=> cleanInputs(formData, setFormData)}>Clean inputs</button>
         </div>
       </form>
 
@@ -192,7 +172,7 @@ const Cadastro = () => {
         <div className="overlay">
           <div className="modal">
             <p>{registerSuccess ? 'Register successful!' : 'Register failed.'}</p>
-            <button className="botao-cadastro" onClick={handleCloseModal}>
+            <button className="botao-cadastro" onClick={()=> setRegisterSuccess(false)}>
               Close
             </button>
           </div>

@@ -1,25 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Chart } from 'react-google-charts';
 import Loading from '../Loading';
-
-const formatDate = (dateString) => {
-  // Converte a data da string para um objeto de data
-  const date = new Date(dateString);
-
-  // Formata a data
-  const formattedDate = date.toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  });
-
-  return formattedDate;
-};
-
-const formatDateGantt = (dateString) => {
-  var dateParts = dateString.split("/");
-  return new Date(+dateParts[2], dateParts[1] - 1, dateParts[0]);
-}
+import { fetchData, handleDelete, handleUpdate } from '../../functions/crud';
+import { cleanForm, stringToDate, stringToIsoDate, formatDateGantt } from '../../functions/general';
 
 const formatInputDate = (dateString) => {
   var dateParts = dateString.split("-");
@@ -52,8 +35,6 @@ const Tabela = () => {
     concluida: 'Completed' 
   }
 
-  
-
   const handleChange = (e) => {
     setDatas({ ...datas, dataTermino: e.target.value });
   }
@@ -80,7 +61,6 @@ const Tabela = () => {
     }
     
     try {
-      // Filtra os itens com base na área e no item selecionados
       const itemParaAtualizar = cronogramas.find(
         (item) =>
           item.area.toLowerCase() === filtroAreaSelecionada.toLowerCase() &&
@@ -88,7 +68,6 @@ const Tabela = () => {
           !item.plano
       );
   
-      // Verifica se há um item para atualizar
       if (!itemParaAtualizar) {
         console.log('Nenhum item para atualizar');
         return;
@@ -106,7 +85,7 @@ const Tabela = () => {
   
       if (response.status === 200) {
         console.log('Atualização da situação bem-sucedida');
-        fetchCronogramas(); // Recarregar os dados após a atualização
+        fetchCronogramas(); 
       } else {
         console.error('Erro ao atualizar a situação do cronograma');
       }
@@ -133,7 +112,6 @@ const Tabela = () => {
   const handleAtualizarData = async () => {
     try {
       if (!validarDatas()) {
-        // Se as datas forem inválidas, interrompa o processo
         return;
       }
 
@@ -142,7 +120,6 @@ const Tabela = () => {
         return;
       }
   
-      // Filtra os itens com base na área e no item selecionados
       const itemParaAtualizar = cronogramas.find(
         (item) =>
           item.area.toLowerCase() === filtroAreaSelecionada.toLowerCase() &&
@@ -150,7 +127,6 @@ const Tabela = () => {
           !item.plano
       );
   
-      // Verifica se há um item para atualizar
       if (!itemParaAtualizar) {
         console.log('Nenhum item para atualizar');
         return;
@@ -167,7 +143,6 @@ const Tabela = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          // Envia apenas os campos preenchidos
           ...(datas.dataTermino && { termino: formatInputDate(datas.dataTermino) }),
           ...(datas.dataInicio && { inicio: formatInputDate(datas.dataInicio) }),
         }),
@@ -175,7 +150,7 @@ const Tabela = () => {
   
       if (response.status === 200) {
         console.log('Atualização bem-sucedida');
-        fetchCronogramas(); // Recarregar os dados após a atualização
+        fetchCronogramas();
       } else {
         console.error('Erro ao atualizar os dados do cronograma');
       }
@@ -195,8 +170,8 @@ const Tabela = () => {
         const data = await response.json();
         console.log(data.cronogramaGantts);
         data.cronogramaGantts.forEach((item) => {
-          item.inicio = formatDate(item.inicio);
-          item.termino = formatDate(item.termino);
+          item.inicio = stringToDate(item.inicio);
+          item.termino = stringToDate(item.termino);
         });
         data.cronogramaGantts.sort((a, b) => {
           if (a.area < b.area) return -1;
@@ -276,13 +251,13 @@ const Tabela = () => {
 
   useEffect(() => {
     if (chartData.length > 1) {
-      const linhaHeight = 30; // Altura de cada linha do gráfico
+      const linhaHeight = 30; 
       const novaAltura = ((chartData.length * linhaHeight) + 50) + 'px';
-      console.log('Nova altura do gráfico:', novaAltura); // Adiciona um console.log para debugar
+      console.log('Nova altura do gráfico:', novaAltura); 
       setChartHeight(novaAltura);
-      setChartDataLoaded(true); // Define como true quando os dados do gráfico estiverem prontos
+      setChartDataLoaded(true); 
     }
-  }, [chartData]); // Executa sempre que chartData mudar
+  }, [chartData]); 
   
   return (
     <div className="centered-container">

@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import Loading from '../Loading';
 import { Chart } from 'react-google-charts';
-
-const formatInputDate = (dateString) => {
-  var dateParts = dateString.split("-");
-  return new Date(+dateParts[0], dateParts[1] - 1, dateParts[2] - 1)
-}
+import { fetchData, handleDelete, handleUpdate } from '../../functions/crud';
+import { cleanForm, stringToDate, stringToIsoDate, formatDateGantt } from '../../functions/general';
 
 const Tabela = () => {
   const [cronogramas, setCronogramas] = useState([]);
@@ -16,6 +14,7 @@ const Tabela = () => {
   const [filtroArea, setFiltroArea] = useState('');
   const [chartHeight, setChartHeight] = useState('100px'); 
   const [chartDataLoaded, setChartDataLoaded] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [novosDados, setNovosDados] = useState({
     inicio: '',
     termino: '',
@@ -23,24 +22,6 @@ const Tabela = () => {
     dp_area: '',
     situacao: '',
   });
-
-  const fetchElementos = async () => {
-    try {
-      const response = await fetch('/api/wbs/get', {
-        method: 'GET',
-      });
-
-      if (response.status === 200) {
-        const data = await response.json();
-        setElementos(data.elementos);
-
-      } else {
-        console.error('Error in searching for financal releases data');
-      }
-    } catch (error) {
-      console.error('Error in searching for financal releases data', error);
-    }
-  };
 
   const handleChange = (e) => {
     setNovosDados({
@@ -51,39 +32,26 @@ const Tabela = () => {
 
   const handleUpdateItem = async (e) => {
     e.preventDefault;
-
     if (confirmUpdateItem) {
-      const inicioConsertado = formatInputDate(novosDados.inicio);
-      const terminoConsertado = formatInputDate(novosDados.termino);
-      const { dp_item, dp_area, situacao } = novosDados;
-
+      const updatedItem = { 
+        ...confirmUpdateItem, 
+        ...novosDados, 
+        inicio: novosDados.inicio, 
+        termino: novosDados.termino 
+      };
+      
       try {
-        const response = await fetch(`/api/cronograma/update?id=${String(confirmUpdateItem._id)}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ inicio: inicioConsertado, termino: terminoConsertado, dp_item, dp_area, situacao }),
+        await handleUpdate({
+          route: 'cronograma',
+          dados: updatedItem,
+          item: confirmUpdateItem
         });
-
-        if (response.status === 200) {
-          console.log('Timeline component updated successfully!');
-          fetchCronogramas();
-        } else {
-          console.error('Error in updating timeline component');
-        }
       } catch (error) {
-        console.error('Error in updating timeline component', error);
+        console.error("Update failed:", error);
       }
     }
     setConfirmUpdateItem(null);
-    setNovosDados({
-      inicio: '',
-      termino: '',
-      dp_item: '',
-      dp_area: '',
-      situacao: '',
-    })
+    cleanForm(novosDados, setNovosDados);
   };
 
   const handleFilterChange = (e) => {
@@ -93,130 +61,53 @@ const Tabela = () => {
     }
   };
 
-  const updateDpItem = (areaSelecionadaDp) => {
-    const itensDaAreaDp = elementos.filter(item => item.area === areaSelecionadaDp).map(item => item.item);
-    setItensPorAreaDp(itensDaAreaDp);
-  
-    // Verifica se o item selecionado ainda pertence à nova lista de itens
-    const novoItemSelecionado = itensDaAreaDp.includes(novosDados.dp_item) ? novosDados.dp_item : '';
-  
-    // Atualiza o estado formData para refletir a nova área selecionada
-    setNovosDados(prevState => ({
-      ...prevState,
-      dp_area: areaSelecionadaDp,
-      dp_item: novoItemSelecionado,
-    }));
-  };
-  
   const handleAreaChangeDp = (e) => {
     const areaSelecionadaDp = e.target.value;
     updateDpItem(areaSelecionadaDp);
   };  
 
   const handleUpdateClick = (item) => {
-    const fixDate = (data) => {
-      const parts = data.split('/');
-      const itemDate = new Date(parts[2], parts[1] - 1, parts[0]); 
-      return itemDate.toISOString().split('T')[0];
-    };
-
     setConfirmUpdateItem(item);
     setNovosDados({
-      inicio: fixDate(item.inicio),
-      termino: fixDate(item.termino),
+      inicio: stringToIsoDate(item.inicio),
+      termino: stringToIsoDate(item.termino),
       dp_item: item.dp_item,
       dp_area: item.dp_area,
       situacao: item.situacao,
     });
   };
 
-  const formatDate = (dateString) => {
-    // Converte a data da string para um objeto de data
-    const date = new Date(dateString);
-  
-    // Adiciona um dia à data
-    date.setDate(date.getDate() + 1);
-
-    // Formata a data
-    const formattedDate = date.toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    });
-  
-    return formattedDate;
+  const handleConfirmDelete = () => {
+    if (confirmDeleteItem) {
+      var getDeleteSuccess = false;
+      try {
+        getDeleteSuccess = handleDelete({
+          route: 'cronograma', 
+          item: confirmDeleteItem, 
+          fetchDados: fetchCronogramas});
+      } finally {
+        setDeleteSuccess(getDeleteSuccess);
+      }
+    }
   };
 
-  const formatDateGantt = (dateString) => {
-    var dateParts = dateString.split("/");
-    return new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0]);
-  }
+  const updateDpItem = (areaSelecionadaDp) => {
+    const itensDaAreaDp = elementos.filter(item => item.area === areaSelecionadaDp).map(item => item.item);
+    setItensPorAreaDp(itensDaAreaDp);
+
+    const novoItemSelecionado = itensDaAreaDp.includes(novosDados.dp_item) ? novosDados.dp_item : '';
+  
+    setNovosDados(prevState => ({
+      ...prevState,
+      dp_area: areaSelecionadaDp,
+      dp_item: novoItemSelecionado,
+    }));
+  };
 
   const filteredCronogramas = cronogramas.filter((item) => {
     const areaMatch = item.area.toLowerCase().includes(filtroArea.toLowerCase());
     return areaMatch;
   });
-
-  const handleClick = (item) => {
-    setConfirmDeleteItem(item);
-  };
-
-  const fetchCronogramas = async () => {
-    try {
-      const response = await fetch('/api/cronograma/get/planos', {
-        method: 'GET',
-      });
-
-      if (response.status === 200) {
-        const data = await response.json();
-        data.cronogramaPlanos.forEach((item) => {
-          item.inicio = formatDate(item.inicio);
-          item.termino = formatDate(item.termino);
-        });
-        data.cronogramaPlanos.sort((a, b) => {
-          if (a.area < b.area) return -1;
-          if (a.area > b.area) return 1;
-          return 0;
-        });
-
-        setCronogramas(data.cronogramaPlanos);
-      } else {
-        console.error('Error in searching for timeline data');
-      }
-    } catch (error) {
-      console.error('Error in searching for financial releases data', error);
-    }
-  };
-
-  useEffect(() => {
-    fetchElementos();
-    fetchCronogramas();
-    if (novosDados.dp_area) {
-      updateDpItem(novosDados.dp_area);
-    }
-  }, [novosDados.dp_area]);
-
-  const handleConfirmDelete = () => {
-    if (confirmDeleteItem) {
-      fetch(`/api/cronograma/delete?id=${confirmDeleteItem._id}`, {
-        method: 'DELETE',
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log(data.message);
-          fetchCronogramas();
-          setDeleteSuccess(true);
-        })
-        .catch((error) => {
-          console.error('Error deleting element', error);
-        });
-    }
-    setConfirmDeleteItem(null);
-  };
-
-  const handleCloseModal = () => {
-    setDeleteSuccess(false);
-  };
 
   const createGanttData = (cronogramas) => {
     const ganttData = [['Task ID', 'Task Name', 'Resource', 'Start Date', 'End Date', 'Duration', 'Percent Complete', 'Dependencies']];
@@ -240,19 +131,51 @@ const Tabela = () => {
 
     return ganttData;
   };
-
   const chartData = createGanttData(cronogramas);
+
+  const fetchCronogramas = async () => {
+    try {
+      const data = await fetchData('cronograma/get/planos');
+      data.cronogramaPlanos.forEach((item) => {
+        item.inicio = stringToDate(item.inicio);
+        item.termino = stringToDate(item.termino);
+      });
+      data.cronogramaPlanos.sort((a, b) => {
+        if (a.area < b.area) return -1;
+        if (a.area > b.area) return 1;
+        return 0;
+      });
+      setCronogramas(data.cronogramaPlanos);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchElementos = async () => {
+    const data = await fetchData('wbs/get');
+    setElementos(data.elementos);
+  };
+
+  useEffect(() => {
+    fetchElementos();
+    fetchCronogramas();
+    if (novosDados.dp_area) {
+      updateDpItem(novosDados.dp_area);
+    }
+  }, [novosDados.dp_area]);
+
   useEffect(() => {
     if (chartData.length > 1) {
-      const linhaHeight = 30; // Altura de cada linha do gráfico
+      const linhaHeight = 30; 
       const novaAltura = ((chartData.length * linhaHeight) + 50) + 'px';
       setChartHeight(novaAltura);
-      setChartDataLoaded(true); // Define como true quando os dados do gráfico estiverem prontos
+      setChartDataLoaded(true); 
     }
-  }, [chartData]); // Executa sempre que chartData muda
+  }, [chartData]);
 
   return (
     <div className="centered-container">
+      {loading && <Loading />}
       <h2>Estimated timeline</h2>
       {confirmDeleteItem && (
         <div className="overlay">
@@ -270,7 +193,7 @@ const Tabela = () => {
         <div className="overlay">
           <div className="modal">
             <p>{deleteSuccess ? 'Deletion successful!' : 'Deletion failed.'}</p>
-            <button className="botao-cadastro" onClick={handleCloseModal}>Close</button>
+            <button className="botao-cadastro" onClick={() => setDeleteSuccess(false)}>Close</button>
           </div>
         </div>
       )}
@@ -334,7 +257,7 @@ const Tabela = () => {
               <td>{item.dp_item || '-'}</td>
               <td>
                 <div className="botoes-acoes">
-                  <button onClick={() => handleClick(item)}>❌</button>
+                  <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
                   <button onClick={() => handleUpdateClick(item)}>⚙️</button>
                 </div>
               </td>

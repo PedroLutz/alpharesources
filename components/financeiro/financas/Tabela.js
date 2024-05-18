@@ -2,25 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Loading from '../../Loading';
 import styles from '../../../styles/modules/radio.module.css';
 import { fetchData, handleDelete, handleUpdate } from '../../../functions/crud';
-
-const stringToDate = (dateString) => {
-  const date = new Date(dateString);
-  date.setDate(date.getDate() + 1);
-
-  const formattedDate = date.toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  });
-
-  return formattedDate;
-};
-
-const stringToIsoDate = (dateString) => {
-  const parts = dateString.split('/');
-  const dataFormatada = new Date(parts[2], parts[1] - 1, parts[0]);
-  return dataFormatada.toISOString().split('T')[0];
-}
+import { stringToDate, stringToIsoDate } from '../../../functions/general';
 
 const labelsTipo = {
   Income: 'Income',
@@ -70,14 +52,12 @@ const Tabela = () => {
 
   const handleConfirmDelete = () => {
     if (confirmDeleteItem) {
-      const o = {
-        route: 'financeiro/financas', 
-        item: confirmDeleteItem, 
-        fetchDados: fetchLancamentos
-      };
       var getDeleteSuccess = false;
       try {
-        getDeleteSuccess = handleDelete(o);
+        getDeleteSuccess = handleDelete({
+          route: 'financeiro/financas', 
+          item: confirmDeleteItem, 
+          fetchDados: fetchLancamentos});
       } finally {
         setDeleteSuccess(getDeleteSuccess);
       }
