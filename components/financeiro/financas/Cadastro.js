@@ -1,4 +1,5 @@
 import React, { useState, useEffect, Suspense } from 'react';
+import Modal from '../../Modal';
 import styles from '../../../styles/modules/radio.module.css';
 import { handleSubmit , fetchData } from '../../../functions/crud'
 import { cleanForm } from '../../../functions/general'
@@ -57,15 +58,6 @@ const Cadastro = () => {
       registroSucesso: setRegisterSuccess});
     cleanForm(formData, setFormData);
   };
-
-  const Modal = () => (
-    <div className="overlay">
-      <div className="modal">
-        <p>{registerSuccess ? 'Register successful!' : 'Register failed.'}</p>
-        <button className="botao-cadastro" onClick={() => setRegisterSuccess(false)}>Close</button>
-      </div>
-    </div>
-  );
 
   return (
     <div className="centered-container financeiro">
@@ -210,7 +202,13 @@ const Cadastro = () => {
 
       {/* Lazy loaded modal */}
       <Suspense fallback={<div>Loading...</div>}>
-        {registerSuccess && <Modal />}
+        {registerSuccess && 
+        <Modal objeto={{
+          titulo: registerSuccess ? 'Register successful!' : 'Register failed.',
+          botao1: {
+            funcao: () => setRegisterSuccess(false), texto: 'Close'
+          }
+        }}/>}
       </Suspense>
     </div>
   );

@@ -19,7 +19,6 @@ const handleSubmit = async (o) => {
         });
 
         if (response.ok) {
-            console.log(`${o.route} registrado(a) com sucesso!`);
             if(o.registroSucesso) o.registroSucesso(true);
             return true;
         } else {
@@ -51,8 +50,6 @@ const handleDelete = async (o) => {
         });
 
         const data = await response.json();
-        console.log(data.message);
-
         if (o.fetchDados) o.fetchDados();
         return true;
     } catch (error) {
@@ -113,7 +110,7 @@ const handleUpdate = async (o) => {
         });
 
         if (response.status === 200) {
-            console.log(`${o.route} atualizado com sucesso!`);
+            return;
         } else {
             console.error(`Erro ao atualizar ${o.route}`);
         }

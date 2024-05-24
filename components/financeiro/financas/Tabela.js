@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import Loading from '../../Loading';
+import Modal from '../../Modal';
 import styles from '../../../styles/modules/radio.module.css';
 import { fetchData, handleDelete, handleUpdate } from '../../../functions/crud';
-import { stringToDate, stringToIsoDate } from '../../../functions/general';
+import { jsDateToEuDate, euDateToIsoDate } from '../../../functions/general';
 
 const labelsTipo = {
   Income: 'Income',
   Expense: 'Cost',
   Exchange: 'Exchange'
 };
-
 
 const Tabela = () => {
   const [lancamentos, setLancamentos] = useState([]);
@@ -38,7 +38,7 @@ const Tabela = () => {
     try {
       const data = await fetchData('financeiro/financas/get/lancamentos');
       data.lancamentos.forEach((item) => {
-        item.data = stringToDate(item.data);
+        item.data = jsDateToEuDate(item.data);
       });
       setLancamentos(data.lancamentos);
     } finally {
@@ -78,7 +78,7 @@ const Tabela = () => {
       tipo: item.tipo,
       descricao: item.descricao,
       valor: valorCorrigido,
-      data: stringToIsoDate(item.data),
+      data: euDateToIsoDate(item.data),
       area: item.area,
       origem: item.origem,
       destino: item.destino,
@@ -92,7 +92,7 @@ const Tabela = () => {
       const updatedItem = { ...confirmUpdateItem, ...novosDados, valor: valorInverso };
 
       const updatedLancamentos = lancamentos.map(item =>
-        item._id === updatedItem._id ? { ...updatedItem, data: stringToDate(updatedItem.data) } : item
+        item._id === updatedItem._id ? { ...updatedItem, data: jsDateToEuDate(updatedItem.data) } : item
       );
       setLancamentos(updatedLancamentos);
       setConfirmUpdateItem(null);
@@ -178,24 +178,24 @@ const Tabela = () => {
       </div>
 
       {confirmDeleteItem && (
-        <div className="overlay">
-          <div className="modal">
-            <p>Are you sure you want to delete "{confirmDeleteItem.descricao}"?</p>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button className="botao-cadastro" onClick={handleConfirmDelete}>Confirm</button>
-              <button className="botao-cadastro" onClick={() => setConfirmDeleteItem(null)}>Cancel</button>
-            </div>
-          </div>
-        </div>
+        <Modal objeto={{
+          titulo: `Are you sure you want to delete "${confirmDeleteItem.descricao}"?`,
+          botao1: {
+            funcao: handleConfirmDelete, texto: 'Confirm'
+          },
+          botao2: {
+            funcao: () => setConfirmDeleteItem(null), texto: 'Cancel'
+          }
+        }}/>
       )}
 
       {deleteSuccess && (
-        <div className="overlay">
-          <div className="modal">
-            <p>{deleteSuccess ? 'Deletion successful!' : 'Deletion failed.'}</p>
-            <button className="botao-cadastro" onClick={() => setDeleteSuccess(false)}>Close</button>
-          </div>
-        </div>
+        <Modal objeto={{
+          titulo: deleteSuccess ? 'Deletion successful!' : 'Deletion failed.',
+          botao1: {
+            funcao: () => setDeleteSuccess(false), texto: 'Close'
+          },
+        }}/>
       )}
 
       {confirmUpdateItem && (

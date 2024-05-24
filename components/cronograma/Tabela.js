@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Loading from '../Loading';
 import { Chart } from 'react-google-charts';
 import { fetchData, handleDelete, handleUpdate } from '../../functions/crud';
-import { cleanForm, stringToDate, stringToIsoDate, formatDateGantt } from '../../functions/general';
+import { cleanForm, jsDateToEuDate, euDateToIsoDate, euDateToJsDate } from '../../functions/general';
 
 const Tabela = () => {
   const [cronogramas, setCronogramas] = useState([]);
@@ -39,7 +39,16 @@ const Tabela = () => {
         inicio: novosDados.inicio, 
         termino: novosDados.termino 
       };
-      
+
+      const updatedCronogramas = cronogramas.map(item =>
+        item._id === updatedItem._id ? { 
+          ...updatedItem, 
+          inicio: jsDateToEuDate(updatedItem.inicio), 
+          termino: jsDateToEuDate(updatedItem.termino) 
+        } : item
+      );
+      setCronogramas(updatedCronogramas);
+      setConfirmUpdateItem(null);
       try {
         await handleUpdate({
           route: 'cronograma',
@@ -47,6 +56,8 @@ const Tabela = () => {
           item: confirmUpdateItem
         });
       } catch (error) {
+        setCronogramas(cronogramas); 
+        setConfirmUpdateItem(confirmUpdateItem);
         console.error("Update failed:", error);
       }
     }
@@ -69,15 +80,16 @@ const Tabela = () => {
   const handleUpdateClick = (item) => {
     setConfirmUpdateItem(item);
     setNovosDados({
-      inicio: stringToIsoDate(item.inicio),
-      termino: stringToIsoDate(item.termino),
-      dp_item: item.dp_item,
-      dp_area: item.dp_area,
+      inicio: euDateToIsoDate(item.inicio),
+      termino: euDateToIsoDate(item.termino),
+      dp_item: item.dp_item || undefined,
+      dp_area: item.dp_area || undefined,
       situacao: item.situacao,
     });
   };
 
   const handleConfirmDelete = () => {
+    setConfirmDeleteItem(null);
     if (confirmDeleteItem) {
       var getDeleteSuccess = false;
       try {
@@ -118,8 +130,8 @@ const Tabela = () => {
         const taskID = `${item.area}_${item.item}`;
         const taskName = item.item;
         const resource = item.area;
-        const startDate = formatDateGantt(item.inicio);
-        const endDate = formatDateGantt(item.termino);
+        const startDate = euDateToJsDate(item.inicio);
+        const endDate = euDateToJsDate(item.termino);
         if (!item.dp_area && !item.dp_item){
           dependencies = null;
         } else { 
@@ -137,8 +149,8 @@ const Tabela = () => {
     try {
       const data = await fetchData('cronograma/get/planos');
       data.cronogramaPlanos.forEach((item) => {
-        item.inicio = stringToDate(item.inicio);
-        item.termino = stringToDate(item.termino);
+        item.inicio = jsDateToEuDate(item.inicio);
+        item.termino = jsDateToEuDate(item.termino);
       });
       data.cronogramaPlanos.sort((a, b) => {
         if (a.area < b.area) return -1;

@@ -1,7 +1,8 @@
 // components/Cadastro.js
 import React, { useState, useEffect} from 'react';
 import { handleSubmit , fetchData } from '../../functions/crud'
-import { cleanInputs } from '../../functions/general'
+import { cleanForm } from '../../functions/general'
+import Modal from '../Modal';
 
 const Cadastro = () => {
   const [elementos, setElementos] = useState([]);
@@ -72,7 +73,7 @@ const Cadastro = () => {
       route: 'cronograma', 
       dados: formDataGantt, 
       registroSucesso: setRegisterSuccess});
-    cleanInputs(formData, setFormData);
+    cleanForm(formData, setFormData);
   };
   
   return (
@@ -153,30 +154,26 @@ const Cadastro = () => {
         </div>
         <div>
           <button className="botao-cadastro" type="submit">Register timeline component</button>
-          <button className="botao-cadastro" type="button" onClick={()=> cleanInputs(formData, setFormData)}>Clean inputs</button>
+          <button className="botao-cadastro" type="button" onClick={()=> cleanForm(formData, setFormData)}>Clean inputs</button>
         </div>
       </form>
 
       {dadosUsados && (
-        <div className="overlay">
-          <div className="modal">
-            <p>Task already registered. Please select a different task.</p>
-            <button className="botao-cadastro" onClick={() => setDadosUsados(false)}>
-              Close
-            </button>
-          </div>
-        </div>
+        <Modal objeto={{
+          titulo: 'Task already registered. Please select a different task.',
+          botao1: {
+            funcao: () => setDadosUsados(false), texto: 'Close'
+          }
+        }}/>
       )}
 
       {registerSuccess && !dadosUsados && (
-        <div className="overlay">
-          <div className="modal">
-            <p>{registerSuccess ? 'Register successful!' : 'Register failed.'}</p>
-            <button className="botao-cadastro" onClick={()=> setRegisterSuccess(false)}>
-              Close
-            </button>
-          </div>
-        </div>
+        <Modal objeto={{
+          titulo: registerSuccess ? 'Register successful!' : 'Register failed.',
+          botao1: {
+            funcao: ()=> setRegisterSuccess(false), texto: 'Close'
+          }
+        }}/>
       )}
     </div>
   );
