@@ -1,8 +1,10 @@
-// components/Cadastro.js
 import React, { useState , useEffect } from 'react';
 import styles from '../../../styles/modules/radio.module.css';
+import Modal from '../../Modal';
+import { handleSubmit , fetchData } from '../../../functions/crud'
+import { cleanForm } from '../../../functions/general'
 
-const Cadastro = ({ onCadastro }) => {
+const Cadastro = () => {
   const [registerSuccess, setRegisterSuccess] = useState(false);
   const [elementosWBS, setElementosWBS] = useState([]);
   const [itensPorArea, setItensPorArea] = useState([]);
@@ -23,20 +25,15 @@ const Cadastro = ({ onCadastro }) => {
     valor_b: ''
   });
 
-  const handleCloseModal = () => {
-    setRegisterSuccess(false);
-  };
-
   const handleAreaChange = (e) => {
     const areaSelecionada = e.target.value;
     const itensDaArea = elementosWBS.filter(item => item.area === areaSelecionada).map(item => item.item);
     setItensPorArea(itensDaArea);
 
-    // Atualiza o estado formData para refletir a nova área selecionada
     setFormData({
       ...formData,
       area: areaSelecionada,
-      item: '', // Limpa o campo de itens quando a área é alterada
+      item: '',
     });
   };
 
@@ -48,75 +45,27 @@ const Cadastro = ({ onCadastro }) => {
   };
 
   const fetchElementos = async () => {
-    try {
-      const response = await fetch('/api/wbs/get', {
-        method: 'GET',
-      });
-
-      if (response.status === 200) {
-        const data = await response.json();
-        setElementosWBS(data.elementos);
-
-      } else {
-        console.error('Error in searching for financal releases data');
-      }
-    } catch (error) {
-      console.error('Error in searching for financal releases data', error);
-    }
+    const data = await fetchData('wbs/get');
+    setElementosWBS(data.elementos);
   };
 
   useEffect(() => {
     fetchElementos();
   }, []);
 
-  const handleSubmit = async (e) => {
+  const enviar = async (e) => {
     e.preventDefault();
-
-    try {
-      const response = await fetch('/api/financeiro/plano/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        if (typeof onCadastro === 'function') {
-          onCadastro(formData);
-        }
-        // Chama a função de cadastro passada como prop
-        // Limpa os campos após o envio do formulário
-        setFormData({
-          plano: '',
-          area: '',
-          item: '',
-          recurso: '', 
-          uso: '',
-          tipo_a: '',
-          valor_a: '',
-          plano_a: '',
-          data_inicial: '',
-          data_esperada: '',
-          data_limite: '',
-          plano_b: '',
-          tipo_b: '',
-          valor_b: ''
-        });
-        console.log('Plan successfully registered!');
-        setRegisterSuccess(true);
-      } else {
-        console.error('Error in registering the plan');
-      }
-    } catch (error) {
-      console.error('Error in registering the plan', error);
-    }
+    handleSubmit({
+      route: 'financeiro/plano', 
+      dados: formData, 
+      registroSucesso: setRegisterSuccess});
+    cleanForm(formData, setFormData);
   };
 
   return (
     <div className="centered-container financeiro">
       <h2>Register Acquisition Plan</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={enviar}>
       <div >
           <div className={styles.containerPai}>
             <label className={styles.container}>
@@ -356,12 +305,12 @@ const Cadastro = ({ onCadastro }) => {
       </form>
 
       {registerSuccess && (
-        <div className="overlay">
-          <div className="modal">
-            <p>{registerSuccess ? 'Register successful!' : 'Register failed.'}</p>
-            <button className="botao-cadastro" onClick={handleCloseModal}>Close</button>
-          </div>
-        </div>
+        <Modal objeto={{
+          titulo: registerSuccess ? 'Register successful!' : 'Register failed.',
+          botao1: {
+            funcao: () => setRegisterSuccess(false), texto: 'Close'
+          }
+        }}/>
       )}
     </div>
   );

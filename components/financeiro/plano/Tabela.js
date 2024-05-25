@@ -1,23 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import styles from '../../../styles/modules/radio.module.css';
 import Loading from '../../Loading';
-
-const formatDate = (dateString) => {
-  // Converte a data da string para um objeto de data
-  const date = new Date(dateString);
-
-  // Adiciona um dia à data
-  date.setDate(date.getDate() + 1);
-
-  // Formata a data
-  const formattedDate = date.toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  });
-
-  return formattedDate;
-};
+import Modal from '../../Modal';
+import { jsDateToEuDate, euDateToIsoDate, cleanForm } from '../../../functions/general';
+import { fetchData, handleDelete, handleUpdate } from '../../../functions/crud';
 
 const Tabela = () => {
   const [planos, setPlanos] = useState([]);
@@ -47,23 +33,8 @@ const Tabela = () => {
   });
 
   const fetchElementos = async () => {
-    try {
-      const response = await fetch('/api/wbs/get', {
-        method: 'GET',
-      });
-
-      if (response.status === 200) {
-        const data = await response.json();
-        setElementosWBS(data.elementos);
-
-      } else {
-        console.error('Error in searching for financal releases data');
-      }
-    } catch (error) {
-      console.error('Error in searching for financal releases data', error);
-    } finally {
-      setLoading(false);
-    }
+    const data = await fetchData('wbs/get');
+    setElementosWBS(data.elementos);
   };
 
   const handleAreaChange = (e) => {
@@ -71,16 +42,11 @@ const Tabela = () => {
     const itensDaArea = elementosWBS.filter(item => item.area === areaSelecionada).map(item => item.item);
     setItensPorArea(itensDaArea);
 
-    // Atualiza o estado formData para refletir a nova área selecionada
     setFormData({
       ...formData,
       area: areaSelecionada,
-      item: '', // Limpa o campo de itens quando a área é alterada
+      item: '',
     });
-  };
-
-  const handleClick = (item) => {
-    setConfirmDeleteItem(item);
   };
 
   const handleChange = (e) => {
@@ -91,12 +57,6 @@ const Tabela = () => {
   };
 
   const handleUpdateClick = (item) => {
-    const fixDate = (data) => {
-      const parts = data.split('/');
-      const itemDate = new Date(parts[2], parts[1] - 1, parts[0]);
-      return itemDate.toISOString().split('T')[0];
-    }
-
     setConfirmUpdateItem(item);
     setFormData({
       plano: item.plano,
@@ -107,9 +67,9 @@ const Tabela = () => {
       tipo_a: item.tipo_a,
       valor_a: item.valor_a,
       plano_a: item.plano_a,
-      data_inicial: fixDate(item.data_inicial),
-      data_esperada: fixDate(item.data_esperada),
-      data_limite: fixDate(item.data_limite),
+      data_inicial: euDateToIsoDate(item.data_inicial),
+      data_esperada: euDateToIsoDate(item.data_esperada),
+      data_limite: euDateToIsoDate(item.data_limite),
       plano_b: item.plano_b,
       tipo_b: item.tipo_b,
       valor_b: item.valor_b
@@ -120,68 +80,41 @@ const Tabela = () => {
     e.preventDefault();
 
     if (confirmUpdateItem) {
-      const { plano, area, item, recurso, uso, tipo_a, valor_a, plano_a, data_inicial, data_esperada, data_limite, plano_b, tipo_b, valor_b } = formData;
-
+      const updatedItem = { ...confirmUpdateItem, ...formData };
+      const updatedPlanos = planos.map(item =>
+        item._id === updatedItem._id ? { ...formData, 
+          data_inicial: jsDateToEuDate(updatedItem.data_inicial),
+          data_esperada: jsDateToEuDate(updatedItem.data_esperada),
+          data_limite: jsDateToEuDate(updatedItem.data_limite),} : item
+      );
+      setPlanos(updatedPlanos);
+      setConfirmUpdateItem(null);
       try {
-        const response = await fetch(`/api/financeiro/plano/update?id=${String(confirmUpdateItem._id)}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ plano, area, item, recurso, uso, tipo_a, valor_a, plano_a, data_inicial, data_esperada, data_limite, plano_b, tipo_b, valor_b }),
+        await handleUpdate({
+          route: 'financeiro/plano',
+          dados: updatedItem,
+          item: confirmUpdateItem
         });
-
-        if (response.status === 200) {
-          console.log('Release updated successfully!');
-          fetchPlanos();
-        } else {
-          console.error('Error in updating release');
-        }
       } catch (error) {
-        console.error('Error in updating release', error);
+        setPlanos(planos); 
+        setConfirmUpdateItem(confirmUpdateItem);
+        console.error("Update failed:", error);
       }
     }
-    setConfirmUpdateItem(null);
-    setFormData({
-      plano: '',
-      area: '',
-      item: '',
-      recurso: '',
-      tipo_a: '',
-      valor_a: '',
-      plano_a: '',
-      data_inicial: '',
-      data_esperada: '',
-      data_limite: '',
-      plano_b: '',
-      tipo_b: '',
-      valor_b: ''
-    })
-  };
-
-  const handleCloseModal = () => {
-    setDeleteSuccess(false);
+    cleanForm(formData, setFormData);
   };
 
   const fetchPlanos = async () => {
     try {
-      const response = await fetch('/api/financeiro/plano/get/planos', {
-        method: 'GET',
+      const data = await fetchData('financeiro/plano/get/planos');
+      data.planos.forEach((item) => {
+        item.data_inicial = jsDateToEuDate(item.data_inicial);
+          item.data_esperada = jsDateToEuDate(item.data_esperada);
+          item.data_limite = jsDateToEuDate(item.data_limite);
       });
-
-      if (response.status === 200) {
-        const data = await response.json();
-        data.planos.forEach((item) => {
-          item.data_inicial = formatDate(item.data_inicial);
-          item.data_esperada = formatDate(item.data_esperada);
-          item.data_limite = formatDate(item.data_limite);
-        });
-        setPlanos(data.planos);
-      } else {
-        console.error('Error in getting plan data');
-      }
-    } catch (error) {
-      console.error('Error in getting plan data', error);
+      setPlanos(data.planos);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -189,10 +122,8 @@ const Tabela = () => {
     const itensDaArea = elementosWBS.filter(item => item.area === areaSelecionadaDp).map(item => item.item);
     setItensPorArea(itensDaArea);
 
-    // Verifica se o item selecionado ainda pertence à nova lista de itens
     const novoItemSelecionado = itensDaArea.includes(formData.item) ? formData.item : '';
 
-    // Atualiza o estado formData para refletir a nova área selecionada
     setFormData(prevState => ({
       ...prevState,
       area: areaSelecionadaDp,
@@ -210,20 +141,15 @@ const Tabela = () => {
 
   const handleConfirmDelete = () => {
     if (confirmDeleteItem) {
-      fetch(`/api/financeiro/plano/delete?id=${confirmDeleteItem._id}`, {
-        method: 'DELETE',
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log(data.message); // Exibir uma mensagem de sucesso
-          // Atualize os dados na tabela após a exclusão
-          // Você pode recarregar a página ou atualizar os dados de outra forma
-          fetchPlanos();
-          setDeleteSuccess(true);
-        })
-        .catch((error) => {
-          console.error('Erro ao excluir elemento', error);
-        });
+      var getDeleteSuccess = false;
+      try {
+        getDeleteSuccess = handleDelete({
+          route: 'financeiro/plano', 
+          item: confirmDeleteItem, 
+          fetchDados: fetchPlanos});
+      } finally {
+        setDeleteSuccess(getDeleteSuccess);
+      }
     }
     setConfirmDeleteItem(null);
   };
@@ -264,7 +190,7 @@ const Tabela = () => {
                         <td>{item.uso || '-'}</td>
                         <td style={{ width: '75px' }}>
                           <div className="botoes-acoes">
-                            <button style={{ color: 'red' }} onClick={() => handleClick(item)}>❌</button>
+                            <button style={{ color: 'red' }} onClick={() => setConfirmDeleteItem(item)}>❌</button>
                             <button onClick={() => handleUpdateClick(item)}>⚙️</button>
                           </div>
                         </td>
@@ -300,7 +226,7 @@ const Tabela = () => {
                       <td>{item.data_limite || '-'}</td>
                       <td style={{ width: '75px' }}>
                         <div className="botoes-acoes">
-                          <button style={{ color: 'red' }} onClick={() => handleClick(item)}>❌</button>
+                          <button style={{ color: 'red' }} onClick={() => setConfirmDeleteItem(item)}>❌</button>
                           <button onClick={() => handleUpdateClick(item)}>⚙️</button>
                         </div>
                       </td>
@@ -332,7 +258,7 @@ const Tabela = () => {
                         <td>{`R$${item.valor_b}` || '-'}</td>
                         <td style={{ width: '75px' }}>
                           <div className="botoes-acoes">
-                            <button style={{ color: 'red' }} onClick={() => handleClick(item)}>❌</button>
+                            <button style={{ color: 'red' }} onClick={() => setConfirmDeleteItem(item)}>❌</button>
                             <button onClick={() => handleUpdateClick(item)}>⚙️</button>
                           </div>
                         </td>
@@ -367,7 +293,7 @@ const Tabela = () => {
                         <td>{item.uso || '-'}</td>
                         <td style={{ width: '75px' }}>
                           <div className="botoes-acoes">
-                            <button onClick={() => handleClick(item)}>❌</button>
+                            <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
                             <button onClick={() => handleUpdateClick(item)}>⚙️</button>
                           </div>
                         </td>
@@ -403,7 +329,7 @@ const Tabela = () => {
                       <td>{item.data_limite || '-'}</td>
                       <td style={{ width: '75px' }}>
                         <div className="botoes-acoes">
-                          <button onClick={() => handleClick(item)}>❌</button>
+                          <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
                           <button onClick={() => handleUpdateClick(item)}>⚙️</button>
                         </div>
                       </td>
@@ -435,7 +361,7 @@ const Tabela = () => {
                         <td>{`R$${item.valor_b}` || '-'}</td>
                         <td style={{ width: '75px' }}>
                           <div className="botoes-acoes">
-                            <button onClick={() => handleClick(item)}>❌</button>
+                            <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
                             <button onClick={() => handleUpdateClick(item)}>⚙️</button>
                           </div>
                         </td>
@@ -450,24 +376,24 @@ const Tabela = () => {
 
       <div className="centered-container">
         {confirmDeleteItem && (
-          <div className="overlay">
-            <div className="modal">
-              <p>Are you sure you want to delete the plan for "{confirmDeleteItem.recurso}"?</p>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <button className="botao-cadastro" onClick={handleConfirmDelete}>Confirm</button>
-                <button className="botao-cadastro" onClick={() => setConfirmDeleteItem(null)}>Cancel</button>
-              </div>
-            </div>
-          </div>
+          <Modal objeto={{
+            titulo: `Are you sure you want to delete the plan for "${confirmDeleteItem.recurso}"?`,
+            botao1: {
+              funcao: handleConfirmDelete, texto: 'Confirm'
+            },
+            botao2: {
+              funcao: () => setConfirmDeleteItem(null), texto: 'Cancel'
+            }
+          }}/>
         )}
 
         {deleteSuccess && (
-          <div className="overlay">
-            <div className="modal">
-              <p>{deleteSuccess ? 'Deletion successful!' : 'Deletion failed.'}</p>
-              <button className="botao-cadastro" onClick={handleCloseModal}>Close</button>
-            </div>
-          </div>
+          <Modal objeto={{
+            titulo: deleteSuccess ? 'Deletion successful!' : 'Deletion failed.',
+            botao1: {
+              funcao: () => setDeleteSuccess(false), texto: 'Close'
+            },
+          }}/>
         )}
 
         {confirmUpdateItem && (
@@ -703,7 +629,6 @@ const Tabela = () => {
                             name="valor_b"
                             onChange={handleChange}
                             value={formData.valor_b}
-                            
                           />
                         </div>
                       </div>

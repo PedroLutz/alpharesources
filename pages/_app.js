@@ -31,6 +31,7 @@ function MyApp({ Component, pageProps }) {
         console.error('Error in searching for financal releases data', error);
       }
     };
+
   
     useEffect(() => {
       fetchAutenticacao();
@@ -78,7 +79,7 @@ function MyApp({ Component, pageProps }) {
       <div>
         <Head>
           <title>Alpha Management</title>
-          <link rel="icon" href="/images/logo.png" /> {/* Adicione esta linha */}
+          <link rel="icon" href="/images/logo.png" />
         </Head>
           <Component {...pageProps} />
           <Footer/>
