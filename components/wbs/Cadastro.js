@@ -1,5 +1,7 @@
-// components/Cadastro.js
 import React, { useState, useEffect, Suspense } from 'react';
+import { cleanForm } from '../../functions/general'
+import Modal from '../Modal';
+import { fetchData } from '../../functions/crud'
 
 const Cadastro = () => {
   const [formData, setFormData] = useState({
@@ -13,30 +15,13 @@ const Cadastro = () => {
   const [registerSuccess, setRegisterSuccess] = useState(false);
 
   const fetchElementos = async () => {
-    try {
-      const response = await fetch('/api/wbs/get', {
-        method: 'GET',
-      });
-
-      if (response.status === 200) {
-        const data = await response.json();
-        setElementos(data.elementos);
-
-      } else {
-        console.error('Error in searching for financal releases data');
-      }
-    } catch (error) {
-      console.error('Error in searching for financal releases data', error);
-    }
+    const data = await fetchData('wbs/get');
+    setElementos(data.elementos);
   };
 
   useEffect(() => {
     fetchElementos();
   }, []);
-
-  const handleCloseModal = () => {
-    setRegisterSuccess(false);
-  };
 
   const handleChange = (e) => {
     setFormData({
@@ -46,8 +31,8 @@ const Cadastro = () => {
   };
 
   const handleCadastrarNovaArea = () => {
-    setMostrarInputNovaArea(!mostrarInputNovaArea); // Alternar exibição do input
-    setIsNovaAreaButton(!isNovaAreaButton); // Alternar texto do botão
+    setMostrarInputNovaArea(!mostrarInputNovaArea);
+    setIsNovaAreaButton(!isNovaAreaButton);
 
     setFormData({
       ...formData,
@@ -55,110 +40,84 @@ const Cadastro = () => {
     });
   };
 
-  const getButtonLabel = () => {
-    return isNovaAreaButton ? 'Register new area' : 'Use registered areas';
-  };
-
-  const handleSubmit = async (e) => {
+  const enviar = async (e) => {
     e.preventDefault();
-
-    try {
-      const response = await fetch('/api/wbs/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        console.log('WBS element successfully registered!');
-
-        setFormData({
-            item: '',
-            area: '',
-        });
-        fetchElementos();
-        setRegisterSuccess(true);
-      } else {
-        console.error('Error when registering the breakdown element');
-      }
-    } catch (error) {
-      console.error('Error when registering the breakdown element', error);
-    }
+    handleSubmit({
+      route: 'wbs',
+      dados: formData,
+      registroSucesso: setRegisterSuccess
+    });
+    cleanForm(formData, setFormData);
   };
 
-  const Modal = () => (
-    <div className="overlay">
-      <div className="modal">
-        <p>{registerSuccess ? 'Register successful!' : 'Register failed.'}</p>
-        <button className="botao-cadastro" onClick={handleCloseModal}>Close</button>
-      </div>
-    </div>
-  );
-  
   return (
     <div className="centered-container">
       <h1>Work Breakdown Structure</h1>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={enviar}>
         <div>
           <div className="centered-container">
-            <label htmlFor="area" style={{alignSelf: 'center', textAlign: 'center', marginLeft: -11}}>Area</label>
+            <label htmlFor="area" style={{ alignSelf: 'center', textAlign: 'center', marginLeft: -11 }}>Area</label>
             <div className="mini-input">
-            {mostrarInputNovaArea ? (
-              <input
-                className='mini-input'
-                type="text"
-                id="area"
-                name="area"
-                placeholder=""
-                onChange={handleChange}
-                value={formData.area}
-                required
-              />
-            ) : (
-              <select
-                className='mini-input'
-                name="area"
-                onChange={handleChange}
-                value={formData.area}
-                required
-              >
-                <option value="" disabled>Select an area</option>
-                {[...new Set(elementos.map(item => item.area))].map((area, index) => (
-                  <option key={index} value={area}>{area}</option>
-            ))};
-              </select>
-            )}
+              {mostrarInputNovaArea ? (
+                <input
+                  className='mini-input'
+                  type="text"
+                  id="area"
+                  name="area"
+                  placeholder=""
+                  onChange={handleChange}
+                  value={formData.area}
+                  required
+                />
+              ) : (
+                <select
+                  className='mini-input'
+                  name="area"
+                  onChange={handleChange}
+                  value={formData.area}
+                  required
+                >
+                  <option value="" disabled>Select an area</option>
+                  {[...new Set(elementos.map(item => item.area))].map((area, index) => (
+                    <option key={index} value={area}>{area}</option>
+                  ))};
+                </select>
+              )}
             </div>
-            
+
             <button
-            className="botao-cadastro"
-            type="button"
-            onClick={handleCadastrarNovaArea}
-          >
-            {getButtonLabel()}
-          </button>
-            <label htmlFor="item" style={{alignSelf: 'center', textAlign: 'center', marginLeft: -11}}>Item</label>
+              className="botao-cadastro"
+              type="button"
+              onClick={handleCadastrarNovaArea}
+            >
+              {isNovaAreaButton ? 'Register new area' : 'Use registered areas'}
+            </button>
+            <label htmlFor="item" style={{ alignSelf: 'center', textAlign: 'center', marginLeft: -11 }}>Item</label>
             <input
-                type="text"
-                id="item"
-                name="item"
-                placeholder=""
-                style={{width:'400px'}}
-                onChange={handleChange}
-                value={formData.item}
-                required
-              />
+              type="text"
+              id="item"
+              name="item"
+              placeholder=""
+              style={{ width: '400px' }}
+              onChange={handleChange}
+              value={formData.item}
+              required
+            />
           </div>
-          
+
         </div>
         <div>
           <button className="botao-cadastro" type="submit">Register WBS element</button>
         </div>
 
         <Suspense fallback={<div>Loading...</div>}>
-          {registerSuccess && <Modal />}
+          {registerSuccess &&
+            <Modal objeto={{
+              titulo: registerSuccess ? 'Register successful!' : 'Register failed.',
+              botao1: {
+                funcao: () => setRegisterSuccess(false), texto: 'Close'
+              },
+            }} />}
         </Suspense>
       </form>
     </div>

@@ -1,6 +1,9 @@
 import React, { useState, Suspense, useEffect } from 'react';
+import { handleSubmit, fetchData } from '../../../functions/crud'
+import { cleanForm } from '../../../functions/general'
+import Modal from '../../Modal';
 
-const Cadastro = ({ onCadastro }) => {
+const Cadastro = () => {
   const [registerSuccess, setRegisterSuccess] = useState(false);
   const [nomesMembros, setNomesMembros] = useState([]);
   const [elementos, setElementos] = useState([]);
@@ -15,7 +18,6 @@ const Cadastro = ({ onCadastro }) => {
     const areaSelecionada = e.target.value;
     const itensDaArea = elementos.filter(item => item.area === areaSelecionada).map(item => item.item);
     setItensPorArea(itensDaArea);
-    console.log(e.target.name + "=" + e.target.value)
     setFormData({
       ...formData,
       area: areaSelecionada,
@@ -23,99 +25,43 @@ const Cadastro = ({ onCadastro }) => {
     });
   };
 
-  const handleCloseModal = () => {
-    setRegisterSuccess(false);
-  };
-
   const handleChange = (e) => {
     setFormData(({
       ...formData,
       [e.target.name]: e.target.value,
     }));
-    console.log(e.target.name + "=" + e.target.value)
   };
 
-  const handleSubmit = async (e) => {
+  const enviar = async (e) => {
     e.preventDefault();
+    const updatedFormData = {
+      ...formData,
+      responsabilidades: inputNames.map(inputName => formData["input" + getCleanName(inputName)]).join(', ')
+    };
 
-    try {
-      const response = await fetch('/api/responsabilidades/raci/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({...formData,
-          responsabilidades: inputNames.map(inputName => formData["input" + getCleanName(inputName)]).join(', ')}),
-      });
-
-      if (response.ok) {
-        if (typeof onCadastro === 'function') {
-          onCadastro(formData);
-        };
-        
-        console.log(formData);
-        setFormData({
-          area: "",
-          item: "",
-          responsabilidades: ""
-        });
-        
-        setRegisterSuccess(true);
-      } else {
-        console.error('Error when registering the RACI item');
-      }
-    } catch (error) {
-      console.error('Error when registering the RACI item', error);
-    }
+    handleSubmit({
+      route: 'responsabilidades/raci',
+      dados: updatedFormData,
+      registroSucesso: setRegisterSuccess
+    });
+    cleanForm(formData, setFormData);
   };
-
-  const Modal = () => (
-    <div className="overlay">
-      <div className="modal">
-        <p>{registerSuccess ? 'Register successful!' : 'Register failed.'}</p>
-        <button className="botao-cadastro" onClick={handleCloseModal}>Close</button>
-      </div>
-    </div>
-  );
 
   const fetchElementos = async () => {
-    try {
-      const response = await fetch('/api/wbs/get', {
-        method: 'GET',
-      });
-      if (response.status === 200) {
-        const data = await response.json();
-        setElementos(data.elementos);
-      } else {
-        console.error('Error in searching for financal releases data');
-      }
-    } catch (error) {
-      console.error('Error in searching for financal releases data', error);
-    }
+    const data = await fetchData('wbs/get');
+    setElementos(data.elementos);
   };
 
   const fetchNomesMembros = async () => {
-    try {
-      const response = await fetch('/api/responsabilidades/membros/get', {
-        method: 'GET',
-      });
-    
-      if (response.status === 200) {
-        const data = await response.json();
-        setNomesMembros(data.nomes);
-      } else {
-        console.error('Error in searching for RACI items data');
-      }
-    } catch (error) {
-      console.error('Error in searching for RACI items data', error);
-    }
+    const data = await fetchData('responsabilidades/membros/get');
+    setNomesMembros(data.nomes);
   };
 
   const generateInputNames = () => {
     const firstNames = new Map();
     const fullNames = [];
     const inputNames = [];
-  
+
     nomesMembros.forEach((membro) => {
       const nomeCompleto = membro.nome;
       const firstName = nomeCompleto.split(' ')[0];
@@ -125,7 +71,7 @@ const Cadastro = ({ onCadastro }) => {
         let otherLastName = fullNames[index].split(' ')[1];
         inputNames[index] = `${firstName} ${otherLastName}`;
       };
-  
+
       if (firstNames.has(firstName)) {
         const existingHeader = firstNames.get(firstName);
         inputNames.push(`${existingHeader} ${lastName}`);
@@ -143,20 +89,20 @@ const Cadastro = ({ onCadastro }) => {
 
   const generateFormData = () => {
     inputNames.forEach((membro) => {
-        setFormData(({
-            ...formData,
-            [`input${getCleanName(membro)}`]: ''
-        }));
+      setFormData(({
+        ...formData,
+        [`input${getCleanName(membro)}`]: ''
+      }));
     });
   };
 
   const getCleanName = (str) => {
     const removeAccents = (str) => {
-        return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-      };
-        return removeAccents(str.split(" ").join(""));
+      return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    };
+    return removeAccents(str.split(" ").join(""));
   };
-  
+
 
   useEffect(() => {
     fetchNomesMembros();
@@ -167,7 +113,7 @@ const Cadastro = ({ onCadastro }) => {
   return (
     <div className="centered-container financeiro">
       <h2>Register RACI item</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={enviar}>
         <div className="centered-container column-container">
           {inputNames.map((membro, index) => (
             <div key={index} className="mini-input column">
@@ -190,18 +136,18 @@ const Cadastro = ({ onCadastro }) => {
               </select>
             </div>
           ))}
-          <div className="mini-input" style={{marginTop: "30px"}}>
+          <div className="mini-input" style={{ marginTop: "30px" }}>
             <label htmlFor="area">Area</label>
             <select
               name="area"
               onChange={handleAreaChange}
               value={formData.area}
               required
-              >
-                <option value="" disabled>Select an area</option>
-                {[...new Set(elementos.map(item => item.area))].map((area, index) => (
-                  <option key={index} value={area}>{area}</option>
-                ))};
+            >
+              <option value="" disabled>Select an area</option>
+              {[...new Set(elementos.map(item => item.area))].map((area, index) => (
+                <option key={index} value={area}>{area}</option>
+              ))};
             </select>
 
             <label htmlFor="item">Item</label>
@@ -224,9 +170,14 @@ const Cadastro = ({ onCadastro }) => {
         </div>
       </form>
 
-      {/* Lazy loaded modal */}
       <Suspense fallback={<div>Loading...</div>}>
-        {registerSuccess && <Modal />}
+        {registerSuccess &&
+          <Modal objeto={{
+            titulo: registerSuccess ? 'Register successful!' : 'Register failed.',
+            botao1: {
+              funcao: () => setRegisterSuccess(false), texto: 'Close'
+            }
+          }} />}
       </Suspense>
     </div>
   );

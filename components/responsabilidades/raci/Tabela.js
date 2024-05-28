@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import members from '../../../styles/modules/members.module.css';
 import Loading from '../../Loading';
+import Modal from '../../Modal';
+import { fetchData, handleDelete, handleUpdate } from '../../../functions/crud';
 
 const Tabela = () => {
   const [itensRaci, setItensRaci] = useState([]);
@@ -22,13 +24,8 @@ const Tabela = () => {
     }));
   };
 
-  const handleClick = (item) => {
-    setConfirmDeleteItem(item);
-    console.log(confirmDeleteItem);
-  };
-
   const handleUpdateClick = (item) => {
-    setConfirmUpdateItem(item); 
+    setConfirmUpdateItem(item);
     const responsabilidadesArray = item.responsabilidades.split(", ");
     setFormData({
       area: item.area,
@@ -44,54 +41,25 @@ const Tabela = () => {
     });
   };
 
-
   const fetchItensRaci = async () => {
-    try {
-      const response = await fetch('/api/responsabilidades/raci/get', {
-        method: 'GET',
-      });
-
-      if (response.status === 200) {
-        const data = await response.json();
-        setItensRaci(data.itensRaci);
-      } else {
-        console.error('Error in searching for RACI items data');
-      }
-    } catch (error) {
-      console.error('Error in searching for RACI items data', error);
-    } finally {
-      setLoading(false);
-    };
+    const data = await fetchData('responsabilidades/raci/get');
+    setItensRaci(data.itensRaci);
   };
 
   const fetchNomesMembros = async () => {
-    try {
-      const response = await fetch('/api/responsabilidades/membros/get', {
-        method: 'GET',
-      });
-
-      if (response.status === 200) {
-        const data = await response.json();
-        setNomesMembros(data.nomes);
-      } else {
-        console.error('Error in searching for RACI items data');
-      }
-    } catch (error) {
-      console.error('Error in searching for RACI items data', error);
-    } finally {
-      setLoading(false);
-    };
+    const data = await fetchData('responsabilidades/membros/get');
+    setNomesMembros(data.nomes);
   };
 
   const generateInputNames = () => {
     const firstNames = new Map();
     const inputNames = [];
-  
+
     nomesMembros.forEach((membro) => {
       const nomeCompleto = membro.nome;
       const firstName = nomeCompleto.split(' ')[0];
       const lastName = nomeCompleto.split(' ')[1];
-  
+
       if (firstNames.has(firstName)) {
         const existingHeader = firstNames.get(firstName);
         inputNames.push(`${existingHeader} ${lastName}`);
@@ -106,53 +74,51 @@ const Tabela = () => {
 
   const generateFormData = () => {
     inputNames.forEach((membro) => {
-        setFormData(({
-            ...formData,
-            [`input${getCleanName(membro)}`]: ''
-        }));
+      setFormData(({
+        ...formData,
+        [`input${getCleanName(membro)}`]: ''
+      }));
     });
   };
 
   const getCleanName = (str) => {
     const removeAccents = (str) => {
-        return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-      };
+      return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    };
     return removeAccents(str.split(" ").join(""));
   };
 
   useEffect(() => {
-    fetchNomesMembros();
-    fetchItensRaci();
+    try {
+      fetchNomesMembros();
+      fetchItensRaci();
+    } finally {
+      setLoading(false);
+    }
     generateFormData();
   }, []);
 
   const handleConfirmDelete = () => {
     if (confirmDeleteItem) {
-      fetch(`/api/responsabilidades/raci/delete?id=${confirmDeleteItem._id}`, {
-        method: 'DELETE',
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log(data.message); 
-          fetchItensRaci();
-          setDeleteSuccess(true);
-        })
-        .catch((error) => {
-          console.error('Erro ao excluir elemento', error);
+      var getDeleteSuccess = false;
+      try {
+        getDeleteSuccess = handleDelete({
+          route: 'responsabilidades/raci',
+          item: confirmDeleteItem,
+          fetchDados: fetchItensRaci
         });
-    };
+      } finally {
+        setDeleteSuccess(getDeleteSuccess);
+      }
+    }
     setConfirmDeleteItem(null);
-  };
-
-  const handleCloseModal = () => {
-    setDeleteSuccess(false);
   };
 
   const generateTableHeaders = () => {
     const firstNames = new Map();
     const fullNames = [];
     const headers = [];
-  
+
     nomesMembros.forEach((membro) => {
       const nomeCompleto = membro.nome;
       const firstName = nomeCompleto.split(' ')[0];
@@ -162,10 +128,10 @@ const Tabela = () => {
         let otherLastName = fullNames[index].split(' ')[1];
         headers[index] = `${firstName.charAt(0)}${otherLastName.charAt(0)}`;
       };
-  
+
       if (firstNames.has(firstName)) {
         const existingHeader = firstNames.get(firstName);
-        headers.push(existingHeader.charAt(0)+lastName.charAt(0));
+        headers.push(existingHeader.charAt(0) + lastName.charAt(0));
         fullNames.push(`${firstName} ${lastName}`);
         corrigirNomeCompleto();
       } else {
@@ -192,30 +158,30 @@ const Tabela = () => {
 
   const handleUpdateItem = async (e) => {
     e.preventDefault();
-    
+
     if (confirmUpdateItem) {
       const responsabilidadesString = Object.keys(formData)
-      .filter(key => key.startsWith('input'))
-      .map(key => formData[key]).join(', ');
+        .filter(key => key.startsWith('input'))
+        .map(key => formData[key]).join(', ');
+
       const { area, item } = formData;
+      const updatedItem = { _id: confirmUpdateItem._id, area, item, responsabilidades: responsabilidadesString };
+      const updatedItensRaci = itensRaci.map(item =>
+        item._id === updatedItem._id ? { ...updatedItem } : item
+      );
 
+      setItensRaci(updatedItensRaci);
+      setConfirmUpdateItem(null);
       try {
-        const response = await fetch(`/api/responsabilidades/raci/update?id=${String(confirmUpdateItem._id)}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ area, item, responsabilidades: responsabilidadesString}),
+        await handleUpdate({
+          route: 'responsabilidades/raci',
+          dados: updatedItem,
+          item: confirmUpdateItem
         });
-
-        if (response.status === 200) {
-          console.log('RACI item updated successfully!');
-          fetchItensRaci();
-        } else {
-          console.error('Error in updating RACI item');
-        }
       } catch (error) {
-        console.error('Error in updating RACI item', error);
+        setItensRaci(itensRaci);
+        setConfirmUpdateItem(confirmUpdateItem);
+        console.error("Update failed:", error);
       }
     }
     setConfirmUpdateItem(null);
@@ -224,7 +190,7 @@ const Tabela = () => {
 
   return (
     <div className="centered-container">
-      {loading && <Loading/>}
+      {loading && <Loading />}
       <h2>RACI Matrix</h2>
       <div id="report">
         <table className={members.tabelaRaci}>
@@ -242,18 +208,18 @@ const Tabela = () => {
             {itensRaci.map((item, index) => (
               <tr key={index}>
                 {index === 0 || itensRaci[index - 1].area !== item.area ? (
-                  <td rowSpan={calculateRowSpan(itensRaci, item.area, index)} 
-                  className={members.areaTc}>{item.area}</td>
+                  <td rowSpan={calculateRowSpan(itensRaci, item.area, index)}
+                    className={members.areaTc}>{item.area}</td>
                 ) : null}
-                <td  className={members.itemTc}>{item.item}</td>
+                <td className={members.itemTc}>{item.item}</td>
                 {tableHeaders.map((membro, index) => (
                   <td key={index}>{item.responsabilidades.split(', ')[tableHeaders.indexOf(membro)] || '-'}</td>
                 ))}
                 <td>
                   <div className="botoes-acoes">
-                    <button type="button" onClick={() => handleClick(item)}>❌</button>
+                    <button type="button" onClick={() => setConfirmDeleteItem(item)}>❌</button>
                     <button type="button" onClick={() => handleUpdateClick(item)}>⚙️</button>
-                  </div>                
+                  </div>
                 </td>
               </tr>
             ))}
@@ -263,61 +229,58 @@ const Tabela = () => {
 
 
       {confirmDeleteItem && (
-        <div className="overlay">
-          <div className="modal">
-            <p>Are you sure you want to delete "{confirmDeleteItem.area} - {confirmDeleteItem.item}"?</p>
-            <div style={{display: 'flex', gap: '10px'}}>
-              <button className="botao-cadastro" onClick={handleConfirmDelete}>Confirm</button>
-              <button className="botao-cadastro" onClick={() => setConfirmDeleteItem(null)}>Cancel</button>
-            </div>
-          </div>
-        </div>
+        <Modal objeto={{
+          titulo: `Are you sure you want to delete "${confirmDeleteItem.area} - ${confirmDeleteItem.item}"?`,
+          botao1: {
+            funcao: handleConfirmDelete, texto: 'Confirm'
+          },
+          botao2: {
+            funcao: () => setConfirmDeleteItem(null), texto: 'Cancel'
+          }
+        }}/>
       )}
 
       {deleteSuccess && (
-        <div className="overlay">
-          <div className="modal">
-            <p>{deleteSuccess ? 'Deletion successful!' : 'Deletion failed.'}</p>
-            <button className="botao-cadastro" onClick={handleCloseModal}>Close</button>
-          </div>
-        </div>
+        <Modal objeto={{
+          titulo: deleteSuccess ? 'Deletion successful!' : 'Deletion failed.',
+          botao1: {
+            funcao: () => setDeleteSuccess(false), texto: 'Close'
+          },
+        }}/>
       )}
 
       {confirmUpdateItem && (
         <div className="overlay">
           <div className="modal">
             <form onSubmit={handleUpdateItem}>
-              {/*Inputs*/}
               <div>
-
-                {/*outros inputs*/}
                 <div className="centered-container">
-                  <div style={{marginBottom: '20px'}}><b>{formData.area} -<br/>{formData.item}</b></div>
+                  <div style={{ marginBottom: '20px' }}><b>{formData.area} -<br />{formData.item}</b></div>
                   {inputNames.map((membro, index) => (
                     <div className="mini-input" key={index}>
-                    <label htmlFor={"input" + getCleanName(membro)}>{membro}</label>
+                      <label htmlFor={"input" + getCleanName(membro)}>{membro}</label>
                       <select
-                          type="text"
-                          id={"input" + getCleanName(membro)}
-                          name={"input" + getCleanName(membro)}
-                          placeholder=""
-                          onChange={handleChange}
-                          value={formData["input" + getCleanName(membro)]}
-                          required
+                        type="text"
+                        id={"input" + getCleanName(membro)}
+                        name={"input" + getCleanName(membro)}
+                        placeholder=""
+                        onChange={handleChange}
+                        value={formData["input" + getCleanName(membro)]}
+                        required
                       >
-                          <option value="" disabled>Select responsibility</option>
-                          <option value="R">Responsible</option>
-                          <option value="A">Accountable</option>
-                          <option value="C">Consulted</option>
-                          <option value="I">Informed</option>
+                        <option value="" disabled>Select responsibility</option>
+                        <option value="R">Responsible</option>
+                        <option value="A">Accountable</option>
+                        <option value="C">Consulted</option>
+                        <option value="I">Informed</option>
                       </select>
-                  </div>
+                    </div>
 
                   ))}
                 </div>
               </div>
               <div>
-                <button className="botao-cadastro" style={{width: "55%"}} type="submit">Register RACI item</button>
+                <button className="botao-cadastro" style={{ width: "55%" }} type="submit">Register RACI item</button>
                 <button className="botao-cadastro" onClick={() => setConfirmUpdateItem(null)}>Cancel</button>
               </div>
             </form>

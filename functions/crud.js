@@ -115,7 +115,7 @@ const handleUpdate = async (o) => {
             console.error(`Erro ao atualizar ${o.route}`);
         }
     } catch (error) {
-        console.error(`Erro ao atualizar ${o.route}, error`);
+        console.error(`Erro ao atualizar ${o.route}, ${error}`);
     }
 };
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import styles from '../../styles/modules/wbs.module.css';
 import Loading from '../Loading';
+import { fetchData , handleUpdate } from '../../functions/crud';
 
 const WBS = () => {
   const [elementosPorArea, setElementosPorArea] = useState([]);
@@ -29,41 +30,30 @@ const WBS = () => {
     });
   };
 
-  const fetchElementos = () => {
-    // Fazer uma solicitação à rota "api/wbs/get" para obter os dados
-    fetch('/api/wbs/get')
-      .then((response) => response.json())
-      .then((data) => {
-        // Organizar os dados da maneira desejada
-        const areas = {}; // Um objeto para armazenar as áreas e seus itens
-        data.elementos.forEach((elemento) => {
-          if (!areas[elemento.area]) {
-            areas[elemento.area] = [];
-          }
-          areas[elemento.area].push(elemento);
-        });
-        setElementos(data.elementos);
-        setElementosPorArea(areas);
-      })
-      .catch((error) => {
-        console.error('Erro ao buscar dados da API', error);
-      }).finally(() => {
-        setLoading(false);});
+  const fetchElementos = async () => {
+    try {
+      const data = await fetchData('wbs/get');
+      const areas = {};
+      data.elementos.forEach((elemento) => {
+        if (!areas[elemento.area]) {
+          areas[elemento.area] = [];
+        }
+        areas[elemento.area].push(elemento);
+      });
+      setElementos(data.elementos);
+      setElementosPorArea(areas);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleConfirmDelete = () => {
     if (confirmDeleteItem) {
-      fetch(`/api/wbs/delete?id=${confirmDeleteItem._id}`, {
-        method: 'DELETE',
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log(data.message); 
-          fetchElementos();
-        })
-        .catch((error) => {
-          console.error('Erro ao excluir elemento', error);
-        });
+      handleDelete({
+        route: 'wbs',
+        item: confirmDeleteItem,
+        fetchDados: fetchElementos
+      });
     }
     setConfirmDeleteItem(null);
   };
@@ -74,32 +64,25 @@ const WBS = () => {
 
   const handleUpdateItem = async () => {
     if (confirmUpdateItem) {
-      const { item, area } = formData;
+      const updatedItem = { _id: confirmUpdateItem._id, ...formData };
+      const updatedElementos = elementos.map(item =>
+        item._id === updatedItem._id ? { ...updatedItem } : item
+      );
 
+      setElementos(updatedElementos);
+      setConfirmUpdateItem(null);
       try {
-        const response = await fetch(`/api/wbs/update?id=${String(confirmUpdateItem._id)}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ item, area }),
+        await handleUpdate({
+          route: 'wbs',
+          dados: updatedItem,
+          item: confirmUpdateItem
         });
-
-        if (response.status === 200) {
-          console.log('Release updated successfully!');
-          fetchElementos();
-        } else {
-          console.error('Error in updating release');
-        }
       } catch (error) {
-        console.error('Error in updating release', error);
+        setElementos(elementos);
+        setConfirmUpdateItem(confirmUpdateItem);
+        console.error("Update failed:", error);
       }
     }
-    setConfirmUpdateItem(null);
-    setFormData({
-      item: '',
-      area: '',
-    })
   };
 
   const renderWBS = () => {
@@ -112,7 +95,7 @@ const WBS = () => {
       grupos[grupoIndex].push({ area, elementos: elementosPorArea[area] });
       return grupos;
     }, []);
-  
+
     return (
       <div>
         {gruposDeAreas.map((grupo, index) => (
@@ -140,67 +123,66 @@ const WBS = () => {
       </div>
     );
   };
-  
 
   return (
-    <div className="centered-container" style={{marginTop: '20px'}}>  
-    {loading && <Loading/>}
+    <div className="centered-container" style={{ marginTop: '20px' }}>
+      {loading && <Loading />}
       {renderWBS()}
 
       {confirmUpdateItem && (
         <div className="overlay">
-          <div className="modal" style={{width: '20%'}}>
-        <div className="centered-container">
-          <label htmlFor="area" style={{alignSelf: 'center', textAlign: 'center', marginLeft: -11}}>Area</label>
-          <div className="mini-input">
-          <select
-                className='mini-input'
-                name="area"
+          <div className="modal" style={{ width: '20%' }}>
+            <div className="centered-container">
+              <label htmlFor="area" style={{ alignSelf: 'center', textAlign: 'center', marginLeft: -11 }}>Area</label>
+              <div className="mini-input">
+                <select
+                  className='mini-input'
+                  name="area"
+                  onChange={handleChange}
+                  value={formData.area}
+                  required
+                >
+                  <option value="" disabled>Select an area</option>
+                  {[...new Set(elementos.map(item => item.area))].map((area, index) => (
+                    <option key={index} value={area}>{area}</option>
+                  ))};
+                </select>
+              </div>
+              <label htmlFor="item" style={{ alignSelf: 'center', textAlign: 'center', marginLeft: -11 }}>Item</label>
+              <input
+                type="text"
+                id="item"
+                name="item"
+                placeholder=""
+                style={{ width: '250px' }}
                 onChange={handleChange}
-                value={formData.area}
+                value={formData.item}
                 required
-              >
-                <option value="" disabled>Select an area</option>
-                {[...new Set(elementos.map(item => item.area))].map((area, index) => (
-                  <option key={index} value={area}>{area}</option>
-            ))};
-              </select>
-          </div>
-          <label htmlFor="item" style={{alignSelf: 'center', textAlign: 'center', marginLeft: -11}}>Item</label>
-          <input
-              type="text"
-              id="item"
-              name="item"
-              placeholder=""
-              style={{width: '250px'}}
-              onChange={handleChange}
-              value={formData.item}
-              required
-            />
-        </div>
-        <div style={{display: 'flex', gap: '10px'}}>
+              />
+            </div>
+            <div style={{ display: 'flex', gap: '10px' }}>
               <button className="botao-cadastro" onClick={handleUpdateItem}>Update</button>
               <button className="botao-cadastro" onClick={() => setConfirmUpdateItem(null)}>Cancel</button>
             </div>
+          </div>
         </div>
-      </div>
       )}
 
-      {actionChoice &&(
+      {actionChoice && (
         <div className="overlay">
           <div className="modal">
             <p>What do you wish to do?</p>
             <div className="mesma-linha">
-              <button type="button" className="botao-cadastro" style={{width: '150px'}}
-              onClick={() => {
-                handleUpdateClick(actionChoice); setActionChoice(null)
-              }}>Update item</button>
-              <button type="button" className="botao-cadastro" style={{width: '150px'}}
-              onClick={() => {
-                setConfirmDeleteItem(actionChoice); setActionChoice(null)
-              }}>Delete item</button>
+              <button type="button" className="botao-cadastro" style={{ width: '150px' }}
+                onClick={() => {
+                  handleUpdateClick(actionChoice); setActionChoice(null)
+                }}>Update item</button>
+              <button type="button" className="botao-cadastro" style={{ width: '150px' }}
+                onClick={() => {
+                  setConfirmDeleteItem(actionChoice); setActionChoice(null)
+                }}>Delete item</button>
             </div>
-            <button type="button" className="botao-cadastro" style={{width: '150px'}}
+            <button type="button" className="botao-cadastro" style={{ width: '150px' }}
               onClick={() => {
                 setActionChoice(null)
               }}>Cancel</button>
