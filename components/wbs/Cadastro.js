@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { cleanForm } from '../../functions/general'
 import Modal from '../Modal';
-import { fetchData } from '../../functions/crud'
+import { handleSubmit, fetchData } from '../../functions/crud'
 
 const Cadastro = () => {
   const [formData, setFormData] = useState({

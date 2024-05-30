@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import styles from '../../styles/modules/wbs.module.css';
 import Loading from '../Loading';
-import { fetchData , handleUpdate } from '../../functions/crud';
+import { fetchData , handleUpdate , handleDelete } from '../../functions/crud';
+import Modal from '../Modal';
 
 const WBS = () => {
   const [elementosPorArea, setElementosPorArea] = useState([]);
@@ -169,44 +170,30 @@ const WBS = () => {
       )}
 
       {actionChoice && (
-        <div className="overlay">
-          <div className="modal">
-            <p>What do you wish to do?</p>
-            <div className="mesma-linha">
-              <button type="button" className="botao-cadastro" style={{ width: '150px' }}
-                onClick={() => {
-                  handleUpdateClick(actionChoice); setActionChoice(null)
-                }}>Update item</button>
-              <button type="button" className="botao-cadastro" style={{ width: '150px' }}
-                onClick={() => {
-                  setConfirmDeleteItem(actionChoice); setActionChoice(null)
-                }}>Delete item</button>
-            </div>
-            <button type="button" className="botao-cadastro" style={{ width: '150px' }}
-              onClick={() => {
-                setActionChoice(null)
-              }}>Cancel</button>
-          </div>
-        </div>
+        <Modal objeto={{
+          titulo: 'What do you wish to do?',
+          botao1: {
+            funcao: () => {handleUpdateClick(actionChoice); setActionChoice(null)}, texto: 'Update item'
+          },
+          botao2: {
+            funcao: () => {setConfirmDeleteItem(actionChoice); setActionChoice(null)}, texto: 'Delete item'
+          },
+          botao3:{
+            funcao: () => setActionChoice(null), texto: 'Cancel'
+          }
+        }} />
       )}
 
       {confirmDeleteItem && (
-        <div className="overlay">
-          <div className="modal">
-            <p>Are you sure you want to delete "{confirmDeleteItem.item}"?</p>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button className="botao-cadastro" onClick={handleConfirmDelete}>
-                Confirm
-              </button>
-              <button
-                className="botao-cadastro"
-                onClick={() => setConfirmDeleteItem(null)}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
+        <Modal objeto={{
+          titulo: `Are you sure you want to delete "${confirmDeleteItem.item}"?`,
+          botao1: {
+            funcao: handleConfirmDelete, texto: 'Confirm'
+          },
+          botao2: {
+            funcao: () => () => setConfirmDeleteItem(null), texto: 'Cancel'
+          },
+        }} />
       )}
     </div>
   );

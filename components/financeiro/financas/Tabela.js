@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import Loading from '../../Loading';
 import Modal from '../../Modal';
 import styles from '../../../styles/modules/radio.module.css';
-import { fetchData, handleDelete, handleUpdate } from '../../../functions/crud';
-import { jsDateToEuDate, euDateToIsoDate } from '../../../functions/general';
+import { handleSubmit, fetchData, handleDelete, handleUpdate } from '../../../functions/crud';
+import { jsDateToEuDate, euDateToIsoDate, cleanForm } from '../../../functions/general';
 
 const labelsTipo = {
   Income: 'Income',
@@ -17,19 +17,21 @@ const Tabela = () => {
   const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
   const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [novosDados, setNovosDados] = useState({
+  const camposVazios = {
     tipo: '',
     descricao: '',
     valor: '',
     data: '',
     area: '',
     origem: '',
-    destino: ''
-  });
+    destino: '',
+  }
+  const [novoSubmit, setNovoSubmit] = useState(camposVazios);
+  const [novosDados, setNovosDados] = useState(camposVazios);
 
-  const handleChange = (e) => {
-    setNovosDados({
-      ...novosDados,
+  const handleChange = (e, setter, obj) => {
+    setter({
+      ...obj,
       [e.target.name]: e.target.value,
     });
   };
@@ -63,6 +65,23 @@ const Tabela = () => {
       }
     }
     setConfirmDeleteItem(null);
+  };
+
+  const enviar = async (e) => {
+    e.preventDefault();
+    const isExpense = novoSubmit.tipo === 'Expense';
+    const valor = isExpense ? -parseFloat(novoSubmit.valor) : parseFloat(novoSubmit.valor);
+    const updatedNovoSubmit = {
+      ...novoSubmit,
+      valor: valor
+    };
+
+    handleSubmit({
+      route: 'financeiro/financas', 
+      dados: updatedNovoSubmit});
+    fetchLancamentos();
+    fetchLancamentos();
+    cleanForm(novoSubmit, setNovoSubmit);
   };
 
   const handleUpdateClick = (item) => {
@@ -149,6 +168,67 @@ const Tabela = () => {
             </tr>
           </thead>
           <tbody>
+            <tr>
+              <td>
+                <select style={{width:'100px'}}
+                value={novoSubmit.tipo}
+                name='tipo'
+                onChange={(e) => handleChange(e, setNovoSubmit, novoSubmit)}>
+                  <option value="" disabled>Type</option>
+                  <option value='Income'>Income</option>
+                  <option value='Expense'>Cost</option>
+                  <option value='Exchange'>Exchange</option>
+                </select>
+              </td>
+              <td>
+                <input 
+                style={{width: '100px'}} 
+                value={novoSubmit.descricao} 
+                name='descricao' 
+                onChange={(e) => handleChange(e, setNovoSubmit, novoSubmit)}/>
+              </td>
+              <td>
+                <input type='number'
+                style={{width: '100px'}}
+                value={novoSubmit.valor}
+                name='valor'
+                onChange={(e) => handleChange(e, setNovoSubmit, novoSubmit)}/>
+              </td>
+              <td>
+                <input type="date"
+                style={{width: '100px'}}
+                value={novoSubmit.data}
+                name='data'
+                onChange={(e) => handleChange(e, setNovoSubmit, novoSubmit)}/>
+              </td>
+              <td>
+                <select style={{width: '100px'}} 
+                value={novoSubmit.area} 
+                name='area' 
+                onChange={(e) => handleChange(e, setNovoSubmit, novoSubmit)}
+                >
+                  <option value="" disabled>Area</option>
+                  <option value='Income'>Income</option>
+                  <option value='Cost'>Cost</option>
+                  <option value='Exchange'>Exchange</option>
+                </select>
+              </td>
+              <td>
+                <input style={{width: '100px'}}
+                value={novoSubmit.origem}
+                name='origem'
+                onChange={(e) => handleChange(e, setNovoSubmit, novoSubmit)}/>
+              </td>
+              <td>
+                <input style={{width: '100px'}}
+                value={novoSubmit.destino}
+                name='destino'
+                onChange={(e) => handleChange(e, setNovoSubmit, novoSubmit)}/>
+              </td>
+              <td>
+                <button className='botao-padrao' onClick={enviar}>Add new</button>
+              </td>
+            </tr>
             {lancamentos.map((item, index) => (
               <React.Fragment key={item._id}>
                 {index % 12 === 0 && index !== 0 && <div className="html2pdf__page-break" />}
@@ -164,11 +244,9 @@ const Tabela = () => {
                   <td>{item.area}</td>
                   <td>{item.origem}</td>
                   <td>{item.destino}</td>
-                  <td>
-                    <div className="botoes-acoes">
+                  <td className="botoes-acoes">
                       <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
                       <button onClick={() => handleUpdateClick(item)}>⚙️</button>
-                    </div>
                   </td>
                 </tr>
               </React.Fragment>
@@ -208,7 +286,7 @@ const Tabela = () => {
                   name="tipo"
                   value="Income"
                   checked={novosDados.tipo === 'Income'}
-                  onChange={handleChange}
+                  onChange={(e) => handleChange(e, setNovosDados, novosDados)}
                   required
                 />
                 <span className={styles.checkmark}></span>
@@ -220,11 +298,11 @@ const Tabela = () => {
                   name="tipo"
                   value="Expense"
                   checked={novosDados.tipo === 'Expense'}
-                  onChange={handleChange}
+                  onChange={(e) => handleChange(e, setNovosDados, novosDados)}
                   required
                 />
                 <span className={styles.checkmark}></span>
-                Expense
+                Cost
               </label>
               <label className={styles.container}>
                 <input
@@ -232,7 +310,7 @@ const Tabela = () => {
                   name="tipo"
                   value="Exchange"
                   checked={novosDados.tipo === 'Exchange'}
-                  onChange={handleChange}
+                  onChange={(e) => handleChange(e, setNovosDados, novosDados)}
                   required
                 />
                 <span className={styles.checkmark}></span>
@@ -246,7 +324,7 @@ const Tabela = () => {
                 id="descricao"
                 name="descricao"
                 placeholder=""
-                onChange={handleChange}
+                onChange={(e) => handleChange(e, setNovosDados, novosDados)}
                 value={novosDados.descricao}
                 required
               />
@@ -254,7 +332,7 @@ const Tabela = () => {
               <input
                 type="number"
                 name="valor"
-                onChange={handleChange}
+                onChange={(e) => handleChange(e, setNovosDados, novosDados)}
                 value={novosDados.valor}
                 required
               />
@@ -262,14 +340,14 @@ const Tabela = () => {
               <input
                 type="date"
                 name="data"
-                onChange={handleChange}
+                onChange={(e) => handleChange(e, setNovosDados, novosDados)}
                 value={novosDados.data}
                 required
               />
               <label htmlFor="area">Area</label>
               <select
                 name="area"
-                onChange={handleChange}
+                onChange={(e) => handleChange(e, setNovosDados, novosDados)}
                 value={novosDados.area}
                 required
               >
@@ -290,7 +368,7 @@ const Tabela = () => {
                 type="text"
                 name="origem"
                 placeholder=""
-                onChange={handleChange}
+                onChange={(e) => handleChange(e, setNovosDados, novosDados)}
                 value={novosDados.origem}
                 required
               />
@@ -299,7 +377,7 @@ const Tabela = () => {
                 type="text"
                 name="destino"
                 placeholder=""
-                onChange={handleChange}
+                onChange={(e) => handleChange(e, setNovosDados, novosDados)}
                 value={novosDados.destino}
                 required
               />
