@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Loading from '../../Loading';
 import Modal from '../../Modal';
-import styles from '../../../styles/modules/radio.module.css';
+import CadastroInputs from './CadastroInputs';
 import { handleSubmit, fetchData, handleDelete, handleUpdate } from '../../../functions/crud';
 import { jsDateToEuDate, euDateToIsoDate, cleanForm } from '../../../functions/general';
 
@@ -13,10 +13,11 @@ const labelsTipo = {
 
 const Tabela = () => {
   const [lancamentos, setLancamentos] = useState([]);
-  const [deleteSuccess, setDeleteSuccess] = useState(false);
-  const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
+  const [deleteInfo, setDeleteInfo] = useState({ success: null, item: null });
   const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
+  const [exibirModal, setExibirModal] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [linhasVisiveis, setLinhasVisiveis] = useState({});
   const camposVazios = {
     tipo: '',
     descricao: '',
@@ -28,6 +29,13 @@ const Tabela = () => {
   }
   const [novoSubmit, setNovoSubmit] = useState(camposVazios);
   const [novosDados, setNovosDados] = useState(camposVazios);
+
+  const isFormVazio = (obj) => {
+    const campos = Object.keys(obj);
+    for (let i = 0; i < campos.length; i++) {
+      if (obj[campos[i]] == '') return true;
+    }
+  }
 
   const handleChange = (e, setter, obj) => {
     setter({
@@ -53,18 +61,19 @@ const Tabela = () => {
   }, []);
 
   const handleConfirmDelete = () => {
-    if (confirmDeleteItem) {
+    if (deleteInfo.item) {
       var getDeleteSuccess = false;
       try {
         getDeleteSuccess = handleDelete({
-          route: 'financeiro/financas', 
-          item: confirmDeleteItem, 
-          fetchDados: fetchLancamentos});
+          route: 'financeiro/financas',
+          item: deleteInfo.item,
+          fetchDados: fetchLancamentos
+        });
       } finally {
-        setDeleteSuccess(getDeleteSuccess);
+        setDeleteInfo({ success: getDeleteSuccess, item: null })
       }
     }
-    setConfirmDeleteItem(null);
+    setDeleteInfo({ success: getDeleteSuccess, item: null })
   };
 
   const enviar = async (e) => {
@@ -75,12 +84,13 @@ const Tabela = () => {
       ...novoSubmit,
       valor: valor
     };
-
+    console.log(updatedNovoSubmit);
+    if (isFormVazio(updatedNovoSubmit)) { setExibirModal('inputsVazios'); return; }
     handleSubmit({
-      route: 'financeiro/financas', 
-      dados: updatedNovoSubmit});
-    fetchLancamentos();
-    fetchLancamentos();
+      route: 'financeiro/financas',
+      dados: updatedNovoSubmit
+    });
+    await fetchLancamentos();
     cleanForm(novoSubmit, setNovoSubmit);
   };
 
@@ -115,6 +125,7 @@ const Tabela = () => {
       );
       setLancamentos(updatedLancamentos);
       setConfirmUpdateItem(null);
+      toggleLinhaVisivel(confirmUpdateItem._id)
       try {
         await handleUpdate({
           route: 'financeiro/financas',
@@ -122,7 +133,7 @@ const Tabela = () => {
           item: confirmUpdateItem
         });
       } catch (error) {
-        setLancamentos(lancamentos); 
+        setLancamentos(lancamentos);
         setConfirmUpdateItem(confirmUpdateItem);
         console.error("Update failed:", error);
       }
@@ -135,7 +146,6 @@ const Tabela = () => {
 
       const content = document.getElementById('report');
 
-      // Opções de configuração do PDF
       const pdfOptions = {
         margin: 10,
         filename: `report.pdf`,
@@ -146,6 +156,13 @@ const Tabela = () => {
 
       html2pdf().from(content).set(pdfOptions).save();
     });
+  };
+
+  const toggleLinhaVisivel = (id) => {
+    setLinhasVisiveis(prevState => ({
+      ...prevState,
+      [id]: !prevState[id]
+    }));
   };
 
   return (
@@ -168,86 +185,119 @@ const Tabela = () => {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>
-                <select style={{width:'100px'}}
-                value={novoSubmit.tipo}
-                name='tipo'
-                onChange={(e) => handleChange(e, setNovoSubmit, novoSubmit)}>
-                  <option value="" disabled>Type</option>
-                  <option value='Income'>Income</option>
-                  <option value='Expense'>Cost</option>
-                  <option value='Exchange'>Exchange</option>
-                </select>
-              </td>
-              <td>
-                <input 
-                style={{width: '100px'}} 
-                value={novoSubmit.descricao} 
-                name='descricao' 
-                onChange={(e) => handleChange(e, setNovoSubmit, novoSubmit)}/>
-              </td>
-              <td>
-                <input type='number'
-                style={{width: '100px'}}
-                value={novoSubmit.valor}
-                name='valor'
-                onChange={(e) => handleChange(e, setNovoSubmit, novoSubmit)}/>
-              </td>
-              <td>
-                <input type="date"
-                style={{width: '100px'}}
-                value={novoSubmit.data}
-                name='data'
-                onChange={(e) => handleChange(e, setNovoSubmit, novoSubmit)}/>
-              </td>
-              <td>
-                <select style={{width: '100px'}} 
-                value={novoSubmit.area} 
-                name='area' 
-                onChange={(e) => handleChange(e, setNovoSubmit, novoSubmit)}
-                >
-                  <option value="" disabled>Area</option>
-                  <option value='Income'>Income</option>
-                  <option value='Cost'>Cost</option>
-                  <option value='Exchange'>Exchange</option>
-                </select>
-              </td>
-              <td>
-                <input style={{width: '100px'}}
-                value={novoSubmit.origem}
-                name='origem'
-                onChange={(e) => handleChange(e, setNovoSubmit, novoSubmit)}/>
-              </td>
-              <td>
-                <input style={{width: '100px'}}
-                value={novoSubmit.destino}
-                name='destino'
-                onChange={(e) => handleChange(e, setNovoSubmit, novoSubmit)}/>
-              </td>
-              <td>
-                <button className='botao-padrao' onClick={enviar}>Add new</button>
-              </td>
-            </tr>
+            <CadastroInputs obj={novoSubmit} objSetter={setNovoSubmit} enviar={enviar}/>
             {lancamentos.map((item, index) => (
               <React.Fragment key={item._id}>
                 {index % 12 === 0 && index !== 0 && <div className="html2pdf__page-break" />}
                 <tr>
-                  <td>{labelsTipo[item.tipo]}</td>
-                  <td style={{ color: item.tipo === 'Income' ? 'green' : item.tipo === 'Exchange' ? '#335EFF' : 'red' }}>
-                    {item.descricao}
-                  </td>
-                  <td style={{ color: item.tipo === 'Income' ? 'green' : item.tipo === 'Exchange' ? '#335EFF' : 'red' }}>
-                    <b>R${Math.abs(item.valor).toFixed(2)}</b>
-                  </td>
-                  <td>{item.data}</td>
-                  <td>{item.area}</td>
-                  <td>{item.origem}</td>
-                  <td>{item.destino}</td>
-                  <td className="botoes-acoes">
-                      <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
-                      <button onClick={() => handleUpdateClick(item)}>⚙️</button>
-                  </td>
+                  {!linhasVisiveis[item._id] ? (
+                    <React.Fragment>
+                      <td>{labelsTipo[item.tipo]}</td>
+                      <td style={{ color: item.tipo === 'Income' ? 'green' : item.tipo === 'Exchange' ? '#335EFF' : 'red' }}>
+                        {item.descricao}
+                      </td>
+                      <td style={{ color: item.tipo === 'Income' ? 'green' : item.tipo === 'Exchange' ? '#335EFF' : 'red' }}>
+                        <b>R${Math.abs(item.valor).toFixed(2)}</b>
+                      </td>
+                      <td>{item.data}</td>
+                      <td>{item.area}</td>
+                      <td>{item.origem}</td>
+                      <td>{item.destino}</td>
+                      <td className="botoes-acoes">
+                        <button onClick={() => setDeleteInfo({ success: null, item: item })}>❌</button>
+                        <button onClick={() => { toggleLinhaVisivel(item._id); handleUpdateClick(item) }}>⚙️</button>
+                      </td>
+                    </React.Fragment>
+                  ) : (
+                    <React.Fragment>
+                      <td>
+                        <select style={{ width: '110px' }}
+                          value={novosDados.tipo}
+                          name='tipo'
+                          onChange={(e) => handleChange(e, setNovosDados, novosDados)}>
+                          <option value="" disabled>Type</option>
+                          <option value='Income'>Income</option>
+                          <option value='Expense'>Cost</option>
+                          <option value='Exchange'>Exchange</option>
+                        </select>
+                      </td>
+                      <td>
+                        <input
+                          style={{ width: '100px' }}
+                          value={novosDados.descricao}
+                          name='descricao'
+                          onChange={(e) => handleChange(e, setNovosDados, novosDados)} />
+                      </td>
+                      <td>
+                        <input
+                          style={{ width: '110px' }}
+                          type="number"
+                          name="valor"
+                          onChange={(e) => handleChange(e, setNovosDados, novosDados)}
+                          value={novosDados.valor}
+                          required
+                        />
+                      </td>
+                      <td>
+                        <input
+                          style={{ width: '110px' }}
+                          type="date"
+                          name="data"
+                          onChange={(e) => handleChange(e, setNovosDados, novosDados)}
+                          value={novosDados.data}
+                          required
+                        />
+                      </td>
+                      <td>
+                        <select
+                          style={{ width: '110px' }}
+                          name="area"
+                          onChange={(e) => handleChange(e, setNovosDados, novosDados)}
+                          value={novosDados.area}
+                          required
+                        >
+                          <option value="" disabled>Select an area</option>
+                          <option value="3D printing">3D printing</option>
+                          <option value="Engineering">Engineering</option>
+                          <option value="Extras">Extras</option>
+                          <option value="Marketing">Marketing</option>
+                          <option value="Machining">Machining</option>
+                          <option value="Painting">Painting</option>
+                          <option value="Pit Display">Pit Display</option>
+                          <option value="Portfolios">Portfolios</option>
+                          <option value="Sponsorship">Sponsorship</option>
+                          <option value="Traveling">Traveling</option>
+                        </select>
+                      </td>
+                      <td>
+                        <input
+                          style={{ width: '110px' }}
+                          type="text"
+                          name="origem"
+                          placeholder=""
+                          onChange={(e) => handleChange(e, setNovosDados, novosDados)}
+                          value={novosDados.origem}
+                          required
+                        />
+                      </td>
+                      <td>
+                        <input
+                          style={{ width: '110px' }}
+                          type="text"
+                          name="destino"
+                          placeholder=""
+                          onChange={(e) => handleChange(e, setNovosDados, novosDados)}
+                          value={novosDados.destino}
+                          required
+                        />
+                      </td>
+                      <td className="botoes-acoes">
+                        <button onClick={() => handleUpdateItem()}>✔️</button>
+                        <button onClick={() => toggleLinhaVisivel(item._id)}>✖️</button>
+                      </td>
+                    </React.Fragment>
+                  )}
+
                 </tr>
               </React.Fragment>
             ))}
@@ -255,139 +305,34 @@ const Tabela = () => {
         </table>
       </div>
 
-      {confirmDeleteItem && (
+      {deleteInfo.item && (
         <Modal objeto={{
-          titulo: `Are you sure you want to delete "${confirmDeleteItem.descricao}"?`,
+          titulo: `Are you sure you want to delete "${deleteInfo.item.descricao}"?`,
           botao1: {
             funcao: handleConfirmDelete, texto: 'Confirm'
           },
           botao2: {
-            funcao: () => setConfirmDeleteItem(null), texto: 'Cancel'
+            funcao: () => setDeleteInfo({ success: null, item: null }), texto: 'Cancel'
           }
-        }}/>
+        }} />
       )}
 
-      {deleteSuccess && (
+      {deleteInfo.success != null && (
         <Modal objeto={{
-          titulo: deleteSuccess ? 'Deletion successful!' : 'Deletion failed.',
+          titulo: deleteInfo.success ? 'Deletion successful!' : 'Deletion failed.',
           botao1: {
-            funcao: () => setDeleteSuccess(false), texto: 'Close'
+            funcao: () => setDeleteInfo({ success: null, item: null }), texto: 'Close'
           },
-        }}/>
+        }} />
       )}
 
-      {confirmUpdateItem && (
-        <div className="overlay">
-          <div className="modal">
-            <div className={styles.containerPai}>
-              <label className={styles.container}>
-                <input
-                  type="radio"
-                  name="tipo"
-                  value="Income"
-                  checked={novosDados.tipo === 'Income'}
-                  onChange={(e) => handleChange(e, setNovosDados, novosDados)}
-                  required
-                />
-                <span className={styles.checkmark}></span>
-                Income
-              </label>
-              <label className={styles.container}>
-                <input
-                  type="radio"
-                  name="tipo"
-                  value="Expense"
-                  checked={novosDados.tipo === 'Expense'}
-                  onChange={(e) => handleChange(e, setNovosDados, novosDados)}
-                  required
-                />
-                <span className={styles.checkmark}></span>
-                Cost
-              </label>
-              <label className={styles.container}>
-                <input
-                  type="radio"
-                  name="tipo"
-                  value="Exchange"
-                  checked={novosDados.tipo === 'Exchange'}
-                  onChange={(e) => handleChange(e, setNovosDados, novosDados)}
-                  required
-                />
-                <span className={styles.checkmark}></span>
-                Exchange
-              </label>
-            </div>
-            <div className="centered-container">
-              <label htmlFor="descricao">Description</label>
-              <input
-                type="text"
-                id="descricao"
-                name="descricao"
-                placeholder=""
-                onChange={(e) => handleChange(e, setNovosDados, novosDados)}
-                value={novosDados.descricao}
-                required
-              />
-              <label htmlFor="valor">Value</label>
-              <input
-                type="number"
-                name="valor"
-                onChange={(e) => handleChange(e, setNovosDados, novosDados)}
-                value={novosDados.valor}
-                required
-              />
-              <label htmlFor="data">Date</label>
-              <input
-                type="date"
-                name="data"
-                onChange={(e) => handleChange(e, setNovosDados, novosDados)}
-                value={novosDados.data}
-                required
-              />
-              <label htmlFor="area">Area</label>
-              <select
-                name="area"
-                onChange={(e) => handleChange(e, setNovosDados, novosDados)}
-                value={novosDados.area}
-                required
-              >
-                <option value="" disabled>Select an area</option>
-                <option value="3D printing">3D printing</option>
-                <option value="Engineering">Engineering</option>
-                <option value="Extras">Extras</option>
-                <option value="Marketing">Marketing</option>
-                <option value="Machining">Machining</option>
-                <option value="Painting">Painting</option>
-                <option value="Pit Display">Pit Display</option>
-                <option value="Portfolios">Portfolios</option>
-                <option value="Sponsorship">Sponsorship</option>
-                <option value="Traveling">Traveling</option>
-              </select>
-              <label htmlFor="origem">Credited Account (Origin)</label>
-              <input
-                type="text"
-                name="origem"
-                placeholder=""
-                onChange={(e) => handleChange(e, setNovosDados, novosDados)}
-                value={novosDados.origem}
-                required
-              />
-              <label htmlFor="destino">Debited Account (Destiny)</label>
-              <input
-                type="text"
-                name="destino"
-                placeholder=""
-                onChange={(e) => handleChange(e, setNovosDados, novosDados)}
-                value={novosDados.destino}
-                required
-              />
-            </div>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button className="botao-cadastro" onClick={handleUpdateItem}>Update</button>
-              <button className="botao-cadastro" onClick={() => setConfirmUpdateItem(null)}>Cancel</button>
-            </div>
-          </div>
-        </div>
+      {exibirModal == 'inputsVazios' && (
+        <Modal objeto={{
+          titulo: 'Fill out all fields before adding new data!',
+          botao1: {
+            funcao: () => setExibirModal('null'), texto: 'Okay'
+          },
+        }} />
       )}
     </div>
   );

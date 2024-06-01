@@ -48,6 +48,14 @@
     margin-right: 15px;
 }
 
+.linha-cadastro {
+    td{
+        input{
+            width: 100px ;
+        }
+    }
+}
+
 .input-data input, button {
     display: inline-block;
     vertical-align: middle;
