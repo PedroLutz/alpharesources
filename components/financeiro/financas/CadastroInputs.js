@@ -1,18 +1,18 @@
 import React from 'react';
 
-const CadastroTabela = ({obj, objSetter, enviar}) => {
+const CadastroTabela = ({ obj, objSetter, tipo, funcao }) => {
 
     const handleChange = (e, setter, obj) => {
         setter({
-          ...obj,
-          [e.target.name]: e.target.value,
+            ...obj,
+            [e.target.name]: e.target.value,
         });
-      };
+    };
 
     return (
         <tr className='linha-cadastro'>
             <td>
-                <select style={{ width: '110px' }}
+                <select
                     value={obj.tipo}
                     name='tipo'
                     onChange={(e) => handleChange(e, objSetter, obj)}>
@@ -24,27 +24,24 @@ const CadastroTabela = ({obj, objSetter, enviar}) => {
             </td>
             <td>
                 <input
-                    style={{ width: '100px' }}
                     value={obj.descricao}
                     name='descricao'
                     onChange={(e) => handleChange(e, objSetter, obj)} />
             </td>
             <td>
                 <input type='number'
-                    style={{ width: '100px' }}
                     value={obj.valor}
                     name='valor'
                     onChange={(e) => handleChange(e, objSetter, obj)} />
             </td>
             <td>
                 <input type="date"
-                    style={{ width: '105px' }}
                     value={obj.data}
                     name='data'
                     onChange={(e) => handleChange(e, objSetter, obj)} />
             </td>
             <td>
-                <select style={{ width: '150px' }}
+                <select
                     value={obj.area}
                     name='area'
                     onChange={(e) => handleChange(e, objSetter, obj)}
@@ -63,19 +60,26 @@ const CadastroTabela = ({obj, objSetter, enviar}) => {
                 </select>
             </td>
             <td>
-                <input style={{ width: '100px' }}
+                <input
                     value={obj.origem}
                     name='origem'
                     onChange={(e) => handleChange(e, objSetter, obj)} />
             </td>
             <td>
-                <input style={{ width: '100px' }}
+                <input
                     value={obj.destino}
                     name='destino'
                     onChange={(e) => handleChange(e, objSetter, obj)} />
             </td>
             <td>
-                <button className='botao-padrao' onClick={enviar}>Add new</button>
+            {tipo !== 'update' ? (
+                    <button onClick={funcao}>Add new</button>
+            ) : (
+                <React.Fragment>
+                    <button onClick={funcao.funcao1}>✔️</button>
+                    <button onClick={funcao.funcao2}>✖️</button>
+                </React.Fragment>
+            ) }
             </td>
         </tr>
     )

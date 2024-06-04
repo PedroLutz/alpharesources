@@ -3,9 +3,11 @@ import Head from 'next/head';
 import { useState, useEffect } from "react";
 import Footer from '../components/Footer';
 
-import '../styles/financeiro.css';
 import '../styles/global.css';
+import '../styles/graficos.css';
 import '../styles/menu.css';
+import '../styles/botoes.css';
+import '../styles/tabela.css';
 
 function MyApp({ Component, pageProps }) {
   const [autenticado, setAutenticado] = useState(false);

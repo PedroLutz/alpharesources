@@ -1,0 +1,44 @@
+.botao-padrao {
+    background-color: rgb(221, 221, 221);
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 3px;
+    color: black;
+    font-size: 0.9rem;
+    cursor: pointer;
+    width: 7rem;
+    transition: 0.1s;
+    height: 1.7rem;
+    margin: 0.5rem;
+}
+
+.botao-padrao:hover {
+    background-color: #ffa4f3;
+    font-size: 0.8rem;
+    font-weight: bold;
+    width: 7rem;
+    height: 1.7rem;
+}
+
+.botao-bonito {
+    background-color: #fc79ec;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 3px;
+    color: black;
+    font-weight: bold;
+    font-size: 0.9rem;
+    cursor: pointer;
+    width: 7rem;
+    transition: 0.1s;
+    height: 1.7rem;
+    margin: 0.5rem;
+}
+
+.botao-bonito:hover {
+    background-color: #a84ee0;
+    font-size: 0.8rem;
+    font-weight: bold;
+    width: 7rem;
+    height: 1.7rem;
+}

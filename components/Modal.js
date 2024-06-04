@@ -3,11 +3,11 @@ import React from 'react';
 const Modal = ({ objeto }) => {
   return (
     <div className="overlay">
-      <div className="modal" style={objeto.botao3 && {width: '250px'}}>
+      <div className="modal">
         <p>{objeto.titulo}</p>
         <div>
           <div className={objeto.botao3 && 'mesma-linha'}>
-            <button className="botao-padrao" style={objeto.botao3 && {width: '110px'}} onClick={objeto.botao1.funcao}>
+            <button className="botao-padrao" onClick={objeto.botao1.funcao}>
               {objeto.botao1.texto}
             </button>
             {objeto.botao2 && (

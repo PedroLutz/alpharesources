@@ -5,17 +5,17 @@
     justify-content: center;
     height: 90vh;
   }
-  
+
   .menuGroup {
     display: flex;
     margin-bottom: 20px;
   }
-  
+
   .menuGroup img {
     margin: 10px;
     flex-direction: column;
   }
-  
+
   .menuGroup span {
     margin: 5px;
     width: 150px;
@@ -33,24 +33,24 @@
     background: white;
     text-decoration: none;
   }
-  
+
   .menuGroup span:hover {
     border: 2px solid #9006e3;
     color: #9006e3;
     text-decoration: none;
   }
-  
+
   .menuGroup span a {
     text-decoration: none;
     color: inherit;
   }
-  
+
   .menuGroup span a:hover {
     color: #9006e3;
   }
 
   .menuGroup span:hover img {
-    filter: hue-rotate(325deg); 
+    filter: hue-rotate(325deg);
   }
 
   .menuText {
@@ -71,4 +71,3 @@
     color: transparent;
     display: inline-block;
   }
-  

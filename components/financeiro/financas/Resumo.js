@@ -117,18 +117,18 @@ const Resumo = () => {
   }
 
   return (
-    <div className="h3-resumo">
+    <div>
       {loading && <Loading/>}
       <div className="centered-container">
         <h2>Report</h2>
 
         <div>
-          <span className="custom-span">Cash value:<br/>R${Number(totalValor).toFixed(2)}</span>
+          <span>Cash value:<br/>R${Number(totalValor).toFixed(2)}</span>
           <br/>
-          <span className="custom-span">Largest income:<br/>{Number(maiorValor).toFixed(2) > 0 ? `R$${Number(maiorValor).toFixed(2)}` : 'R$0.00'}</span>
-          <span className="custom-span">Total revenue:<br/>R${Number(receitasTotais).toFixed(2)}</span>
-          <span className="custom-span">Largest expense:<br/>{menorValor < 0 ? `R$${Number(-menorValor).toFixed(2)}` : 'R$0.00'}</span>
-          <span className="custom-span">Total cost:<br/>R${Number(-despesasTotais).toFixed(2)}</span>
+          <span>Largest income:<br/>{Number(maiorValor).toFixed(2) > 0 ? `R$${Number(maiorValor).toFixed(2)}` : 'R$0.00'}</span>
+          <span>Total revenue:<br/>R${Number(receitasTotais).toFixed(2)}</span>
+          <span>Largest expense:<br/>{menorValor < 0 ? `R$${Number(-menorValor).toFixed(2)}` : 'R$0.00'}</span>
+          <span>Total cost:<br/>R${Number(-despesasTotais).toFixed(2)}</span>
         </div>
 
       </div>

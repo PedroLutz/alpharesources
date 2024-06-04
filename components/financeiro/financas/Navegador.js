@@ -10,9 +10,6 @@ const Navbar = () => {
 
       <ul>
         <li>
-          <Link href="/pages/financial/finances/register">Register</Link>
-        </li>
-        <li>
           <Link href="/pages/financial/finances/table">Spreadsheet</Link>
         </li>
         <li>
@@ -22,8 +19,6 @@ const Navbar = () => {
           <Link href="/">Go to Menu</Link>
         </li>
       </ul>
-
-      {/*fim do nav*/}
     </nav>
   );
 };

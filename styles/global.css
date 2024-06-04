@@ -1,154 +1,17 @@
 body {
-    font-family: 'Montserrat';
+    font-family: 'Montserrat' !important;
     background-color: white;
     color: black;
     padding: 0;
     margin: 0;
 }
 
-text {
+text, button, input, select {
     font-family: 'Montserrat' !important;
-}
-
-.botao-padrao {
-    color: black;
-    font-size: 15px;
-    font-family: 'Montserrat';
-    background-color: rgb(228, 228, 228);
-    height: 100%;
-    font-size: 14px;
-    border-color:rgb(133, 133, 133);
-    border-style: solid;
-    border-radius: 10px;
-    padding: 5px;
-    margin-right: 5px;
-    margin-left: 5px;
-    width: 80px;
-    height: 36px;
-    transition: 0.1s;
-}
-
-.botoes-acoes button {
-    border-color: transparent;
-    background-color: transparent;
-    font-size: 12px;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: -6px;
-    margin-bottom: -10px;
-    color: rgb(0, 0, 0);
-    margin-right: 5px;
-    margin: 0px;
-}
-
-.botao-cadastro {
-    color: white;
-    font-size: 15px;
-    font-family: 'Montserrat';
-    border-color: rgb(255, 255, 255);
-    height: 100%;
-    border-style: solid;
-    border-radius: 10px;
-    padding: 5px;
-    margin-right: 5px;
-    margin-bottom: 5px;
-    background-image: linear-gradient(to left, #830074 0%, #500380 100%);
-    transition: font-size 0.1s;
-}
-
-.botao-cadastro:active {
-    font-size: 14px;
 }
 
 label {
     line-height: normal;
-}
-
-.modal-login {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    border: 1px solid rgb(179, 179, 179);
-    border-radius: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    width: 350px;
-    height: 350px;
-}
-
-input, textarea {
-    color: black;
-    font-family: 'Montserrat';
-    border-color: rgb(133, 133, 133);
-    border-radius: 10px;
-    border-width: 2px;
-    border-style: solid;
-    background-color: rgb(228, 228, 228);
-    margin: 10px;
-    padding: 5px;
-    width: 800px;
-    font-size: 15px;
-    text-align: start; 
-    display: flex;
-    gap: 0px;
-}
-
-select {
-    color: black;
-    border-style: solid;
-    background-color: rgb(228, 228, 228);
-    border-color: rgb(133, 133, 133);
-    font-family: 'Montserrat';
-    border-radius: 10px;
-    margin: 10px;
-    padding: 5px;
-    font-size: 15px;
-    width: 813px;
-    text-align: start; 
-    display: flex;
-    gap: 0px; 
-    border-width: 2px;
-}
-
-table {
-    border-collapse: collapse;
-    width: 95%;
-    border: 1px solid  rgb(168, 168, 168);
-}
-
-td {
-    border: 1px solid rgb(168, 168, 168);
-    padding: 3px; 
-}
-
-th {
-    border: 1px solid rgb(168, 168, 168);
-    font-size: 18px;
-    background-color: #ffbaf7;
-    padding: 3px;
-    padding-top: 10px;
-    padding-bottom: 10px; 
-}
-
-span.custom-span {
-    display: inline-block;
-    margin-bottom: 10px;
-    margin-left: 7px;
-    margin-right: 7px;
-    height: auto;
-    width: auto;
-    padding: 10px;
-    border-radius: 15px;
-    border: 1px solid #9006e3;
-    background-color: #9006e3;
-    font-size: 18px;
-    color: white; /* Define a cor do texto como branca */
-    transition: background-color 0.2s ease;
-  }
-
-span.custom-span:hover {
-    background-color: #550586;
 }
 
 @font-face {
@@ -164,105 +27,31 @@ span.custom-span:hover {
     text-align: center;
 }
 
-h3 {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center; 
-}
-
-/* Estilo para os elementos internos dentro da div */
-.centered-container input,
-.centered-container select{
-    margin-bottom: 10px; /* Espaçamento entre os elementos */
-}
-
-.centered-container > label:not(.containerPai){
-    font-size: 12px;
-    width: 810px; /* Adjust the width as needed */
-    text-align: left; /* Align text to the right */ 
-}
-
-.h3-resumo h3{
-    margin: 30px
-}
-
 .overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5); /* Cor de fundo semi-transparente */
+    background: rgba(0, 0, 0, 0.5);
+    /* Cor de fundo semi-transparente */
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000; 
-  }
-  
-  .modal {
+    z-index: 1000;
+}
+
+.modal {
     background: white;
     padding: 20px;
     border-radius: 50px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 1);
     display: flex;
-    flex-direction: column; /* Informações dispostas uma em cima da outra */
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-  }
-  
-  .modal p {
-    margin-bottom: 10px; /* Adiciona espaço entre os parágrafos */
-  }
-  
-.modal button {
-    width: 100px;
-    margin: 5px;
-    display: inline-block; /* Os botões ficarão lado a lado */
 }
 
-.mini-input {
-    input, textarea{
-        width: 250px;
-        transition: 0.2s
-    }
-    select{
-        width: 264px; 
-        height: 33px;
-    }
-    label{
-        width: 260px;
-        font-size: 12px;
-        display: inline-block;
-        text-align: left;
-        line-height: normal;
-    }
-    input:focus{
-        height: 25px !important;
-        width: 260px !important;
-    }
-    textarea:focus{
-        width: 260px !important;
-        height: 50px !important;
-    }
-    select:focus{
-        width: 274px; 
-        height: 37px;
-    }
+.modal p {
+    margin-bottom: 10px;
 }
-
-.mesma-linha {
-    display: flex; 
-    gap: 5px;
-}
-
-.botoes-cronograma {
-    margin-bottom: 30px; 
-    margin-top: 10px;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-}
-
-  
