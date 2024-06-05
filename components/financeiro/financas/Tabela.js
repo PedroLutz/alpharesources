@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import Loading from '../../Loading';
 import Modal from '../../Modal';
 import CadastroInputs from './CadastroInputs';
-import { handleSubmit, fetchData, handleDelete, handleUpdate } from '../../../functions/crud';
+import styles from '../../../styles/modules/tabela.module.css'
+import { handleSubmit, fetchData, handleDelete, handleUpdate , handlePseudoDelete } from '../../../functions/crud';
 import { jsDateToEuDate, euDateToIsoDate, cleanForm } from '../../../functions/general';
 
 const labelsTipo = {
@@ -15,6 +16,7 @@ const Tabela = () => {
   const [lancamentos, setLancamentos] = useState([]);
   const [deleteInfo, setDeleteInfo] = useState({ success: null, item: null });
   const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
+  const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
   const [exibirModal, setExibirModal] = useState(null);
   const [loading, setLoading] = useState(true);
   const [linhasVisiveis, setLinhasVisiveis] = useState({});
@@ -132,6 +134,30 @@ const Tabela = () => {
     }
   };
 
+  const handlePseudoDeleteItem = async () => {
+    if (confirmDeleteItem) {
+      const updatedItem = { ...confirmDeleteItem, deletado: true };
+
+      
+      const updatedLancamentos = lancamentos.map(item =>
+        item._id === updatedItem._id ? { ...updatedItem } : item
+      );
+      console.log(updatedLancamentos);
+      setLancamentos(updatedLancamentos);
+      setConfirmUpdateItem(null);
+      try {
+        await handlePseudoDelete({
+          route: 'financeiro/financas',
+          item: confirmDeleteItem
+        });
+      } catch (error) {
+        setLancamentos(lancamentos);
+        setConfirmUpdateItem(confirmUpdateItem);
+        console.error("Delete failed:", error);
+      }
+    }
+  };
+
   const generatePDF = () => {
     import('html2pdf.js').then((html2pdfModule) => {
       const html2pdf = html2pdfModule.default;
@@ -150,6 +176,7 @@ const Tabela = () => {
     });
   };
 
+
   const toggleLinhaVisivel = (id) => {
     setLinhasVisiveis(prevState => ({
       ...prevState,
@@ -163,7 +190,7 @@ const Tabela = () => {
       <h2>Financial Releases Data</h2>
       <button onClick={generatePDF} className='botao-bonito' style={{ marginTop: '-10px', marginBottom: '30px' }}>Export Table</button>
       <div id="report">
-        <table>
+        <table className={styles.tabela_financas}>
           <thead>
             <tr>
               <th>Type</th>
@@ -199,8 +226,9 @@ const Tabela = () => {
                       <td>{item.area}</td>
                       <td>{item.origem}</td>
                       <td>{item.destino}</td>
-                      <td>
-                        <button onClick={() => setDeleteInfo({ success: null, item: item })}>❌</button>
+                      <td className="botoes_acoes">
+                        {/* <button onClick={() => setDeleteInfo({ success: null, item: item })}>❌</button> */}
+                        <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
                         <button onClick={() => { toggleLinhaVisivel(item._id); handleUpdateClick(item) }}>⚙️</button>
                       </td>
                     </tr>
@@ -222,14 +250,17 @@ const Tabela = () => {
         </table>
       </div>
 
-      {deleteInfo.item && (
+      {/* {deleteInfo.item && ( */}
+      {confirmDeleteItem && (
         <Modal objeto={{
-          titulo: `Are you sure you want to delete "${deleteInfo.item.descricao}"?`,
+          titulo: `Are you sure you want to delete "${confirmDeleteItem.descricao}"?`,
           botao1: {
-            funcao: handleConfirmDelete, texto: 'Confirm'
+            // funcao: handleConfirmDelete, texto: 'Confirm'
+            funcao: () => {handlePseudoDeleteItem(); setConfirmDeleteItem(null)}, texto: 'Confirm'
           },
           botao2: {
-            funcao: () => setDeleteInfo({ success: null, item: null }), texto: 'Cancel'
+            // funcao: () => setDeleteInfo({ success: null, item: null }), texto: 'Cancel'
+            funcao: () => setConfirmDeleteItem(null), texto: 'Cancel'
           }
         }} />
       )}

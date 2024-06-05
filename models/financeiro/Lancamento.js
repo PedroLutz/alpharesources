@@ -10,6 +10,7 @@ const LancamentoSchema = new mongoose.Schema({
   area: String,
   origem: String,
   destino: String,
+  deletado: Boolean
 }, { collection: 'financas' }); 
 
 const Lancamento = mongoose.models['Lancamento'] || mongoose.model('Lancamento', LancamentoSchema); 

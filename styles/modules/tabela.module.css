@@ -1,0 +1,63 @@
+.tabela_financas table {
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    padding: 0.3rem;
+    border-collapse: collapse;
+}
+
+.tabela_financas td {
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    padding: 0.3rem;
+}
+
+.tabela_financas td input, .tabela_financas td select {
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    border-radius: 0.4rem;
+    padding: 0.2rem;
+    transition: 0.2s;
+    outline: none;
+}
+
+.tabela_financas td input:hover, .tabela_financas td select:hover, .tabela_financas button:hover {
+    background-color: rgb(231, 231, 231);
+}
+
+.tabela_financas td input {
+    width: 8rem;
+}
+
+.tabela_financas td select {
+    width: 8rem;
+}
+
+.tabela_financas td:nth-child(2) {
+    width: 12rem !important;
+}
+
+.tabela_financas td:nth-child(2) input {
+    width: 12rem !important;
+}
+
+.tabela_financas th {
+    background-color: #ff8ff2;
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    padding: 0.3rem;
+}
+
+.tabela_financas button{
+    background-color: transparent;
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    border-radius: 0.4rem;
+    height: 1.6rem;
+    cursor: pointer;
+    transition: 0.2s;
+}

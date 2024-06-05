@@ -119,4 +119,33 @@ const handleUpdate = async (o) => {
     }
 };
 
-export { handleSubmit, handleDelete, fetchData, handleUpdate };
+const handlePseudoDelete = async (o) => {
+    if (!o.item) {
+        console.error(`Requisição de update feita sem um item!`);
+        return;
+    }
+
+    if (!o.route) {
+        console.error(`Requisição de update feita sem uma rota!`);
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/${o.route}/updateDelete?id=${String(o.item._id)}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (response.status === 200) {
+            return;
+        } else {
+            console.error(`Erro ao pseudodeletar ${o.route}`);
+        }
+    } catch (error) {
+        console.error(`Erro ao pseudodeletar ${o.route}, ${error}`);
+    }
+};
+
+export { handleSubmit, handleDelete, fetchData, handleUpdate, handlePseudoDelete };

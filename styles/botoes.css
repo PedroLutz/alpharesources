@@ -42,3 +42,8 @@
     width: 7rem;
     height: 1.7rem;
 }
+
+.botoes_acoes button {
+    border-width: 0rem !important;
+    cursor: pointer;
+}

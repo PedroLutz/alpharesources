@@ -71,7 +71,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao }) => {
                     name='destino'
                     onChange={(e) => handleChange(e, objSetter, obj)} />
             </td>
-            <td>
+            <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
             {tipo !== 'update' ? (
                     <button onClick={funcao}>Add new</button>
             ) : (
