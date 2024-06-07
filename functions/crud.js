@@ -136,6 +136,7 @@ const handlePseudoDelete = async (o) => {
             headers: {
                 'Content-Type': 'application/json',
             },
+            body: JSON.stringify(o.deletar),
         });
 
         if (response.status === 200) {

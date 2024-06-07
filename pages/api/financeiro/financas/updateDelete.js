@@ -14,7 +14,7 @@ export default async (req, res) => {
         return res.status(400).json({ error: 'O ID do Lancamento é obrigatório para a atualização.' });
       }
 
-      const updatedData = await Lancamento.findByIdAndUpdate(id, {deletado: true}, { new: true });
+      const updatedData = await Lancamento.findByIdAndUpdate(id, {deletado: req.body}, { new: true });
 
       if (!updatedData) {
         return res.status(404).json({ error: 'Lancamento não encontrado.' });

@@ -3,7 +3,7 @@ import Loading from '../../Loading';
 import Modal from '../../Modal';
 import CadastroInputs from './CadastroInputs';
 import styles from '../../../styles/modules/tabela.module.css'
-import { handleSubmit, fetchData, handleDelete, handleUpdate , handlePseudoDelete } from '../../../functions/crud';
+import { handleSubmit, fetchData, handleDelete, handleUpdate, handlePseudoDelete } from '../../../functions/crud';
 import { jsDateToEuDate, euDateToIsoDate, cleanForm } from '../../../functions/general';
 
 const labelsTipo = {
@@ -14,9 +14,12 @@ const labelsTipo = {
 
 const Tabela = () => {
   const [lancamentos, setLancamentos] = useState([]);
+  const [lancamentosDeletados, setLancamentosDeletados] = useState([]);
+  const [dadosTabela, setDadosTabela] = useState({ object: [], isDeletados: null, garbageButtonLabel: 'Garbage bin 🗑️' });
   const [deleteInfo, setDeleteInfo] = useState({ success: null, item: null });
   const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
   const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
+  const [confirmRestoreItem, setConfirmRestoreItem] = useState(null);
   const [exibirModal, setExibirModal] = useState(null);
   const [loading, setLoading] = useState(true);
   const [linhasVisiveis, setLinhasVisiveis] = useState({});
@@ -45,7 +48,22 @@ const Tabela = () => {
       data.lancamentos.forEach((item) => {
         item.data = jsDateToEuDate(item.data);
       });
-      setLancamentos(data.lancamentos);
+      const [lancamentos, lancamentosDeletados] = data.lancamentos.reduce(
+        ([ativos, deletados], item) => {
+          if (item.deletado) {
+            deletados.push(item);
+          } else {
+            ativos.push(item);
+          }
+          return [ativos, deletados];
+        },
+        [[], []]
+      );
+
+      setLancamentos(lancamentos);
+      setDadosTabela({ object: lancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' })
+      setLancamentosDeletados(lancamentosDeletados);
+
     } finally {
       setLoading(false);
     }
@@ -54,6 +72,19 @@ const Tabela = () => {
   useEffect(() => {
     fetchLancamentos();
   }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Enter') {
+        enviar(event);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [novoSubmit]);
 
   const handleConfirmDelete = () => {
     if (deleteInfo.item) {
@@ -118,6 +149,7 @@ const Tabela = () => {
         item._id === updatedItem._id ? { ...updatedItem, data: jsDateToEuDate(updatedItem.data) } : item
       );
       setLancamentos(updatedLancamentos);
+      setDadosTabela({object: updatedLancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️'});
       setConfirmUpdateItem(null);
       toggleLinhaVisivel(confirmUpdateItem._id)
       try {
@@ -134,24 +166,49 @@ const Tabela = () => {
     }
   };
 
+  const handleRestoreItem = async () => {
+    if (confirmRestoreItem) {
+      const updatedItem = { ...confirmRestoreItem, deletado: false };
+
+      const index = lancamentosDeletados.indexOf(confirmRestoreItem);
+      index > -1 && lancamentosDeletados.splice(index, 1);
+      lancamentos.push(updatedItem);
+
+      setLancamentos(lancamentos);
+      setLancamentosDeletados(lancamentosDeletados);
+      setDadosTabela({ object: lancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' });
+      setConfirmUpdateItem(null);
+
+      await handlePseudoDelete({
+        route: 'financeiro/financas',
+        item: confirmRestoreItem,
+        deletar: false
+      });
+    }
+  }
+
   const handlePseudoDeleteItem = async () => {
     if (confirmDeleteItem) {
       const updatedItem = { ...confirmDeleteItem, deletado: true };
 
-      
-      const updatedLancamentos = lancamentos.map(item =>
-        item._id === updatedItem._id ? { ...updatedItem } : item
-      );
-      console.log(updatedLancamentos);
-      setLancamentos(updatedLancamentos);
+      const index = lancamentos.indexOf(confirmDeleteItem);
+      index > -1 && lancamentos.splice(index, 1);
+      lancamentosDeletados.push(updatedItem);
+
+      setLancamentos(lancamentos);
+      setLancamentosDeletados(lancamentosDeletados);
+      setDadosTabela({ object: lancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' });
       setConfirmUpdateItem(null);
+
       try {
         await handlePseudoDelete({
           route: 'financeiro/financas',
-          item: confirmDeleteItem
+          item: confirmDeleteItem,
+          deletar: true
         });
       } catch (error) {
         setLancamentos(lancamentos);
+        setDadosTabela({ object: lancamentos, isDeletados: false,  })
         setConfirmUpdateItem(confirmUpdateItem);
         console.error("Delete failed:", error);
       }
@@ -208,8 +265,9 @@ const Tabela = () => {
               obj={novoSubmit}
               objSetter={setNovoSubmit}
               funcao={enviar}
-              tipo='cadastro' />
-            {lancamentos.map((item, index) => (
+              tipo='cadastro' 
+            />
+            {dadosTabela.object.map((item, index) => (
               <React.Fragment key={item._id}>
                 {index % 12 === 0 && index !== 0 && <div className="html2pdf__page-break" />}
                 {!linhasVisiveis[item._id] ? (
@@ -226,11 +284,17 @@ const Tabela = () => {
                       <td>{item.area}</td>
                       <td>{item.origem}</td>
                       <td>{item.destino}</td>
-                      <td className="botoes_acoes">
-                        {/* <button onClick={() => setDeleteInfo({ success: null, item: item })}>❌</button> */}
-                        <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
-                        <button onClick={() => { toggleLinhaVisivel(item._id); handleUpdateClick(item) }}>⚙️</button>
-                      </td>
+                      {!dadosTabela.isDeletados ? (
+                        <td className="botoes_acoes">
+                          <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
+                          <button onClick={() => { toggleLinhaVisivel(item._id); handleUpdateClick(item) }}>⚙️</button>
+                        </td>
+                      ) : (
+                        <td className="botoes_acoes">
+                          <button onClick={() => setDeleteInfo({ success: null, item: item })}>❌</button>
+                          <button onClick={() => setConfirmRestoreItem(item)}>🔄</button>
+                        </td>
+                      )}
                     </tr>
                   </React.Fragment>
                 ) : (
@@ -248,18 +312,46 @@ const Tabela = () => {
             ))}
           </tbody>
         </table>
+        
+        <button className="botao-padrao" style={{width: '130px'}} onClick={() => {dadosTabela.isDeletados ?
+          setDadosTabela({ object: lancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' })
+          :
+          setDadosTabela({ object: lancamentosDeletados, isDeletados: true, garbageButtonLabel: 'Exit bin 🗑️' })}}>
+            {dadosTabela.garbageButtonLabel}</button>
       </div>
 
-      {/* {deleteInfo.item && ( */}
       {confirmDeleteItem && (
         <Modal objeto={{
           titulo: `Are you sure you want to delete "${confirmDeleteItem.descricao}"?`,
           botao1: {
-            // funcao: handleConfirmDelete, texto: 'Confirm'
-            funcao: () => {handlePseudoDeleteItem(); setConfirmDeleteItem(null)}, texto: 'Confirm'
+            funcao: () => { handlePseudoDeleteItem(); setConfirmDeleteItem(null) }, texto: 'Confirm'
           },
           botao2: {
-            // funcao: () => setDeleteInfo({ success: null, item: null }), texto: 'Cancel'
+            funcao: () => setConfirmDeleteItem(null), texto: 'Cancel'
+          }
+        }} />
+      )}
+
+      {deleteInfo.item && (
+        <Modal objeto={{
+          titulo: `Are you sure you want to PERMANENTLY delete "${deleteInfo.item.descricao}"?`,
+          alerta: true,
+          botao1: {
+            funcao: handleConfirmDelete, texto: 'Confirm'
+          },
+          botao2: {
+            funcao: () => setDeleteInfo({ success: null, item: null }), texto: 'Cancel'
+          }
+        }} />
+      )}
+
+      {confirmRestoreItem && (
+        <Modal objeto={{
+          titulo: `Do you want to restore "${confirmRestoreItem.descricao}"?`,
+          botao1: {
+            funcao: () => { handleRestoreItem(); setConfirmRestoreItem(null) }, texto: 'Confirm'
+          },
+          botao2: {
             funcao: () => setConfirmDeleteItem(null), texto: 'Cancel'
           }
         }} />

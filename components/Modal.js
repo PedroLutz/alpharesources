@@ -5,6 +5,11 @@ const Modal = ({ objeto }) => {
     <div className="overlay">
       <div className="modal">
         <p>{objeto.titulo}</p>
+        {objeto.alerta && (
+          <div>
+            <p style={{color:'red'}}><b>WARNING! This action can't be undone.</b></p>
+          </div>
+        )}
         <div>
           <div className={objeto.botao3 && 'mesma-linha'}>
             <button className="botao-padrao" onClick={objeto.botao1.funcao}>
