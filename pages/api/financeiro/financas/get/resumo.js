@@ -11,7 +11,8 @@ export default async (req, res) => {
       const somaValores = await Lancamento.aggregate([
         {
           $match: {
-            tipo: { $ne: 'Exchange' }
+            tipo: { $ne: 'Exchange' },
+            deletado: false
           }
         },
         {
@@ -26,7 +27,8 @@ export default async (req, res) => {
       const receitasTotais = await Lancamento.aggregate([
         {
           $match: {
-            tipo: { $in: ['Income', 'Exchange'] }
+            tipo: { $in: ['Income', 'Exchange'] },
+            deletado: false
           }
         },
         {
@@ -40,7 +42,8 @@ export default async (req, res) => {
       const despesasTotais = await Lancamento.aggregate([
         {
           $match: {
-            tipo: { $in: ['Expense', 'Exchange'] }
+            tipo: { $in: ['Expense', 'Exchange'] },
+            deletado: false
           }
         },
         {
@@ -55,7 +58,8 @@ export default async (req, res) => {
       const receitasPorArea = await Lancamento.aggregate([
         {
           $match: {
-            tipo: { $in: ['Income', 'Exchange'] }
+            tipo: { $in: ['Income', 'Exchange'] },
+            deletado: false
           }
         },
         {
@@ -69,7 +73,8 @@ export default async (req, res) => {
       const despesasPorArea = await Lancamento.aggregate([
         {
           $match: {
-            tipo: { $in: ['Expense', 'Exchange'] }
+            tipo: { $in: ['Expense', 'Exchange'] },
+            deletado: false
           }
         },
         {
@@ -83,7 +88,8 @@ export default async (req, res) => {
       const receitasPorMes = await Lancamento.aggregate([
         {
           $match: {
-            tipo: { $in: ['Income', 'Exchange'] }
+            tipo: { $in: ['Income', 'Exchange'] },
+            deletado: false
           }
         },
         {
@@ -111,7 +117,8 @@ export default async (req, res) => {
       const despesasPorMes = await Lancamento.aggregate([
         {
           $match: {
-            tipo: { $in: ['Expense', 'Exchange'] }
+            tipo: { $in: ['Expense', 'Exchange'] },
+            deletado: false
           }
         },
         {
@@ -144,6 +151,11 @@ export default async (req, res) => {
          
 
       const maiorEMenorValor = await Lancamento.aggregate([
+        {
+          $match: {
+            deletado: false
+          }
+        },
         {
           $group: {
             _id: null,

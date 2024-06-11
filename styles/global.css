@@ -31,6 +31,10 @@ label {
     text-align: center;
 }
 
+.campo-vazio{
+    background-color: #ffc3f7;
+}
+
 .overlay {
     position: fixed;
     top: 0;

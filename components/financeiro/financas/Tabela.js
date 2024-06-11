@@ -17,12 +17,10 @@ const Tabela = () => {
   const [lancamentosDeletados, setLancamentosDeletados] = useState([]);
   const [dadosTabela, setDadosTabela] = useState({ object: [], isDeletados: null, garbageButtonLabel: 'Garbage bin 🗑️' });
   const [deleteInfo, setDeleteInfo] = useState({ success: null, item: null });
-  const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
-  const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
-  const [confirmRestoreItem, setConfirmRestoreItem] = useState(null);
+  const [confirmItemAction, setConfirmItemAction] = useState({ action: '', item: null});  
   const [exibirModal, setExibirModal] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [linhasVisiveis, setLinhasVisiveis] = useState({});
+  const [linhaVisivel, setLinhaVisivel] = useState({});
   const camposVazios = {
     tipo: '',
     descricao: '',
@@ -102,6 +100,10 @@ const Tabela = () => {
     setDeleteInfo({ success: getDeleteSuccess, item: null })
   };
 
+  const checkDadosVazios = (campoIsVazio) => {
+    if (campoIsVazio) { setExibirModal('inputsVazios'); return };
+  }
+
   const enviar = async (e) => {
     e.preventDefault();
     const isExpense = novoSubmit.tipo === 'Expense';
@@ -110,7 +112,7 @@ const Tabela = () => {
       ...novoSubmit,
       valor: valor
     };
-    if (isFormVazio(updatedNovoSubmit)) { setExibirModal('inputsVazios'); return; }
+    // if (isFormVazio(updatedNovoSubmit)) { setExibirModal('inputsVazios'); return; }
     handleSubmit({
       route: 'financeiro/financas',
       dados: updatedNovoSubmit
@@ -127,7 +129,7 @@ const Tabela = () => {
       valorCorrigido = item.valor;
     }
 
-    setConfirmUpdateItem(item);
+    setConfirmItemAction({action: 'u', item: item})
     setNovosDados({
       tipo: item.tipo,
       descricao: item.descricao,
@@ -140,76 +142,76 @@ const Tabela = () => {
   };
 
   const handleUpdateItem = async () => {
-    if (confirmUpdateItem) {
-      const isExpense = confirmUpdateItem.tipo === "Expense";
+    if (confirmItemAction.action === 'update' || confirmItemAction.item) {
+      const isExpense = confirmItemAction.item.tipo === 'Expense';
       const valorInverso = isExpense ? novosDados.valor * -1 : novosDados.valor;
-      const updatedItem = { ...confirmUpdateItem, ...novosDados, valor: valorInverso };
+      const updatedItem = { ...confirmItemAction.item, ...novosDados, valor: valorInverso };
 
       const updatedLancamentos = lancamentos.map(item =>
         item._id === updatedItem._id ? { ...updatedItem, data: jsDateToEuDate(updatedItem.data) } : item
       );
       setLancamentos(updatedLancamentos);
       setDadosTabela({object: updatedLancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️'});
-      setConfirmUpdateItem(null);
-      toggleLinhaVisivel(confirmUpdateItem._id)
+      setConfirmItemAction({action: '', item: null})
+      linhaVisivel === confirmItemAction.item._id ? setLinhaVisivel() : setLinhaVisivel(confirmItemAction.item._id);
       try {
         await handleUpdate({
           route: 'financeiro/financas',
           dados: updatedItem,
-          item: confirmUpdateItem
+          item: confirmItemAction.item
         });
       } catch (error) {
         setLancamentos(lancamentos);
-        setConfirmUpdateItem(confirmUpdateItem);
+        setConfirmItemAction({action: 'update', item: confirmItemAction.item})
         console.error("Update failed:", error);
       }
     }
   };
 
   const handleRestoreItem = async () => {
-    if (confirmRestoreItem) {
-      const updatedItem = { ...confirmRestoreItem, deletado: false };
+    if (confirmItemAction.action === 'restore' || confirmItemAction.item) {
+      const updatedItem = { ...confirmItemAction.item, deletado: false };
 
-      const index = lancamentosDeletados.indexOf(confirmRestoreItem);
+      const index = lancamentosDeletados.indexOf(confirmItemAction.item);
       index > -1 && lancamentosDeletados.splice(index, 1);
       lancamentos.push(updatedItem);
 
       setLancamentos(lancamentos);
       setLancamentosDeletados(lancamentosDeletados);
       setDadosTabela({ object: lancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' });
-      setConfirmUpdateItem(null);
+      setConfirmItemAction({action: '', item: null});
 
       await handlePseudoDelete({
         route: 'financeiro/financas',
-        item: confirmRestoreItem,
+        item: confirmItemAction.item,
         deletar: false
       });
     }
   }
 
   const handlePseudoDeleteItem = async () => {
-    if (confirmDeleteItem) {
-      const updatedItem = { ...confirmDeleteItem, deletado: true };
+    if (confirmItemAction.action === 'delete' || confirmItemAction.item) {
+      const updatedItem = { ...confirmItemAction.item, deletado: true };
 
-      const index = lancamentos.indexOf(confirmDeleteItem);
+      const index = lancamentos.indexOf(confirmItemAction.item);
       index > -1 && lancamentos.splice(index, 1);
       lancamentosDeletados.push(updatedItem);
 
       setLancamentos(lancamentos);
       setLancamentosDeletados(lancamentosDeletados);
       setDadosTabela({ object: lancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' });
-      setConfirmUpdateItem(null);
+      setConfirmItemAction({action: '', item: null})
 
       try {
         await handlePseudoDelete({
           route: 'financeiro/financas',
-          item: confirmDeleteItem,
+          item: confirmItemAction.item,
           deletar: true
         });
       } catch (error) {
         setLancamentos(lancamentos);
         setDadosTabela({ object: lancamentos, isDeletados: false,  })
-        setConfirmUpdateItem(confirmUpdateItem);
+        setConfirmItemAction({action: 'update', item: confirmItemAction.item})
         console.error("Delete failed:", error);
       }
     }
@@ -231,14 +233,6 @@ const Tabela = () => {
 
       html2pdf().from(content).set(pdfOptions).save();
     });
-  };
-
-
-  const toggleLinhaVisivel = (id) => {
-    setLinhasVisiveis(prevState => ({
-      ...prevState,
-      [id]: !prevState[id]
-    }));
   };
 
   return (
@@ -265,12 +259,23 @@ const Tabela = () => {
               obj={novoSubmit}
               objSetter={setNovoSubmit}
               funcao={enviar}
+              dadosVazios={checkDadosVazios}
               tipo='cadastro' 
             />
             {dadosTabela.object.map((item, index) => (
               <React.Fragment key={item._id}>
                 {index % 12 === 0 && index !== 0 && <div className="html2pdf__page-break" />}
-                {!linhasVisiveis[item._id] ? (
+                {linhaVisivel === item._id ? (
+                  <React.Fragment>
+                  <CadastroInputs
+                    obj={novosDados}
+                    objSetter={setNovosDados} funcao={{
+                      funcao1: () => handleUpdateItem(),
+                      funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
+                    }}
+                    tipo='update' />
+                </React.Fragment>
+                ) : (
                   <React.Fragment>
                     <tr>
                       <td>{labelsTipo[item.tipo]}</td>
@@ -286,26 +291,17 @@ const Tabela = () => {
                       <td>{item.destino}</td>
                       {!dadosTabela.isDeletados ? (
                         <td className="botoes_acoes">
-                          <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
-                          <button onClick={() => { toggleLinhaVisivel(item._id); handleUpdateClick(item) }}>⚙️</button>
+                          <button onClick={() => setConfirmItemAction({action: 'delete', item: item})}>❌</button>
+                          <button onClick={() => { linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
+                          }}>⚙️</button>
                         </td>
                       ) : (
                         <td className="botoes_acoes">
                           <button onClick={() => setDeleteInfo({ success: null, item: item })}>❌</button>
-                          <button onClick={() => setConfirmRestoreItem(item)}>🔄</button>
+                          <button onClick={() => setConfirmItemAction({action: 'restore', item: item})}>🔄</button>
                         </td>
                       )}
                     </tr>
-                  </React.Fragment>
-                ) : (
-                  <React.Fragment>
-                    <CadastroInputs
-                      obj={novosDados}
-                      objSetter={setNovosDados} funcao={{
-                        funcao1: () => handleUpdateItem(),
-                        funcao2: () => toggleLinhaVisivel(item._id)
-                      }}
-                      tipo='update' />
                   </React.Fragment>
                 )}
               </React.Fragment>
@@ -320,14 +316,14 @@ const Tabela = () => {
             {dadosTabela.garbageButtonLabel}</button>
       </div>
 
-      {confirmDeleteItem && (
+      {confirmItemAction.action === 'delete' && confirmItemAction.item && (
         <Modal objeto={{
-          titulo: `Are you sure you want to delete "${confirmDeleteItem.descricao}"?`,
+          titulo: `Are you sure you want to delete "${confirmItemAction.item.descricao}"?`,
           botao1: {
-            funcao: () => { handlePseudoDeleteItem(); setConfirmDeleteItem(null) }, texto: 'Confirm'
+            funcao: () => { handlePseudoDeleteItem(); setConfirmItemAction({action: '', item: null}) }, texto: 'Confirm'
           },
           botao2: {
-            funcao: () => setConfirmDeleteItem(null), texto: 'Cancel'
+            funcao: () => setConfirmItemAction({action: '', item: null}), texto: 'Cancel'
           }
         }} />
       )}
@@ -345,14 +341,14 @@ const Tabela = () => {
         }} />
       )}
 
-      {confirmRestoreItem && (
+      {confirmItemAction.action === 'restore' && confirmItemAction.item && (
         <Modal objeto={{
-          titulo: `Do you want to restore "${confirmRestoreItem.descricao}"?`,
+          titulo: `Do you want to restore "${confirmItemAction.item.descricao}"?`,
           botao1: {
-            funcao: () => { handleRestoreItem(); setConfirmRestoreItem(null) }, texto: 'Confirm'
+            funcao: () => { handleRestoreItem(); setConfirmItemAction({action: '', item: null}) }, texto: 'Confirm'
           },
           botao2: {
-            funcao: () => setConfirmDeleteItem(null), texto: 'Cancel'
+            funcao: () => setConfirmItemAction({action: '', item: null}), texto: 'Cancel'
           }
         }} />
       )}
