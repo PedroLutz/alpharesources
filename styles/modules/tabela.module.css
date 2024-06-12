@@ -3,6 +3,7 @@
     border-style: solid;
     border-color: rgb(167, 167, 167);
     padding: 0.3rem;
+    width: 100%;
     border-collapse: collapse;
 }
 
@@ -11,6 +12,8 @@
     border-style: solid;
     border-color: rgb(167, 167, 167);
     padding: 0.3rem;
+    overflow-y: auto;
+    font-size: small;
 }
 
 .tabela_financas td input, .tabela_financas td select {
@@ -27,20 +30,20 @@
     background-color: rgb(231, 231, 231);
 }
 
-.tabela_financas td input {
-    width: 8rem;
+.tabela_financas td input, .tabela_financas td select {
+    width: 6.2rem;
+    font-size: small;
 }
 
-.tabela_financas td select {
-    width: 8rem;
+.tabela_financas td:nth-child(2), .tabela_financas td:nth-child(2) input {
+    width: 10rem !important;
 }
 
-.tabela_financas td:nth-child(2) {
-    width: 12rem !important;
-}
-
-.tabela_financas td:nth-child(2) input {
-    width: 12rem !important;
+.tabela_financas td:nth-child(4), 
+.tabela_financas td:nth-child(4) input,
+.tabela_financas td:nth-child(5), 
+.tabela_financas td:nth-child(5) select {
+    width: 7.2rem;
 }
 
 .tabela_financas th {
@@ -60,4 +63,8 @@
     height: 1.6rem;
     cursor: pointer;
     transition: 0.2s;
+}
+
+.tabela_financas_container {
+    width: 100%;
 }

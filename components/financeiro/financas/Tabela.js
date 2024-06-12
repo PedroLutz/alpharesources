@@ -110,9 +110,9 @@ const Tabela = () => {
     const valor = isExpense ? -parseFloat(novoSubmit.valor) : parseFloat(novoSubmit.valor);
     const updatedNovoSubmit = {
       ...novoSubmit,
+      deletado: false,
       valor: valor
     };
-    // if (isFormVazio(updatedNovoSubmit)) { setExibirModal('inputsVazios'); return; }
     handleSubmit({
       route: 'financeiro/financas',
       dados: updatedNovoSubmit
@@ -241,6 +241,7 @@ const Tabela = () => {
       <h2>Financial Releases Data</h2>
       <button onClick={generatePDF} className='botao-bonito' style={{ marginTop: '-10px', marginBottom: '30px' }}>Export Table</button>
       <div id="report">
+        <div className={styles.tabela_financas_container}>
         <table className={styles.tabela_financas}>
           <thead>
             <tr>
@@ -308,6 +309,7 @@ const Tabela = () => {
             ))}
           </tbody>
         </table>
+        </div>
         
         <button className="botao-padrao" style={{width: '130px'}} onClick={() => {dadosTabela.isDeletados ?
           setDadosTabela({ object: lancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' })
