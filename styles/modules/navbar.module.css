@@ -1,6 +1,6 @@
 .nav {
-  background-image: linear-gradient(45deg, rgba(144,6,227,1) 0%, rgba(255,0,227,1) 100%);
-  padding: 10px; 
+  background-image: linear-gradient(45deg, rgba(144, 6, 227, 1) 0%, rgba(255, 0, 227, 1) 100%);
+  padding: 10px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -10,7 +10,7 @@
 }
 
 .cabecario {
-  background-image: linear-gradient(45deg, rgba(144,6,227,1) 0%, rgba(255,0,227,1) 100%);
+  background-image: linear-gradient(45deg, rgba(144, 6, 227, 1) 0%, rgba(255, 0, 227, 1) 100%);
   padding: 10px;
   display: flex;
   justify-content: center;
@@ -43,23 +43,24 @@
 
 .nav li {
   display: inline;
-  margin-right: 10px;   
+  margin-right: 10px;
 }
 
 .nav h2 a:link,
 .nav ul li a:link {
-    color: white; 
-    text-decoration: none; 
-    transition: color 0.2s ease;
-  }
-  .nav h2 a:visited,
-  .nav ul li a:visited {
-    color: inherit;
-    text-decoration: none; 
-    transition: color 0.2s ease;
-  }
-  
-  .nav ul li a:hover {
-    color: #46205e; 
-    text-decoration: none; 
-  }
+  color: white;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.nav h2 a:visited,
+.nav ul li a:visited {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.nav ul li a:hover {
+  color: #46205e;
+  text-decoration: none;
+}

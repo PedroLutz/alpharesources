@@ -33,13 +33,6 @@ const Tabela = () => {
   const [novoSubmit, setNovoSubmit] = useState(camposVazios);
   const [novosDados, setNovosDados] = useState(camposVazios);
 
-  const isFormVazio = (obj) => {
-    const campos = Object.keys(obj);
-    for (let i = 0; i < campos.length; i++) {
-      if (obj[campos[i]] == '') return true;
-    }
-  }
-
   const fetchLancamentos = async () => {
     try {
       const data = await fetchData('financeiro/financas/get/lancamentos');
@@ -239,9 +232,9 @@ const Tabela = () => {
     <div className="centered-container">
       {loading && <Loading />}
       <h2>Financial Releases Data</h2>
-      <button onClick={generatePDF} className='botao-bonito' style={{ marginTop: '-10px', marginBottom: '30px' }}>Export Table</button>
-      <div id="report">
-        <div className={styles.tabela_financas_container}>
+      <button onClick={generatePDF} className='botao-bonito margem'>Export Table</button>
+      <div id="report" className={styles.tabela_financas_container}>
+        <div className={styles.tabela_financas_wrapper}>
         <table className={styles.tabela_financas}>
           <thead>
             <tr>
@@ -311,12 +304,14 @@ const Tabela = () => {
         </table>
         </div>
         
-        <button className="botao-padrao" style={{width: '130px'}} onClick={() => {dadosTabela.isDeletados ?
+        
+        
+      </div>
+      <button className="botao-padrao" style={{width: '130px'}} onClick={() => {dadosTabela.isDeletados ?
           setDadosTabela({ object: lancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' })
           :
           setDadosTabela({ object: lancamentosDeletados, isDeletados: true, garbageButtonLabel: 'Exit bin 🗑️' })}}>
             {dadosTabela.garbageButtonLabel}</button>
-      </div>
 
       {confirmItemAction.action === 'delete' && confirmItemAction.item && (
         <Modal objeto={{

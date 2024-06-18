@@ -5,7 +5,6 @@ import Footer from '../components/Footer';
 
 import '../styles/global.css';
 import '../styles/graficos.css';
-import '../styles/menu.css';
 import '../styles/botoes.css';
 
 function MyApp({ Component, pageProps }) {

@@ -35,6 +35,11 @@
     margin: 0.5rem;
 }
 
+.margem{
+    margin-top: -10px; 
+    margin-bottom: 30px
+}
+
 .botao-bonito:hover {
     background-color: #a84ee0;
     font-size: 0.8rem;

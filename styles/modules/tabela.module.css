@@ -7,12 +7,21 @@
     border-collapse: collapse;
 }
 
+.tabela_financas_container{
+    overflow: auto;
+    width: 100%
+}
+
+.tabela_financas_wrapper{
+    min-width: 800px;
+    display: inline-block;
+}
+
 .tabela_financas td {
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(167, 167, 167);
     padding: 0.3rem;
-    overflow-y: auto;
     font-size: small;
 }
 
@@ -65,6 +74,3 @@
     transition: 0.2s;
 }
 
-.tabela_financas_container {
-    width: 100%;
-}

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styles from '../../../styles/modules/radio.module.css';
 import Loading from '../../Loading';
 import Modal from '../../Modal';
+import tabela from '../../../styles/modules/tabela.module.css'
 import { jsDateToEuDate, euDateToIsoDate, cleanForm } from '../../../functions/general';
 import { fetchData, handleDelete, handleUpdate } from '../../../functions/crud';
 
@@ -164,12 +165,11 @@ const Tabela = () => {
           ) : (
             'See Ideal Scenario')}
       </button>
-      <div className="centered-container">
         {viewIdeal ? (
-          <div>
+          <div className={tabela.tabela_financas_container}>
             <h3>Ideal Scenario</h3>
-            <div className="centered-container">
-              <table>
+            <div className={`centered-container ${tabela.tabela_financas_wrapper}`}>
+              <table className={tabela.tabela_financas}>
                 <thead>
                   <tr>
                     <th>Area</th>
@@ -200,8 +200,8 @@ const Tabela = () => {
               </table>
             </div>
 
-            <div className="centered-container" style={{ marginTop: '50px' }}>
-              <table>
+            <div className={`centered-container ${tabela.tabela_financas_wrapper}`} style={{ marginTop: '50px' }}>
+              <table className={tabela.tabela_financas}>
                 <thead>
                   <tr>
                     <th>Resource</th>
@@ -236,8 +236,8 @@ const Tabela = () => {
               </table>
             </div>
 
-            <div className="centered-container" style={{ marginTop: '50px' }}>
-              <table style={{ width: '100%' }}>
+            <div className={`centered-container ${tabela.tabela_financas_wrapper}`} style={{ marginTop: '50px' }}>
+              <table className={tabela.tabela_financas}>
                 <thead>
                   <tr>
                     <th>Resource</th>
@@ -372,7 +372,6 @@ const Tabela = () => {
             </div>
           </div>
         )}
-      </div>
 
       <div className="centered-container">
         {confirmDeleteItem && (
