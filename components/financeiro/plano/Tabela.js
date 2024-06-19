@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styles from '../../../styles/modules/radio.module.css';
 import Loading from '../../Loading';
 import Modal from '../../Modal';
-import tabela from '../../../styles/modules/tabela.module.css'
+import tabela from '../../../styles/modules/tabelaGrande.module.css'
 import { jsDateToEuDate, euDateToIsoDate, cleanForm } from '../../../functions/general';
 import { fetchData, handleDelete, handleUpdate } from '../../../functions/crud';
 
@@ -13,7 +13,7 @@ const Tabela = () => {
   const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
   const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
-  const [viewIdeal, setViewIdeal] = useState(true);
+  const [view, setView] = useState('Ideal scenario');
   const [viewUsage, setViewUsage] = useState(true);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
@@ -83,10 +83,12 @@ const Tabela = () => {
     if (confirmUpdateItem) {
       const updatedItem = { ...confirmUpdateItem, ...formData };
       const updatedPlanos = planos.map(item =>
-        item._id === updatedItem._id ? { ...formData, 
+        item._id === updatedItem._id ? {
+          ...formData,
           data_inicial: jsDateToEuDate(updatedItem.data_inicial),
           data_esperada: jsDateToEuDate(updatedItem.data_esperada),
-          data_limite: jsDateToEuDate(updatedItem.data_limite),} : item
+          data_limite: jsDateToEuDate(updatedItem.data_limite),
+        } : item
       );
       setPlanos(updatedPlanos);
       setConfirmUpdateItem(null);
@@ -97,7 +99,7 @@ const Tabela = () => {
           item: confirmUpdateItem
         });
       } catch (error) {
-        setPlanos(planos); 
+        setPlanos(planos);
         setConfirmUpdateItem(confirmUpdateItem);
         console.error("Update failed:", error);
       }
@@ -110,8 +112,8 @@ const Tabela = () => {
       const data = await fetchData('financeiro/plano/get/planos');
       data.planos.forEach((item) => {
         item.data_inicial = jsDateToEuDate(item.data_inicial);
-          item.data_esperada = jsDateToEuDate(item.data_esperada);
-          item.data_limite = jsDateToEuDate(item.data_limite);
+        item.data_esperada = jsDateToEuDate(item.data_esperada);
+        item.data_limite = jsDateToEuDate(item.data_limite);
       });
       setPlanos(data.planos);
     } finally {
@@ -145,9 +147,10 @@ const Tabela = () => {
       var getDeleteSuccess = false;
       try {
         getDeleteSuccess = handleDelete({
-          route: 'financeiro/plano', 
-          item: confirmDeleteItem, 
-          fetchDados: fetchPlanos});
+          route: 'financeiro/plano',
+          item: confirmDeleteItem,
+          fetchDados: fetchPlanos
+        });
       } finally {
         setDeleteSuccess(getDeleteSuccess);
       }
@@ -159,219 +162,71 @@ const Tabela = () => {
     <div className="centered-container">
       {loading && <Loading />}
       <h2>Resource Acquisition Plan</h2>
-      <button type="button" className="botao-cadastro" onClick={() => setViewIdeal(!viewIdeal)}>
-        {viewIdeal ?
+      <button type="button" className="botao-cadastro" onClick={() => setView(view == 'Ideal scenario' ? 'Worst scenario' : 'Ideal scenario')}>
+        {view == 'Worst scenario' ?
           ('See Essential Scenario'
           ) : (
             'See Ideal Scenario')}
       </button>
-        {viewIdeal ? (
-          <div className={tabela.tabela_financas_container}>
-            <h3>Ideal Scenario</h3>
-            <div className={`centered-container ${tabela.tabela_financas_wrapper}`}>
-              <table className={tabela.tabela_financas}>
-                <thead>
-                  <tr>
-                    <th>Area</th>
-                    <th>Item</th>
-                    <th>Resource</th>
-                    <th>Use</th>
-                    <th>Options</th>
+      <div className={tabela.tabela_financas_container}>
+        <h3>Ideal Scenario</h3>
+        <div className={`centered-container ${tabela.tabela_financas_wrapper}`}>
+          <table className={tabela.tabela_financas}>
+            <thead>
+              <tr>
+                <th colSpan="4">Basic Info</th>
+                <th colSpan="3">Plan A</th>
+                <th colSpan="3">Milestones</th>
+                <th colSpan="3">Plan B</th>
+                <th rowSpan="2">Options</th>
+              </tr>
+              <tr>
+                <th>Area</th>
+                <th>Item</th>
+                <th>Resource</th>
+                <th>Use</th>
+                <th>Plan</th>
+                <th>Type</th>
+                <th>Value</th>
+                <th>Starting date</th>
+                <th>Expected date</th>
+                <th>Critical date</th>
+                <th>Plan</th>
+                <th>Type</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              {planos
+                .filter(item => item.plano === view)
+                .map((item, index) => (
+                  <tr key={index}>
+                    <td>{item.area || '-'}</td>
+                    <td>{item.item || '-'}</td>
+                    <td>{item.recurso || '-'}</td>
+                    <td>{item.uso || '-'}</td>
+                    <td>{item.plano_a || '-'}</td>
+                    <td>{item.tipo_a || '-'}</td>
+                    <td>{item.valor_a ? `R$${item.valor_a}` : '-'}</td>
+                    <td>{item.data_inicial !== '01/01/1970' ? item.data_inicial : '-'}</td>
+                    <td>{item.data_esperada !== '01/01/1970' ? item.data_esperada : '-'}</td>
+                    <td>{item.data_limite !== '01/01/1970' ? item.data_limite : '-'}</td>
+                    <td>{item.plano_b || '-'}</td>
+                    <td>{item.tipo_b || '-'}</td>
+                    <td>{item.valor_b ? `R$${item.valor_b}` : '-'}</td>
+                    <td style={{ width: '75px' }}>
+                      <div className="botoes-acoes">
+                        <button style={{ color: 'red' }} onClick={() => setConfirmDeleteItem(item)}>❌</button>
+                        <button onClick={() => handleUpdateClick(item)}>⚙️</button>
+                      </div>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {planos
-                    .filter(item => item.plano === "Ideal scenario")
-                    .map((item, index) => (
-                      <tr key={index}>
-                        <td>{item.area || '-'}</td>
-                        <td>{item.item || '-'}</td>
-                        <td>{item.recurso || '-'}</td>
-                        <td>{item.uso || '-'}</td>
-                        <td style={{ width: '75px' }}>
-                          <div className="botoes-acoes">
-                            <button style={{ color: 'red' }} onClick={() => setConfirmDeleteItem(item)}>❌</button>
-                            <button onClick={() => handleUpdateClick(item)}>⚙️</button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-            <div className={`centered-container ${tabela.tabela_financas_wrapper}`} style={{ marginTop: '50px' }}>
-              <table className={tabela.tabela_financas}>
-                <thead>
-                  <tr>
-                    <th>Resource</th>
-                    <th>Plan A</th>
-                    <th>Type</th>
-                    <th>Value</th>
-                    <th>Starting date</th>
-                    <th>Expected date</th>
-                    <th>Critical date</th>
-                    <th>Options</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {planos.filter(item => item.plano === "Ideal scenario").map((item, index) => (
-                    <tr key={index}>
-                      <td>{item.recurso || '-'}</td>
-                      <td>{item.plano_a || '-'}</td>
-                      <td>{item.tipo_a || '-'}</td>
-                      <td>{`R$${item.valor_a}` || '-'}</td>
-                      <td>{item.data_inicial || '-'}</td>
-                      <td>{item.data_esperada || '-'}</td>
-                      <td>{item.data_limite || '-'}</td>
-                      <td style={{ width: '75px' }}>
-                        <div className="botoes-acoes">
-                          <button style={{ color: 'red' }} onClick={() => setConfirmDeleteItem(item)}>❌</button>
-                          <button onClick={() => handleUpdateClick(item)}>⚙️</button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className={`centered-container ${tabela.tabela_financas_wrapper}`} style={{ marginTop: '50px' }}>
-              <table className={tabela.tabela_financas}>
-                <thead>
-                  <tr>
-                    <th>Resource</th>
-                    <th>Plan B</th>
-                    <th>Type</th>
-                    <th>Value</th>
-                    <th>Options</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {planos.
-                    filter(item => item.plano === "Ideal scenario")
-                    .map((item, index) => (
-                      <tr key={index}>
-                        <td>{item.recurso || '-'}</td>
-                        <td>{item.plano_b || '-'}</td>
-                        <td>{item.tipo_b || '-'}</td>
-                        <td>{`R$${item.valor_b}` || '-'}</td>
-                        <td style={{ width: '75px' }}>
-                          <div className="botoes-acoes">
-                            <button style={{ color: 'red' }} onClick={() => setConfirmDeleteItem(item)}>❌</button>
-                            <button onClick={() => handleUpdateClick(item)}>⚙️</button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        ) : (
-          <div>
-            <div className='centered-container'>
-              <h3>Essential Scenario</h3>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Area</th>
-                    <th>Item</th>
-                    <th>Resource</th>
-                    <th>Use</th>
-                    <th>Options</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {planos
-                    .filter(item => item.plano === "Worst scenario")
-                    .map((item, index) => (
-                      <tr key={index}>
-                        <td>{item.area || '-'}</td>
-                        <td>{item.item || '-'}</td>
-                        <td>{item.recurso || '-'}</td>
-                        <td>{item.uso || '-'}</td>
-                        <td style={{ width: '75px' }}>
-                          <div className="botoes-acoes">
-                            <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
-                            <button onClick={() => handleUpdateClick(item)}>⚙️</button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="centered-container" style={{ marginTop: '50px' }}>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Resource</th>
-                    <th>Plan A</th>
-                    <th>Type</th>
-                    <th>Value</th>
-                    <th>Starting date</th>
-                    <th>Expected date</th>
-                    <th>Critical date</th>
-                    <th>Options</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {planos.filter(item => item.plano === "Worst scenario").map((item, index) => (
-                    <tr key={index}>
-                      <td>{item.recurso || '-'}</td>
-                      <td>{item.plano_a || '-'}</td>
-                      <td>{item.tipo_a || '-'}</td>
-                      <td>{`R$${item.valor_a}` || '-'}</td>
-                      <td>{item.data_inicial || '-'}</td>
-                      <td>{item.data_esperada || '-'}</td>
-                      <td>{item.data_limite || '-'}</td>
-                      <td style={{ width: '75px' }}>
-                        <div className="botoes-acoes">
-                          <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
-                          <button onClick={() => handleUpdateClick(item)}>⚙️</button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="centered-container" style={{ marginTop: '50px' }}>
-              <table style={{ width: '100%' }}>
-                <thead>
-                  <tr>
-                    <th>Resource</th>
-                    <th>Plan B</th>
-                    <th>Type</th>
-                    <th>Value</th>
-                    <th>Options</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {planos.
-                    filter(item => item.plano === "Worst scenario")
-                    .map((item, index) => (
-                      <tr key={index}>
-                        <td>{item.recurso || '-'}</td>
-                        <td>{item.plano_b || '-'}</td>
-                        <td>{item.tipo_b || '-'}</td>
-                        <td>{`R$${item.valor_b}` || '-'}</td>
-                        <td style={{ width: '75px' }}>
-                          <div className="botoes-acoes">
-                            <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
-                            <button onClick={() => handleUpdateClick(item)}>⚙️</button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
 
       <div className="centered-container">
         {confirmDeleteItem && (
@@ -383,7 +238,7 @@ const Tabela = () => {
             botao2: {
               funcao: () => setConfirmDeleteItem(null), texto: 'Cancel'
             }
-          }}/>
+          }} />
         )}
 
         {deleteSuccess && (
@@ -392,7 +247,7 @@ const Tabela = () => {
             botao1: {
               funcao: () => setDeleteSuccess(false), texto: 'Close'
             },
-          }}/>
+          }} />
         )}
 
         {confirmUpdateItem && (
@@ -409,7 +264,7 @@ const Tabela = () => {
                           value="Worst scenario"
                           checked={formData.plano === 'Worst scenario'}
                           onChange={handleChange}
-                          
+
                         />
                         <span className={styles.checkmark}></span>
                         Essential scenario
@@ -421,7 +276,7 @@ const Tabela = () => {
                           value="Ideal scenario"
                           checked={formData.plano === 'Ideal scenario'}
                           onChange={handleChange}
-                          
+
                         />
                         <span className={styles.checkmark}></span>
                         Ideal scenario
@@ -436,7 +291,7 @@ const Tabela = () => {
                         placeholder=""
                         onChange={handleChange}
                         value={formData.recurso}
-                        
+
                       />
                     </div>
 
@@ -459,7 +314,7 @@ const Tabela = () => {
                             name="area"
                             onChange={handleAreaChange}
                             value={formData.area}
-                            
+
                           >
                             <option value="" disabled>Select an area</option>
                             {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
@@ -474,7 +329,7 @@ const Tabela = () => {
                             name="item"
                             onChange={handleChange}
                             value={formData.item}
-                            
+
                           >
                             <option value="" disabled>Select an item</option>
                             {itensPorArea.map((item, index) => (
@@ -491,7 +346,7 @@ const Tabela = () => {
                             placeholder=""
                             onChange={handleChange}
                             value={formData.uso}
-                            
+
                           />
                         </div>
                       </div>
@@ -504,7 +359,7 @@ const Tabela = () => {
                             name="plano_a"
                             onChange={handleChange}
                             value={formData.plano_a}
-                            
+
                           />
                         </div>
 
@@ -516,7 +371,7 @@ const Tabela = () => {
                               value="Service"
                               checked={formData.tipo_a === 'Service'}
                               onChange={handleChange}
-                              
+
                             />
                             <span className={styles.checkmark}></span>
                             Service
@@ -528,7 +383,7 @@ const Tabela = () => {
                               value="Product"
                               checked={formData.tipo_a === 'Product'}
                               onChange={handleChange}
-                              
+
                             />
                             <span className={styles.checkmark}></span>
                             Product
@@ -542,7 +397,7 @@ const Tabela = () => {
                             name="valor_a"
                             onChange={handleChange}
                             value={formData.valor_a}
-                            
+
                           />
                         </div>
 
@@ -555,7 +410,7 @@ const Tabela = () => {
                               name="data_inicial"
                               onChange={handleChange}
                               value={formData.data_inicial}
-                              
+
                             />
                           </div>
 
@@ -566,7 +421,7 @@ const Tabela = () => {
                               name="data_esperada"
                               onChange={handleChange}
                               value={formData.data_esperada}
-                              
+
                             />
                           </div>
 
@@ -577,7 +432,7 @@ const Tabela = () => {
                               name="data_limite"
                               onChange={handleChange}
                               value={formData.data_limite}
-                              
+
                             />
                           </div>
                         </div>
@@ -590,7 +445,7 @@ const Tabela = () => {
                             name="plano_b"
                             onChange={handleChange}
                             value={formData.plano_b}
-                            
+
                           />
                         </div>
 
@@ -602,7 +457,7 @@ const Tabela = () => {
                               value="Service"
                               checked={formData.tipo_b === 'Service'}
                               onChange={handleChange}
-                              
+
                             />
                             <span className={styles.checkmark}></span>
                             Service
@@ -614,7 +469,7 @@ const Tabela = () => {
                               value="Product"
                               checked={formData.tipo_b === 'Product'}
                               onChange={handleChange}
-                              
+
                             />
                             <span className={styles.checkmark}></span>
                             Product
