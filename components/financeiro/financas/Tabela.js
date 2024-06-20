@@ -64,19 +64,6 @@ const Tabela = () => {
     fetchLancamentos();
   }, []);
 
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (event.key === 'Enter') {
-        enviar(event);
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [novoSubmit]);
-
   const handleConfirmDelete = () => {
     if (deleteInfo.item) {
       var getDeleteSuccess = false;

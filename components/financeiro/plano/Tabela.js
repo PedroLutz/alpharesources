@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styles from '../../../styles/modules/radio.module.css';
+import CadastroInputs from './CadastroInputs';
 import Loading from '../../Loading';
 import Modal from '../../Modal';
 import tabela from '../../../styles/modules/tabelaGrande.module.css'
@@ -15,8 +16,9 @@ const Tabela = () => {
   const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
   const [view, setView] = useState('Ideal scenario');
   const [viewUsage, setViewUsage] = useState(true);
+  const [exibirModal, setExibirModal] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState({
+  const camposVazios = {
     plano: '',
     area: '',
     item: '',
@@ -31,7 +33,9 @@ const Tabela = () => {
     plano_b: '',
     tipo_b: '',
     valor_b: ''
-  });
+  }
+  const [novoSubmit, setNovoSubmit] = useState(camposVazios);
+  const [novosDados, setNovosDados] = useState(camposVazios);
 
   const fetchElementos = async () => {
     const data = await fetchData('wbs/get');
@@ -43,8 +47,8 @@ const Tabela = () => {
     const itensDaArea = elementosWBS.filter(item => item.area === areaSelecionada).map(item => item.item);
     setItensPorArea(itensDaArea);
 
-    setFormData({
-      ...formData,
+    setNovoSubmit({
+      ...novoSubmit,
       area: areaSelecionada,
       item: '',
     });
@@ -125,9 +129,9 @@ const Tabela = () => {
     const itensDaArea = elementosWBS.filter(item => item.area === areaSelecionadaDp).map(item => item.item);
     setItensPorArea(itensDaArea);
 
-    const novoItemSelecionado = itensDaArea.includes(formData.item) ? formData.item : '';
+    const novoItemSelecionado = itensDaArea.includes(novoSubmit.item) ? novoSubmit.item : '';
 
-    setFormData(prevState => ({
+    setNovoSubmit(prevState => ({
       ...prevState,
       area: areaSelecionadaDp,
       item: novoItemSelecionado,
@@ -137,10 +141,29 @@ const Tabela = () => {
   useEffect(() => {
     fetchPlanos();
     fetchElementos();
-    if (formData.area) {
-      updateInputItem(formData.area);
+    if (novoSubmit.area) {
+      updateInputItem(novoSubmit.area);
     }
-  }, [formData.area]);
+  }, [novoSubmit.area]);
+
+  const enviar = async (e) => {
+    const plano = view === 'Ideal scenario' ? 'Ideal scenario' : 'Worst Scenario';
+    e.preventDefault();
+    const updatedNovoSubmit = {
+      ...novoSubmit,
+      plano: plano,
+    };
+    handleSubmit({
+      route: 'financeiro/financas',
+      dados: updatedNovoSubmit
+    });
+    await fetchLancamentos();
+    cleanForm(novoSubmit, setNovoSubmit);
+  };
+
+  const checkDadosVazios = (campoIsVazio) => {
+    if (campoIsVazio) { setExibirModal('inputsVazios'); return };
+  }
 
   const handleConfirmDelete = () => {
     if (confirmDeleteItem) {
@@ -162,14 +185,14 @@ const Tabela = () => {
     <div className="centered-container">
       {loading && <Loading />}
       <h2>Resource Acquisition Plan</h2>
-      <button type="button" className="botao-cadastro" onClick={() => setView(view == 'Ideal scenario' ? 'Worst scenario' : 'Ideal scenario')}>
+      <button type="button" className={tabela.botao_bonito} onClick={() => setView(view == 'Ideal scenario' ? 'Worst scenario' : 'Ideal scenario')}>
         {view == 'Worst scenario' ?
           ('See Essential Scenario'
           ) : (
             'See Ideal Scenario')}
       </button>
+      <h3>Ideal Scenario</h3>
       <div className={tabela.tabela_financas_container}>
-        <h3>Ideal Scenario</h3>
         <div className={`centered-container ${tabela.tabela_financas_wrapper}`}>
           <table className={tabela.tabela_financas}>
             <thead>
@@ -197,6 +220,13 @@ const Tabela = () => {
               </tr>
             </thead>
             <tbody>
+              <CadastroInputs
+                obj={novoSubmit}
+                objSetter={setNovoSubmit}
+                funcao={enviar}
+                dadosVazios={checkDadosVazios}
+                tipo='cadastro'
+              />
               {planos
                 .filter(item => item.plano === view)
                 .map((item, index) => (
@@ -246,6 +276,15 @@ const Tabela = () => {
             titulo: deleteSuccess ? 'Deletion successful!' : 'Deletion failed.',
             botao1: {
               funcao: () => setDeleteSuccess(false), texto: 'Close'
+            },
+          }} />
+        )}
+
+        {exibirModal == 'inputsVazios' && (
+          <Modal objeto={{
+            titulo: 'Fill out all fields before adding new data!',
+            botao1: {
+              funcao: () => setExibirModal('null'), texto: 'Okay'
             },
           }} />
         )}
