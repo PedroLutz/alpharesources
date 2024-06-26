@@ -41,7 +41,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, dadosVazios }) => {
 
     const isFormVazio = (form) => {
         const emptyFields = Object.entries(form).filter(([key, value]) => !value);
-        return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
+        return [emptyFields.length > 1, emptyFields.map(([key]) => key)];
     };
 
     const handleChange = (e, setter, obj) => {
@@ -98,7 +98,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, dadosVazios }) => {
                     ref={el => (camposRef.current.item = el)}
 
                 >
-                    <option value="" disabled>Select an item</option>
+                    <option value="" disabled>Item</option>
                     {itensPorArea.map((item, index) => (
                         <option key={index} value={item}>{item}</option>
                     ))}

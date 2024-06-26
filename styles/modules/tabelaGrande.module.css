@@ -43,6 +43,10 @@
     font-size: small;
 }
 
+.tabela_financas td input[type='date'] {
+    width: 7rem;
+}
+
 .tabela_financas th {
     background-color: #ff8ff2;
     border-width: 0.1rem;

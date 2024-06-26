@@ -17,7 +17,7 @@ const Tabela = () => {
   const [lancamentosDeletados, setLancamentosDeletados] = useState([]);
   const [dadosTabela, setDadosTabela] = useState({ object: [], isDeletados: null, garbageButtonLabel: 'Garbage bin 🗑️' });
   const [deleteInfo, setDeleteInfo] = useState({ success: null, item: null });
-  const [confirmItemAction, setConfirmItemAction] = useState({ action: '', item: null});  
+  const [confirmItemAction, setConfirmItemAction] = useState({ action: '', item: null });
   const [exibirModal, setExibirModal] = useState(null);
   const [loading, setLoading] = useState(true);
   const [linhaVisivel, setLinhaVisivel] = useState({});
@@ -109,7 +109,7 @@ const Tabela = () => {
       valorCorrigido = item.valor;
     }
 
-    setConfirmItemAction({action: 'u', item: item})
+    setConfirmItemAction({ action: 'u', item: item })
     setNovosDados({
       tipo: item.tipo,
       descricao: item.descricao,
@@ -131,8 +131,8 @@ const Tabela = () => {
         item._id === updatedItem._id ? { ...updatedItem, data: jsDateToEuDate(updatedItem.data) } : item
       );
       setLancamentos(updatedLancamentos);
-      setDadosTabela({object: updatedLancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️'});
-      setConfirmItemAction({action: '', item: null})
+      setDadosTabela({ object: updatedLancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' });
+      setConfirmItemAction({ action: '', item: null })
       linhaVisivel === confirmItemAction.item._id ? setLinhaVisivel() : setLinhaVisivel(confirmItemAction.item._id);
       try {
         await handleUpdate({
@@ -142,7 +142,7 @@ const Tabela = () => {
         });
       } catch (error) {
         setLancamentos(lancamentos);
-        setConfirmItemAction({action: 'update', item: confirmItemAction.item})
+        setConfirmItemAction({ action: 'update', item: confirmItemAction.item })
         console.error("Update failed:", error);
       }
     }
@@ -159,7 +159,7 @@ const Tabela = () => {
       setLancamentos(lancamentos);
       setLancamentosDeletados(lancamentosDeletados);
       setDadosTabela({ object: lancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' });
-      setConfirmItemAction({action: '', item: null});
+      setConfirmItemAction({ action: '', item: null });
 
       await handlePseudoDelete({
         route: 'financeiro/financas',
@@ -180,7 +180,7 @@ const Tabela = () => {
       setLancamentos(lancamentos);
       setLancamentosDeletados(lancamentosDeletados);
       setDadosTabela({ object: lancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' });
-      setConfirmItemAction({action: '', item: null})
+      setConfirmItemAction({ action: '', item: null })
 
       try {
         await handlePseudoDelete({
@@ -190,8 +190,8 @@ const Tabela = () => {
         });
       } catch (error) {
         setLancamentos(lancamentos);
-        setDadosTabela({ object: lancamentos, isDeletados: false,  })
-        setConfirmItemAction({action: 'update', item: confirmItemAction.item})
+        setDadosTabela({ object: lancamentos, isDeletados: false, })
+        setConfirmItemAction({ action: 'update', item: confirmItemAction.item })
         console.error("Delete failed:", error);
       }
     }
@@ -222,92 +222,95 @@ const Tabela = () => {
       <button onClick={generatePDF} className='botao-bonito margem'>Export Table</button>
       <div id="report" className={styles.tabela_financas_container}>
         <div className={styles.tabela_financas_wrapper}>
-        <table className={styles.tabela_financas}>
-          <thead>
-            <tr>
-              <th>Type</th>
-              <th>Description</th>
-              <th>Value</th>
-              <th>Date</th>
-              <th>Area</th>
-              <th>Origin</th>
-              <th>Destiny</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <CadastroInputs
-              obj={novoSubmit}
-              objSetter={setNovoSubmit}
-              funcao={enviar}
-              dadosVazios={checkDadosVazios}
-              tipo='cadastro' 
-            />
-            {dadosTabela.object.map((item, index) => (
-              <React.Fragment key={item._id}>
-                {index % 12 === 0 && index !== 0 && <div className="html2pdf__page-break" />}
-                {linhaVisivel === item._id ? (
-                  <React.Fragment>
-                  <CadastroInputs
-                    obj={novosDados}
-                    objSetter={setNovosDados} funcao={{
-                      funcao1: () => handleUpdateItem(),
-                      funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
-                    }}
-                    tipo='update' />
+          <table className={styles.tabela_financas}>
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Value</th>
+                <th>Date</th>
+                <th>Area</th>
+                <th>Origin</th>
+                <th>Destiny</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <CadastroInputs
+                obj={novoSubmit}
+                objSetter={setNovoSubmit}
+                funcao={enviar}
+                dadosVazios={checkDadosVazios}
+                tipo='cadastro'
+              />
+              {dadosTabela.object.map((item, index) => (
+                <React.Fragment key={item._id}>
+                  {index % 12 === 0 && index !== 0 && <div className="html2pdf__page-break" />}
+                  {linhaVisivel === item._id ? (
+                    <React.Fragment>
+                      <CadastroInputs
+                        obj={novosDados}
+                        objSetter={setNovosDados} funcao={{
+                          funcao1: () => handleUpdateItem(),
+                          funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
+                        }}
+                        tipo='update' />
+                    </React.Fragment>
+                  ) : (
+                    <React.Fragment>
+                      <tr>
+                        <td>{labelsTipo[item.tipo]}</td>
+                        <td style={{ color: item.tipo === 'Income' ? 'green' : item.tipo === 'Exchange' ? '#335EFF' : 'red' }}>
+                          {item.descricao}
+                        </td>
+                        <td style={{ color: item.tipo === 'Income' ? 'green' : item.tipo === 'Exchange' ? '#335EFF' : 'red' }}>
+                          <b>R${Math.abs(item.valor).toFixed(2)}</b>
+                        </td>
+                        <td>{item.data}</td>
+                        <td>{item.area}</td>
+                        <td>{item.origem}</td>
+                        <td>{item.destino}</td>
+                        {!dadosTabela.isDeletados ? (
+                          <td className="botoes_acoes">
+                            <button onClick={() => setConfirmItemAction({ action: 'delete', item: item })}>❌</button>
+                            <button onClick={() => {
+                              linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
+                            }}>⚙️</button>
+                          </td>
+                        ) : (
+                          <td className="botoes_acoes">
+                            <button onClick={() => setDeleteInfo({ success: null, item: item })}>❌</button>
+                            <button onClick={() => setConfirmItemAction({ action: 'restore', item: item })}>🔄</button>
+                          </td>
+                        )}
+                      </tr>
+                    </React.Fragment>
+                  )}
                 </React.Fragment>
-                ) : (
-                  <React.Fragment>
-                    <tr>
-                      <td>{labelsTipo[item.tipo]}</td>
-                      <td style={{ color: item.tipo === 'Income' ? 'green' : item.tipo === 'Exchange' ? '#335EFF' : 'red' }}>
-                        {item.descricao}
-                      </td>
-                      <td style={{ color: item.tipo === 'Income' ? 'green' : item.tipo === 'Exchange' ? '#335EFF' : 'red' }}>
-                        <b>R${Math.abs(item.valor).toFixed(2)}</b>
-                      </td>
-                      <td>{item.data}</td>
-                      <td>{item.area}</td>
-                      <td>{item.origem}</td>
-                      <td>{item.destino}</td>
-                      {!dadosTabela.isDeletados ? (
-                        <td className="botoes_acoes">
-                          <button onClick={() => setConfirmItemAction({action: 'delete', item: item})}>❌</button>
-                          <button onClick={() => { linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
-                          }}>⚙️</button>
-                        </td>
-                      ) : (
-                        <td className="botoes_acoes">
-                          <button onClick={() => setDeleteInfo({ success: null, item: item })}>❌</button>
-                          <button onClick={() => setConfirmItemAction({action: 'restore', item: item})}>🔄</button>
-                        </td>
-                      )}
-                    </tr>
-                  </React.Fragment>
-                )}
-              </React.Fragment>
-            ))}
-          </tbody>
-        </table>
+              ))}
+            </tbody>
+          </table>
         </div>
-        
-        
-        
+
+
+
       </div>
-      <button className="botao-padrao" style={{width: '130px'}} onClick={() => {dadosTabela.isDeletados ?
-          setDadosTabela({ object: lancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' })
-          :
-          setDadosTabela({ object: lancamentosDeletados, isDeletados: true, garbageButtonLabel: 'Exit bin 🗑️' })}}>
-            {dadosTabela.garbageButtonLabel}</button>
+      <button className="botao-padrao" style={{ width: '130px' }} onClick={() => {
+        dadosTabela.isDeletados ?
+        setDadosTabela({ object: lancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' })
+        :
+        setDadosTabela({ object: lancamentosDeletados, isDeletados: true, garbageButtonLabel: 'Exit bin 🗑️' })
+      }}>
+        {dadosTabela.garbageButtonLabel}</button>
 
       {confirmItemAction.action === 'delete' && confirmItemAction.item && (
         <Modal objeto={{
           titulo: `Are you sure you want to delete "${confirmItemAction.item.descricao}"?`,
           botao1: {
-            funcao: () => { handlePseudoDeleteItem(); setConfirmItemAction({action: '', item: null}) }, texto: 'Confirm'
+            funcao: () => { handlePseudoDeleteItem(); setConfirmItemAction({ action: '', item: null }) }, texto: 'Confirm'
           },
           botao2: {
-            funcao: () => setConfirmItemAction({action: '', item: null}), texto: 'Cancel'
+            funcao: () => setConfirmItemAction({ action: '', item: null }), texto: 'Cancel'
           }
         }} />
       )}
@@ -329,10 +332,10 @@ const Tabela = () => {
         <Modal objeto={{
           titulo: `Do you want to restore "${confirmItemAction.item.descricao}"?`,
           botao1: {
-            funcao: () => { handleRestoreItem(); setConfirmItemAction({action: '', item: null}) }, texto: 'Confirm'
+            funcao: () => { handleRestoreItem(); setConfirmItemAction({ action: '', item: null }) }, texto: 'Confirm'
           },
           botao2: {
-            funcao: () => setConfirmItemAction({action: '', item: null}), texto: 'Cancel'
+            funcao: () => setConfirmItemAction({ action: '', item: null }), texto: 'Cancel'
           }
         }} />
       )}
