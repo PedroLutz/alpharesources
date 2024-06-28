@@ -21,6 +21,7 @@ const Tabela = () => {
   const [exibirModal, setExibirModal] = useState(null);
   const [loading, setLoading] = useState(true);
   const [linhaVisivel, setLinhaVisivel] = useState({});
+  const [reload, setReload] = useState(false);
   const camposVazios = {
     tipo: '',
     descricao: '',
@@ -61,8 +62,9 @@ const Tabela = () => {
   };
 
   useEffect(() => {
+    setReload(false);
     fetchLancamentos();
-  }, []);
+  }, [reload]);
 
   const handleConfirmDelete = () => {
     if (deleteInfo.item) {
@@ -80,9 +82,13 @@ const Tabela = () => {
     setDeleteInfo({ success: getDeleteSuccess, item: null })
   };
 
-  const checkDadosVazios = (campoIsVazio) => {
-    if (campoIsVazio) { setExibirModal('inputsVazios'); return };
-  }
+  const checkDados = (tipo) => {
+    setExibirModal(tipo); return;
+  };
+  const modalLabels = {
+    'inputsVazios': 'Fill out all fields before adding new data!',
+    'valorNegativo': 'The value cannot be negative!',
+  };
 
   const enviar = async (e) => {
     e.preventDefault();
@@ -97,8 +103,8 @@ const Tabela = () => {
       route: 'financeiro/financas',
       dados: updatedNovoSubmit
     });
-    await fetchLancamentos();
     cleanForm(novoSubmit, setNovoSubmit);
+    setReload(true);
   };
 
   const handleUpdateClick = (item) => {
@@ -109,7 +115,7 @@ const Tabela = () => {
       valorCorrigido = item.valor;
     }
 
-    setConfirmItemAction({ action: 'u', item: item })
+    setConfirmItemAction({ action: 'update', item: item })
     setNovosDados({
       tipo: item.tipo,
       descricao: item.descricao,
@@ -122,7 +128,7 @@ const Tabela = () => {
   };
 
   const handleUpdateItem = async () => {
-    if (confirmItemAction.action === 'update' || confirmItemAction.item) {
+    if (confirmItemAction.action === 'update' && confirmItemAction.item) {
       const isExpense = confirmItemAction.item.tipo === 'Expense';
       const valorInverso = isExpense ? novosDados.valor * -1 : novosDados.valor;
       const updatedItem = { ...confirmItemAction.item, ...novosDados, valor: valorInverso };
@@ -240,7 +246,7 @@ const Tabela = () => {
                 obj={novoSubmit}
                 objSetter={setNovoSubmit}
                 funcao={enviar}
-                dadosVazios={checkDadosVazios}
+                checkDados={checkDados}
                 tipo='cadastro'
               />
               {dadosTabela.object.map((item, index) => (
@@ -254,6 +260,7 @@ const Tabela = () => {
                           funcao1: () => handleUpdateItem(),
                           funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
                         }}
+                        checkDados={checkDados}
                         tipo='update' />
                     </React.Fragment>
                   ) : (
@@ -297,9 +304,9 @@ const Tabela = () => {
       </div>
       <button className="botao-padrao" style={{ width: '130px' }} onClick={() => {
         dadosTabela.isDeletados ?
-        setDadosTabela({ object: lancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' })
-        :
-        setDadosTabela({ object: lancamentosDeletados, isDeletados: true, garbageButtonLabel: 'Exit bin 🗑️' })
+          setDadosTabela({ object: lancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' })
+          :
+          setDadosTabela({ object: lancamentosDeletados, isDeletados: true, garbageButtonLabel: 'Exit bin 🗑️' })
       }}>
         {dadosTabela.garbageButtonLabel}</button>
 
@@ -349,11 +356,11 @@ const Tabela = () => {
         }} />
       )}
 
-      {exibirModal == 'inputsVazios' && (
+      {exibirModal != null && (
         <Modal objeto={{
-          titulo: 'Fill out all fields before adding new data!',
+          titulo: modalLabels[exibirModal],
           botao1: {
-            funcao: () => setExibirModal('null'), texto: 'Okay'
+            funcao: () => setExibirModal(null), texto: 'Okay'
           },
         }} />
       )}

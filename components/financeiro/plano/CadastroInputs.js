@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { fetchData } from '../../../functions/crud';
 
-const CadastroTabela = ({ obj, objSetter, tipo, funcao, dadosVazios }) => {
+const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
     const [emptyFields, setEmptyFields] = useState([]);
     const [elementosWBS, setElementosWBS] = useState([]);
     const [itensPorArea, setItensPorArea] = useState([]);
@@ -29,7 +29,15 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, dadosVazios }) => {
 
     useEffect(() => {
         fetchElementos();
-      }, []);
+    }, []);
+
+    useEffect(() => {
+        if (obj.area) {
+          const itensDaArea = elementosWBS.filter(item => item.area === obj.area).map(item => item.item);
+          setItensPorArea(itensDaArea);
+        }
+      }, [obj.area, elementosWBS]);
+      
 
     const handleAreaChange = (e) => {
         const areaSelecionada = e.target.value;
@@ -55,10 +63,12 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, dadosVazios }) => {
         e.target.classList.remove('campo-vazio');
     };
 
-    const handleSubmit = async (e) => {
-        if (obj.valor < 0) {
-            camposRef.current['valor'].classList.add('campo-vazio');
-            return;
+    const validaDados = () => {
+        if (obj.valor_a < 0 || obj.valor_b < 0) {
+            checkDados('valorNegativo');
+            obj.valor_a < 0 && camposRef.current['valor_a'].classList.add('campo-vazio');
+            obj.valor_b < 0 && camposRef.current['valor_b'].classList.add('campo-vazio');
+            return true;
         }
         const [isEmpty, camposVazios] = isFormVazio(obj);
         if (isEmpty) {
@@ -68,11 +78,31 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, dadosVazios }) => {
                 }
             });
             setEmptyFields(camposVazios);
-            dadosVazios(true);
-            return;
+            checkDados('inputsVazios');
+            return true;
         }
-        funcao(e);
+        if(obj.data_inicial > obj.data_esperada || obj.data_inicial > obj.data_limite){
+            checkDados('datasErradas');
+            let campos = ['data_inicial'];
+            obj.data_inicial > obj.data_esperada && campos.push('data_esperada');
+            obj.data_inicial > obj.data_limite && campos.push('data_limite');
+            campos.forEach((campo) => {
+                camposRef.current[campo].classList.add('campo-vazio');
+            });
+            return true;
+        }
     }
+
+    const handleSubmit = async (e) => {
+        const isInvalido = validaDados();
+        if(funcao.funcao1){
+            !isInvalido && funcao.funcao1;
+            return;
+        } else {
+            !isInvalido && funcao(e);
+        }
+        
+    };
 
     return (
         <tr className='linha-cadastro'>
@@ -205,7 +235,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, dadosVazios }) => {
                     <button onClick={(e) => handleSubmit(e)}>Add new</button>
                 ) : (
                     <React.Fragment>
-                        <button onClick={funcao.funcao1}>✔️</button>
+                        <button onClick={handleSubmit}>✔️</button>
                         <button onClick={funcao.funcao2}>✖️</button>
                     </React.Fragment>
                 )}

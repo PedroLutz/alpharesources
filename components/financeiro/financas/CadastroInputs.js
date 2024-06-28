@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 
-const CadastroTabela = ({ obj, objSetter, tipo, funcao, dadosVazios }) => {
+const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
     const [emptyFields, setEmptyFields] = useState([]);
     const camposRef = useRef({
         tipo: null,
@@ -28,10 +28,11 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, dadosVazios }) => {
         e.target.classList.remove('campo-vazio');
     };
 
-    const handleSubmit = async (e) => {
+    const validaDados = () => {
         if(obj.valor < 0){
             camposRef.current['valor'].classList.add('campo-vazio');
-            return;
+            checkDados('valorNegativo')
+            return true;
         }
         const [isEmpty, camposVazios] = isFormVazio(obj);
         if (isEmpty) {
@@ -41,10 +42,19 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, dadosVazios }) => {
                 }
               });
             setEmptyFields(camposVazios);
-            dadosVazios(true);
-            return;
+            checkDados('inputsVazios');
+            return true;
         }
-        funcao(e);
+    }
+
+    const handleSubmit = async (e) => {
+        const isInvalido = validaDados();
+        if(funcao.funcao1) {
+            !isInvalido && funcao.funcao1;
+        } else {
+            !isInvalido && funcao(e);
+        }
+        
     }
 
     return (
@@ -123,7 +133,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, dadosVazios }) => {
                     <button onClick={(e) => handleSubmit(e)}>Add new</button>
                 ) : (
                     <React.Fragment>
-                        <button onClick={funcao.funcao1}>✔️</button>
+                        <button onClick={handleSubmit}>✔️</button>
                         <button onClick={funcao.funcao2}>✖️</button>
                     </React.Fragment>
                 )}

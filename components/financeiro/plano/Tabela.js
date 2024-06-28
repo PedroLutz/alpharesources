@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import styles from '../../../styles/modules/radio.module.css';
 import CadastroInputs from './CadastroInputs';
 import Loading from '../../Loading';
 import Modal from '../../Modal';
@@ -9,8 +8,6 @@ import { fetchData, handleDelete, handleUpdate, handleSubmit } from '../../../fu
 
 const Tabela = () => {
   const [planos, setPlanos] = useState([]);
-  const [elementosWBS, setElementosWBS] = useState([]);
-  const [itensPorArea, setItensPorArea] = useState([]);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
   const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
@@ -18,6 +15,7 @@ const Tabela = () => {
   const [linhaVisivel, setLinhaVisivel] = useState({});
   const [exibirModal, setExibirModal] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [reload, setReload] = useState(false);
   const camposVazios = {
     plano: '',
     area: '',
@@ -37,33 +35,10 @@ const Tabela = () => {
   const [novoSubmit, setNovoSubmit] = useState(camposVazios);
   const [novosDados, setNovosDados] = useState(camposVazios);
 
-  const fetchElementos = async () => {
-    const data = await fetchData('wbs/get');
-    setElementosWBS(data.elementos);
-  };
-
-  const handleAreaChange = (e) => {
-    const areaSelecionada = e.target.value;
-    const itensDaArea = elementosWBS.filter(item => item.area === areaSelecionada).map(item => item.item);
-    setItensPorArea(itensDaArea);
-
-    setNovoSubmit({
-      ...novoSubmit,
-      area: areaSelecionada,
-      item: '',
-    });
-  };
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
   const handleUpdateClick = (item) => {
     setConfirmUpdateItem(item);
-    setNovosDados({
+    const obj = {
+      _id: item._id,
       plano: item.plano,
       area: item.area,
       item: item.item,
@@ -78,17 +53,16 @@ const Tabela = () => {
       plano_b: item.plano_b,
       tipo_b: item.tipo_b,
       valor_b: item.valor_b
-    });
+    }
+    setNovosDados(obj);
   };
 
-  const handleUpdateItem = async (e) => {
-    e.preventDefault();
-
+  const handleUpdateItem = async () => {
     if (confirmUpdateItem) {
-      const updatedItem = { ...confirmUpdateItem, ...formData };
+      const updatedItem = { ...confirmUpdateItem, ...novosDados };
       const updatedPlanos = planos.map(item =>
         item._id === updatedItem._id ? {
-          ...formData,
+          ...novosDados,
           data_inicial: jsDateToEuDate(updatedItem.data_inicial),
           data_esperada: jsDateToEuDate(updatedItem.data_esperada),
           data_limite: jsDateToEuDate(updatedItem.data_limite),
@@ -96,6 +70,7 @@ const Tabela = () => {
       );
       setPlanos(updatedPlanos);
       setConfirmUpdateItem(null);
+      linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
       try {
         await handleUpdate({
           route: 'financeiro/plano',
@@ -108,7 +83,7 @@ const Tabela = () => {
         console.error("Update failed:", error);
       }
     }
-    cleanForm(formData, setFormData);
+    cleanForm(novosDados, setNovosDados);
   };
 
   const fetchPlanos = async () => {
@@ -125,26 +100,10 @@ const Tabela = () => {
     }
   };
 
-  const updateInputItem = (areaSelecionadaDp) => {
-    const itensDaArea = elementosWBS.filter(item => item.area === areaSelecionadaDp).map(item => item.item);
-    setItensPorArea(itensDaArea);
-
-    const novoItemSelecionado = itensDaArea.includes(novoSubmit.item) ? novoSubmit.item : '';
-
-    setNovoSubmit(prevState => ({
-      ...prevState,
-      area: areaSelecionadaDp,
-      item: novoItemSelecionado,
-    }));
-  };
-
   useEffect(() => {
+    setReload(false);
     fetchPlanos();
-    fetchElementos();
-    if (novoSubmit.area) {
-      updateInputItem(novoSubmit.area);
-    }
-  }, [novoSubmit.area]);
+  }, [reload])
 
   const enviar = async (e) => {
     const plano = view === 'Ideal scenario' ? 'Ideal scenario' : 'Worst scenario';
@@ -157,21 +116,19 @@ const Tabela = () => {
       route: 'financeiro/plano',
       dados: updatedNovoSubmit
     });
-    const planosOtimista = {
-      ...updatedNovoSubmit,
-      _id: 1
-    }
-    let planosNovos = planos;
-    planosNovos.push(planosOtimista);
-    console.log(planosNovos);
-    setPlanos(planosNovos);
-    await fetchPlanos();
     cleanForm(novoSubmit, setNovoSubmit);
+    setReload(true);
   };
 
-  const checkDadosVazios = (campoIsVazio) => {
-    if (campoIsVazio) { setExibirModal('inputsVazios'); return };
-  }
+  const checkDados = (tipo) => {
+    setExibirModal(tipo); return;
+  };
+
+  const modalLabels = {
+    'inputsVazios': 'Fill out all fields before adding new data!',
+    'valorNegativo': 'The values cannot be negative!',
+    'datasErradas': 'Your starting date is lower than the other dates!',
+  };
 
   const handleConfirmDelete = () => {
     if (confirmDeleteItem) {
@@ -232,7 +189,7 @@ const Tabela = () => {
                 obj={novoSubmit}
                 objSetter={setNovoSubmit}
                 funcao={enviar}
-                dadosVazios={checkDadosVazios}
+                checkDados={checkDados}
                 tipo='cadastro'
               />
               {planos
@@ -247,6 +204,7 @@ const Tabela = () => {
                           funcao1: () => handleUpdateItem(),
                           funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
                         }}
+                        checkDados={checkDados}
                         tipo='update' />
                       </React.Fragment>
 
@@ -266,8 +224,8 @@ const Tabela = () => {
                           <td>{item.plano_b || '-'}</td>
                           <td>{item.tipo_b || '-'}</td>
                           <td>{item.valor_b ? `R$${item.valor_b}` : '-'}</td>
-                          <td style={{ width: '75px' }}>
-                            <div className="botoes-acoes">
+                          <td>
+                            <div className="botoes_acoes">
                               <button style={{ color: 'red' }} onClick={() => setConfirmDeleteItem(item)}>❌</button>
                               <button onClick={() => {
                                 linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
@@ -284,11 +242,11 @@ const Tabela = () => {
         </div>
       </div>
 
-
       <div className="centered-container">
         {confirmDeleteItem && (
           <Modal objeto={{
-            titulo: `Are you sure you want to delete the plan for "${confirmDeleteItem.recurso}"?`,
+            titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.recurso}"?`,
+            alerta: true,
             botao1: {
               funcao: handleConfirmDelete, texto: 'Confirm'
             },
@@ -307,11 +265,11 @@ const Tabela = () => {
           }} />
         )}
 
-        {exibirModal == 'inputsVazios' && (
+        {exibirModal != null && (
           <Modal objeto={{
-            titulo: 'Fill out all fields before adding new data!',
+            titulo: modalLabels[exibirModal],
             botao1: {
-              funcao: () => setExibirModal('null'), texto: 'Okay'
+              funcao: () => setExibirModal(null), texto: 'Okay'
             },
           }} />
         )}

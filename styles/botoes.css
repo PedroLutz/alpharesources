@@ -51,4 +51,5 @@
 .botoes_acoes button {
     border-width: 0rem !important;
     cursor: pointer;
+    width: 2rem !important;
 }

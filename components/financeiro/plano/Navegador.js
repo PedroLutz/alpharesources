@@ -9,9 +9,6 @@ const Navbar = () => {
       <img src={'/images/logo.png'} alt="Logo" />
       <ul>
         <li>
-          <Link href="/pages/financial/plan/register">Register</Link>
-        </li>
-        <li>
           <Link href="/pages/financial/plan/table">Spreadsheet</Link>
         </li>
         <li>

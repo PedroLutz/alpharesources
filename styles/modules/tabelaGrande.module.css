@@ -5,6 +5,7 @@
     padding: 0.3rem;
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed; 
 }
 
 .tabela_financas_container{
@@ -13,15 +14,16 @@
 
 .tabela_financas_wrapper{
     max-width: 1200px;
-    display: inline-block;
+    display:block;
 }
 
-.tabela_financas td {
+.tabela_financas td, .tabela_financas th {
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(167, 167, 167);
     padding: 0.3rem;
     font-size: small;
+    word-wrap: break-word;
 }
 
 .tabela_financas td input, .tabela_financas td select {
