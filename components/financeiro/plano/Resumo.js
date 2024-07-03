@@ -3,12 +3,18 @@ import { useEffect, useState } from 'react';
 import { fetchData } from '../../../functions/crud';
 import { Chart } from 'react-google-charts';
 import Loading from '../../Loading';
+import styles from '../../../styles/modules/resumo.module.css'
+
+const { grafico, pie_direita, pie_esquerda, pie_container, h3_resumo, custom_span } = styles;
 
 const Resumo = () => {
   const [piorPlanoPorArea, setPiorPlanoPorArea] = useState([]);
   const [cenarioIdealPorArea, setCenarioIdealPorArea] = useState([]);
   const [linhaDoTempo, setLinhaDoTempo] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [chartHeight, setChartHeight] = useState('100px');
+  const [chartDataLoaded, setChartDataLoaded] = useState(false);
+  const [viewExpected, setViewExpected] = useState(true)
   const [crescimentoDosGastos, setCrescimentoDosGastos] = useState([]);
 
   let somaPiorPlano = 0;
@@ -70,6 +76,20 @@ const Resumo = () => {
     fetchResumos();
   }, []);
 
+  useEffect(() => {
+    const dados = [linhaDoTempoLimiteGraph, linhaDoTempoEsperadaGraph]
+    dados.forEach((dado) => {
+      if (dado.length > 1) {
+        const linhaHeight = 40;
+        const novaAltura = ((dado.length * linhaHeight) + 50) + 'px';
+        setChartHeight(novaAltura);
+        setChartDataLoaded(true);
+        console.log(novaAltura);
+      }
+    })
+
+  }, [linhaDoTempoLimiteGraph, linhaDoTempoEsperadaGraph]);
+
   const estiloGraph = {
     backgroundColor: 'transparent',
     titleTextStyle: {
@@ -88,7 +108,7 @@ const Resumo = () => {
   }
 
   return (
-    <div className="h3-resumo">
+    <div className={h3_resumo}>
       {loading && <Loading />}
       <h2 className="centered-container">Report</h2>
 
@@ -96,8 +116,8 @@ const Resumo = () => {
         <h3>Cost scenarios</h3>
 
         {/* Pior cenário */}
-        <div style={{ display: 'flex' }}>
-          <div className="pie-esquerda">
+        <div style={{ display: 'flex' }} className={pie_container}>
+          <div className={pie_esquerda}>
             <Chart
               width={'100%'}
               height={'400px'}
@@ -112,7 +132,7 @@ const Resumo = () => {
             />
           </div>
 
-          <div className="pie-direita">
+          <div className={pie_direita}>
             <Chart
               width={'100%'}
               height={'400px'}
@@ -129,52 +149,72 @@ const Resumo = () => {
         </div>
 
         <div className="centered-container" style={{ flexDirection: "row" }}>
-          <span className="custom-span">Essential scenario: R${somaPiorPlano}</span>
-          <span className="custom-span">Ideal scenario: R${somaCenarioIdeal}</span>
+          <span className={custom_span}>Essential scenario: R${somaPiorPlano}</span>
+          <span className={custom_span}>Ideal scenario: R${somaCenarioIdeal}</span>
         </div>
 
-        <h3>Expected timeline</h3>
-        <div className="grafico">
-          <Chart
-            width={'90%'}
-            height={'100%'}
-            chartType="Timeline"
-            loader={<div>Loading graph</div>}
-            data={linhaDoTempoEsperadaGraph}
-            options={{
-              ...estiloGraph,
-              timeline: {
-                rowLabelStyle: {
-                  color: 'black'
-                }
-              }
-            }}
-            rootProps={{ 'data-testid': '1' }}
-          />
-        </div>
+        {chartDataLoaded && (
+          <React.Fragment>
+            {viewExpected ? (
+              <React.Fragment>
+                <div className='centered-container'>
+                  <h3>Expected timeline</h3>
+                  <button className='botao-bonito' style={{ width: '10rem', marginBottom: '2rem', marginTop: '-1rem' }}
+                    onClick={() => setViewExpected(false)}>Toggle timeline</button>
+                </div>
 
-        <h3>Critical timeline</h3>
-        <div className="grafico">
-          <Chart
-            width={'90%'}
-            height={'100%'}
-            chartType="Timeline"
-            loader={<div>Loading graph</div>}
-            options={{
-              ...estiloGraph,
-              timeline: {
-                rowLabelStyle: {
-                  color: 'black'
-                },
-              }
-            }}
-            data={linhaDoTempoLimiteGraph}
-            rootProps={{ 'data-testid': '1' }}
-          />
-        </div>
+                <div className={grafico}>
+                  <Chart
+                    width={'90%'}
+                    height={chartHeight}
+                    chartType="Timeline"
+                    loader={<div>Loading graph</div>}
+                    data={linhaDoTempoEsperadaGraph}
+                    options={{
+                      ...estiloGraph,
+                      timeline: {
+                        rowLabelStyle: {
+                          color: 'black'
+                        }
+                      }
+                    }}
+                    rootProps={{ 'data-testid': '1' }}
+                  />
+                </div>
+              </React.Fragment>
+            ) : (
+              <React.Fragment>
+                <div className='centered-container'>
+                  <h3>Critical timeline</h3>
+                  <button className='botao-bonito' style={{ width: '10rem', marginBottom: '2rem', marginTop: '-1rem' }}
+                    onClick={() => setViewExpected(true)}>Toggle timeline</button>
+                </div>
+                <div className={grafico}>
+                  <Chart
+                    width={'90%'}
+                    height={chartHeight}
+                    chartType="Timeline"
+                    loader={<div>Loading graph</div>}
+                    options={{
+                      ...estiloGraph,
+                      timeline: {
+                        rowLabelStyle: {
+                          color: 'black'
+                        },
+                      }
+                    }}
+                    data={linhaDoTempoLimiteGraph}
+                    rootProps={{ 'data-testid': '1' }}
+                  />
+                </div>
+              </React.Fragment>
+            )}
+          </React.Fragment>
+        )}
+
 
         <h3>Expected monthly cost growth</h3>
-        <div className="grafico">
+        <div className={grafico}>
           <Chart
             width={'90%'}
             height={'400px'}

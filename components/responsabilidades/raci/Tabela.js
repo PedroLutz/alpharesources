@@ -216,7 +216,7 @@ const Tabela = () => {
                   <td key={index}>{item.responsabilidades.split(', ')[tableHeaders.indexOf(membro)] || '-'}</td>
                 ))}
                 <td>
-                  <div className="botoes-acoes">
+                  <div className="botoes_acoes">
                     <button type="button" onClick={() => setConfirmDeleteItem(item)}>❌</button>
                     <button type="button" onClick={() => handleUpdateClick(item)}>⚙️</button>
                   </div>

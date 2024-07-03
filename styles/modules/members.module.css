@@ -51,33 +51,62 @@
 }
 
 .tabelaRaci th{
-    cursor: default;
-    width: 0px;
-    padding-left: 0.5rem !important;
-    padding-right: 0.5rem !important;
-    padding: 0.1rem;
-    font-size: 15px;
-    border-spacing: 0px;
-    font-weight: bold;
+    background-color: #ff8ff2;
+    border-width: 0.1rem;
+    border-style: solid;
+    font-size: 0.9rem;
+    border-color: rgb(167, 167, 167);
+    padding: 0.3rem;
 }
 
 .tabelaRaci tr{
     font-size: 14px;
+    border-style: solid;
+    border-width: 0.1rem;
+    padding: 1rem;
 }
 
+.tabelaRaci td{
+    border-width: 0.1rem;
+    border-style: solid;
+    width: 5rem;
+    border-color: rgb(167, 167, 167);
+    padding: 0.3rem;
+    font-size: small;
+}
+
+.tabelaRaci td:last-child{
+    width: 5rem;
+} 
+
 .areaTc{
-    text-align: start;
-    padding: 0.5rem;
+    text-align: center;
+    padding: 1rem;
     width: auto; 
     font-weight: bold;
+    border-style: solid;
+    border-width: 0.1rem;
 }
 
 .itemTc {
     text-align: start;
-    padding: 0.2rem;
+    padding: 0.4rem;
+    border-style: solid;
+    border-width: 0.1rem;
     width: auto; 
     overflow: hidden;
     white-space: nowrap; 
+}
+
+.tabelaRaci button{
+    background-color: transparent;
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    border-radius: 0.4rem;
+    height: 1.6rem;
+    cursor: pointer;
+    transition: 0.2s;
 }
 
 

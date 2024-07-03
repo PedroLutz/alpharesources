@@ -33,11 +33,11 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
 
     useEffect(() => {
         if (obj.area) {
-          const itensDaArea = elementosWBS.filter(item => item.area === obj.area).map(item => item.item);
-          setItensPorArea(itensDaArea);
+            const itensDaArea = elementosWBS.filter(item => item.area === obj.area).map(item => item.item);
+            setItensPorArea(itensDaArea);
         }
-      }, [obj.area, elementosWBS]);
-      
+    }, [obj.area, elementosWBS]);
+
 
     const handleAreaChange = (e) => {
         const areaSelecionada = e.target.value;
@@ -81,7 +81,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
             checkDados('inputsVazios');
             return true;
         }
-        if(obj.data_inicial > obj.data_esperada || obj.data_inicial > obj.data_limite){
+        if (obj.data_inicial > obj.data_esperada || obj.data_inicial > obj.data_limite) {
             checkDados('datasErradas');
             let campos = ['data_inicial'];
             obj.data_inicial > obj.data_esperada && campos.push('data_esperada');
@@ -95,13 +95,12 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
 
     const handleSubmit = async (e) => {
         const isInvalido = validaDados();
-        if(funcao.funcao1){
-            !isInvalido && funcao.funcao1;
+        if (funcao.funcao1) {
+            !isInvalido && funcao.funcao1();
             return;
         } else {
             !isInvalido && funcao(e);
         }
-        
     };
 
     return (

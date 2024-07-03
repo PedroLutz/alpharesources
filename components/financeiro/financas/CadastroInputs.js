@@ -50,7 +50,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
     const handleSubmit = async (e) => {
         const isInvalido = validaDados();
         if(funcao.funcao1) {
-            !isInvalido && funcao.funcao1;
+            !isInvalido && funcao.funcao1();
         } else {
             !isInvalido && funcao(e);
         }
