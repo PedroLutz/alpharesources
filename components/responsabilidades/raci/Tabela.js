@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react';
 import members from '../../../styles/modules/members.module.css';
 import Loading from '../../Loading';
 import Modal from '../../Modal';
-import { fetchData, handleDelete, handleUpdate } from '../../../functions/crud';
+import CadastroInputs from './CadastroInputs';
+import { fetchData, handleDelete, handleUpdate, handleSubmit } from '../../../functions/crud';
+import { cleanForm } from '../../../functions/general';
 
 const Tabela = () => {
   const [itensRaci, setItensRaci] = useState([]);
@@ -10,12 +12,17 @@ const Tabela = () => {
   const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
   const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
+  const [verIniciais, setVerIniciais] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState({
+  const [linhaVisivel, setLinhaVisivel] = useState({});
+  const [reload, setReload] = useState(false);
+  const camposVazios = {
     area: "",
     item: "",
     responsabilidades: ""
-  });
+  }
+  const [novoSubmit, setNovoSubmit] = useState(camposVazios);
+  const [novosDados, setNovosDados] = useState(camposVazios);
 
   const handleChange = (e) => {
     setFormData(({
@@ -27,14 +34,14 @@ const Tabela = () => {
   const handleUpdateClick = (item) => {
     setConfirmUpdateItem(item);
     const responsabilidadesArray = item.responsabilidades.split(", ");
-    setFormData({
+    setNovosDados({
       area: item.area,
       item: item.item
     });
 
     inputNames.forEach((membro, index) => {
       const responsabilidade = responsabilidadesArray[index % responsabilidadesArray.length];
-      setFormData(prevFormData => ({
+      setNovosDados(prevFormData => ({
         ...prevFormData,
         [`input${getCleanName(membro)}`]: responsabilidade
       }));
@@ -44,6 +51,23 @@ const Tabela = () => {
   const fetchItensRaci = async () => {
     const data = await fetchData('responsabilidades/raci/get');
     setItensRaci(data.itensRaci);
+  };
+
+  const enviar = async (e) => {
+    e.preventDefault();
+    const updatedFormData = {
+      ...novoSubmit,
+      responsabilidades: inputNames.map(inputName => novoSubmit["input" + getCleanName(inputName)]).join(', ')
+    };
+
+    console.log(updatedFormData);
+
+    handleSubmit({
+      route: 'responsabilidades/raci',
+      dados: updatedFormData,
+    });
+    cleanForm(novoSubmit, setNovoSubmit);
+    setReload(true);
   };
 
   const fetchNomesMembros = async () => {
@@ -74,8 +98,8 @@ const Tabela = () => {
 
   const generateFormData = () => {
     inputNames.forEach((membro) => {
-      setFormData(({
-        ...formData,
+      setNovoSubmit(({
+        ...novoSubmit,
         [`input${getCleanName(membro)}`]: ''
       }));
     });
@@ -89,6 +113,7 @@ const Tabela = () => {
   };
 
   useEffect(() => {
+    setReload(false);
     try {
       fetchNomesMembros();
       fetchItensRaci();
@@ -96,7 +121,7 @@ const Tabela = () => {
       setLoading(false);
     }
     generateFormData();
-  }, []);
+  }, [reload]);
 
   const handleConfirmDelete = () => {
     if (confirmDeleteItem) {
@@ -137,12 +162,13 @@ const Tabela = () => {
       } else {
         firstNames.set(firstName, nomeCompleto.split(' ')[0]);
         headers.push(firstName.charAt(0));
-        fullNames.push(`${firstName} ${lastName}`);
+        lastName != undefined ? fullNames.push(`${firstName} ${lastName}`) : fullNames.push(`${firstName}`);
       };
     });
-    return headers;
+    return [headers, fullNames];
   };
-  const tableHeaders = generateTableHeaders();
+  const tableHeaders = generateTableHeaders()[0];
+  const tableNames = generateTableHeaders()[1];
 
   const calculateRowSpan = (itensRaci, currentArea, currentIndex) => {
     let rowSpan = 1;
@@ -156,15 +182,13 @@ const Tabela = () => {
     return rowSpan;
   };
 
-  const handleUpdateItem = async (e) => {
-    e.preventDefault();
-
+  const handleUpdateItem = async () => {
     if (confirmUpdateItem) {
-      const responsabilidadesString = Object.keys(formData)
+      const responsabilidadesString = Object.keys(novosDados)
         .filter(key => key.startsWith('input'))
-        .map(key => formData[key]).join(', ');
+        .map(key => novosDados[key]).join(', ');
 
-      const { area, item } = formData;
+      const { area, item } = novosDados;
       const updatedItem = { _id: confirmUpdateItem._id, area, item, responsabilidades: responsabilidadesString };
       const updatedItensRaci = itensRaci.map(item =>
         item._id === updatedItem._id ? { ...updatedItem } : item
@@ -184,6 +208,7 @@ const Tabela = () => {
         console.error("Update failed:", error);
       }
     }
+    setLinhaVisivel();
     setConfirmUpdateItem(null);
     generateFormData();
   };
@@ -192,19 +217,38 @@ const Tabela = () => {
     <div className="centered-container">
       {loading && <Loading />}
       <h2>RACI Matrix</h2>
+      <button className="botao-bonito" style={{ width: '9rem' }} onClick={() => setVerIniciais(!verIniciais)}>Toggle headers</button>
       <div id="report">
         <table className={members.tabelaRaci}>
           <thead>
             <tr>
               <th>Area</th>
               <th>Item</th>
-              {tableHeaders.map((membro, index) => (
-                <th key={index}>{membro}</th>
-              ))}
+              {!verIniciais ? (
+                <React.Fragment>
+                  {tableHeaders.map((membro, index) => (
+                    <th key={index}>{membro}</th>
+                  ))}
+                </React.Fragment>
+              ) : (
+                <React.Fragment>
+                  {tableNames.map((membro, index) => (
+                    <th key={index}>{membro}</th>
+                  ))}
+                </React.Fragment>
+              )}
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
+            <tr className="linha-cadastro">
+            <CadastroInputs
+              obj={novoSubmit}
+              objSetter={setNovoSubmit}
+              funcao={enviar}
+              tipo='cadastro' />
+            </tr>
+            
             {itensRaci.map((item, index) => (
               <tr key={index}>
                 {index === 0 || itensRaci[index - 1].area !== item.area ? (
@@ -212,15 +256,33 @@ const Tabela = () => {
                     className={members.areaTc}>{item.area}</td>
                 ) : null}
                 <td className={members.itemTc}>{item.item}</td>
-                {tableHeaders.map((membro, index) => (
-                  <td key={index}>{item.responsabilidades.split(', ')[tableHeaders.indexOf(membro)] || '-'}</td>
-                ))}
-                <td>
-                  <div className="botoes_acoes">
-                    <button type="button" onClick={() => setConfirmDeleteItem(item)}>❌</button>
-                    <button type="button" onClick={() => handleUpdateClick(item)}>⚙️</button>
-                  </div>
-                </td>
+                {linhaVisivel === item._id ? (
+                  <React.Fragment>
+                    <CadastroInputs
+                    obj={novosDados}
+                    objSetter={setNovosDados}
+                    funcao={{
+                      funcao1: () => handleUpdateItem(),
+                      funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
+                    }}
+                    tipo='update'/>
+                  </React.Fragment>
+                ) : (
+                  <React.Fragment>
+                    {tableHeaders.map((membro, index) => (
+                      <td key={index}>{item.responsabilidades.split(', ')[tableHeaders.indexOf(membro)] || '-'}</td>
+                    ))}
+                    <td>
+                      <div className="botoes_acoes">
+                        <button type="button" onClick={() => setConfirmDeleteItem(item)}>❌</button>
+                        <button onClick={() => {
+                              linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
+                            }}>⚙️</button>
+                      </div>
+                    </td>
+                  </React.Fragment>
+                )
+                }
               </tr>
             ))}
           </tbody>
@@ -237,7 +299,7 @@ const Tabela = () => {
           botao2: {
             funcao: () => setConfirmDeleteItem(null), texto: 'Cancel'
           }
-        }}/>
+        }} />
       )}
 
       {deleteSuccess && (
@@ -246,46 +308,7 @@ const Tabela = () => {
           botao1: {
             funcao: () => setDeleteSuccess(false), texto: 'Close'
           },
-        }}/>
-      )}
-
-      {confirmUpdateItem && (
-        <div className="overlay">
-          <div className="modal">
-            <form onSubmit={handleUpdateItem}>
-              <div>
-                <div className="centered-container">
-                  <div style={{ marginBottom: '20px' }}><b>{formData.area} -<br />{formData.item}</b></div>
-                  {inputNames.map((membro, index) => (
-                    <div className="mini-input" key={index}>
-                      <label htmlFor={"input" + getCleanName(membro)}>{membro}</label>
-                      <select
-                        type="text"
-                        id={"input" + getCleanName(membro)}
-                        name={"input" + getCleanName(membro)}
-                        placeholder=""
-                        onChange={handleChange}
-                        value={formData["input" + getCleanName(membro)]}
-                        required
-                      >
-                        <option value="" disabled>Select responsibility</option>
-                        <option value="R">Responsible</option>
-                        <option value="A">Accountable</option>
-                        <option value="C">Consulted</option>
-                        <option value="I">Informed</option>
-                      </select>
-                    </div>
-
-                  ))}
-                </div>
-              </div>
-              <div>
-                <button className="botao-cadastro" style={{ width: "55%" }} type="submit">Register RACI item</button>
-                <button className="botao-cadastro" onClick={() => setConfirmUpdateItem(null)}>Cancel</button>
-              </div>
-            </form>
-          </div>
-        </div>
+        }} />
       )}
     </div>
   );

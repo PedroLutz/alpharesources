@@ -256,7 +256,8 @@ const Tabela = () => {
                     <React.Fragment>
                       <CadastroInputs
                         obj={novosDados}
-                        objSetter={setNovosDados} funcao={{
+                        objSetter={setNovosDados} 
+                        funcao={{
                           funcao1: () => handleUpdateItem(),
                           funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
                         }}

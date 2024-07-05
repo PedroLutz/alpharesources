@@ -114,7 +114,7 @@ const Cadastro = () => {
     <div className="centered-container financeiro">
       <h2>Register RACI item</h2>
       <form onSubmit={enviar}>
-        <div className="centered-container column-container">
+        <div className="centered-container">
           {inputNames.map((membro, index) => (
             <div key={index} className="mini-input column">
               <label htmlFor={"input" + getCleanName(membro)}>{membro}</label>

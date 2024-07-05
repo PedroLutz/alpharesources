@@ -54,7 +54,6 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
         } else {
             !isInvalido && funcao(e);
         }
-        
     }
 
     return (

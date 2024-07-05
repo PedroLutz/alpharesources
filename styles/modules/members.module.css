@@ -79,6 +79,21 @@
     width: 5rem;
 } 
 
+.tabelaRaci tr:not(:nth-child(1)) td:not(:nth-child(1)):not(:last-child),
+.tabelaRaci tr:nth-child(1) td:not(:nth-child(1)):not(:nth-child(2)):not(:last-child) {
+    width: 1.5rem;
+}
+
+.tabelaRaci td input, .tabelaRaci td select {
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    border-radius: 0.4rem;
+    padding: 0.2rem;
+    transition: 0.2s;
+    outline: none;
+}
+
 .areaTc{
     text-align: center;
     padding: 1rem;
