@@ -85,6 +85,7 @@ const Tabela = () => {
   const checkDados = (tipo) => {
     setExibirModal(tipo); return;
   };
+  
   const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',
     'valorNegativo': 'The value cannot be negative!',

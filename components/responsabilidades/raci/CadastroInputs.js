@@ -6,20 +6,16 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
     const [elementosWBS, setElementosWBS] = useState([]);
     const [nomesMembros, setNomesMembros] = useState([])
     const [itensPorArea, setItensPorArea] = useState([]);
-    const camposRef = useRef({
+    const [camposRef, setCamposRef] = useState(useRef({
         area: null,
         item: null,
-        responsabilidades: null
-    });
+        responsabilidades: null,
+    }));
 
     const fetchElementos = async () => {
         const data = await fetchData('wbs/get');
         setElementosWBS(data.elementos);
     };
-
-    useEffect(() => {
-        fetchElementos();
-    }, []);
 
     useEffect(() => {
         if (obj.area) {
@@ -61,9 +57,12 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     camposRef.current[campo].classList.add('campo-vazio');
                 }
             });
-            setEmptyFields(camposVazios);
-            checkDados('inputsVazios');
-            return true;
+            if(Object.keys(obj).length < inputNames.length + 3){
+                
+                setEmptyFields(camposVazios);
+                checkDados('inputsVazios');
+                return true;
+            }
         }
     }
 
@@ -110,6 +109,13 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
         });
         return inputNames;
     };
+
+    const getCleanName = (str) => {
+        const removeAccents = (str) => {
+            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        };
+        return removeAccents(str.split(" ").join(""));
+    };
     const inputNames = generateInputNames();
 
     const generateFormData = () => {
@@ -119,16 +125,9 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                 [`input${getCleanName(membro)}`]: ''
             }));
         });
-        console.log(obj);
     };
 
-    const getCleanName = (str) => {
-        const removeAccents = (str) => {
-            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        };
-        return removeAccents(str.split(" ").join(""));
-    };
-
+    
 
     useEffect(() => {
         fetchNomesMembros();
@@ -181,7 +180,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                         value={obj["input" + getCleanName(membro)]}
                         required
                     >
-                        <option value="" disabled>Select responsibility</option>
+                        <option value="" disabled>Responsibility</option>
                         <option value="R">Responsible</option>
                         <option value="A">Accountable</option>
                         <option value="C">Consulted</option>

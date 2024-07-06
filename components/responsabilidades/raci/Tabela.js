@@ -12,8 +12,9 @@ const Tabela = () => {
   const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
   const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
-  const [verIniciais, setVerIniciais] = useState(false);
+  const [verOpcoes, setVerOpcoes] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [exibirModal, setExibirModal] = useState(null);
   const [linhaVisivel, setLinhaVisivel] = useState({});
   const [reload, setReload] = useState(false);
   const camposVazios = {
@@ -23,13 +24,6 @@ const Tabela = () => {
   }
   const [novoSubmit, setNovoSubmit] = useState(camposVazios);
   const [novosDados, setNovosDados] = useState(camposVazios);
-
-  const handleChange = (e) => {
-    setFormData(({
-      ...formData,
-      [e.target.name]: e.target.value,
-    }));
-  };
 
   const handleUpdateClick = (item) => {
     setConfirmUpdateItem(item);
@@ -55,6 +49,18 @@ const Tabela = () => {
 
   const enviar = async (e) => {
     e.preventDefault();
+    var itemJaUsado = false;
+    itensRaci.forEach((item) => {
+      if (Object.values(item).indexOf(novoSubmit.area) > -1) {
+        if (Object.values(item).indexOf(novoSubmit.item) > -1) {
+          itemJaUsado = true;
+        }
+      }
+    })
+    if (itemJaUsado) {
+      setExibirModal('itemJaUsado')
+      return;
+    }
     const updatedFormData = {
       ...novoSubmit,
       responsabilidades: inputNames.map(inputName => novoSubmit["input" + getCleanName(inputName)]).join(', ')
@@ -67,6 +73,7 @@ const Tabela = () => {
       dados: updatedFormData,
     });
     cleanForm(novoSubmit, setNovoSubmit);
+    await fetchItensRaci();
     setReload(true);
   };
 
@@ -182,6 +189,16 @@ const Tabela = () => {
     return rowSpan;
   };
 
+  const checkDados = (tipo) => {
+    setExibirModal(tipo); return;
+  };
+
+  const modalLabels = {
+    'inputsVazios': 'Fill out all fields before adding new data!',
+    'valorNegativo': 'The value cannot be negative!',
+    'itemJaUsado': 'This item has already been registered!'
+  };
+
   const handleUpdateItem = async () => {
     if (confirmUpdateItem) {
       const responsabilidadesString = Object.keys(novosDados)
@@ -217,38 +234,42 @@ const Tabela = () => {
     <div className="centered-container">
       {loading && <Loading />}
       <h2>RACI Matrix</h2>
-      <button className="botao-bonito" style={{ width: '9rem' }} onClick={() => setVerIniciais(!verIniciais)}>Toggle headers</button>
+      <button className="botao-bonito" style={{ width: '9rem' }} onClick={() => setVerOpcoes(!verOpcoes)}>Toggle options</button>
       <div id="report">
         <table className={members.tabelaRaci}>
           <thead>
             <tr>
               <th>Area</th>
               <th>Item</th>
-              {!verIniciais ? (
+              {!verOpcoes ? (
                 <React.Fragment>
                   {tableHeaders.map((membro, index) => (
-                    <th key={index}>{membro}</th>
+                    <th key={index} className='notLast'>{membro}</th>
                   ))}
+
                 </React.Fragment>
               ) : (
                 <React.Fragment>
                   {tableNames.map((membro, index) => (
                     <th key={index}>{membro}</th>
                   ))}
+                  <th style={{ width: '5rem' }}>Actions</th>
                 </React.Fragment>
               )}
-              <th>Actions</th>
+
             </tr>
           </thead>
           <tbody>
-            <tr className="linha-cadastro">
-            <CadastroInputs
-              obj={novoSubmit}
-              objSetter={setNovoSubmit}
-              funcao={enviar}
-              tipo='cadastro' />
-            </tr>
-            
+            {verOpcoes && (
+              <tr className="linha-cadastro">
+                <CadastroInputs
+                  obj={novoSubmit}
+                  objSetter={setNovoSubmit}
+                  funcao={enviar}
+                  checkDados={checkDados}
+                  tipo='cadastro' />
+              </tr>
+            )}
             {itensRaci.map((item, index) => (
               <tr key={index}>
                 {index === 0 || itensRaci[index - 1].area !== item.area ? (
@@ -259,27 +280,30 @@ const Tabela = () => {
                 {linhaVisivel === item._id ? (
                   <React.Fragment>
                     <CadastroInputs
-                    obj={novosDados}
-                    objSetter={setNovosDados}
-                    funcao={{
-                      funcao1: () => handleUpdateItem(),
-                      funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
-                    }}
-                    tipo='update'/>
+                      obj={novosDados}
+                      objSetter={setNovosDados}
+                      funcao={{
+                        funcao1: () => handleUpdateItem(),
+                        funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
+                      }}
+                      tipo='update' />
                   </React.Fragment>
                 ) : (
                   <React.Fragment>
                     {tableHeaders.map((membro, index) => (
-                      <td key={index}>{item.responsabilidades.split(', ')[tableHeaders.indexOf(membro)] || '-'}</td>
+                      <td key={index} className='notLast'>{item.responsabilidades.split(', ')[tableHeaders.indexOf(membro)] || '-'}</td>
                     ))}
-                    <td>
-                      <div className="botoes_acoes">
-                        <button type="button" onClick={() => setConfirmDeleteItem(item)}>❌</button>
-                        <button onClick={() => {
-                              linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
-                            }}>⚙️</button>
-                      </div>
-                    </td>
+                    {verOpcoes && (
+                      <td>
+                        <div className="botoes_acoes lastMaior">
+                          <button type="button" onClick={() => setConfirmDeleteItem(item)}>❌</button>
+                          <button onClick={() => {
+                            linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
+                          }}>⚙️</button>
+                        </div>
+                      </td>
+                    )}
+
                   </React.Fragment>
                 )
                 }
@@ -288,7 +312,6 @@ const Tabela = () => {
           </tbody>
         </table>
       </div>
-
 
       {confirmDeleteItem && (
         <Modal objeto={{
@@ -307,6 +330,15 @@ const Tabela = () => {
           titulo: deleteSuccess ? 'Deletion successful!' : 'Deletion failed.',
           botao1: {
             funcao: () => setDeleteSuccess(false), texto: 'Close'
+          },
+        }} />
+      )}
+
+      {exibirModal != null && (
+        <Modal objeto={{
+          titulo: modalLabels[exibirModal],
+          botao1: {
+            funcao: () => setExibirModal(null), texto: 'Okay'
           },
         }} />
       )}
