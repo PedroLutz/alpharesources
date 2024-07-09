@@ -180,7 +180,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                         value={obj["input" + getCleanName(membro)]}
                         required
                     >
-                        <option value="" disabled>Responsibility</option>
+                        <option value="" disabled>Select</option>
                         <option value="R">Responsible</option>
                         <option value="A">Accountable</option>
                         <option value="C">Consulted</option>

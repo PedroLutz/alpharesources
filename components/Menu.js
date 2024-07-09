@@ -30,7 +30,7 @@ const Menu = () => {
             </span>
             {/*Item Responsabilidades*/}
             <span>
-                <Link href="/pages/responsibilities/raci/table">
+                <Link href="/pages/responsibilities/raci">
                     <div>
                         <img src={'/images/members_logo.png'} alt="Members Logo" className={logoItem}/>
                     </div>

@@ -2,19 +2,26 @@ import React, { useEffect, useState } from 'react';
 import members from '../../../styles/modules/members.module.css';
 import Loading from '../../Loading';
 import Modal from '../../Modal';
-import { fetchData, handleDelete, handleUpdate } from '../../../functions/crud';
+import CadastroInputs from './CadastroInputs';
+import { fetchData, handleDelete, handleUpdate, handleSubmit } from '../../../functions/crud';
+import { cleanForm } from '../../../functions/general';
 
 const Tabela = () => {
   const [membros, setMembros] = useState([]);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
   const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
+  const [exibirModal, setExibirModal] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [novosDados, setNovosDados] = useState({
+  const [linhaVisivel, setLinhaVisivel] = useState({});
+  const [reload, setReload] = useState(false);
+  const camposVazios = {
     nome: '',
     softskills: '',
     hardskills: '',
-  });
+  };
+  const [novoSubmit, setNovoSubmit] = useState(camposVazios);
+  const [novosDados, setNovosDados] = useState(camposVazios);
 
   const handleChange = (e) => {
     setNovosDados({
@@ -42,8 +49,27 @@ const Tabela = () => {
   };
 
   useEffect(() => {
+    setReload(false);
     fetchMembros();
-  }, []);
+  }, [reload]);
+
+  const enviar = async (e) => {
+    e.preventDefault();
+    handleSubmit({
+      route: 'responsabilidades/membros',
+      dados: novoSubmit
+    });
+    cleanForm(novoSubmit, setNovoSubmit);
+    setReload(true);
+  };
+
+  const checkDados = (tipo) => {
+    setExibirModal(tipo); return;
+  };
+
+  const modalLabels = {
+    'inputsVazios': 'Fill out all fields before adding new data!',
+  };
 
   const handleConfirmDelete = () => {
     if (confirmDeleteItem) {
@@ -87,6 +113,7 @@ const Tabela = () => {
       );
 
       setMembros(updatedMembros);
+      linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
       setConfirmUpdateItem(null);
       try {
         await handleUpdate({
@@ -107,33 +134,63 @@ const Tabela = () => {
       {loading && <Loading />}
       <h2>Team members</h2>
       <div id="report" className={members.containerPai}>
+        <CadastroInputs
+          tipo='cadastro'
+          obj={novoSubmit}
+          objSetter={setNovoSubmit}
+          funcao={enviar}
+          checkDados={checkDados}
+        />
         {membros.map((item, index) => (
-          <div key={index} className={members.container}>
-            <div><b>Name:</b> {item.nome}</div>
-            <div>
-              <b>Softskills:</b> {insertBreak(item.softskills)}
-            </div>
-            <div>
-              <b>Hardskills:</b> {insertBreak(item.hardskills)}
-            </div>
-            <div className={members.botoesAcoes}>
-              <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
-              <button onClick={() => handleUpdateClick(item)}>⚙️</button>
-            </div>
-          </div>
+          <React.Fragment key={item._id}>
+            {linhaVisivel === item._id ? (
+              <React.Fragment>
+                <CadastroInputs
+                obj={novosDados}
+                objSetter={setNovosDados}
+                tipo="update"
+                checkDados={checkDados}
+                funcao={{
+                  funcao1: () => handleUpdateItem(),
+                  funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
+                }}/>
+              </React.Fragment>
+            ) : (
+              <React.Fragment>
+                <div key={index} className={members.container}>
+                  <div><b>Name:</b> {item.nome}</div>
+                  <div>
+                    <b>Softskills:</b> {item.softskills}
+                  </div>
+                  <div>
+                    <b>Hardskills:</b> {item.hardskills}
+                  </div>
+                  <div className={members.botoesAcoes}>
+                    <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
+                    <button onClick={() => {
+                      linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
+                    }}>⚙️</button>
+                  </div>
+                </div>
+              </React.Fragment>
+            )}
+
+          </React.Fragment>
+
         ))}
       </div>
 
       {confirmDeleteItem && (
         <Modal objeto={{
           titulo: `Are you sure you want to delete "${confirmDeleteItem.nome}"?`,
+          alerta: true,
           botao1: {
             funcao: handleConfirmDelete, texto: 'Confirm'
           },
           botao2: {
             funcao: () => setConfirmDeleteItem(null), texto: 'Cancel'
           }
-        }}/>
+        }} />
       )}
 
       {deleteSuccess && (
@@ -142,64 +199,16 @@ const Tabela = () => {
           botao1: {
             funcao: () => setDeleteSuccess(false), texto: 'Close'
           },
-        }}/>
+        }} />
       )}
 
-      {confirmUpdateItem && (
-        <div className="overlay">
-          <div className="modal">
-            {/*outros inputs*/}
-            <div className="centered-container">
-
-              {/*input nome*/}
-              <div className="mini-input">
-                <label htmlFor="nome">Name</label>
-                <input
-                  type="text"
-                  id="nome"
-                  name="nome"
-                  placeholder=""
-                  onChange={handleChange}
-                  value={novosDados.nome}
-                  required
-                />
-              </div>
-
-              {/*input softskills*/}
-              <div className="mini-input">
-                <label htmlFor="softskills">Softskills</label>
-                <textarea
-                  type="text"
-                  id="softkills"
-                  name="softskills"
-                  onChange={handleChange}
-                  value={novosDados.softskills}
-                  required
-                />
-              </div>
-
-              {/*input hardskills*/}
-              <div className="mini-input">
-                <label htmlFor="hardskills">Hardskills</label>
-                <textarea
-                  type="text"
-                  name="hardskills"
-                  id="hardskills"
-                  onChange={handleChange}
-                  value={novosDados.hardskills}
-                  required
-                />
-              </div>
-
-              {/*fim outros inputs*/}
-            </div>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button className="botao-cadastro" onClick={handleUpdateItem}>Update</button>
-              <button className="botao-cadastro" onClick={() => setConfirmUpdateItem(null)}>Cancel</button>
-            </div>
-
-          </div>
-        </div>
+      {exibirModal != null && (
+        <Modal objeto={{
+          titulo: modalLabels[exibirModal],
+          botao1: {
+            funcao: () => setExibirModal(null), texto: 'Okay'
+          },
+        }} />
       )}
     </div>
   );

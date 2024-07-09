@@ -316,6 +316,7 @@ const Tabela = () => {
       {confirmDeleteItem && (
         <Modal objeto={{
           titulo: `Are you sure you want to delete "${confirmDeleteItem.area} - ${confirmDeleteItem.item}"?`,
+          alerta: true,
           botao1: {
             funcao: handleConfirmDelete, texto: 'Confirm'
           },
