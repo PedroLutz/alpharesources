@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import styles from '../../../styles/modules/navbar.module.css';
+import Logout from '../../LogoutButton';
 
 const Navbar = () => {
   return (

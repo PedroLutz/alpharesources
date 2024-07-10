@@ -3,10 +3,10 @@ import Resumo from '../../../../components/financeiro/financas/Resumo';
 import Navbar from '../../../../components/financeiro/financas/Navegador';
 
 
-function ResumoPage() {
+function ResumoPage({autenticacao}) {
   return (
     <div>
-      <Navbar />
+      <Navbar autenticacao={autenticacao}/>
       <Resumo />
     </div>
   );

@@ -53,3 +53,17 @@
     cursor: pointer;
     width: 2rem !important;
 }
+
+.botao_logout {
+    background-color: transparent;
+    border: none;
+    font-size: medium;
+    color: white;
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+.botao_logout:hover{
+    color: #46205e;
+  text-decoration: none;
+}

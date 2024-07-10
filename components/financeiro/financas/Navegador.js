@@ -1,8 +1,10 @@
 import React from 'react';
 import Link from 'next/link';
 import styles from '../../../styles/modules/navbar.module.css';
+import Logout from '../../LogoutButton';
 
-const Navbar = () => {
+const Navbar = ({autenticacao}) => {
+
   return (
     <nav className={styles.nav}>
       <h2><Link href="/pages/financial/finances/register">Alpha Management/Finances</Link></h2>
@@ -18,6 +20,7 @@ const Navbar = () => {
         <li>
           <Link href="/">Go to Menu</Link>
         </li>
+        <Logout autenticacao={autenticacao}/>
       </ul>
     </nav>
   );

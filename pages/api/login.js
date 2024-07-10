@@ -1,14 +1,14 @@
-// pages/api/wbs/get.js
 import connectToDatabase from '../../lib/db';
-import Elemento from '../../models/User';
+import UserModel from '../../models/User';
+
+const { User } = UserModel;
 
 export default async (req, res) => {
   try {
     await connectToDatabase();
 
     if (req.method === 'GET') {
-      // Consulte o banco de dados para buscar todas as pessoas
-      const usuario = await Elemento.find();
+      const usuario = await User.find();
 
       res.status(200).json({ usuario });
     } else {
