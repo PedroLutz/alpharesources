@@ -2,11 +2,11 @@ import React from 'react';
 import Lista from '../../../components/responsabilidades/membros/Lista';
 import Navbar from '../../../components/responsabilidades/Nav';
 
-function CadastroPage() {
+function CadastroPage({autenticacao}) {
   return (
     <div>
-        <Navbar />
-      <Lista />
+        <Navbar autenticacao={autenticacao}/>
+      <Lista autenticacao={autenticacao}/>
     </div>
   );
 }

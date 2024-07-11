@@ -26,6 +26,10 @@ function MyApp({ Component, pageProps }) {
   } else {
     return (
       <>
+      <Head>
+          <title>Alpha Management</title>
+          <link rel="icon" href="/images/logo.png" />
+        </Head>
         <FormularioLogin {...pageProps} autenticacao={autenticacao}/>
         <Footer/>
       </>

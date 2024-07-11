@@ -2,11 +2,11 @@ import React from 'react';
 import Tabela from '../../../components/cronograma/Monitoramento';
 import Navbar from '../../../components/cronograma/Navegador';
 
-function CadastroPage() {
+function CadastroPage({autenticacao}) {
   return (
     <div>
-      <Navbar />
-      <Tabela />
+      <Navbar autenticacao={autenticacao}/>
+      <Tabela autenticacao={autenticacao}/>
     </div>
   );
 }

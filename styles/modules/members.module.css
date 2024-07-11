@@ -38,6 +38,10 @@
     margin-bottom: 0.1rem;
 }
 
+.container div input:hover, .container div select:hover, .container:first-child div button:hover {
+    background-color: rgb(231, 231, 231);
+}
+
 .container div:nth-child(1) input{
     width: 83%;
 }
@@ -135,6 +139,10 @@
 .tabelaRaci tr:not(:nth-child(1)) td:not(:nth-child(1)),
 .tabelaRaci tr:nth-child(1) td:not(:nth-child(1)):not(:nth-child(2)) {
     width: 1.5rem;
+}
+
+.tabelaRaci td input:hover, .tabelaRaci td select:hover, .tabelaRaci button:hover {
+    background-color: rgb(231, 231, 231);
 }
 
 .tabelaRaci td input, .tabelaRaci td select {

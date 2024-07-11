@@ -18,6 +18,7 @@ const Tabela = () => {
   const [dadosTabela, setDadosTabela] = useState({ object: [], isDeletados: null, garbageButtonLabel: 'Garbage bin 🗑️' });
   const [deleteInfo, setDeleteInfo] = useState({ success: null, item: null });
   const [confirmItemAction, setConfirmItemAction] = useState({ action: '', item: null });
+  const [limparLixo, setLimparLixo] = useState(false);
   const [exibirModal, setExibirModal] = useState(null);
   const [loading, setLoading] = useState(true);
   const [linhaVisivel, setLinhaVisivel] = useState({});
@@ -85,7 +86,7 @@ const Tabela = () => {
   const checkDados = (tipo) => {
     setExibirModal(tipo); return;
   };
-  
+
   const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',
     'valorNegativo': 'The value cannot be negative!',
@@ -141,6 +142,7 @@ const Tabela = () => {
       setDadosTabela({ object: updatedLancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' });
       setConfirmItemAction({ action: '', item: null })
       linhaVisivel === confirmItemAction.item._id ? setLinhaVisivel() : setLinhaVisivel(confirmItemAction.item._id);
+      setReload(true);
       try {
         await handleUpdate({
           route: 'financeiro/financas',
@@ -167,7 +169,7 @@ const Tabela = () => {
       setLancamentosDeletados(lancamentosDeletados);
       setDadosTabela({ object: lancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' });
       setConfirmItemAction({ action: '', item: null });
-
+      setReload(true);
       await handlePseudoDelete({
         route: 'financeiro/financas',
         item: confirmItemAction.item,
@@ -188,7 +190,7 @@ const Tabela = () => {
       setLancamentosDeletados(lancamentosDeletados);
       setDadosTabela({ object: lancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' });
       setConfirmItemAction({ action: '', item: null })
-
+      setReload(true);
       try {
         await handlePseudoDelete({
           route: 'financeiro/financas',
@@ -221,6 +223,13 @@ const Tabela = () => {
       html2pdf().from(content).set(pdfOptions).save();
     });
   };
+
+  const limparLixeira = async () => {
+    await fetch(`/api/financeiro/financas/delete/cleanBin`, {
+      method: 'DELETE',
+    })
+    setReload(true);
+  }
 
   return (
     <div className="centered-container">
@@ -257,7 +266,7 @@ const Tabela = () => {
                     <React.Fragment>
                       <CadastroInputs
                         obj={novosDados}
-                        objSetter={setNovosDados} 
+                        objSetter={setNovosDados}
                         funcao={{
                           funcao1: () => handleUpdateItem(),
                           funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
@@ -304,6 +313,7 @@ const Tabela = () => {
 
 
       </div>
+      <div>
       <button className="botao-padrao" style={{ width: '130px' }} onClick={() => {
         dadosTabela.isDeletados ?
           setDadosTabela({ object: lancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' })
@@ -311,6 +321,11 @@ const Tabela = () => {
           setDadosTabela({ object: lancamentosDeletados, isDeletados: true, garbageButtonLabel: 'Exit bin 🗑️' })
       }}>
         {dadosTabela.garbageButtonLabel}</button>
+        {dadosTabela.isDeletados && (
+          <button className="botao-padrao" style={{ width: '130px' }} onClick={() => setLimparLixo(true)}>Clean bin ♻️</button>
+        )}
+      </div>
+      
 
       {confirmItemAction.action === 'delete' && confirmItemAction.item && (
         <Modal objeto={{
@@ -345,6 +360,19 @@ const Tabela = () => {
           },
           botao2: {
             funcao: () => setConfirmItemAction({ action: '', item: null }), texto: 'Cancel'
+          }
+        }} />
+      )}
+
+      {limparLixo && (
+        <Modal objeto={{
+          titulo: `Are you sure you want to PERMANENTLY delete all itens in the garbage bin?`,
+          alerta: true,
+          botao1: {
+            funcao: () => { limparLixeira(); setLimparLixo(false) }, texto: 'Confirm'
+          },
+          botao2: {
+            funcao: () => setLimparLixo(false), texto: 'Cancel'
           }
         }} />
       )}

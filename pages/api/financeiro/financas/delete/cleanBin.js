@@ -1,5 +1,5 @@
-import connectToDatabase from '../../../../lib/db';
-import LancamentoModel from '../../../../models/financeiro/Lancamento';
+import connectToDatabase from '../../../../../lib/db';
+import LancamentoModel from '../../../../../models/financeiro/Lancamento';
 
 const { Lancamento } = LancamentoModel;
 
@@ -8,7 +8,13 @@ export default async (req, res) => {
     await connectToDatabase();
 
     if (req.method === 'DELETE') {
-      const deletedData = await Lancamento.findByIdAndDelete(req.query.id);
+      const deletedData = await Lancamento.deleteMany({
+        deletado: true
+      });
+
+      if (!deletedData) {
+        return res.status(404).json({ error: 'Lancamento não encontrado' });
+      }
 
       res.status(200).json({ message: 'Lancamentos excluídos com sucesso' });
     } else {
