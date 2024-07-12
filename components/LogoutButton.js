@@ -1,9 +1,12 @@
-const Logout = ({autenticacao}) => {
-    const {autenticar, autenticado} = autenticacao;
+import { useContext } from "react";
+import { AuthContext } from "../contexts/AuthContext";
+
+const Logout = () => {
+    const {setAutenticado} = useContext(AuthContext);
 
     const deslogar = () => {
         sessionStorage.setItem('tempoDeSessao', null)
-        autenticar(false);
+        setAutenticado(false);
     }
 
     return (

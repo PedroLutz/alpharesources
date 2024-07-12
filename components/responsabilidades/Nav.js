@@ -1,10 +1,18 @@
 import React from 'react';
 import Link from 'next/link';
 import Logout from '../LogoutButton';
+import { useContext, useEffect } from 'react';
+import { TituloContext } from '../../contexts/TituloContext';
 
 import styles from '../../styles/modules/navbar.module.css';
 
-const Navbar = ({autenticacao}) => {
+const Navbar = () => {
+  const { setTitulo } = useContext(TituloContext);
+
+  useEffect(() => {
+    setTitulo('Responsibilities');
+  }, [setTitulo]);
+
   return (
     <nav className={styles.nav} style={{ color: 'white' }}>
       <h2><Link href="/pages/responsibilities/raci">Alpha Management/Responsibilities</Link></h2>
@@ -19,7 +27,7 @@ const Navbar = ({autenticacao}) => {
         <li>
           <Link href="/">Go to menu</Link>
         </li>
-        <Logout autenticacao={autenticacao}/>
+        <Logout/>
       </ul>
     </nav>
   );

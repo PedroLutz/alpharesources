@@ -2,11 +2,11 @@ import React from 'react';
 import Tabela from '../../../../components/financeiro/plano/Tabela';
 import Navbar from '../../../../components/financeiro/plano/Navegador';
 
-function TabelaPage({autenticacao}) {
+function TabelaPage() {
   return (
     <div>
-      <Navbar autenticacao={autenticacao}/>
-      <Tabela autenticacao={autenticacao}/>
+      <Navbar/>
+      <Tabela/>
     </div>
   );
 }

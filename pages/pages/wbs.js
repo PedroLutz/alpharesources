@@ -3,12 +3,12 @@ import Cadastro from '../../components/wbs/Cadastro';
 import Tabela from '../../components/wbs/Tabela';
 import Navbar from '../../components/wbs/Navegador';
 
-function Wbs({autenticacao}) {
+function Wbs() {
   return (
     <div>
-      <Navbar autenticacao={autenticacao}/>
-      <Cadastro autenticacao={autenticacao}/>
-      <Tabela autenticacao={autenticacao}/>
+      <Navbar/>
+      <Cadastro/>
+      <Tabela/>
     </div>
   );
 }

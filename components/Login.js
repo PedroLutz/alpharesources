@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext} from "react";
 import styles from '../styles/modules/login.module.css'
+import { AuthContext } from "../contexts/AuthContext";
 
 const {modal_login, gradient_text, input_login} = styles;
 
-const FormularioLogin = ({autenticacao}) => {
-    const {autenticar, isAutenticado} = autenticacao;
+const FormularioLogin = () => {
+    const {autenticado, setAutenticado} = useContext(AuthContext);
     const [usuario, setUsuario] = useState("");
     const [userInfo, setUserInfo] = useState("");
     const [senha, setSenha] = useState("");
@@ -36,12 +37,12 @@ const FormularioLogin = ({autenticacao}) => {
           const agora = new Date();
 
           if (autenticadoData > agora) {
-              autenticar(true);
+              setAutenticado(true);
           } else {
-              autenticar(false);
+              setAutenticado(false);
           }
       } else {
-          autenticar(false);
+          setAutenticado(false);
       }
       fetchAutenticacao(); 
   }, []);
@@ -71,7 +72,7 @@ const FormularioLogin = ({autenticacao}) => {
         
         sessionStorage.setItem('tempoDeSessao', d.toString());
   
-        autenticar(true);
+        setAutenticado(true);
       };
       
     };

@@ -1,31 +1,45 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from '../../styles/modules/wbs.module.css';
 import Loading from '../Loading';
-import { fetchData , handleUpdate , handleDelete } from '../../functions/crud';
+import { fetchData, handleUpdate, handleDelete, handleSubmit } from '../../functions/crud';
 import Modal from '../Modal';
+import BlocoInputs from './BlocoInputs';
+import { cleanForm } from '../../functions/general';
 
 const WBS = () => {
   const [elementosPorArea, setElementosPorArea] = useState([]);
   const [elementos, setElementos] = useState([]);
   const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
+  const [verOpcoes, setVerOpcoes] = useState(false);
   const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
   const [actionChoice, setActionChoice] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState({
+  const camposVazios = {
     item: '',
     area: '',
-  });
+  }
+  const [novoSubmit, setNovoSubmit] = useState(camposVazios)
+  const [novosDados, setNovosDados] = useState(camposVazios);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
+    setNovosDados({
+      ...novosDados,
       [e.target.name]: e.target.value,
     });
   };
 
+  const enviar = async (e) => {
+    e.preventDefault();
+    handleSubmit({
+      route: 'wbs',
+      dados: novoSubmit,
+    });
+    cleanForm(novoSubmit, setNovoSubmit);
+  };
+
   const handleUpdateClick = (item) => {
     setConfirmUpdateItem(item);
-    setFormData({
+    setNovosDados({
       item: item.item,
       area: item.area
     });
@@ -65,7 +79,7 @@ const WBS = () => {
 
   const handleUpdateItem = async () => {
     if (confirmUpdateItem) {
-      const updatedItem = { _id: confirmUpdateItem._id, ...formData };
+      const updatedItem = { _id: confirmUpdateItem._id, ...novosDados };
       const updatedElementos = elementos.map(item =>
         item._id === updatedItem._id ? { ...updatedItem } : item
       );
@@ -89,7 +103,17 @@ const WBS = () => {
   const renderWBS = () => {
     const areasPorLinha = 4;
     const gruposDeAreas = Object.keys(elementosPorArea).reduce((grupos, area, index) => {
-      const grupoIndex = Math.floor(index / areasPorLinha);
+      var grupoIndex;
+      if(verOpcoes){
+        if(index < 3){
+          grupoIndex = 0;
+        } else {
+          grupoIndex = Math.floor((index - 3) / areasPorLinha) + 1;
+        }
+      } else {
+        grupoIndex = Math.floor((index) / areasPorLinha);
+      }
+      
       if (!grupos[grupoIndex]) {
         grupos[grupoIndex] = [];
       }
@@ -101,8 +125,9 @@ const WBS = () => {
       <div>
         {gruposDeAreas.map((grupo, index) => (
           <div className={styles.wbsContainer} key={index}>
+            {(index == 0 && verOpcoes) && <BlocoInputs obj={novoSubmit} objSetter={setNovoSubmit} funcao={enviar}/>}
             {grupo.map(({ area, elementos }) => (
-              <div className={styles.wbsArea} key={area}>
+                <div className={styles.wbsArea} key={area}>
                 <h3>{area}</h3>
                 <div className={styles.wbsItems}>
                   {elementos
@@ -114,10 +139,13 @@ const WBS = () => {
                         className={styles.wbsItem}
                       >
                         {item.item}
+                        
                       </div>
                     ))}
+                    {/* {verOpcoes && <BlocoInputs tipo='update'/>} */}
+                    
                 </div>
-              </div>
+              </div>      
             ))}
           </div>
         ))}
@@ -128,6 +156,7 @@ const WBS = () => {
   return (
     <div className="centered-container" style={{ marginTop: '20px' }}>
       {loading && <Loading />}
+      <button onClick={() => setVerOpcoes(!verOpcoes)}>Bucetoide</button>
       {renderWBS()}
 
       {confirmUpdateItem && (
@@ -140,7 +169,7 @@ const WBS = () => {
                   className='mini-input'
                   name="area"
                   onChange={handleChange}
-                  value={formData.area}
+                  value={novosDados.area}
                   required
                 >
                   <option value="" disabled>Select an area</option>
@@ -157,7 +186,7 @@ const WBS = () => {
                 placeholder=""
                 style={{ width: '250px' }}
                 onChange={handleChange}
-                value={formData.item}
+                value={novosDados.item}
                 required
               />
             </div>
@@ -173,12 +202,12 @@ const WBS = () => {
         <Modal objeto={{
           titulo: 'What do you wish to do?',
           botao1: {
-            funcao: () => {handleUpdateClick(actionChoice); setActionChoice(null)}, texto: 'Update item'
+            funcao: () => { handleUpdateClick(actionChoice); setActionChoice(null) }, texto: 'Update item'
           },
           botao2: {
-            funcao: () => {setConfirmDeleteItem(actionChoice); setActionChoice(null)}, texto: 'Delete item'
+            funcao: () => { setConfirmDeleteItem(actionChoice); setActionChoice(null) }, texto: 'Delete item'
           },
-          botao3:{
+          botao3: {
             funcao: () => setActionChoice(null), texto: 'Cancel'
           }
         }} />

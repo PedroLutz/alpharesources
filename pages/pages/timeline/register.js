@@ -2,11 +2,11 @@ import React from 'react';
 import Cadastro from '../../../components/cronograma/Cadastro';
 import Navbar from '../../../components/cronograma/Navegador';
 
-function CadastroPage({autenticacao}) {
+function CadastroPage() {
   return (
     <div>
-      <Navbar autenticacao={autenticacao}/>
-      <Cadastro autenticacao={autenticacao}/>
+      <Navbar/>
+      <Cadastro/>
     </div>
   );
 }

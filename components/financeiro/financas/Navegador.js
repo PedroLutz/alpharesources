@@ -2,8 +2,15 @@ import React from 'react';
 import Link from 'next/link';
 import styles from '../../../styles/modules/navbar.module.css';
 import Logout from '../../LogoutButton';
+import { useEffect, useContext } from 'react';
+import { TituloContext } from '../../../contexts/TituloContext';
 
-const Navbar = ({autenticacao}) => {
+const Navbar = () => {
+  const { setTitulo } = useContext(TituloContext);
+
+  useEffect(() => {
+    setTitulo('Finances');
+  }, [setTitulo]);
 
   return (
     <nav className={styles.nav}>
@@ -20,7 +27,7 @@ const Navbar = ({autenticacao}) => {
         <li>
           <Link href="/">Go to Menu</Link>
         </li>
-        <Logout autenticacao={autenticacao}/>
+        <Logout/>
       </ul>
     </nav>
   );
