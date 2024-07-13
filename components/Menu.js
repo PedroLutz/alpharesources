@@ -1,9 +1,17 @@
 import Link from 'next/link';
 import styles from '../styles/modules/menu.module.css'
+import { useEffect, useContext } from 'react';
+import {TituloContext} from '../contexts/TituloContext' 
 
 const {containerMenu, menuGroup, logoItem, menuText, gradient_text} = styles;
 
 const Menu = () => {
+const { setTitulo } = useContext(TituloContext);
+
+  useEffect(() => {
+    setTitulo('');
+  }, [setTitulo]);
+
   return (
     <div className={containerMenu}>
         {/*Logo e nome*/}

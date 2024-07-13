@@ -11,13 +11,10 @@ import '../styles/graficos.css';
 import '../styles/botoes.css';
 
 function MyApp({ Component, pageProps }) {
-  const [autenticado, setAutenticado] = useState(false);
-  const autenticacao = { isAutenticado: autenticado, autenticar: setAutenticado };
-
   return (
     <AuthProvider>
       <TituloProvider>
-        <InnerApp Component={Component} pageProps={pageProps} autenticado={autenticado} autenticacao={autenticacao} />
+        <InnerApp Component={Component} pageProps={pageProps} />
       </TituloProvider>
     </AuthProvider>
   );
@@ -26,7 +23,7 @@ function MyApp({ Component, pageProps }) {
 function InnerApp({ Component, pageProps, autenticacao }) {
   const { titulo } = useContext(TituloContext);
   const { autenticado } = useContext(AuthContext);
-  const title = `AM ${titulo ? '| ' + titulo : ''}`
+  const title = `${titulo ? 'AM | ' + titulo : 'Alpha Management'}`
 
   return (
     <div>
@@ -36,12 +33,12 @@ function InnerApp({ Component, pageProps, autenticacao }) {
       </Head>
       {autenticado ? (
         <>
-          <Component {...pageProps} autenticacao={autenticacao} />
+          <Component {...pageProps} />
           <Footer />
         </>
       ) : (
         <>
-          <FormularioLogin {...pageProps} autenticacao={autenticacao} />
+          <FormularioLogin {...pageProps} />
           <Footer />
         </>
       )}

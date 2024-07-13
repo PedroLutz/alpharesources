@@ -66,8 +66,6 @@ const Tabela = () => {
       responsabilidades: inputNames.map(inputName => novoSubmit["input" + getCleanName(inputName)]).join(', ')
     };
 
-    console.log(updatedFormData);
-
     handleSubmit({
       route: 'responsabilidades/raci',
       dados: updatedFormData,

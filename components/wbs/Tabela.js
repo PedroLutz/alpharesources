@@ -9,24 +9,21 @@ import { cleanForm } from '../../functions/general';
 const WBS = () => {
   const [elementosPorArea, setElementosPorArea] = useState([]);
   const [elementos, setElementos] = useState([]);
+  const [linhaVisivel, setLinhaVisivel] = useState({});
   const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
   const [verOpcoes, setVerOpcoes] = useState(false);
   const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
   const [actionChoice, setActionChoice] = useState(null);
+  const [exibirModal, setExibirModal] = useState(null);
   const [loading, setLoading] = useState(true);
   const camposVazios = {
     item: '',
     area: '',
-  }
-  const [novoSubmit, setNovoSubmit] = useState(camposVazios)
-  const [novosDados, setNovosDados] = useState(camposVazios);
-
-  const handleChange = (e) => {
-    setNovosDados({
-      ...novosDados,
-      [e.target.name]: e.target.value,
-    });
   };
+  const [reload, setReload] = useState(false);
+  const [novoSubmit, setNovoSubmit] = useState(camposVazios);
+  const [submitEmArea, setSubmitEmArea] = useState(camposVazios);
+  const [novosDados, setNovosDados] = useState(camposVazios);
 
   const enviar = async (e) => {
     e.preventDefault();
@@ -34,8 +31,23 @@ const WBS = () => {
       route: 'wbs',
       dados: novoSubmit,
     });
+    setReload(true);
     cleanForm(novoSubmit, setNovoSubmit);
   };
+
+  const enviarEmArea = async (e, area) => {
+    e.preventDefault();
+    const item = submitEmArea[`novo${area}`]?.item;
+    handleSubmit({
+      route: 'wbs',
+      dados: {
+        area: area,
+        item: item
+      }
+    })
+    setReload(true);
+    cleanForm(camposVazios, setNovoSubmit);
+  }
 
   const handleUpdateClick = (item) => {
     setConfirmUpdateItem(item);
@@ -62,6 +74,18 @@ const WBS = () => {
     }
   };
 
+  useEffect(() => {
+    setReload(false);
+    fetchElementos();
+  }, [reload]);
+
+  const checkDados = (tipo) => {
+    setExibirModal(tipo); return;
+  };
+  const modalLabels = {
+    'inputsVazios': 'Fill out all fields before adding new data!',
+  };
+
   const handleConfirmDelete = () => {
     if (confirmDeleteItem) {
       handleDelete({
@@ -86,6 +110,7 @@ const WBS = () => {
 
       setElementos(updatedElementos);
       setConfirmUpdateItem(null);
+      linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
       try {
         await handleUpdate({
           route: 'wbs',
@@ -104,8 +129,8 @@ const WBS = () => {
     const areasPorLinha = 4;
     const gruposDeAreas = Object.keys(elementosPorArea).reduce((grupos, area, index) => {
       var grupoIndex;
-      if(verOpcoes){
-        if(index < 3){
+      if (verOpcoes) {
+        if (index < 3) {
           grupoIndex = 0;
         } else {
           grupoIndex = Math.floor((index - 3) / areasPorLinha) + 1;
@@ -113,7 +138,7 @@ const WBS = () => {
       } else {
         grupoIndex = Math.floor((index) / areasPorLinha);
       }
-      
+
       if (!grupos[grupoIndex]) {
         grupos[grupoIndex] = [];
       }
@@ -125,9 +150,15 @@ const WBS = () => {
       <div>
         {gruposDeAreas.map((grupo, index) => (
           <div className={styles.wbsContainer} key={index}>
-            {(index == 0 && verOpcoes) && <BlocoInputs obj={novoSubmit} objSetter={setNovoSubmit} funcao={enviar}/>}
+            {(index == 0 && verOpcoes) &&
+              <BlocoInputs
+                tipo='cadastro'
+                obj={novoSubmit}
+                objSetter={setNovoSubmit}
+                funcao={enviar}
+                checkDados={checkDados} />}
             {grupo.map(({ area, elementos }) => (
-                <div className={styles.wbsArea} key={area}>
+              <div className={styles.wbsArea} key={area}>
                 <h3>{area}</h3>
                 <div className={styles.wbsItems}>
                   {elementos
@@ -135,17 +166,37 @@ const WBS = () => {
                     .map((item, itemIndex) => (
                       <div
                         key={itemIndex}
-                        onClick={() => setActionChoice(item)}
                         className={styles.wbsItem}
                       >
-                        {item.item}
-                        
+                        {verOpcoes ? (
+                          <>{linhaVisivel === item ? (
+                            <React.Fragment>
+                              <BlocoInputs tipo='update' obj={novosDados} objSetter={setNovosDados} funcao={{
+                          funcao1: handleUpdateItem,
+                          funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
+                        }} checkDados={checkDados}/>
+                            </React.Fragment>
+                          ) : (
+                            <React.Fragment>{item.item}
+                              <button onClick={() => { handleUpdateClick(item); setLinhaVisivel(item) }}>U</button>
+                              <button onClick={() => setConfirmDeleteItem(item)}>D</button>
+                            </React.Fragment>
+                          )} </>
+                        ) : (
+                          <>{item.item}</>
+                        )}
                       </div>
                     ))}
-                    {/* {verOpcoes && <BlocoInputs tipo='update'/>} */}
-                    
+                  {verOpcoes &&
+                    <BlocoInputs
+                      tipo='updateArea'
+                      area={area}
+                      obj={submitEmArea}
+                      objSetter={setSubmitEmArea}
+                      funcao={enviarEmArea}
+                      checkDados={checkDados} />}
                 </div>
-              </div>      
+              </div>
             ))}
           </div>
         ))}
@@ -156,47 +207,8 @@ const WBS = () => {
   return (
     <div className="centered-container" style={{ marginTop: '20px' }}>
       {loading && <Loading />}
-      <button onClick={() => setVerOpcoes(!verOpcoes)}>Bucetoide</button>
+      <button onClick={() => setVerOpcoes(!verOpcoes)}>Toggle Options</button>
       {renderWBS()}
-
-      {confirmUpdateItem && (
-        <div className="overlay">
-          <div className="modal" style={{ width: '20%' }}>
-            <div className="centered-container">
-              <label htmlFor="area" style={{ alignSelf: 'center', textAlign: 'center', marginLeft: -11 }}>Area</label>
-              <div className="mini-input">
-                <select
-                  className='mini-input'
-                  name="area"
-                  onChange={handleChange}
-                  value={novosDados.area}
-                  required
-                >
-                  <option value="" disabled>Select an area</option>
-                  {[...new Set(elementos.map(item => item.area))].map((area, index) => (
-                    <option key={index} value={area}>{area}</option>
-                  ))};
-                </select>
-              </div>
-              <label htmlFor="item" style={{ alignSelf: 'center', textAlign: 'center', marginLeft: -11 }}>Item</label>
-              <input
-                type="text"
-                id="item"
-                name="item"
-                placeholder=""
-                style={{ width: '250px' }}
-                onChange={handleChange}
-                value={novosDados.item}
-                required
-              />
-            </div>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button className="botao-cadastro" onClick={handleUpdateItem}>Update</button>
-              <button className="botao-cadastro" onClick={() => setConfirmUpdateItem(null)}>Cancel</button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {actionChoice && (
         <Modal objeto={{
@@ -221,6 +233,15 @@ const WBS = () => {
           },
           botao2: {
             funcao: () => () => setConfirmDeleteItem(null), texto: 'Cancel'
+          },
+        }} />
+      )}
+
+      {exibirModal != null && (
+        <Modal objeto={{
+          titulo: modalLabels[exibirModal],
+          botao1: {
+            funcao: () => setExibirModal(null), texto: 'Okay'
           },
         }} />
       )}
