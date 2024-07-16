@@ -9,12 +9,11 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
     });
 
     useEffect(() => {
-        if(area){
+        if (area) {
             objSetter({
                 [`novo${area}`]: { area: area, item: '' }
             })
         }
-        
     }, [])
 
     const isFormVazio = (form) => {
@@ -48,17 +47,26 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
 
     const validaDados = () => {
         const [isEmpty, camposVazios] = isFormVazio(obj);
+    
         if (isEmpty) {
             camposVazios.forEach(campo => {
                 if (camposRef.current[campo]) {
                     camposRef.current[campo].classList.add('campo-vazio');
                 }
             });
-            setEmptyFields(camposVazios);
+    
             checkDados && checkDados('inputsVazios');
             return true;
         }
-    }
+    
+        if (tipo === 'cadastroItem' && area && !obj[`novo${area}`]?.item) {
+            checkDados && checkDados('inputsVazios');
+            return true;
+        }
+    
+        return false;
+    };
+    
 
     const handleSubmit = async (e) => {
         const isInvalido = validaDados();
@@ -66,7 +74,7 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
             !isInvalido && funcao.funcao1();
         } else {
             if (!isInvalido) {
-                if(area){
+                if (area) {
                     await funcao(e, area);
                     var areaValor, key;
                     areaValor = e.target.getAttribute('data-area'); key = `novo${area}`;
@@ -77,6 +85,7 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
                             item: ''
                         }
                     }));
+                    
                 } else {
                     funcao(e);
                 }
@@ -84,7 +93,7 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
         }
     }
 
-    if (tipo === 'cadastro') {
+    if (tipo === 'cadastroArea') {
         return (
             <div className={styles.wbsArea}>
                 <h3>NEW</h3>
@@ -107,7 +116,8 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
                 </div>
             </div>
         )
-    } else if(tipo === 'updateArea') {
+    } 
+    if (tipo === 'cadastroItem') {
         return (
             <div>
                 <div className={styles.wbsItem}>
@@ -123,17 +133,29 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
                 </div>
             </div>
         )
-    } else if(tipo === 'update') {
-        return(
+    } 
+    if (tipo === 'updateItem') {
+        return (
             <React.Fragment>
                 <input value={obj.item}
-                name='item'
-                onChange={(e) => handleChange(e, objSetter, obj)}
-                ref={el => (camposRef.current.item = el)}/>
+                    name='item'
+                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    ref={el => (camposRef.current.item = el)} />
                 <button onClick={handleSubmit}>O</button>
-                </React.Fragment>
-            
-            
+                <button onClick={funcao.funcao2}>S</button>
+            </React.Fragment>
+        )
+    }
+    if (tipo === 'updateArea') {
+        return (
+            <React.Fragment>
+                <input value={obj.area}
+                    name='area'
+                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    ref={el => (camposRef.current.area = el)} />
+                <button onClick={handleSubmit}>O</button>
+                <button onClick={funcao.funcao2}>S</button>
+            </React.Fragment>
         )
     }
 }

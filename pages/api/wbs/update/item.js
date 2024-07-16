@@ -1,7 +1,13 @@
-import connectToDatabase from '../../../lib/db';
-import WbsModel from '../../../models/WorkBS';
+import connectToDatabase from '../../../../lib/db';
+import WbsModel from '../../../../models/WorkBS';
+import PlanoModel from '../../../../models/financeiro/Plano'
+import RaciModel from '../../../../models/responsabilidade/Raci'
+import GanttModel from '../../../../models/Gantt'
 
 const { Wbs, WbsSchema } = WbsModel;
+const { Plano } = PlanoModel;
+const { Raci } = RaciModel;
+const { Gantt } = GanttModel;
 
 export default async (req, res) => {
   try {
@@ -30,14 +36,24 @@ export default async (req, res) => {
       if (Object.keys(updateFields).length === 0) {
         return res.status(400).json({ error: 'Pelo menos um campo deve ser fornecido para a atualização.' });
       }
+      const oldWBS = await Wbs.findById(id);
 
-      const updatedData = await Wbs.findByIdAndUpdate(id, updateFields, { new: true });
+      const updatedWBS = await Wbs.findByIdAndUpdate(id, updateFields, { new: true });
+      const updatedPlano = await Plano.updateMany(
+        { area: oldWBS.area, item: oldWBS.item }, { $set: { item: updateFields.item } }
+      );
+      const updatedGantt = await Gantt.updateMany(
+        { area: oldWBS.area, item: oldWBS.item }, { $set: { item: updateFields.item } }
+      );
+      const updatedRaci = await Raci.updateMany(
+        { area: oldWBS.area, item: oldWBS.item }, { $set: { item: updateFields.item } }
+      );
 
-      if (!updatedData) {
+      if (!updatedWBS) {
         return res.status(404).json({ error: 'Wbs não encontrado.' });
       }
 
-      return res.status(200).json(updatedData);
+      return res.status(200).json(updatedWBS);
     } else {
       res.status(405).json({ error: 'Método não permitido' });
     }

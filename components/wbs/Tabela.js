@@ -5,6 +5,8 @@ import { fetchData, handleUpdate, handleDelete, handleSubmit } from '../../funct
 import Modal from '../Modal';
 import BlocoInputs from './BlocoInputs';
 import { cleanForm } from '../../functions/general';
+import { set } from 'lodash';
+import { type } from 'os';
 
 const WBS = () => {
   const [elementosPorArea, setElementosPorArea] = useState([]);
@@ -51,15 +53,22 @@ const WBS = () => {
 
   const handleUpdateClick = (item) => {
     setConfirmUpdateItem(item);
-    setNovosDados({
-      item: item.item,
-      area: item.area
-    });
+    if (typeof (item) === 'object') {
+      setNovosDados({
+        item: item.item,
+        area: item.area
+      });
+    } else {
+      setNovosDados({
+        area: item,
+        oldArea: item
+      })
+    }
   };
 
   const fetchElementos = async () => {
     try {
-      const data = await fetchData('wbs/get');
+      const data = await fetchData('wbs/get/all');
       const areas = {};
       data.elementos.forEach((elemento) => {
         if (!areas[elemento.area]) {
@@ -84,9 +93,29 @@ const WBS = () => {
   };
   const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',
+    'elementoUsado': 'This WBS item is used somewhere else!'
   };
 
-  const handleConfirmDelete = () => {
+  const checkIfUsed = async (item) => {
+    var found;
+    await fetch(`/api/wbs/get/isItemUsed?nome=${String(item.item)}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ area: item.area, item: item.item }),
+    })
+      .then(response => response.json()).then(data => { found = data.found });
+    return found;
+  }
+
+  const handleConfirmDelete = async () => {
+    const isUsed = await checkIfUsed(confirmDeleteItem);
+    if (isUsed) {
+      setConfirmDeleteItem(null);
+      setExibirModal('elementoUsado');
+      return;
+    }
     if (confirmDeleteItem) {
       handleDelete({
         route: 'wbs',
@@ -96,31 +125,53 @@ const WBS = () => {
     }
     setConfirmDeleteItem(null);
   };
-
   useEffect(() => {
     fetchElementos();
   }, []);
 
   const handleUpdateItem = async () => {
     if (confirmUpdateItem) {
-      const updatedItem = { _id: confirmUpdateItem._id, ...novosDados };
-      const updatedElementos = elementos.map(item =>
-        item._id === updatedItem._id ? { ...updatedItem } : item
-      );
+      if (typeof (confirmUpdateItem) == 'object') {
+        const updatedItem = { ...confirmUpdateItem, ...novosDados };
+        const updatedElementos = elementos.map(item =>
+          item._id === updatedItem._id ? { ...updatedItem } : item
+        );
 
-      setElementos(updatedElementos);
-      setConfirmUpdateItem(null);
-      linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-      try {
-        await handleUpdate({
-          route: 'wbs',
-          dados: updatedItem,
-          item: confirmUpdateItem
-        });
-      } catch (error) {
-        setElementos(elementos);
-        setConfirmUpdateItem(confirmUpdateItem);
-        console.error("Update failed:", error);
+        setElementos(updatedElementos);
+        setConfirmUpdateItem(null);
+        linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
+        try {
+          await handleUpdate({
+            route: 'wbs/update/item?id',
+            dados: updatedItem,
+            item: confirmUpdateItem
+          });
+        } catch (error) {
+          setElementos(elementos);
+          setConfirmUpdateItem(confirmUpdateItem);
+          console.error("Update failed:", error);
+        }
+        setReload(true);
+      } else {
+        setReload(true);
+        linhaVisivel === confirmUpdateItem ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem);
+        try {
+          const response = await fetch(`/api/wbs/update/area`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(novosDados),
+          });
+
+          if (response.status === 200) {
+            return;
+          } else {
+            console.error(`Erro ao atualizar ${o.route}`);
+          }
+        } catch (error) {
+          console.error(`Erro ao atualizar ${o.route}, ${error}`);
+        }
       }
     }
   };
@@ -152,14 +203,37 @@ const WBS = () => {
           <div className={styles.wbsContainer} key={index}>
             {(index == 0 && verOpcoes) &&
               <BlocoInputs
-                tipo='cadastro'
+                tipo='cadastroArea'
                 obj={novoSubmit}
                 objSetter={setNovoSubmit}
                 funcao={enviar}
-                checkDados={checkDados} />}
+                checkDados={checkDados}
+              />}
             {grupo.map(({ area, elementos }) => (
               <div className={styles.wbsArea} key={area}>
-                <h3>{area}</h3>
+                {verOpcoes ? (
+                  <React.Fragment>
+                    {linhaVisivel === area ? (
+                      <BlocoInputs
+                        tipo='updateArea'
+                        obj={novosDados}
+                        objSetter={setNovosDados}
+                        funcao={{
+                          funcao1: handleUpdateItem,
+                          funcao2: () => linhaVisivel === area ? setLinhaVisivel() : setLinhaVisivel(item._id)
+                        }}
+                        checkDados={checkDados}
+                      />
+                    ) : (
+                      <React.Fragment>
+                        <h3>{area}</h3>
+                        <button onClick={() => { handleUpdateClick(area); setLinhaVisivel(area); }}>U</button>
+                      </React.Fragment>
+                    )}
+                  </React.Fragment>
+                ) : (
+                  <h3>{area}</h3>
+                )}
                 <div className={styles.wbsItems}>
                   {elementos
                     .sort((a, b) => a.codigo - b.codigo)
@@ -169,27 +243,36 @@ const WBS = () => {
                         className={styles.wbsItem}
                       >
                         {verOpcoes ? (
-                          <>{linhaVisivel === item ? (
-                            <React.Fragment>
-                              <BlocoInputs tipo='update' obj={novosDados} objSetter={setNovosDados} funcao={{
-                          funcao1: handleUpdateItem,
-                          funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
-                        }} checkDados={checkDados}/>
-                            </React.Fragment>
-                          ) : (
-                            <React.Fragment>{item.item}
-                              <button onClick={() => { handleUpdateClick(item); setLinhaVisivel(item) }}>U</button>
-                              <button onClick={() => setConfirmDeleteItem(item)}>D</button>
-                            </React.Fragment>
-                          )} </>
+                          <React.Fragment>
+                            {linhaVisivel === item ? (
+                              <React.Fragment>
+                                <BlocoInputs
+                                  tipo='updateItem'
+                                  obj={novosDados}
+                                  objSetter={setNovosDados}
+                                  funcao={{
+                                    funcao1: handleUpdateItem,
+                                    funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
+                                  }}
+                                  checkDados={checkDados} />
+                              </React.Fragment>
+                            ) : (
+                              <React.Fragment>{item.item}
+                                <button onClick={() => { handleUpdateClick(item); setLinhaVisivel(item); }}>U</button>
+                                <button onClick={() => setConfirmDeleteItem(item)}>D</button>
+                              </React.Fragment>
+                            )}
+                          </React.Fragment>
                         ) : (
-                          <>{item.item}</>
+                          <React.Fragment>
+                            {item.item}
+                          </React.Fragment>
                         )}
                       </div>
                     ))}
                   {verOpcoes &&
                     <BlocoInputs
-                      tipo='updateArea'
+                      tipo='cadastroItem'
                       area={area}
                       obj={submitEmArea}
                       objSetter={setSubmitEmArea}
@@ -227,12 +310,12 @@ const WBS = () => {
 
       {confirmDeleteItem && (
         <Modal objeto={{
-          titulo: `Are you sure you want to delete "${confirmDeleteItem.item}"?`,
+          titulo: `Are you sure you want to delete "${confirmDeleteItem.area} - ${confirmDeleteItem.item}"?`,
           botao1: {
             funcao: handleConfirmDelete, texto: 'Confirm'
           },
           botao2: {
-            funcao: () => () => setConfirmDeleteItem(null), texto: 'Cancel'
+            funcao: () => setConfirmDeleteItem(null), texto: 'Cancel'
           },
         }} />
       )}

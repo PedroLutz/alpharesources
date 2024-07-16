@@ -99,9 +99,15 @@ const handleUpdate = async (o) => {
         console.error(`Requisição de update feita sem dados!`);
         return;
     }
+    var route;
+    if(o.route.includes('/')){
+        route = `/api/${o.route}=${String(o.item._id)}`;
+    } else {
+        route = `/api/${o.route}/update?id=${String(o.item._id)}`
+    }
 
     try {
-        const response = await fetch(`/api/${o.route}/update?id=${String(o.item._id)}`, {
+        const response = await fetch(route, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

@@ -13,7 +13,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
     }));
 
     const fetchElementos = async () => {
-        const data = await fetchData('wbs/get');
+        const data = await fetchData('wbs/get/all');
         setElementosWBS(data.elementos);
     };
 
