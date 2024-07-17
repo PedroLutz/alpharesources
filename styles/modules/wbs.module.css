@@ -1,37 +1,103 @@
 .wbsContainer {
-    display: flex;
-    flex-wrap: wrap; /* Permite que as wbs-area sejam dispostas em várias linhas */
-    gap: 20px;
-    justify-content: center; /* Para centralizar as áreas na tela */
-  }
-  
-  .wbsArea {
-    border: 1px solid #000000;
-    border-radius: 5px;
-    padding: 10px;
-    margin-bottom: 20px; /* Espaçamento entre as áreas */
-    display: flex;
-    flex-direction: column; /* Para alinhar a área e a lista verticalmente */
-    align-items: center; /* Para centralizar os itens na área */
-  }
-  
-  .wbsItem {
-    border: 1px solid #c4c4c4; /* Borda para cada item */
-    border-radius: 10px;
-    padding: 5px;
-    margin: 5px 0;
-    width: 200px;
-  }
-  
-  .wbsArea h3 {
-    margin-bottom: 10px;
-  }
-  
-  .wbsArea ul {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  .wbsArea li {
-    margin-bottom: 5px;
-  }
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.wbsArea {
+  border: 1px solid #000000;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.wbsAreaCadastro input, .wbsArea input, .editArea input {
+  border-width: 0.1rem;
+  border-style: solid;
+  border-color: rgb(167, 167, 167);
+  border-radius: 0.4rem;
+  padding: 0.2rem;
+  margin: 0.3rem;
+  transition: 0.2s;
+  outline: none;
+  font-size: small;
+}
+
+.wbsAreaCadastro input {
+  width: 11rem;
+}
+
+.wbsItem input{
+  width: 9.5rem;
+}
+
+.editArea input{
+  width: 9rem;
+}
+
+.editItem input{
+  margin: 0;
+  width: 8rem;
+}
+
+.editArea{
+  display: flex;
+  align-items: center;
+  height: 3.8rem;
+}
+
+.wbsAreaCadastro input:hover, .wbsArea input:hover, .wbsAreaCadastro button:hover {
+  background-color: rgb(231, 231, 231);
+}
+
+.wbsAreaCadastro {
+  width: 13.9rem;
+}
+
+.wbsAreaCadastro button {
+  background-color: transparent;
+  border-width: 0.1rem;
+  border-style: solid;
+  border-color: rgb(167, 167, 167);
+  border-radius: 0.4rem;
+  height: 1.6rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.areaTitle {
+  display: flex;
+  align-items: center;
+}
+
+.areaTitle button, .wbsItem button, .editArea button{
+  background-color: transparent;
+  border: none;
+  font-size: medium;
+  cursor: pointer;
+  height: 1.5rem;
+  width: 1.7rem;
+}
+
+.wbsItem {
+  border: 1px solid #c4c4c4;
+  border-radius: 10px;
+  padding: 5px;
+  margin: 5px;
+  width: 200px;
+}
+
+
+
+.wbsArea ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.wbsArea li {
+  margin-bottom: 5px;
+}

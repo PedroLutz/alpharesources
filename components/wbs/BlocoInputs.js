@@ -47,26 +47,26 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
 
     const validaDados = () => {
         const [isEmpty, camposVazios] = isFormVazio(obj);
-    
+
         if (isEmpty) {
             camposVazios.forEach(campo => {
                 if (camposRef.current[campo]) {
                     camposRef.current[campo].classList.add('campo-vazio');
                 }
             });
-    
+
             checkDados && checkDados('inputsVazios');
             return true;
         }
-    
+
         if (tipo === 'cadastroItem' && area && !obj[`novo${area}`]?.item) {
             checkDados && checkDados('inputsVazios');
             return true;
         }
-    
+
         return false;
     };
-    
+
 
     const handleSubmit = async (e) => {
         const isInvalido = validaDados();
@@ -85,7 +85,7 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
                             item: ''
                         }
                     }));
-                    
+
                 } else {
                     funcao(e);
                 }
@@ -95,28 +95,22 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
 
     if (tipo === 'cadastroArea') {
         return (
-            <div className={styles.wbsArea}>
-                <h3>NEW</h3>
-                <h3><input placeholder="Area"
+            <div className={`${styles.wbsArea} ${styles.wbsAreaCadastro}`}>
+                <h3>Add new area</h3>
+                <input placeholder="Area"
                     value={obj.area}
                     name='area'
                     onChange={(e) => handleChange(e, objSetter, obj)}
-                    ref={el => (camposRef.current.area = el)} /></h3>
-                <div className={styles.wbsItems}>
-                    <div className={styles.wbsItem}>
-                        <input placeholder='Item'
-                            value={obj.item}
-                            name='item'
-                            onChange={(e) => handleChange(e, objSetter, obj)}
-                            ref={el => (camposRef.current.item = el)} />
-                    </div>
-                    <div>
-                        <button onClick={(e) => handleSubmit(e)}>Add new</button>
-                    </div>
-                </div>
+                    ref={el => (camposRef.current.area = el)} />
+                <input placeholder='Item'
+                    value={obj.item}
+                    name='item'
+                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    ref={el => (camposRef.current.item = el)} />
+                <button onClick={(e) => handleSubmit(e)}>Add new</button>
             </div>
         )
-    } 
+    }
     if (tipo === 'cadastroItem') {
         return (
             <div>
@@ -127,34 +121,38 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
                         data-area={area}
                         onChange={(e) => handleChange(e, objSetter, obj)}
                         ref={el => (camposRef.current.item = el)} />
-                </div>
-                <div>
-                    <button onClick={(e) => handleSubmit(e)}>Add new</button>
+                        <button onClick={(e) => handleSubmit(e)}>➕</button>
                 </div>
             </div>
         )
-    } 
+    }
     if (tipo === 'updateItem') {
         return (
             <React.Fragment>
+                <div className={styles.editItem}>
                 <input value={obj.item}
                     name='item'
                     onChange={(e) => handleChange(e, objSetter, obj)}
                     ref={el => (camposRef.current.item = el)} />
-                <button onClick={handleSubmit}>O</button>
-                <button onClick={funcao.funcao2}>S</button>
+                <button onClick={handleSubmit}>✔️</button>
+                <button onClick={funcao.funcao2}>✖️</button>
+                </div>
+                
             </React.Fragment>
         )
     }
     if (tipo === 'updateArea') {
         return (
             <React.Fragment>
+                <div className={styles.editArea}>
                 <input value={obj.area}
                     name='area'
                     onChange={(e) => handleChange(e, objSetter, obj)}
                     ref={el => (camposRef.current.area = el)} />
-                <button onClick={handleSubmit}>O</button>
-                <button onClick={funcao.funcao2}>S</button>
+                <button onClick={handleSubmit}>✔️</button>
+                <button onClick={funcao.funcao2}>✖️</button>
+                </div>
+                
             </React.Fragment>
         )
     }

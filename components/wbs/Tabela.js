@@ -226,8 +226,14 @@ const WBS = () => {
                       />
                     ) : (
                       <React.Fragment>
-                        <h3>{area}</h3>
-                        <button onClick={() => { handleUpdateClick(area); setLinhaVisivel(area); }}>U</button>
+                        <div className={styles.areaTitle}>
+                          <h3>{area}</h3>
+                          <button
+                            onClick={() => {
+                              handleUpdateClick(area); setLinhaVisivel(area);
+                            }}>⚙️</button>
+                        </div>
+
                       </React.Fragment>
                     )}
                   </React.Fragment>
@@ -258,8 +264,8 @@ const WBS = () => {
                               </React.Fragment>
                             ) : (
                               <React.Fragment>{item.item}
-                                <button onClick={() => { handleUpdateClick(item); setLinhaVisivel(item); }}>U</button>
-                                <button onClick={() => setConfirmDeleteItem(item)}>D</button>
+                                <button onClick={() => { handleUpdateClick(item); setLinhaVisivel(item); }}>⚙️</button>
+                                <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
                               </React.Fragment>
                             )}
                           </React.Fragment>
@@ -290,7 +296,11 @@ const WBS = () => {
   return (
     <div className="centered-container" style={{ marginTop: '20px' }}>
       {loading && <Loading />}
-      <button onClick={() => setVerOpcoes(!verOpcoes)}>Toggle Options</button>
+      <button
+        className="botao-padrao"
+        style={{ width: '8rem' }}
+        onClick={() => setVerOpcoes(!verOpcoes)}
+      >Toggle Options</button>
       {renderWBS()}
 
       {actionChoice && (
