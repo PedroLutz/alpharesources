@@ -18,7 +18,7 @@ export default async (req, res) => {
       const updateFields = {};
       
       for (const key in req.body) {
-        if (req.body[key]) {
+        if (req.body[key] !== null) {
           if (propriedadesNomes.includes(key)) {
             updateFields[key] = req.body[key];
           } else {

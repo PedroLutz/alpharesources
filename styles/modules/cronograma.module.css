@@ -1,0 +1,37 @@
+.tabelaCronograma_container{
+    overflow: auto;
+    width: 100%
+}
+
+.tabelaCronograma_wrapper{
+    min-width: 800px;
+    max-width: 1200px;
+    display: inline-block;
+}
+
+.tabelaCronograma table {
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    padding: 0.3rem;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabelaCronograma td {
+    border-width: 0.1rem;
+    border-style: solid;
+    width: 5rem;
+    border-color: rgb(167, 167, 167);
+    padding: 0.3rem;
+    font-size: small;
+}
+
+.tabelaCronograma th {
+    background-color: #ff8ff2;
+    border-width: 0.1rem;
+    border-style: solid;
+    font-size: 0.9rem;
+    border-color: rgb(167, 167, 167);
+    padding: 0.3rem;
+}

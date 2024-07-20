@@ -18,9 +18,6 @@ const Navbar = () => {
       <img src={'/images/logo.png'} alt="Logo" />
       <ul>
         <li>
-          <Link href="/pages/timeline/register">Register</Link>
-        </li>
-        <li>
           <Link href="/pages/timeline/timeline_plan">Timeline</Link>
         </li>
         <li>

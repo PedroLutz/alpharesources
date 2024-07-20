@@ -309,9 +309,6 @@ const Tabela = () => {
             </tbody>
           </table>
         </div>
-
-
-
       </div>
       <div>
       <button className="botao-padrao" style={{ width: '130px' }} onClick={() => {

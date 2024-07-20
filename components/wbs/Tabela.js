@@ -5,8 +5,6 @@ import { fetchData, handleUpdate, handleDelete, handleSubmit } from '../../funct
 import Modal from '../Modal';
 import BlocoInputs from './BlocoInputs';
 import { cleanForm } from '../../functions/general';
-import { set } from 'lodash';
-import { type } from 'os';
 
 const WBS = () => {
   const [elementosPorArea, setElementosPorArea] = useState([]);

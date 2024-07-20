@@ -1,50 +1,48 @@
 import React, { useEffect, useState } from 'react';
 import Loading from '../Loading';
+import Modal from '../Modal';
 import { Chart } from 'react-google-charts';
-import { fetchData, handleDelete, handleUpdate } from '../../functions/crud';
+import { fetchData, handleDelete, handleUpdate, handleSubmit } from '../../functions/crud';
 import { cleanForm, jsDateToEuDate, euDateToIsoDate, euDateToJsDate } from '../../functions/general';
+import styles from '../../styles/modules/cronograma.module.css';
+import CadastroInputs from './CadastroInputs';
 
 const Tabela = () => {
   const [cronogramas, setCronogramas] = useState([]);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
-  const [elementos, setElementos] = useState([]);
-  const [itensPorAreaDp, setItensPorAreaDp] = useState([]);
+  const [exibirModal, setExibirModal] = useState(null);
   const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
-  const [filtroArea, setFiltroArea] = useState('');
-  const [chartHeight, setChartHeight] = useState('100px'); 
+  const [chartHeight, setChartHeight] = useState('100px');
   const [chartDataLoaded, setChartDataLoaded] = useState(false);
+  const [linhaVisivel, setLinhaVisivel] = useState({});
+  const [reload, setReload] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [novosDados, setNovosDados] = useState({
+  const camposVazios = {
+    item: '',
+    area: '',
     inicio: '',
     termino: '',
     dp_item: '',
     dp_area: '',
-    situacao: '',
-  });
+  }
+  const [novosDados, setNovosDados] = useState(camposVazios);
+  const [novoSubmit, setNovoSubmit] = useState(camposVazios);
 
-  const handleChange = (e) => {
-    setNovosDados({
-      ...novosDados,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleUpdateItem = async (e) => {
-    e.preventDefault;
+  const handleUpdateItem = async () => {
     if (confirmUpdateItem) {
-      const updatedItem = { 
-        ...confirmUpdateItem, 
-        ...novosDados, 
-        inicio: novosDados.inicio, 
-        termino: novosDados.termino 
+      const updatedItem = {
+        ...confirmUpdateItem,
+        ...novosDados,
+        inicio: novosDados.inicio,
+        termino: novosDados.termino
       };
 
       const updatedCronogramas = cronogramas.map(item =>
-        item._id === updatedItem._id ? { 
-          ...updatedItem, 
-          inicio: jsDateToEuDate(updatedItem.inicio), 
-          termino: jsDateToEuDate(updatedItem.termino) 
+        item._id === updatedItem._id ? {
+          ...updatedItem,
+          inicio: jsDateToEuDate(updatedItem.inicio),
+          termino: jsDateToEuDate(updatedItem.termino)
         } : item
       );
       setCronogramas(updatedCronogramas);
@@ -56,26 +54,15 @@ const Tabela = () => {
           item: confirmUpdateItem
         });
       } catch (error) {
-        setCronogramas(cronogramas); 
+        setCronogramas(cronogramas);
         setConfirmUpdateItem(confirmUpdateItem);
         console.error("Update failed:", error);
       }
     }
     setConfirmUpdateItem(null);
     cleanForm(novosDados, setNovosDados);
+    setLinhaVisivel();
   };
-
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    if (name === 'area') {
-      setFiltroArea(value);
-    }
-  };
-
-  const handleAreaChangeDp = (e) => {
-    const areaSelecionadaDp = e.target.value;
-    updateDpItem(areaSelecionadaDp);
-  };  
 
   const handleUpdateClick = (item) => {
     setConfirmUpdateItem(item);
@@ -94,32 +81,15 @@ const Tabela = () => {
       var getDeleteSuccess = false;
       try {
         getDeleteSuccess = handleDelete({
-          route: 'cronograma', 
-          item: confirmDeleteItem, 
-          fetchDados: fetchCronogramas});
+          route: 'cronograma',
+          item: confirmDeleteItem,
+          fetchDados: fetchCronogramas
+        });
       } finally {
         setDeleteSuccess(getDeleteSuccess);
       }
     }
   };
-
-  const updateDpItem = (areaSelecionadaDp) => {
-    const itensDaAreaDp = elementos.filter(item => item.area === areaSelecionadaDp).map(item => item.item);
-    setItensPorAreaDp(itensDaAreaDp);
-
-    const novoItemSelecionado = itensDaAreaDp.includes(novosDados.dp_item) ? novosDados.dp_item : '';
-  
-    setNovosDados(prevState => ({
-      ...prevState,
-      dp_area: areaSelecionadaDp,
-      dp_item: novoItemSelecionado,
-    }));
-  };
-
-  const filteredCronogramas = cronogramas.filter((item) => {
-    const areaMatch = item.area.toLowerCase().includes(filtroArea.toLowerCase());
-    return areaMatch;
-  });
 
   const createGanttData = (cronogramas) => {
     const ganttData = [['Task ID', 'Task Name', 'Resource', 'Start Date', 'End Date', 'Duration', 'Percent Complete', 'Dependencies']];
@@ -132,9 +102,9 @@ const Tabela = () => {
         const resource = item.area;
         const startDate = euDateToJsDate(item.inicio);
         const endDate = euDateToJsDate(item.termino);
-        if (!item.dp_area && !item.dp_item){
+        if (!item.dp_area && !item.dp_item) {
           dependencies = null;
-        } else { 
+        } else {
           dependencies = `${item.dp_area}_${item.dp_item}`;
         }
         ganttData.push([taskID, taskName, resource, startDate, endDate, 10, 100, dependencies]);
@@ -144,6 +114,36 @@ const Tabela = () => {
     return ganttData;
   };
   const chartData = createGanttData(cronogramas);
+
+  const checkIfUsed = async (item) => {
+    var found;
+    await fetch(`/api/cronograma/checks/isUsed`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ area: item.area, item: item.item }),
+    })
+
+      .then(response => response.json()).then(data => { found = data.found });
+    console.log({ area: item.area, item: item.item })
+    return found;
+  }
+
+  const checkDpUsed = async (item) => {
+    var found;
+    await fetch(`/api/cronograma/checks/dpIsUsed`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ dp_area: item.dp_area, dp_item: item.dp_item }),
+    })
+
+      .then(response => response.json()).then(data => { found = data.found });
+    console.log({ area: item.area, item: item.item })
+    return found;
+  }
 
   const fetchCronogramas = async () => {
     try {
@@ -163,27 +163,68 @@ const Tabela = () => {
     }
   };
 
-  const fetchElementos = async () => {
-    const data = await fetchData('wbs/get/all');
-    setElementos(data.elementos);
+  const checkDados = (tipo) => {
+    setExibirModal(tipo); return;
+  };
+  const modalLabels = {
+    'inputsVazios': 'Fill out all fields before adding new data!',
+    'dadosUsados': 'This item is already registered in the timelines!',
+    'depFaltando': 'Please select the dependencies correctly!',
+    'dpNotUsed': "The item you've selected as dependency is not registered!"
   };
 
   useEffect(() => {
-    fetchElementos();
+    setReload(false);
     fetchCronogramas();
-    if (novosDados.dp_area) {
-      updateDpItem(novosDados.dp_area);
-    }
-  }, [novosDados.dp_area]);
+  }, [reload]);
 
   useEffect(() => {
     if (chartData.length > 1) {
-      const linhaHeight = 30; 
+      const linhaHeight = 30;
       const novaAltura = ((chartData.length * linhaHeight) + 50) + 'px';
       setChartHeight(novaAltura);
-      setChartDataLoaded(true); 
+      setChartDataLoaded(true);
     }
   }, [chartData]);
+
+  const enviar = async (e) => {
+    e.preventDefault();
+    console.log(novoSubmit);
+    const formDataPlano = {
+      ...novoSubmit,
+      plano: true,
+      situacao: 'concluida'
+    };
+    const formDataGantt = {
+      ...novoSubmit,
+      plano: false,
+      inicio: null,
+      termino: null,
+      situacao: 'iniciar'
+    };
+    const isUsed = await checkIfUsed(novoSubmit);
+    const dpIsUsed = await checkDpUsed(novoSubmit);
+    if (novoSubmit.dp_area !== '' || novoSubmit.dp_item !== '') {
+      if (!dpIsUsed) {
+        setExibirModal('dpNotUsed');
+        return;
+      }
+    }
+    if (isUsed) {
+      setExibirModal('dadosUsados');
+      return;
+    }
+    handleSubmit({
+      route: 'cronograma',
+      dados: formDataPlano,
+    });
+    handleSubmit({
+      route: 'cronograma',
+      dados: formDataGantt,
+    });
+    cleanForm(novoSubmit, setNovoSubmit);
+    setReload(true);
+  };
 
   return (
     <div className="centered-container">
@@ -193,7 +234,7 @@ const Tabela = () => {
         <div className="overlay">
           <div className="modal">
             <p>Are you sure you want to delete "{confirmDeleteItem.item}"?</p>
-            <div style={{display: 'flex', gap: '10px'}}>
+            <div style={{ display: 'flex', gap: '10px' }}>
               <button className="botao-cadastro" onClick={handleConfirmDelete}>Confirm</button>
               <button className="botao-cadastro" onClick={() => setConfirmDeleteItem(null)}>Cancel</button>
             </div>
@@ -210,9 +251,18 @@ const Tabela = () => {
         </div>
       )}
 
+      {exibirModal != null && (
+        <Modal objeto={{
+          titulo: modalLabels[exibirModal],
+          botao1: {
+            funcao: () => setExibirModal(null), texto: 'Okay'
+          },
+        }} />
+      )}
+
       {chartDataLoaded && (
         <Chart
-        height={chartHeight}
+          height={chartHeight}
           width={'90%'}
           chartType="Gantt"
           loader={<div>Loading Chart</div>}
@@ -223,117 +273,76 @@ const Tabela = () => {
               sortTasks: false,
             },
           }}
-      />
+        />
       )}
-      
-      <div className="mini-input">
-        <label htmlFor="filtroArea">Filter table:</label>
-        <select
-          name="area"
-          onChange={handleFilterChange}
-          style={{width:'264px', height: '33px'}}
-          value={filtroArea}
-          required
-        >
-          <option value="" disabled>Select an area</option>
-          {[...new Set(cronogramas.map(item => item.area))].map((area, index) => (
-            <option key={index} value={area}>{area}</option>
-          ))};
-        </select>
-      </div>
 
-      <table style={{marginBottom: '10px'}}>
-        <thead>
-          <tr>
-            <th>Area</th>
-            <th>Task</th>
-            <th>Start</th>
-            <th>End</th>
-            <th style={{width:'11%'}}>Dependency: Area</th>
-            <th style={{width:'11%'}}>Dependency: Item</th>
-            <th style={{width:'5%'}}>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-        {filteredCronogramas.filter((item) => item.plano).map((item, index) => (
-            <tr key={index}>
-              <td>
-                {item.area}
-              </td>
-              <td>
-                {item.item}
-              </td>
-              <td>{item.inicio}</td>
-              <td>{item.termino}</td>
-              <td>{item.dp_area || '-'}</td>
-              <td>{item.dp_item || '-'}</td>
-              <td>
-                <div className="botoes-acoes">
-                  <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
-                  <button onClick={() => handleUpdateClick(item)}>⚙️</button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {confirmUpdateItem && (
-        <div className="overlay"> 
-          <div className="modal">
-          <div className="centered-container mini-input">
-            <label htmlFor="inicio" style={{width: '260px'}}>Start</label>
-            <input
-              type="date"
-              id="inicio"
-              name="inicio"
-              placeholder=""
-              onChange={handleChange}
-              value={novosDados.inicio}
-              required
-            />
-
-            <label htmlFor="termino" style={{width: '260px'}}>End</label>
-            <input
-              type="date"
-              id="termino"
-              name="termino"
-              placeholder=""
-              onChange={handleChange}
-              value={novosDados.termino}
-              required
-            />
-
-            <label htmlFor="dp_area"style={{width: '260px'}} >Dependencies</label>
-            <select
-                  name="dp_area"
-                  onChange={handleAreaChangeDp}
-                  value={novosDados.dp_area}
-                >
-                  <option value="" disabled>Select an area</option>
-                  {[...new Set(elementos.map(item => item.area))].map((area, index) => (
-                    <option key={index} value={area}>{area}</option>
-              ))};
-            </select>
-
-            <select
-              name="dp_item"
-              onChange={handleChange}
-              value={novosDados.dp_item}
-            >
-              <option value="" disabled>Select an item</option>
-              {itensPorAreaDp.map((item, index) => (
-                <option key={index} value={item}>{item}</option>
+      <div className={styles.tabelaCronograma_container}>
+        <div className={styles.tabelaCronograma_wrapper}>
+          <table style={{ marginBottom: '10px' }} className={styles.tabelaCronograma}>
+            <thead>
+              <tr>
+                <th>Area</th>
+                <th>Task</th>
+                <th>Start</th>
+                <th>End</th>
+                <th style={{ width: '11%' }}>Dependency: Area</th>
+                <th style={{ width: '11%' }}>Dependency: Item</th>
+                <th style={{ width: '5%' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <CadastroInputs
+                  obj={novoSubmit}
+                  objSetter={setNovoSubmit}
+                  tipo='cadastro'
+                  funcao={enviar}
+                  checkDados={checkDados}
+                />
+              </tr>
+              {cronogramas.filter((item) => item.plano).map((item, index) => (
+                <tr key={index}>
+                  <React.Fragment>
+                    <td>
+                      {item.area}
+                    </td>
+                    <td>
+                      {item.item}
+                    </td>
+                    {linhaVisivel === item._id ? (
+                      <CadastroInputs
+                        tipo="update"
+                        obj={novosDados}
+                        objSetter={setNovosDados}
+                        checkDados={checkDados}
+                        funcao={{
+                          funcao1: () => handleUpdateItem(),
+                          funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
+                        }}
+                      />
+                    ) : (
+                      <React.Fragment>
+                        <td>{item.inicio}</td>
+                        <td>{item.termino}</td>
+                        <td>{item.dp_area || '-'}</td>
+                        <td>{item.dp_item || '-'}</td>
+                        <td>
+                          <div className="botoes-acoes">
+                            <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
+                            <button onClick={() => {
+                              linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
+                            }}>⚙️</button>
+                          </div>
+                        </td>
+                      </React.Fragment>
+                    )}
+                  </React.Fragment>
+                </tr>
               ))}
-            </select>
-          </div>
-            <div style={{display: 'flex', gap: '10px'}}>
-              <button className="botao-cadastro" onClick={handleUpdateItem}>Update</button>
-              <button className="botao-cadastro" onClick={() => setConfirmUpdateItem(null)}>Cancel</button>
-            </div>
-          </div>
+            </tbody>
+          </table>
         </div>
-      )}
+      </div>
     </div>
   );
 };
