@@ -29,41 +29,6 @@ const Tabela = () => {
   const [novosDados, setNovosDados] = useState(camposVazios);
   const [novoSubmit, setNovoSubmit] = useState(camposVazios);
 
-  const handleUpdateItem = async () => {
-    if (confirmUpdateItem) {
-      const updatedItem = {
-        ...confirmUpdateItem,
-        ...novosDados,
-        inicio: novosDados.inicio,
-        termino: novosDados.termino
-      };
-
-      const updatedCronogramas = cronogramas.map(item =>
-        item._id === updatedItem._id ? {
-          ...updatedItem,
-          inicio: jsDateToEuDate(updatedItem.inicio),
-          termino: jsDateToEuDate(updatedItem.termino)
-        } : item
-      );
-      setCronogramas(updatedCronogramas);
-      setConfirmUpdateItem(null);
-      try {
-        await handleUpdate({
-          route: 'cronograma',
-          dados: updatedItem,
-          item: confirmUpdateItem
-        });
-      } catch (error) {
-        setCronogramas(cronogramas);
-        setConfirmUpdateItem(confirmUpdateItem);
-        console.error("Update failed:", error);
-      }
-    }
-    setConfirmUpdateItem(null);
-    cleanForm(novosDados, setNovosDados);
-    setLinhaVisivel();
-  };
-
   const handleUpdateClick = (item) => {
     setConfirmUpdateItem(item);
     setNovosDados({
@@ -115,36 +80,6 @@ const Tabela = () => {
   };
   const chartData = createGanttData(cronogramas);
 
-  const checkIfUsed = async (item) => {
-    var found;
-    await fetch(`/api/cronograma/checks/isUsed`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ area: item.area, item: item.item }),
-    })
-
-      .then(response => response.json()).then(data => { found = data.found });
-    console.log({ area: item.area, item: item.item })
-    return found;
-  }
-
-  const checkDpUsed = async (item) => {
-    var found;
-    await fetch(`/api/cronograma/checks/dpIsUsed`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ dp_area: item.dp_area, dp_item: item.dp_item }),
-    })
-
-      .then(response => response.json()).then(data => { found = data.found });
-    console.log({ area: item.area, item: item.item })
-    return found;
-  }
-
   const fetchCronogramas = async () => {
     try {
       const data = await fetchData('cronograma/get/planos');
@@ -166,11 +101,14 @@ const Tabela = () => {
   const checkDados = (tipo) => {
     setExibirModal(tipo); return;
   };
+
   const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',
     'dadosUsados': 'This item is already registered in the timelines!',
     'depFaltando': 'Please select the dependencies correctly!',
-    'dpNotUsed': "The item you've selected as dependency is not registered!"
+    'dpNotUsed': "The item you've selected as predecessor is not registered!",
+    'dpNotOkay': "The predecessor must finish before the successor starts!",
+    'datasErradas': 'The finishing date must be after the starting date!'
   };
 
   useEffect(() => {
@@ -189,7 +127,6 @@ const Tabela = () => {
 
   const enviar = async (e) => {
     e.preventDefault();
-    console.log(novoSubmit);
     const formDataPlano = {
       ...novoSubmit,
       plano: true,
@@ -202,18 +139,6 @@ const Tabela = () => {
       termino: null,
       situacao: 'iniciar'
     };
-    const isUsed = await checkIfUsed(novoSubmit);
-    const dpIsUsed = await checkDpUsed(novoSubmit);
-    if (novoSubmit.dp_area !== '' || novoSubmit.dp_item !== '') {
-      if (!dpIsUsed) {
-        setExibirModal('dpNotUsed');
-        return;
-      }
-    }
-    if (isUsed) {
-      setExibirModal('dadosUsados');
-      return;
-    }
     handleSubmit({
       route: 'cronograma',
       dados: formDataPlano,
@@ -223,6 +148,43 @@ const Tabela = () => {
       dados: formDataGantt,
     });
     cleanForm(novoSubmit, setNovoSubmit);
+    window.location.reload();
+  };
+
+  const handleUpdateItem = async () => {
+    if (confirmUpdateItem) {
+      const updatedItem = {
+        ...confirmUpdateItem,
+        ...novosDados,
+        inicio: novosDados.inicio,
+        termino: novosDados.termino
+      };
+
+      const updatedCronogramas = cronogramas.map(item =>
+        item._id === updatedItem._id ? {
+          ...updatedItem,
+          inicio: jsDateToEuDate(updatedItem.inicio),
+          termino: jsDateToEuDate(updatedItem.termino)
+        } : item
+      );
+      setCronogramas(updatedCronogramas);
+      setConfirmUpdateItem(null);
+
+      try {
+        await handleUpdate({
+          route: 'cronograma',
+          dados: updatedItem,
+          item: confirmUpdateItem
+        });
+      } catch (error) {
+        setCronogramas(cronogramas);
+        setConfirmUpdateItem(confirmUpdateItem);
+        console.error("Update failed:", error);
+      }
+    }
+    setConfirmUpdateItem(null);
+    cleanForm(novosDados, setNovosDados);
+    setLinhaVisivel();
     setReload(true);
   };
 

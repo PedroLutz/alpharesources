@@ -81,11 +81,6 @@ const WBS = () => {
     }
   };
 
-  useEffect(() => {
-    setReload(false);
-    fetchElementos();
-  }, [reload]);
-
   const checkDados = (tipo) => {
     setExibirModal(tipo); return;
   };
@@ -174,6 +169,11 @@ const WBS = () => {
     }
   };
 
+  useEffect(() => {
+    setReload(false);
+    fetchElementos();
+  }, [reload]);
+
   const renderWBS = () => {
     const areasPorLinha = 4;
     const gruposDeAreas = Object.keys(elementosPorArea).reduce((grupos, area, index) => {
@@ -194,6 +194,7 @@ const WBS = () => {
       grupos[grupoIndex].push({ area, elementos: elementosPorArea[area] });
       return grupos;
     }, []);
+    
 
     return (
       <div>

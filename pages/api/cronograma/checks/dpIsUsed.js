@@ -9,7 +9,7 @@ export default async (req, res) => {
 
         if (req.method === 'POST') {
             const {dp_area, dp_item} = req.body;
-            const gantt = await Gantt.findOne({ area: dp_area, item: dp_item });
+            const gantt = await Gantt.findOne({ area: dp_area, item: dp_item, plano: true });
 
             if (gantt !== null) {
                 res.json({ found: true });

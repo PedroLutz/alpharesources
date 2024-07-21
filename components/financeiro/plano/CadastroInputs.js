@@ -84,6 +84,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
         if (obj.data_inicial > obj.data_esperada || obj.data_inicial > obj.data_limite) {
             checkDados('datasErradas');
             let campos = ['data_inicial'];
+            console.log(obj.data_inicial)
             obj.data_inicial > obj.data_esperada && campos.push('data_esperada');
             obj.data_inicial > obj.data_limite && campos.push('data_limite');
             campos.forEach((campo) => {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { fetchData } from "../../functions/crud";
 
-const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, plano }) => {
+const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => {
     const [emptyFields, setEmptyFields] = useState([]);
     const [elementosWBS, setElementosWBS] = useState([]);
     const [itensPorArea, setItensPorArea] = useState({ notDp: [], dp: [] });
@@ -12,14 +12,12 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, plano }) => 
         termino: null,
         dp_item: null,
         dp_area: null,
+        situacao: null,
     });
 
     const isFormVazio = (form) => {
         const emptyFields = Object.entries(form).filter(([key, value]) => !value);
-        if(emptyFields.length === 2 && (form.dp_area === '' && form.dp_item === '')){
-            return [false, []]
-        }
-        return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
+        return [emptyFields.length > 2, emptyFields.map(([key]) => key)];
     };
 
     const handleChange = (e) => {
@@ -33,19 +31,94 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, plano }) => 
         e.target.classList.remove('campo-vazio');
     };
 
-    const validaDados = () => {
+    const checkIfUsed = async (item) => {
+        var found;
+        await fetch(`/api/cronograma/checks/isUsed`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ area: item.area, item: item.item }),
+        })
+
+            .then(response => response.json()).then(data => { found = data.found });
+        return found;
+    }
+
+    const checkDpUsed = async (item) => {
+        var found;
+        await fetch(`/api/cronograma/checks/dpIsUsed`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ dp_area: item.dp_area, dp_item: item.dp_item }),
+        })
+
+            .then(response => response.json()).then(data => { found = data.found });
+        return found;
+    }
+
+    const checkDpOkay = async (item) => {
+        var found;
+        await fetch(`/api/cronograma/checks/dpIsOkay`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ dp_area: item.dp_area, dp_item: item.dp_item, inicio: item.inicio }),
+        })
+
+            .then(response => response.json()).then(data => { found = data.found });
+        return found;
+    }
+
+    const validaDados = async () => {
         const [isEmpty, camposVazios] = isFormVazio(obj);
+        var objEnviado = obj;
+        if(obj.dp_area == undefined && obj.dp_item == undefined){
+            objEnviado = {
+                ...obj,
+                dp_area: '',
+                dp_item: ''
+            }
+        }
+        const isUsed = await checkIfUsed(objEnviado);
+        const dpIsUsed = await checkDpUsed(objEnviado);
+        const dpIsOkay = await checkDpOkay(objEnviado);
+        const datasNotOk = obj.inicio > obj.termino;
+        if (objEnviado.dp_area !== '' || objEnviado.dp_item !== '') {
+            if (!dpIsUsed) {
+                checkDados('dpNotUsed');
+                console.log(true)
+                return true;
+            }
+            if (!dpIsOkay) {
+                checkDados('dpNotOkay');
+                console.log(true)
+                return true;
+            }
+        }
+        if (datasNotOk) {
+            checkDados('datasErradas');
+            return true;
+        }
+        if (isUsed) {
+            checkDados('dadosUsados');
+            console.log(true)
+            return true;
+        }
         if (isEmpty) {
             camposVazios.forEach(campo => {
                 if (camposRef.current[campo]) {
                     camposRef.current[campo].classList.add('campo-vazio');
                 }
-              });
+            });
             setEmptyFields(camposVazios);
             checkDados('inputsVazios');
             return true;
         }
-        if(obj.dp_area && !obj.dp_item){
+        if (obj.dp_area && !obj.dp_item) {
             checkDados('depFaltando')
             return true;
         }
@@ -82,17 +155,26 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, plano }) => 
     }, [obj, elementosWBS]);
 
     useEffect(() => {
-        if(obj.dp_area === ''){
+        if (obj.dp_area == '') {
             objSetter({
                 ...obj,
                 dp_item: ''
             })
         }
-    }, [obj.dp_area])
+    }, [obj.dp_area]);
+
+    useEffect(() => {
+        if (tipo == 'cadastro') {
+            objSetter({
+                ...obj,
+                item: ''
+            })
+        }
+    }, [obj.area]);
 
     const handleSubmit = async (e) => {
-        const isInvalido = validaDados();
-        if(funcao.funcao1) {
+        const isInvalido = await validaDados();
+        if (funcao.funcao1) {
             !isInvalido && funcao.funcao1();
         } else {
             !isInvalido && funcao(e);
@@ -175,6 +257,20 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, plano }) => 
                     ))}
                 </select>
             </td>
+            {gantt && (
+                <td>
+                    <select
+                        name="situacao"
+                        onChange={handleChange}
+                        value={obj.situacao}
+                        ref={el => (camposRef.current.situacao = el)}
+                    >
+                        <option value="iniciar">Starting</option>
+                        <option value="em andamento">Executing</option>
+                        <option value="concluida">Completed</option>
+                    </select>
+                </td>
+            )}
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
                     <button onClick={(e) => handleSubmit(e)}>Add new</button>

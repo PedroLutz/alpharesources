@@ -3,48 +3,39 @@ import { Chart } from 'react-google-charts';
 import Loading from '../Loading';
 import Modal from '../Modal';
 import { fetchData, handleDelete, handleUpdate } from '../../functions/crud';
-import { jsDateToEuDate, euDateToJsDate, isoDateToJsDate } from '../../functions/general';
+import { jsDateToEuDate, euDateToJsDate, euDateToIsoDate, cleanForm } from '../../functions/general';
+import styles from '../../styles/modules/cronograma.module.css';
+import CadastroInputs from './CadastroInputs';
 
 const Tabela = () => {
   const [cronogramas, setCronogramas] = useState([]);
   const [deleteInfo, setDeleteInfo] = useState({ success: false, item: null });
-  const [filtroAreaTabela, setFiltroAreaTabela] = useState('');
   const [filtroAreaSelecionada, setFiltroAreaSelecionada] = useState('');
   const [itemSelecionado, setItemSelecionado] = useState('');
+  const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
   const [exibirModal, setExibirModal] = useState(null);
   const [mostrarTabela, setMostrarTabela] = useState(false);
   const [chartHeight, setChartHeight] = useState('100px');
   const [chartDataLoaded, setChartDataLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [datas, setDatas] = useState({
-    dataInicio: '',
-    dataTermino: '',
-  });
+  const [linhaVisivel, setLinhaVisivel] = useState({});
+  const [reload, setReload] = useState(false);
+  const camposVazios = {
+    item: '',
+    area: '',
+    inicio: '',
+    termino: '',
+    dp_item: '',
+    dp_area: '',
+    situacao: '',
+  }
+  const [novosDados, setNovosDados] = useState(camposVazios);
 
   const labelsSituacao = {
     iniciar: 'Starting',
     emandamento: 'Executing',
     concluida: 'Completed'
   }
-
-  const handleChange = (e) => {
-    setDatas({ ...datas, dataTermino: e.target.value });
-  }
-
-  const validarDatas = () => {
-    if (datas.dataInicio && datas.dataTermino) {
-      const dataInicioObj = new Date(datas.dataInicio);
-      const dataTerminoObj = new Date(datas.dataTermino);
-
-      if (dataInicioObj > dataTerminoObj) {
-        setExibirModal('datainvalida');
-        return false;
-      }
-    }
-
-    setExibirModal(null);
-    return true;
-  };
 
   const handleAtualizarTarefa = async (situacao) => {
     if (itemSelecionado === '') {
@@ -65,9 +56,33 @@ const Tabela = () => {
         return;
       }
 
-      const updatedItem = {
-        situacao: situacao
-      };
+      if(itemParaAtualizar.situacao === 'concluida'){
+        setExibirModal('tarefaConcluida')
+        return;
+      }
+
+      const today = new Date();
+      const formattedDate = today.
+        toLocaleString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' })
+        .split(',')[0];
+
+      var updatedItem;
+
+      if (situacao === 'em andamento') {
+        updatedItem = {
+          inicio: formattedDate,
+          situacao: situacao
+        };
+      } else if (situacao === 'check') {
+        updatedItem = {
+          termino: formattedDate,
+        };
+      } else if (situacao === 'concluida') {
+        updatedItem = {
+          termino: formattedDate,
+          situacao: situacao
+        };
+      } 
 
       await handleUpdate({
         route: 'cronograma',
@@ -76,77 +91,34 @@ const Tabela = () => {
       });
 
       fetchCronogramas();
+      setReload(true);
     } catch (error) {
       console.error('Erro ao atualizar a situação do cronograma', error);
     }
   };
 
-  const handleFilterChange = ({ target: { name, value } }) => {
-    if (name === 'area') {
-      setFiltroAreaTabela(value);
-    }
-  };
-
-  const filteredCronogramas = cronogramas.filter((item) => {
-    const areaMatch = item.area.toLowerCase().includes(filtroAreaTabela.toLowerCase());
-    return areaMatch;
-  });
+  useEffect(() => {
+    setReload(false);
+    fetchCronogramas();
+  }, [reload]);
 
   const handleClick = (item) => {
     setDeleteInfo({ success: false, item });
   };
 
-  const handleAtualizarData = async () => {
-    if (!validarDatas()) {
-      return;
-    }
+  const checkDados = (tipo) => {
+    setExibirModal(tipo); return;
+  };
 
-    if (!datas.dataInicio && !datas.dataTermino) {
-      setExibirModal("semdatas");
-      return;
-    }
-
-    const itemParaAtualizar = cronogramas.find(
-      (item) =>
-        item.area.toLowerCase() === filtroAreaSelecionada.toLowerCase() &&
-        item.item === itemSelecionado &&
-        !item.plano
-    );
-
-    if (!itemParaAtualizar) {
-      setExibirModal('semtarefa');
-      return;
-    }
-
-    if (itemParaAtualizar.situacao === 'iniciar' || itemParaAtualizar.situacao === 'concluida') {
-      setExibirModal('situacaoinvalida');
-      return;
-    }
-
-    const updatedItem = {
-      ...itemParaAtualizar,
-      ...(datas.dataTermino && { termino: isoDateToJsDate(datas.dataTermino) }),
-      ...(datas.dataInicio && { inicio: isoDateToJsDate(datas.dataInicio) }),
-    };
-
-    const updatedCronogramas = cronogramas.map(item =>
-      item._id === updatedItem._id ? { 
-        ...updatedItem, 
-        inicio: jsDateToEuDate(updatedItem.inicio), 
-        termino: jsDateToEuDate(updatedItem.termino) 
-      } : item
-    );
-    setCronogramas(updatedCronogramas);
-    try {
-      await handleUpdate({
-        route: 'cronograma',
-        dados: updatedItem,
-        item: itemParaAtualizar
-      });
-    } catch (error) {
-      setCronogramas(cronogramas); 
-      console.error("Update failed:", error);
-    }
+  const modalLabels = {
+    'inputsVazios': 'Fill out all fields before adding new data!',
+    'dadosUsados': 'This item is already registered in the timelines!',
+    'depFaltando': 'Please select the dependencies correctly!',
+    'dpNotUsed': "The item you've selected as predecessor is not registered!",
+    'dpNotOkay': "The predecessor must finish before the successor starts!",
+    'datasErradas': 'The finishing date must be after the starting date!',
+    'semtarefa': 'Select a task to update.',
+    'tarefaConcluida': "You can't update a task you've already completed!",
   };
 
   const fetchCronogramas = async () => {
@@ -211,16 +183,6 @@ const Tabela = () => {
     return ganttData;
   };
 
-  const handleSetDataHoje = (inputName) => {
-    const today = new Date();
-    const formattedDate = today.toLocaleString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }).split(',')[0];
-
-    setDatas((prevDatas) => ({
-      ...prevDatas,
-      [inputName]: formattedDate,
-    }));
-  };
-
   const chartData = createGanttData(cronogramas);
 
   useEffect(() => {
@@ -231,6 +193,52 @@ const Tabela = () => {
       setChartDataLoaded(true);
     }
   }, [chartData]);
+
+  const handleUpdateClick = (item) => {
+    setConfirmUpdateItem(item);
+    setNovosDados({
+      inicio: euDateToIsoDate(item.inicio),
+      termino: euDateToIsoDate(item.termino),
+      dp_item: item.dp_item || undefined,
+      dp_area: item.dp_area || undefined,
+      situacao: item.situacao,
+    });
+  };
+
+  const handleUpdateItem = async () => {
+    if (confirmUpdateItem) {
+      const updatedItem = {
+        ...confirmUpdateItem,
+        ...novosDados,
+      };
+
+      const updatedCronogramas = cronogramas.map(item =>
+        item._id === updatedItem._id ? {
+          ...updatedItem,
+          inicio: jsDateToEuDate(updatedItem.inicio),
+          termino: jsDateToEuDate(updatedItem.termino)
+        } : item
+      );
+      setCronogramas(updatedCronogramas);
+      setConfirmUpdateItem(null);
+
+      try {
+        await handleUpdate({
+          route: 'cronograma',
+          dados: updatedItem,
+          item: confirmUpdateItem
+        });
+      } catch (error) {
+        setCronogramas(cronogramas);
+        setConfirmUpdateItem(confirmUpdateItem);
+        console.error("Update failed:", error);
+      }
+    }
+    setConfirmUpdateItem(null);
+    cleanForm(novosDados, setNovosDados);
+    setLinhaVisivel();
+    window.location.reload();
+  };
 
   return (
     <div className="centered-container">
@@ -246,7 +254,7 @@ const Tabela = () => {
           botao2: {
             funcao: () => setDeleteInfo({ success: false, item: null }), texto: 'Cancel'
           }
-        }}/>
+        }} />
       )}
 
       {deleteInfo.success && (
@@ -255,43 +263,16 @@ const Tabela = () => {
           botao1: {
             funcao: () => setDeleteInfo({ success: false, item: null }), texto: 'Close'
           }
-        }}/>
+        }} />
       )}
 
-      {exibirModal === 'datainvalida' && (
+      {exibirModal != null && (
         <Modal objeto={{
-          titulo: 'The last execution must be equal to or greater than the start date.',
+          titulo: modalLabels[exibirModal],
           botao1: {
-            funcao: () => setExibirModal(null), texto: 'OK'
-          }
-        }}/>
-      )}
-
-      {exibirModal === 'semtarefa' && (
-        <Modal objeto={{
-          titulo: 'Select a task to update.',
-          botao1: {
-            funcao: () => setExibirModal(null), texto: 'OK'
-          }
-        }}/>
-      )}
-
-      {exibirModal === 'situacaoinvalida' && (
-        <Modal objeto={{
-          titulo: 'You can only update the dates of tasks that are in execution.',
-          botao1: {
-            funcao: () => setExibirModal(null), texto: 'OK'
-          }
-        }}/>
-      )}
-
-      {exibirModal === "semdatas" && (
-        <Modal objeto={{
-          titulo: 'Insert valid dates!',
-          botao1: {
-            funcao: () => setExibirModal(null), texto: 'OK'
-          }
-        }}/>
+            funcao: () => setExibirModal(null), texto: 'Okay'
+          },
+        }} />
       )}
 
       {/* Gráfico Gantt */}
@@ -304,7 +285,7 @@ const Tabela = () => {
           data={chartData}
           options={{
             gantt: {
-              trackHeight: 30, // Altura de cada linha do gráfico
+              trackHeight: 30,
               sortTasks: false,
             },
           }}
@@ -312,7 +293,7 @@ const Tabela = () => {
       )}
 
       <div className='mini-input'>
-        <label htmlFor="filtroArea">Select task for updating</label>
+        <label htmlFor="filtroArea">Quick update</label>
         <select
           name="area"
           value={filtroAreaSelecionada}
@@ -342,7 +323,7 @@ const Tabela = () => {
           required
         >
           <option value="" disabled>Select an item</option>
-          {filteredCronogramas
+          {cronogramas
             .filter((item) => item.area.toLowerCase() === filtroAreaSelecionada.toLowerCase() && !item.plano)
             .map((item, index) => (
               <option key={index} value={item.item}>
@@ -352,119 +333,89 @@ const Tabela = () => {
         </select>
       </div>
 
-      <div className="input-data botoes-cronograma">
+      <div>
         <button onClick={() => handleAtualizarTarefa('em andamento')} style={{ width: '100px' }}>
           Start task
+        </button>
+        <button onClick={() => handleAtualizarTarefa('check')}>
+          Check execution
         </button>
         <button onClick={() => handleAtualizarTarefa('concluida')} style={{ width: '150px' }}>
           Complete task
         </button>
       </div>
 
-      <div className='mini-input'>
-        <label htmlFor="inicioAlterado">Start date</label>
-        <div className='mesma-linha input-data'>
-          <input
-            type="date"
-            id="inicioAlterado"
-            name="inicioAlterado"
-            style={{ maxWidth: '250px' }}
-            placeholder=""
-            onChange={(e) => setDatas({ ...datas, dataInicio: e.target.value })}
-            value={datas.dataInicio}
-            required
-          />
-          <button
-            style={{ marginTop: '9px', marginLeft: '-10px' }}
-            onClick={() => handleSetDataHoje('dataInicio')}>Set today</button>
-        </div>
-
-        <label htmlFor="terminoAlterado">Last execution</label>
-        <div className='mesma-linha input-data'>
-          <input
-            type="date"
-            id="terminoAlterado"
-            name="terminoAlterado"
-            style={{ maxWidth: '250px' }}
-            placeholder=""
-            onChange={handleChange}
-            value={datas.dataTermino}
-            required
-          />
-          <button
-            style={{ marginTop: '9px', marginLeft: '-10px' }}
-            onClick={() => handleSetDataHoje('dataTermino')}>Set today</button>
-        </div>
-      </div>
-
-
-      <button className="botao-cadastro"
-        onClick={handleAtualizarData}>
-        Update dates
-      </button>
-
       <button className="botao-cadastro"
         style={{ marginTop: '20px' }}
         onClick={() => {
           setMostrarTabela(!mostrarTabela);
-          setFiltroAreaTabela('');
         }}>
         {mostrarTabela ? 'Hide table' : 'Show table'}
       </button>
 
       {mostrarTabela && (
         <div className="centered-container">
-          <div style={{ marginTop: '30px' }} className='mini-input'>
-            <label htmlFor="filtroAreaTabela">Filter Table:</label>
-            <select
-              name="area"
-              onChange={handleFilterChange}
-              value={filtroAreaTabela}
-              required
-            >
-              <option value="" disabled>Select an area</option>
-              {[...new Set(cronogramas.map(item => item.area))].map((area, index) => (
-                <option key={index} value={area}>{area}</option>
-              ))}
-            </select>
+          <div className={styles.tabelaCronograma_container}>
+            <div className={styles.tabelaCronograma_wrapper}>
+              <table className={styles.tabelaCronograma}>
+                <thead>
+                  <tr>
+                    <th>Area</th>
+                    <th>Task</th>
+                    <th>Start</th>
+                    <th>End</th>
+                    <th style={{ width: '11%' }}>Dependency: Area</th>
+                    <th style={{ width: '11%' }}>Dependency: Item</th>
+                    <th>Situation</th>
+                    <th style={{ width: '5%' }}>Delete</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cronogramas.filter((item) => !item.plano).map((item, index) => (
+                    <tr key={index}>
+                      <td>
+                        {item.area}
+                      </td>
+                      <td>
+                        {item.item}
+                      </td>
+                      {linhaVisivel === item._id ? (
+                        <CadastroInputs
+                        tipo="update"
+                        gantt={true}
+                        obj={novosDados}
+                        objSetter={setNovosDados}
+                        funcao={{
+                          funcao1: () => handleUpdateItem(),
+                          funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
+                        }} 
+                        checkDados={checkDados}/>
+                      ) : (
+                        <React.Fragment>
+                          <td>{item.inicio === '01/01/1970' ? '-' : item.inicio}</td>
+                          <td>{item.termino === '01/01/1970' ? '-' : item.termino}</td>
+                          <td>{item.dp_area || '-'}</td>
+                          <td>{item.dp_item || '-'}</td>
+                          <td>{labelsSituacao[item.situacao.toLowerCase().replace(/\s/g, '')] || '-'}</td>
+                          <td>
+                            <div className="botoes-acoes">
+                              <button onClick={() => handleClick(item)}>❌</button>
+                            </div>
+                            <button onClick={() => {
+                              linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
+                            }}>⚙️</button>
+                          </td>
+                        </React.Fragment>
+
+                      )}
+
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
 
-          <table style={{ marginBottom: '20px' }}>
-            <thead>
-              <tr>
-                <th>Area</th>
-                <th>Task</th>
-                <th>Start</th>
-                <th>End</th>
-                <th style={{ width: '11%' }}>Dependency: Area</th>
-                <th style={{ width: '11%' }}>Dependency: Item</th>
-                <th>Situation</th>
-                <th style={{ width: '5%' }}>Delete</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredCronogramas.filter((item) => !item.plano).map((item, index) => (
-                <tr key={index}>
-                  <td>
-                    {item.area}
-                  </td>
-                  <td>
-                    {item.item}
-                  </td>
-                  <td>{item.inicio === '31/12/1969' ? '-' : item.inicio}</td>
-                  <td>{item.termino === '31/12/1969' ? '-' : item.termino}</td>
-                  <td>{item.dp_area || '-'}</td>
-                  <td>{item.dp_item || '-'}</td>
-                  <td>{labelsSituacao[item.situacao.toLowerCase().replace(/\s/g, '')] || '-'}</td>
-                  <td>
-                    <div className="botoes-acoes">
-                      <button onClick={() => handleClick(item)}>❌</button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
       )}
     </div>
