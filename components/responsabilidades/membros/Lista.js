@@ -41,7 +41,7 @@ const Tabela = () => {
 
   const fetchMembros = async () => {
     try {
-      const data = await fetchData('responsabilidades/membros/get');
+      const data = await fetchData('responsabilidades/membros/get/all');
       setMembros(data.membros);
     } finally {
       setLoading(false)

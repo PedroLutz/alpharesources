@@ -1,0 +1,35 @@
+.tabelaComunicacao_container{
+    overflow: auto;
+}
+
+.tabelaComunicacao_wrapper{
+    max-width: 1200px;
+    display:block;
+}
+
+.tabelaComunicacao table {
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    padding: 0.3rem;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabelaComunicacao td {
+    border-width: 0.1rem;
+    border-style: solid;
+    width: 5rem;
+    border-color: rgb(167, 167, 167);
+    padding: 0.3rem;
+    font-size: small;
+}
+
+.tabelaComunicacao th {
+    background-color: #ff8ff2;
+    border-width: 0.1rem;
+    border-style: solid;
+    font-size: 0.9rem;
+    border-color: rgb(167, 167, 167);
+    padding: 0.3rem;
+}

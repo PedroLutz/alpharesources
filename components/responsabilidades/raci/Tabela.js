@@ -76,7 +76,7 @@ const Tabela = () => {
   };
 
   const fetchNomesMembros = async () => {
-    const data = await fetchData('responsabilidades/membros/get');
+    const data = await fetchData('responsabilidades/membros/get/nomes');
     setNomesMembros(data.nomes);
   };
 

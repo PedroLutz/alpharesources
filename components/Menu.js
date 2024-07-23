@@ -63,6 +63,12 @@ const { setTitulo } = useContext(TituloContext);
                     Timeline management
                 </Link>
             </span>
+            <span>
+                <Link href="/pages/communication">
+                    <img src={'/images/communication_logo.png'} alt="Planning Logo" className={logoItem}/>
+                    Communication management
+                </Link>
+            </span>
             {/*Item Report
             <span>
                 <Link href="/pages/report">

@@ -1,5 +1,5 @@
-import connectToDatabase from '../../../../lib/db';
-import MembroModel from '../../../../models/responsabilidade/Membro';
+import connectToDatabase from '../../../../../lib/db';
+import MembroModel from '../../../../../models/responsabilidade/Membro';
 
 const { Membro } = MembroModel;
 
@@ -8,11 +8,9 @@ export default async (req, res) => {
     await connectToDatabase();
 
     if (req.method === 'GET') {
-      const membros = await Membro.find();
-      
-      const nomes = await Membro.find().select('nome');
+        const nomes = await Membro.find().select('nome');
 
-      res.status(200).json({ membros , nomes});
+      res.status(200).json({ nomes });
     } else {
       res.status(405).json({ error: 'Método não permitido' });
     }

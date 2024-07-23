@@ -77,7 +77,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
     };
 
     const fetchNomesMembros = async () => {
-        const data = await fetchData('responsabilidades/membros/get');
+        const data = await fetchData('responsabilidades/membros/get/nomes');
         setNomesMembros(data.nomes);
     };
 

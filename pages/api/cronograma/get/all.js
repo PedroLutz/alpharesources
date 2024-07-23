@@ -9,8 +9,6 @@ export default async (req, res) => {
 
     if (req.method === 'GET') {
         const cronogramas = await Gantt.find();
-        const cronogramaPlanos = await Gantt.find({ plano: true });
-        const cronogramaGantts = await Gantt.find({ plano: false});
 
         function sort(query) {
           query.sort((a, b) => {
@@ -23,10 +21,8 @@ export default async (req, res) => {
         }
 
         sort(cronogramas);
-        sort(cronogramaPlanos);
-        sort(cronogramaGantts);
   
-        res.status(200).json({ cronogramas, cronogramaPlanos, cronogramaGantts });
+        res.status(200).json({ cronogramas });
     } else {
       res.status(405).json({ error: 'Método não permitido' });
     }
