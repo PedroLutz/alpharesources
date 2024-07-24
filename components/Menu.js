@@ -22,33 +22,6 @@ const { setTitulo } = useContext(TituloContext);
 
         {/*Itens do Menu, linha 1*/}
         <div className={menuGroup}>
-            {/*Item finanças*/}
-            <span>
-                <Link href="/pages/financial/finances/table">
-                    <img src={'/images/finance_logo.png'} alt="Planning Logo" className={logoItem}/>
-                    Finance management
-                </Link>
-            </span>
-            {/*Item Plano de Aquisição*/}
-            <span>
-                <Link href="/pages/financial/plan/table">
-                    <img src={'/images/planning_logo.png'} alt="Planning Logo" className={logoItem}/>
-                    Acquisition planning
-                </Link>
-            </span>
-            {/*Item Responsabilidades*/}
-            <span>
-                <Link href="/pages/responsibilities/raci">
-                    <div>
-                        <img src={'/images/members_logo.png'} alt="Members Logo" className={logoItem}/>
-                    </div>
-                    Roles & Responsibilities
-                </Link>
-            </span>
-        </div>
-
-        {/*Itens do Menu, linha 2*/}
-        <div className={menuGroup}>
             {/*Item WBS*/}
             <span>
                 <Link href="/pages/wbs">
@@ -63,10 +36,38 @@ const { setTitulo } = useContext(TituloContext);
                     Timeline management
                 </Link>
             </span>
+            {/*Item finanças*/}
+            <span>
+                <Link href="/pages/financial/finances/table">
+                    <img src={'/images/finance_logo.png'} alt="Planning Logo" className={logoItem}/>
+                    Resource Management
+                </Link>
+            </span>
+        </div>
+
+        {/*Itens do Menu, linha 2*/}
+        <div className={menuGroup}>
+            {/*Item Responsabilidades*/}
+            <span>
+                <Link href="/pages/responsibilities/raci">
+                    <div>
+                        <img src={'/images/members_logo.png'} alt="Members Logo" className={logoItem}/>
+                    </div>
+                    Roles & Responsibilities
+                </Link>
+            </span>
+            {/*Item Comunicação*/}
             <span>
                 <Link href="/pages/communication">
                     <img src={'/images/communication_logo.png'} alt="Planning Logo" className={logoItem}/>
                     Communication management
+                </Link>
+            </span>
+            {/*Item Risco*/}
+            <span>
+                <Link href="/pages/risk/risks">
+                    <img src={'/images/risk_logo.png'} alt="Planning Logo" className={logoItem}/>
+                    <br/>Risk<br/>Management
                 </Link>
             </span>
             {/*Item Report

@@ -195,7 +195,7 @@ const Tabela = () => {
       {confirmDeleteItem && (
         <div className="overlay">
           <div className="modal">
-            <p>Are you sure you want to delete "{confirmDeleteItem.item}"?</p>
+            <p>Are you sure you want to delete "{confirmDeleteItem.area} - {confirmDeleteItem.item}"?</p>
             <div style={{ display: 'flex', gap: '10px' }}>
               <button className="botao-cadastro" onClick={handleConfirmDelete}>Confirm</button>
               <button className="botao-cadastro" onClick={() => setConfirmDeleteItem(null)}>Cancel</button>

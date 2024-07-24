@@ -9,12 +9,12 @@ const Navbar = () => {
   const { setTitulo } = useContext(TituloContext);
 
   useEffect(() => {
-    setTitulo('Finances');
+    setTitulo('Resource Management');
   }, [setTitulo]);
 
   return (
     <nav className={styles.nav}>
-      <h2><Link href="/pages/financial/finances/register">Alpha Management/Finances</Link></h2>
+      <h2><Link href="/pages/financial/finances/register">Alpha Management/Resource Management</Link></h2>
       <img src={'/images/logo.png'} alt="Logo" />
 
       <ul>
@@ -23,6 +23,9 @@ const Navbar = () => {
         </li>
         <li>
           <Link href="/pages/financial/finances/report">Report</Link>
+        </li>
+        <li>
+          <Link href="/pages/financial/plan/table">Planning</Link>
         </li>
         <li>
           <Link href="/">Go to Menu</Link>

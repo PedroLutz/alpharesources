@@ -17,6 +17,7 @@ const Tabela = () => {
   const [mostrarTabela, setMostrarTabela] = useState(false);
   const [chartHeight, setChartHeight] = useState('100px');
   const [chartDataLoaded, setChartDataLoaded] = useState(false);
+  const [confirmCompleteTask, setConfirmCompleteTask] = useState(false);
   const [loading, setLoading] = useState(true);
   const [linhaVisivel, setLinhaVisivel] = useState({});
   const [reload, setReload] = useState(false);
@@ -243,11 +244,23 @@ const Tabela = () => {
   return (
     <div className="centered-container">
       {loading && <Loading />}
-      <h2>Timeline monitoring</h2>
+      <h2>Timeline monitoring</h2>`
+      
+      {confirmCompleteTask && (
+        <Modal objeto={{
+          titulo: `Are you sure you want to complete "${filtroAreaSelecionada} - ${confirmCompleteTask}"?`,
+          botao1: {
+            funcao: () => {handleAtualizarTarefa('concluida'); setConfirmCompleteTask(null)}, texto: 'Confirm'
+          },
+          botao2: {
+            funcao: () => setConfirmCompleteTask(null), texto: 'Cancel'
+          }
+        }} />
+      )}`
 
       {deleteInfo.item && (
         <Modal objeto={{
-          titulo: `Are you sure you want to delete "${deleteInfo.item.descricao}"?`,
+          titulo: `Are you sure you want to delete "${deleteInfo.item.area} - ${deleteInfo.item.item}"?`,
           botao1: {
             funcao: handleConfirmDelete, texto: 'Confirm'
           },
@@ -340,7 +353,9 @@ const Tabela = () => {
         <button onClick={() => handleAtualizarTarefa('check')}>
           Check execution
         </button>
-        <button onClick={() => handleAtualizarTarefa('concluida')} style={{ width: '150px' }}>
+        <button onClick={() => {
+          itemSelecionado ? setConfirmCompleteTask(itemSelecionado) : setExibirModal('semtarefa')
+          }} style={{ width: '150px' }}>
           Complete task
         </button>
       </div>

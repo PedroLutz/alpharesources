@@ -130,6 +130,7 @@ const Tabela = () => {
 
     return (
         <div className="centered-container">
+            <h2>Stakeholder Register</h2>
             {exibirModal != null && (
                 <Modal objeto={{
                     titulo: modalLabels[exibirModal],
