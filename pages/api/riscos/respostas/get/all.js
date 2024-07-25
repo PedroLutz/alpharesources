@@ -8,9 +8,9 @@ export default async (req, res) => {
     await connectToDatabase();
 
     if (req.method === 'GET') {
-        const riscos = await Resposta.find();
+        const respostas = await Resposta.find();
   
-        res.status(200).json({ riscos });
+        res.status(200).json({ respostas });
     } else {
       res.status(405).json({ error: 'Método não permitido' });
     }

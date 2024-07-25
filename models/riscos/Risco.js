@@ -12,7 +12,7 @@ const RiscoSchema = new mongoose.Schema({
   gatilho: String,
   ocorrencia: Number,
   impacto: Number,
-  urgecia: Number,
+  urgencia: Number,
 }, { collection: 'riscos' }); 
 
 const Risco = mongoose.models['Risco'] || mongoose.model('Risco', RiscoSchema);

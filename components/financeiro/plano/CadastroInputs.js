@@ -38,6 +38,20 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
         }
     }, [obj.area, elementosWBS]);
 
+    useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+    
+        objSetter({
+            ...obj,
+            item: ''
+        });
+    }, [obj.area]);
+    
+    const isFirstRender = useRef(true);
+
 
     const handleAreaChange = (e) => {
         const areaSelecionada = e.target.value;

@@ -213,7 +213,7 @@ const Tabela = () => {
       setConfirmUpdateItem(null);
       try {
         await handleUpdate({
-          route: 'responsabilidades/raci',
+          route: 'responsabilidades/raci/update?id',
           dados: updatedItem,
           item: confirmUpdateItem
         });

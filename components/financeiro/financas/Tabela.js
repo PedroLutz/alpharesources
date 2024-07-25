@@ -145,7 +145,7 @@ const Tabela = () => {
       setReload(true);
       try {
         await handleUpdate({
-          route: 'financeiro/financas',
+          route: 'financeiro/financas/update?id',
           dados: updatedItem,
           item: confirmItemAction.item
         });

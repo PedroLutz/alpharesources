@@ -73,7 +73,7 @@ const Tabela = () => {
       linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
       try {
         await handleUpdate({
-          route: 'financeiro/plano',
+          route: 'financeiro/plano/update?id',
           dados: updatedItem,
           item: confirmUpdateItem
         });

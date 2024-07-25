@@ -29,6 +29,7 @@ const Tabela = () => {
     const [exibirModal, setExibirModal] = useState(null);
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [reload, setReload] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     const enviar = async (e) => {
         e.preventDefault();
@@ -56,7 +57,7 @@ const Tabela = () => {
             );
             setStakeholders(updatedStakeholders);
             setConfirmUpdateItem(null)
-            linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(onfirmUpdateItem._id);
+            linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
             setReload(true);
             try {
                 await handleUpdate({
@@ -65,7 +66,7 @@ const Tabela = () => {
                     item: confirmUpdateItem
                 });
             } catch (error) {
-                setStakeholders(lancamentos);
+                setStakeholders(stakeholders);
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
@@ -94,8 +95,13 @@ const Tabela = () => {
     };
 
     const fetchStakeholders = async () => {
-        const data = await fetchData('stakeholders/get/all');
-        setStakeholders(data.stakeholders);
+        try{
+            const data = await fetchData('stakeholders/get/all');
+            setStakeholders(data.stakeholders);
+        } finally {
+            setLoading(false);
+        }
+        
     };
 
     const generateMapping = (p, i) => {
@@ -115,7 +121,7 @@ const Tabela = () => {
 
     useEffect(() => {
         setReload(false);
-        fetchStakeholders();
+        fetchStakeholders();  
     }, [reload]);
 
     const checkDados = (tipo) => {
@@ -130,6 +136,7 @@ const Tabela = () => {
 
     return (
         <div className="centered-container">
+            {loading && <Loading />}
             <h2>Stakeholder Register</h2>
             {exibirModal != null && (
                 <Modal objeto={{
@@ -188,7 +195,7 @@ const Tabela = () => {
                                 checkDados={checkDados}
                             />
                             {stakeholders.map((stakeholder, index) => (
-                                <React.Fragment>
+                                <React.Fragment key={index}>
                                     {linhaVisivel === stakeholder._id ? (
                                         <CadastroInputs tipo="update"
                                             obj={novosDados}
@@ -200,7 +207,7 @@ const Tabela = () => {
                                             checkDados={checkDados}
                                         />
                                     ) : (
-                                        <tr key={index}>
+                                        <tr>
                                             <td>{stakeholder.name}</td>
                                             <td>{stakeholder.involvement}</td>
                                             <td>{stakeholder.influence}</td>

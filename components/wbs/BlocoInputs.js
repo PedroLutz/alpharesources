@@ -23,7 +23,7 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
 
     const handleChange = (e, setter, obj) => {
         const { name, value } = e.target;
-        var areaValor, key;
+        var key;
         if (area) { areaValor = e.target.getAttribute('data-area'); key = `novo${area}` };
         const index = emptyFields.indexOf(name);
         index > -1 && emptyFields.splice(index, 1);
