@@ -3,7 +3,6 @@ import React from "react";
 import { fetchData } from "../../functions/crud";
 
 const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
-    const [emptyFields, setEmptyFields] = useState([]);
     const [elementosWBS, setElementosWBS] = useState([]);
     const [itensPorArea, setItensPorArea] = useState([]);
     const camposRef = useRef({
@@ -60,8 +59,6 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        const index = emptyFields.indexOf(name);
-        index > -1 && emptyFields.splice(index, 1);
         objSetter({
             ...obj,
             [name]: value,
@@ -70,7 +67,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     };
 
     const isFormVazio = (form) => {
-        const emptyFields = Object.entries(form).filter(([key, value]) => value === null);
+        const emptyFields = Object.entries(form).filter(([key, value]) => value === "");
         emptyFields.map(([key]) => console.log(key));
         return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
     };

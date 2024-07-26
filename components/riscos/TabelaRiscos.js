@@ -119,7 +119,7 @@ const TabelaRiscos = () => {
     return (
         <div className="centered-container">
             {loading && <Loading/>}
-            <h2>Stakeholder Register</h2>
+            <h2>Risk Identification</h2>
             {exibirModal != null && (
                 <Modal objeto={{
                     titulo: modalLabels[exibirModal],

@@ -8,7 +8,7 @@ export default async (req, res) => {
     await connectToDatabase();
 
     if (req.method === 'GET') {
-        const riscos = await Risco.find();
+        const riscos = await Risco.find({}, 'risco area ehNegativo');
   
         res.status(200).json({ riscos });
     } else {

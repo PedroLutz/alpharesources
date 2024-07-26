@@ -8,9 +8,9 @@ import { cleanForm } from "../../functions/general";
 
 const TabelaPlanos = () => {
     const camposVazios = {
-        risco: String,
-        estrategia: String,
-        detalhamento: String
+        risco: "",
+        estrategia: "",
+        detalhamento: ""
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
@@ -43,10 +43,10 @@ const TabelaPlanos = () => {
         if (confirmUpdateItem) {
             const updatedItem = { ...confirmUpdateItem, ...novosDados };
 
-            const updatedRiscos = riscos.map(item =>
+            const updatedRespostas = respostas.map(item =>
                 item._id === updatedItem._id ? { ...updatedItem } : item
             );
-            setRiscos(updatedRiscos);
+            setRespostas(updatedRespostas);
             setConfirmUpdateItem(null)
             linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
             setReload(true);
@@ -57,7 +57,7 @@ const TabelaPlanos = () => {
                     item: confirmUpdateItem
                 });
             } catch (error) {
-                setRiscos(riscos);
+                setRespostas(respostas);
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
@@ -71,13 +71,13 @@ const TabelaPlanos = () => {
                 getDeleteSuccess = handleDelete({
                     route: 'riscos/respostas',
                     item: confirmDeleteItem,
-                    fetchDados: fetchRiscos
+                    fetchDados: fetchRespostas
                 });
             } finally {
                 setExibirModal(`deleteSuccess-${getDeleteSuccess}`)
             }
         }
-        if(getDeleteSuccess){
+        if (getDeleteSuccess) {
             setExibirModal(`deleteSuccess`)
         } else {
             setExibirModal(`deleteFail`)
@@ -86,12 +86,12 @@ const TabelaPlanos = () => {
     };
 
     const fetchRespostas = async () => {
-        try{
+        try {
             const data = await fetchData('riscos/respostas/get/all');
             setRespostas(data.respostas);
         } finally {
             setLoading(false);
-        }     
+        }
     };
 
     useEffect(() => {
@@ -111,8 +111,8 @@ const TabelaPlanos = () => {
 
     return (
         <div className="centered-container">
-            {loading && <Loading/>}
-            <h2>Risk Identification</h2>
+            {loading && <Loading />}
+            <h2>Risk Response Planning</h2>
             {exibirModal != null && (
                 <Modal objeto={{
                     titulo: modalLabels[exibirModal],

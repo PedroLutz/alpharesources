@@ -8,7 +8,7 @@ export default async (req, res) => {
     await connectToDatabase();
 
     if (req.method === 'GET') {
-        const respostas = await Resposta.find();
+        const respostas = await Resposta.find().sort({ risco: 1 });
   
         res.status(200).json({ respostas });
     } else {
