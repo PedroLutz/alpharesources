@@ -186,6 +186,19 @@ const Tabela = () => {
 
   const chartData = createGanttData(cronogramas);
 
+  const teste = async () => {
+    const monthYear = "2024-07";
+    const response = await fetch(`/api/relatorio/get/geral`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({monthYear: monthYear}),
+    });
+    const data = await response.json();
+    console.log(data)
+}
+
   useEffect(() => {
     if (chartData.length > 1) {
       const linhaHeight = 30;
@@ -244,7 +257,8 @@ const Tabela = () => {
   return (
     <div className="centered-container">
       {loading && <Loading />}
-      <h2>Timeline monitoring</h2>`
+      <h2>Timeline monitoring</h2>
+      <button onClick={teste}>Avançada</button>
       
       {confirmCompleteTask && (
         <Modal objeto={{
@@ -256,7 +270,7 @@ const Tabela = () => {
             funcao: () => setConfirmCompleteTask(null), texto: 'Cancel'
           }
         }} />
-      )}`
+      )}
 
       {deleteInfo.item && (
         <Modal objeto={{
