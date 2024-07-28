@@ -198,6 +198,15 @@ const WBS = () => {
 
     return (
       <div>
+        {gruposDeAreas.length === 0 && (
+          <BlocoInputs
+          tipo='cadastroArea'
+          obj={novoSubmit}
+          objSetter={setNovoSubmit}
+          funcao={enviar}
+          checkDados={checkDados}
+        />
+        )}
         {gruposDeAreas.map((grupo, index) => (
           <div className={styles.wbsContainer} key={index}>
             {(index == 0 && verOpcoes) &&

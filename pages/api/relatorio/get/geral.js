@@ -1,9 +1,11 @@
 import connectToDatabase from '../../../../lib/db';
 import GanttModel from '../../../../models/Gantt';
-import RiscoModel from '../../../../models/riscos/Risco'
+import RiscoModel from '../../../../models/riscos/Risco';
+import LancamentoModel from '../../../../models/financeiro/Lancamento';
 
 const { Gantt } = GanttModel;
 const { Risco } = RiscoModel;
+const { Lancamento } = LancamentoModel;
 
 export default async (req, res) => {
   try {
@@ -28,16 +30,18 @@ export default async (req, res) => {
       const tarefasIniciadas = await Gantt.find({
         inicio: { $gte: startDate, $lte: endDate },
         plano: false,
-      }, 'area item')
+      }, 'area item');
+
+      const tarefasEmAndamentoConditions = [
+        { termino: { $gte: endDate }, inicio: {$lte: startDate} },
+        { inicio: { $lte: startDate }, termino: { $lte: startDate }, situacao: 'em andamento' },
+        { inicio: { $gte: startDate, $lte: endDate }, termino: {$gte: endDate} }
+      ];
 
       const tarefasEmAndamento = await Gantt.find({
-        termino: { $gte: endDate },
-        $or: [
-          { inicio: { $lte: startDate } },
-          { inicio: { $gte: startDate, $lte: endDate } }
-        ],
         plano: false,
-      }, 'area item')
+        $or: tarefasEmAndamentoConditions.length > 0 ? tarefasEmAndamentoConditions : [{}]
+      }, 'area item');
 
       const tarefasPlanejadas = await Gantt.aggregate([
         {
@@ -48,7 +52,7 @@ export default async (req, res) => {
         },
         {
           $lookup: {
-            from: 'gantt', // Nome da coleção no MongoDB
+            from: 'gantt',
             let: { area: '$area', item: '$item' },
             pipeline: [
               {
@@ -91,18 +95,54 @@ export default async (req, res) => {
       }));
 
       const riscos = await Risco.find({
-        $or: areasItens.map(({ area, item }) => ({
+        $or: areasItens.length > 0 ? areasItens.map(({ area, item }) => ({
           area: area,
           item: item
-        }))
+        })) : [{ _id: null }]
       }, 'risco');
+
+      const caixaPorMes = await Lancamento.aggregate([
+        {
+          $match: {
+            tipo: { $in: ['Income', 'Expense'] },
+            deletado: false
+          }
+        },
+        {
+          $project: {
+            monthYear: {
+              $dateToString: {
+                format: '%Y-%m', 
+                date: '$data' 
+              }
+            },
+            valor: 1
+          }
+        },
+        {
+          $match: {
+            monthYear: monthYear
+          }
+        },
+        {
+          $group: {
+            _id: '$monthYear',
+            total: { $sum: '$valor' }
+          }
+        },
+        {
+          $sort: { _id: 1 }
+        }
+      ]);
 
       res.status(200).json({ 
         tarefasConcluidas, 
         tarefasIniciadas, 
         tarefasEmAndamento, 
         tarefasPlanejadas,
-        riscos });
+        riscos,
+        caixaPorMes
+      });
     } else {
       res.status(405).json({ error: 'Método não permitido' });
     }

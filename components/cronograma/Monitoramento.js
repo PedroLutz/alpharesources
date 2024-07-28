@@ -13,6 +13,7 @@ const Tabela = () => {
   const [filtroAreaSelecionada, setFiltroAreaSelecionada] = useState('');
   const [itemSelecionado, setItemSelecionado] = useState('');
   const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
+  const [report, setReport] = useState([])
   const [exibirModal, setExibirModal] = useState(null);
   const [mostrarTabela, setMostrarTabela] = useState(false);
   const [chartHeight, setChartHeight] = useState('100px');
@@ -57,7 +58,7 @@ const Tabela = () => {
         return;
       }
 
-      if(itemParaAtualizar.situacao === 'concluida'){
+      if (itemParaAtualizar.situacao === 'concluida') {
         setExibirModal('tarefaConcluida')
         return;
       }
@@ -83,7 +84,7 @@ const Tabela = () => {
           termino: formattedDate,
           situacao: situacao
         };
-      } 
+      }
 
       await handleUpdate({
         route: 'cronograma',
@@ -122,6 +123,74 @@ const Tabela = () => {
     'tarefaConcluida': "You can't update a task you've already completed!",
   };
 
+  const generateReport = async () => {
+    const responsePlano = await fetchData('cronograma/get/startAndEndPlano');
+    const responseGantt = await fetchData('cronograma/get/startAndEndGantt');
+    const dadosPlano = responsePlano.resultadosPlano;
+    const dadosGantt = responseGantt.resultadosGantt;
+    var duplas = [];
+    dadosPlano.forEach((dado) => {
+      const gantt = dadosGantt.find(o => o.area === dado.area);
+      duplas.push([dado, gantt])
+    })
+
+    let arrayAnalise = [];
+
+    duplas.forEach((dupla) => {
+
+      const area = dupla[0].area;
+      const planoUltimo = dupla[0].ultimo;
+      const ganttPrimeiro = dupla[1].primeiro;
+      const ganttUltimo = dupla[1].ultimo;
+      const hoje = new Date().toISOString();
+
+      //executing
+      if (ganttUltimo.situacao === "em andamento") {
+        var obj = { area: area, state: 'EXECUTING' }
+        if (planoUltimo.termino >= hoje) {
+          obj = { ...obj, status: 'uptodate' }
+        } else {
+          obj = { ...obj, status: 'late' }
+        }
+        arrayAnalise.push(obj);
+      }
+
+      //hold
+      if (planoUltimo.item !== ganttUltimo.item && ganttUltimo.situacao === 'concluida') {
+        var obj = { area: area, state: 'HOLD' }
+        if (planoUltimo.termino >= hoje) {
+          obj = { ...obj, status: 'onschedule' }
+        } else {
+          obj = { ...obj, status: 'overdue' }
+        }
+        arrayAnalise.push(obj);
+      }
+
+      //complete
+      if (planoUltimo.item === ganttUltimo.item && ganttUltimo.situacao === 'concluida') {
+        var obj = { area: area, state: 'COMPLETE' }
+        if (planoUltimo.termino >= ganttUltimo.termino) {
+          obj = { ...obj, status: 'uptodate' }
+        } else {
+          obj = { ...obj, status: 'late' }
+        }
+        arrayAnalise.push(obj);
+      }
+
+      //to begin
+      if (ganttPrimeiro.inicio === null && ganttUltimo.termino === null) {
+        var obj = { area: area, state: 'TOBEGIN' }
+        if (planoUltimo.termino >= hoje) {
+          obj = { ...obj, status: 'onschedule' }
+        } else {
+          obj = { ...obj, status: 'overdue' }
+        }
+        arrayAnalise.push(obj);
+      }
+    })
+    setReport(arrayAnalise)
+  }
+
   const fetchCronogramas = async () => {
     try {
       const data = await fetchData('cronograma/get/gantts');
@@ -136,8 +205,10 @@ const Tabela = () => {
       });
       setCronogramas(data.cronogramaGantts);
     } finally {
+      generateReport();
       setLoading(false);
     }
+
   };
 
   useEffect(() => {
@@ -185,19 +256,6 @@ const Tabela = () => {
   };
 
   const chartData = createGanttData(cronogramas);
-
-  const teste = async () => {
-    const monthYear = "2024-07";
-    const response = await fetch(`/api/relatorio/get/geral`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({monthYear: monthYear}),
-    });
-    const data = await response.json();
-    console.log(data)
-}
 
   useEffect(() => {
     if (chartData.length > 1) {
@@ -258,13 +316,12 @@ const Tabela = () => {
     <div className="centered-container">
       {loading && <Loading />}
       <h2>Timeline monitoring</h2>
-      <button onClick={teste}>Avançada</button>
-      
+
       {confirmCompleteTask && (
         <Modal objeto={{
           titulo: `Are you sure you want to complete "${filtroAreaSelecionada} - ${confirmCompleteTask}"?`,
           botao1: {
-            funcao: () => {handleAtualizarTarefa('concluida'); setConfirmCompleteTask(null)}, texto: 'Confirm'
+            funcao: () => { handleAtualizarTarefa('concluida'); setConfirmCompleteTask(null) }, texto: 'Confirm'
           },
           botao2: {
             funcao: () => setConfirmCompleteTask(null), texto: 'Cancel'
@@ -369,7 +426,7 @@ const Tabela = () => {
         </button>
         <button onClick={() => {
           itemSelecionado ? setConfirmCompleteTask(itemSelecionado) : setExibirModal('semtarefa')
-          }} style={{ width: '150px' }}>
+        }} style={{ width: '150px' }}>
           Complete task
         </button>
       </div>
@@ -410,15 +467,15 @@ const Tabela = () => {
                       </td>
                       {linhaVisivel === item._id ? (
                         <CadastroInputs
-                        tipo="update"
-                        gantt={true}
-                        obj={novosDados}
-                        objSetter={setNovosDados}
-                        funcao={{
-                          funcao1: () => handleUpdateItem(),
-                          funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
-                        }} 
-                        checkDados={checkDados}/>
+                          tipo="update"
+                          gantt={true}
+                          obj={novosDados}
+                          objSetter={setNovosDados}
+                          funcao={{
+                            funcao1: () => handleUpdateItem(),
+                            funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
+                          }}
+                          checkDados={checkDados} />
                       ) : (
                         <React.Fragment>
                           <td>{item.inicio === '01/01/1970' ? '-' : item.inicio}</td>
@@ -444,7 +501,26 @@ const Tabela = () => {
               </table>
             </div>
           </div>
-
+          <div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Area</th>
+                  <th>State</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {report.map((area, index) => (
+                  <tr key={index}>
+                    <td>{area.area}</td>
+                    <td>{area.state}</td>
+                    <td>{area.status}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

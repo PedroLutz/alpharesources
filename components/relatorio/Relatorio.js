@@ -1,405 +1,431 @@
-import React, { useEffect, useState } from 'react';
-import { Chart } from "react-google-charts";
+import React, { useState, useEffect } from "react";
+import { fetchData, handleSubmit } from "../../functions/crud";
 
-const months = [
-  { value: '01', label: 'January' },
-  { value: '02', label: 'February' },
-  { value: '03', label: 'March' },
-  { value: '04', label: 'April' },
-  { value: '05', label: 'May' },
-  { value: '06', label: 'June' },
-  { value: '07', label: 'July' },
-  { value: '08', label: 'August' },
-  { value: '09', label: 'September' },
-  { value: '10', label: 'October' },
-  { value: '11', label: 'November' },
-  { value: '12', label: 'December' },
-];
+const Relatorio = () => {
+    const months = [
+        ['01', 'January'],
+        ['02', 'February'],
+        ['03', 'March'],
+        ['04', 'April'],
+        ['05', 'May'],
+        ['06', 'June'],
+        ['07', 'July'],
+        ['08', 'August'],
+        ['09', 'September'],
+        ['10', 'October'],
+        ['11', 'November'],
+        ['12', 'December'],
+    ]
+    const years = ['2024', '2025', '2026', '2027', '2028', '2029', '2030'];
+    const [monthYear, setMonthYear] = useState({
+        year: '',
+        month: ''
+    })
+    const [issues, setIssues] = useState('');
+    const [kpyAnalysisText, setKpiAnalysisText] = useState({
+        scope: '',
+        schedule: '',
+        risk: '',
+        quality: ''
+    })
+    const [kpyAnalysisStatus, setKpiAnalysisStatus] = useState({
+        scopeStatus: '',
+        scheduleStatus: '',
+        riskStatus: '',
+        qualityStatus: ''
+    });
+    const [tarefasIniciadas, setTarefasIniciadas] = useState([]);
+    const [costDados, setCostDados] = useState([]);
+    const [tarefasEmAndamento, setTarefasEmAndamento] = useState([]);
+    const [tarefasConcluidas, setTarefasConcluidas] = useState([]);
+    const [tarefasPlanejadas, setTarefasPlanejadas] = useState([]);
+    const [areaAnalysis, setAreaAnalysis] = useState([]);
+    const [notasAreas, setNotasAreas] = useState({});
+    const [riscos, setRiscos] = useState([]);
 
-const years = ['2023', '2024']; // Adicione os anos necessários
-
-const Resumo = () => {
-  const [receitasPorMes, setReceitasPorMes] = useState([]);
-  const [despesasPorMes, setDespesasPorMes] = useState([]);
-  const [selectedMonth, setSelectedMonth] = useState('');
-  const [selectedYear, setSelectedYear] = useState('');
-  const [selectedMonthData, setSelectedMonthData] = useState([]);
-  const [iniciosNoMes, setIniciosNoMes] = useState([]);
-  const [terminosNoMes, setTerminosNoMes] = useState([]);
-  const [iniciosNoMesSeguinte, setIniciosNoMesSeguinte] = useState([]);
-  const [customText, setCustomText] = useState(''); // Estado para armazenar o texto do input
-  const [cronogramaData, setCronogramaData] = useState([]);
-
-  const handleCustomTextChange = (event) => {
-    setCustomText(event.target.value);
-  };
-
-  useEffect(() => {
-    // Fazer uma solicitação para a rota existente que retorna as informações de resumo
-    fetch('/api/financeiro/financas/get')
-      .then((response) => response.json())
-      .then((data) => {
-        // Extrair os valores do objeto de resposta
-        const { receitasPorMes, despesasPorMes } = data;
-
-        // Definir o estado com os valores obtidos
-        setReceitasPorMes(receitasPorMes || 0);
-        setDespesasPorMes(despesasPorMes || 0);
-      })
-      .catch((error) => {
-        console.error('Erro ao buscar informações de resumo', error);
-      });
-
-    if (selectedMonth && selectedYear) {
-      // Fazer uma solicitação para a rota que retorna os lançamentos do mês selecionado
-      fetch(`/api/financeiro/financas/get?month=${selectedMonth}&year=${selectedYear}`)
-        .then((response) => response.json())
-        .then((data) => {
-          const lancamentosDoMes = data.lancamentos.map((lancamento) => {
-            const dataLancamento = new Date(lancamento.data);
-            dataLancamento.setDate(dataLancamento.getDate() + 1);
-            return { ...lancamento, data: dataLancamento.toISOString() };
-          });
-  
-          // Atualizar o estado com os lançamentos do mês selecionado
-          setSelectedMonthData(lancamentosDoMes);
-        })
-        .catch((error) => {
-          console.error('Erro ao buscar lançamentos do mês', error);
-        });
-
-        fetch(`/api/cronograma/get`)
-        .then((response) => response.json())
-        .then((data) => {
-          // Atualizar o estado com os lançamentos do mês selecionado
-          setCronogramaData(data.cronogramas || []);
-          console.log(cronogramaData);
-        })
-        .catch((error) => {
-          console.error('Erro ao buscar lançamentos do mês', error);
-        });
-
-        fetch(`/api/cronograma/get?month=${selectedMonth}&year=${selectedYear}`)
-        .then((response) => response.json())
-        .then((data) => {
-          // Atualizar o estado com os lançamentos do mês selecionado
-          setIniciosNoMes(data.iniciosNoMes);
-          setTerminosNoMes(data.terminosNoMes);
-          const adjustedIniciosNoMesSeguinte = data.iniciosNoMesSeguinte.map((item) => {
-            // Adiciona um dia aos dados antes de definir o estado
-            const dataInicio = new Date(item.inicio);
-            dataInicio.setDate(dataInicio.getDate() + 1);
-            return { ...item, inicio: dataInicio.toISOString() };
-          });
-          setIniciosNoMesSeguinte(adjustedIniciosNoMesSeguinte);
-        })
-        .catch((error) => {
-          console.error('Erro ao buscar lançamentos do mês', error);
-        });
+    const generateLabelsTarefas = (dados, setter) => {
+        const tarefas = dados.reduce(
+            (texto, dado) => texto + `${dado.area} - ${dado.item}, `, ``
+        )
+        const textoAjustado = tarefas.slice(0, tarefas.lastIndexOf(','));
+        setter(textoAjustado);
     }
-  }, [selectedMonth, selectedYear]);
 
-  const generateChartData = () => {
-    const chartData = [['Month', 'Estimated', 'Real']];
-    const selectedMonthIndex = months.findIndex((month) => month.value === selectedMonth);
-    const selectedYearInt = parseInt(selectedYear, 10);
-    const startYear = 2023;
-    const startMonth = 7;
-  
-    const totalMonths = (selectedYearInt - startYear) * 12 + selectedMonthIndex - startMonth + 1;
-  
-    let totalPlanoTrue = 0;
-    let totalPlanoFalse = 0;
-  
-    for (let i = 0; i < totalMonths; i++) {
-      const currentDate = new Date(startYear, startMonth + i, 1);
-      const monthData = cronogramaData.filter((item) => {
-        const itemDate = new Date(item.termino);
-        return (
-          itemDate.getMonth() === currentDate.getMonth() &&
-          itemDate.getFullYear() === currentDate.getFullYear() &&
-          item.situacao === 'concluida'
-        );
-      });
-  
-      totalPlanoTrue += monthData.reduce((acc, item) => (item.plano ? acc + 1 : acc), 0);
-      totalPlanoFalse += monthData.reduce((acc, item) => (!item.plano ? acc + 1 : acc), 0);
-  
-      const monthLabel = months[(startMonth + i) % 12].label;
-  
-      chartData.push([monthLabel, totalPlanoTrue, totalPlanoFalse]);
+    const generateLabelsRiscos = (dados, setter) => {
+        const riscos = dados.reduce(
+            (texto, dado) => texto + `${dado.risco}, `, ``
+        )
+        const textoAjustado = riscos.slice(0, riscos.lastIndexOf(','));
+        setter(textoAjustado);
     }
-  
-    return chartData;
-  };
-  
-  const generatePDF = () => {
-  import('html2pdf.js').then((html2pdfModule) => {
-    const html2pdf = html2pdfModule.default;
 
-    const content = document.getElementById('pdf-content');
+    const generateCostDados = (dados, setter) => {
+        const caixa = dados[0].total;
+        if (caixa >= 2000) {
+            setter({
+                valor: caixa,
+                status: 'Safe'
+            })
+        }
+        if (caixa >= 200 && caixa < 2000) {
+            setter({
+                valor: caixa,
+                status: 'Requires attention'
+            })
+        }
+        if (caixa < 200) {
+            setter({
+                valor: caixa,
+                status: 'Unsafe'
+            })
+        }
+    }
 
-    // Opções de configuração do PDF
-    const pdfOptions = {
-      margin: 10,
-      filename: `status_report_${selectedMonth}/${selectedYear}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    const checkAllDados = () => {
+        if (!tarefasIniciadas) return false;
+        if (!tarefasEmAndamento) return false;
+        if (!tarefasConcluidas) return false;
+        if (!tarefasPlanejadas) return false;
+        if (!riscos) return false;
+        return true;
+    }
+
+    const handleChange = (e, obj, setter) => {
+        const { name, value } = e.target;
+        setter({
+            ...obj,
+            [name]: value,
+        });
+        e.target.classList.remove('campo-vazio');
     };
 
-    html2pdf().from(content).set(pdfOptions).save();
-  });
-};
+    const busca = async () => {
+        const mesAno = `${monthYear.year}-${monthYear.month}`
+        try {
+            const response = await fetch(`/api/relatorio/get/geral`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ monthYear: mesAno }),
+            });
 
+            if (response.ok) {
+                const data = await response.json();
+                generateLabelsTarefas(data.tarefasIniciadas, setTarefasIniciadas);
+                generateLabelsTarefas(data.tarefasConcluidas, setTarefasConcluidas);
+                generateLabelsTarefas(data.tarefasEmAndamento, setTarefasEmAndamento);
+                generateLabelsTarefas(data.tarefasPlanejadas, setTarefasPlanejadas);
+                generateLabelsRiscos(data.riscos, setRiscos);
+                generateCostDados(data.caixaPorMes, setCostDados);
+            } else {
+                console.error(`Erro ao buscar por dados`);
+            }
+        } catch (error) {
+            console.error(`Erro ao buscar por dados`, error);
+        }
 
-  const handleMonthChange = (event) => {
-    setSelectedMonth(event.target.value);
-  };
+        const responsePlano = await fetchData('cronograma/get/startAndEndPlano');
+        const responseGantt = await fetchData('cronograma/get/startAndEndGantt');
+        const dadosPlano = responsePlano.resultadosPlano;
+        const dadosGantt = responseGantt.resultadosGantt;
+        var duplas = [];
+        dadosPlano.forEach((dado) => {
+            const gantt = dadosGantt.find(o => o.area === dado.area);
+            duplas.push([dado, gantt])
+        })
 
-  const handleYearChange = (event) => {
-    setSelectedYear(event.target.value);
-  };
+        let arrayAnalise = [];
 
-  const areasIniciosMap = {};
-  iniciosNoMes.forEach((elemento) => {
-    if (!elemento.plano) {
-      if (!areasIniciosMap[elemento.area]) {
-        areasIniciosMap[elemento.area] = [];
-      }
-  
-      areasIniciosMap[elemento.area].push(elemento);
+        duplas.forEach((dupla) => {
+            const area = dupla[0].area;
+            const planoUltimo = dupla[0].ultimo;
+            const ganttPrimeiro = dupla[1].primeiro;
+            const ganttUltimo = dupla[1].ultimo;
+            const hoje = new Date().toISOString();
+
+            //executing
+            if (ganttUltimo.situacao === "em andamento") {
+                var obj = { area: area, state: 'EXECUTING' }
+                if (planoUltimo.termino >= hoje) {
+                    obj = { ...obj, status: 'uptodate' }
+                } else {
+                    obj = { ...obj, status: 'late' }
+                }
+                arrayAnalise.push(obj);
+            }
+
+            //hold
+            if (planoUltimo.item !== ganttUltimo.item && ganttUltimo.situacao === 'concluida') {
+                var obj = { area: area, state: 'HOLD' }
+                if (planoUltimo.termino >= hoje) {
+                    obj = { ...obj, status: 'onschedule' }
+                } else {
+                    obj = { ...obj, status: 'overdue' }
+                }
+                arrayAnalise.push(obj);
+            }
+
+            //complete
+            if (planoUltimo.item === ganttUltimo.item && ganttUltimo.situacao === 'concluida') {
+                var obj = { area: area, state: 'COMPLETE' }
+                if (planoUltimo.termino >= ganttUltimo.termino) {
+                    obj = { ...obj, status: 'uptodate' }
+                } else {
+                    obj = { ...obj, status: 'late' }
+                }
+                arrayAnalise.push(obj);
+            }
+
+            //to begin
+            if (ganttPrimeiro.inicio === null && ganttUltimo.termino === null) {
+                var obj = { area: area, state: 'TOBEGIN' }
+                if (planoUltimo.termino >= hoje) {
+                    obj = { ...obj, status: 'onschedule' }
+                } else {
+                    obj = { ...obj, status: 'overdue' }
+                }
+                arrayAnalise.push(obj);
+            }
+        })
+        setAreaAnalysis(arrayAnalise)
+        console.log(notasAreas)
     }
-  });
 
-  const areasTerminosMap = {};
-  terminosNoMes.forEach((elemento) => {
-    if (!elemento.plano && elemento.situacao === 'concluida' ) {
-      if (!areasTerminosMap[elemento.area]) {
-        areasTerminosMap[elemento.area] = [];
-      }
-  
-      areasTerminosMap[elemento.area].push(elemento);
-    }
-  });
-
-  const areasIniciosProxMesMap = {};
-  iniciosNoMesSeguinte.forEach((elemento) => {
-    if (elemento.plano) {
-      if (!areasIniciosProxMesMap[elemento.area]) {
-        areasIniciosProxMesMap[elemento.area] = [];
-      }
-  
-      areasIniciosProxMesMap[elemento.area].push(elemento);
-    }
-  });
-
-  const lancamentosPorTipo = {};
-    selectedMonthData.forEach((lancamento) => {
-      const tipo = lancamento.tipo;
-      if (!lancamentosPorTipo[tipo]) {
-        lancamentosPorTipo[tipo] = [];
-      }
-      lancamentosPorTipo[tipo].push(lancamento);
-    });
-    const tiposOrdenados = Object.keys(lancamentosPorTipo).sort((a, b) => b.localeCompare(a));
-
-
-  // Filtra os ganhos e gastos com base no mês e ano selecionados
-  const filteredLancamentosPorMes = selectedMonthData.filter((lancamento) => {
-    const lancamentoDate = new Date(lancamento.data);
-    return (
-      lancamentoDate.getMonth() === parseInt(selectedMonth, 10) - 1 &&
-      lancamentoDate.getFullYear() === parseInt(selectedYear, 10)
-    );
-  });
-  
-  return (
-    <div className="h3-resumo">
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
-        <h2>Status Report</h2>
-
-        <div>
-          <label>Select Month:</label>
-          <select value={selectedMonth} onChange={handleMonthChange}>
-            <option value="">--Select Month--</option>
-            {months.map((month) => (
-              <option key={month.value} value={month.value}>{month.label}</option>
-            ))}
-          </select>
-
-          <label>Select Year:</label>
-          <select value={selectedYear} onChange={handleYearChange}>
-            <option value="">--Select Year--</option>
-            {years.map((year) => (
-              <option key={year} value={year}>{year}</option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label>Comments:</label>
-          <input type="text" value={customText} onChange={handleCustomTextChange} />
-        </div>
-
-        <button onClick={generatePDF} className="botao-cadastro">Generate PDF</button>
-
-        <div id='pdf-content' style={{width: '700px'}}>
-
-
-
-  <div>
+    const handleExport = () => {
+        const element = document.querySelector(".downloadDiv");
+        const clonedElement = element.cloneNode(true);
     
-  {Array.from(new Set([...Object.keys(areasIniciosMap), ...Object.keys(areasTerminosMap), ...Object.keys(areasIniciosProxMesMap)]))
-        .map((area) => (
-  <div key={area}>
-    <div className="cabecario" style={{marginTop: '10px'}}>
-            <img src={'/images/logo.png'} alt="Logo" style={{width: '80px', marginRight: '20px'}}/>
-            <b>Alpha - Status Report {selectedMonth}/{selectedYear}</b>
-          </div>
+        // Desativar todos os inputs, selects e botões no elemento clonado
+        const inputs = clonedElement.querySelectorAll("input");
+        const selects = clonedElement.querySelectorAll("select");
+        const buttons = clonedElement.querySelectorAll("button");
+    
+        inputs.forEach(input => input.setAttribute("disabled", true));
+        selects.forEach(select => select.setAttribute("disabled", true));
+        buttons.forEach(button => button.setAttribute("disabled", true));
+    
+        const htmlString = `
+            <html>
+                <head>
+                    <style>
+                        input[disabled], select[disabled], button[disabled] {
+                            opacity: 1;
+                            background-color: white;
+                            color: #000;
+                            border: 1px solid #ccc;
+                            cursor: not-allowed;
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${clonedElement.outerHTML}
+                </body>
+            </html>
+        `;
+        const blob = new Blob([htmlString], { type: 'text/html' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'relatorio.html';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+    
 
-    <div style={{ marginTop: '10px' }}>
-      <div style={{marginBottom: '20px'}}>
-      <b style={{ fontSize: '25px', color: '#ff00e3' }}>{area}</b>
-        </div>
-      
-      
-      {/* Iniciadas */}
-      <div>
-        <b style={{ fontSize: '20px', color: '#ff00e3' }}>Initiated tasks</b>
-        {areasIniciosMap[area]?.map((item) => (
-          <li key={item.item} style={{ fontSize: '13px', marginBottom: '10px', marginTop: '10px' }}>
-            {item.item} ({new Date(item.inicio).toLocaleDateString()})
-          </li>
-        ))}
-      </div>
+    return (
+        <div className="centered-container">
+            <h2>Status Report Generator</h2>
+            <div>
+                <select
+                    name="month"
+                    onChange={(e) => handleChange(e, monthYear, setMonthYear)}
+                    value={monthYear.month}>
+                    <option value='' disabled>Select month</option>
+                    {months.map((month, index) => (
+                        <option key={index} value={month[0]}>{month[1]}</option>
+                    ))}
+                </select>
 
-      {/* Finalizadas */}
-      <div>
-        <b style={{ fontSize: '20px', color: '#ff00e3' }}>Completed tasks</b>
-        {areasTerminosMap[area]?.map((item) => (
-          <li key={item.item} style={{ fontSize: '13px', marginBottom: '10px', marginTop: '10px' }}>
-            {item.item} ({new Date(item.termino).toLocaleDateString()})
-          </li>
-        ))}
-      </div>
-
-      {/* Planejadas */}
-      <div>
-        <b style={{ fontSize: '20px', color: '#ff00e3' }}>Planned tasks</b>
-        {areasIniciosProxMesMap[area]?.map((item) => (
-          <li key={item.item} style={{ fontSize: '13px', marginBottom: '10px', marginTop: '10px' }}>
-            {item.item} ({new Date(item.inicio).toLocaleDateString()})
-          </li>
-        ))}
-      </div>
-    </div>
-
-    <div className="html2pdf__page-break"/>
-  </div>
-))}
-  </div>
-
-
-{cronogramaData.length > 0 && (
-          <div>
-            <div className="cabecario" style={{marginTop: '10px'}}>
-            <img src={'/images/logo.png'} alt="Logo" style={{width: '80px', marginRight: '20px'}}/>
-            <b>Alpha - Status Report {selectedMonth}/{selectedYear}</b>
+                <select
+                    name="year"
+                    onChange={(e) => handleChange(e, monthYear, setMonthYear)}
+                    value={monthYear.year}>
+                    <option value='' disabled>Select year</option>
+                    {years.map((year, index) => (
+                        <option key={index} value={year}>{year}</option>
+                    ))}
+                </select>
             </div>
+            <button onClick={busca}>Buscar</button>
+            <button onClick={handleExport}>Exportar</button>
+            <div className="downloadDiv">
+
             
-            <div style={{ marginTop: '10px' }}>
-              <b style={{ fontSize: '25px', color: '#ff00e3' }}>Completed Tasks: Estimated X Real</b>
+            {!checkAllDados() && (
+                <React.Fragment>
+                    <table style={{ marginTop: '2rem' }}>
+                        <thead>
+                            <tr>
+                                <th colSpan={2}>PROJECT PROGRESS (TASK ANALYSIS)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style={{ borderStyle: 'solid' }}>
+                                <td style={{ borderStyle: 'solid' }}>Tasks initiated</td>
+                                <td>{tarefasIniciadas || '-'}</td>
+                            </tr>
+                            <tr style={{ borderStyle: 'solid' }}>
+                                <td style={{ borderStyle: 'solid' }}>Tasks in execution</td>
+                                <td>{tarefasEmAndamento || '-'}</td>
+                            </tr>
+                            <tr style={{ borderStyle: 'solid' }}>
+                                <td style={{ borderStyle: 'solid' }}>Tasks finished</td>
+                                <td>{tarefasConcluidas || '-'}</td>
+                            </tr>
+                            <tr style={{ borderStyle: 'solid' }}>
+                                <td style={{ borderStyle: 'solid' }}>Tasks planned for next month</td>
+                                <td>{tarefasPlanejadas || '-'}</td>
+                            </tr>
+                            <tr style={{ borderStyle: 'solid' }}>
+                                <td style={{ borderStyle: 'solid' }}>Risks</td>
+                                <td>{riscos || '-'}</td>
+                            </tr>
+                            <tr>
+                                <td style={{ borderStyle: 'solid' }}>Issues</td>
+                                <td><input value={issues} name="issues"
+                                    onChange={(e) => { setIssues(e.target.value) }} /></td>
+                            </tr>
+                        </tbody>
+                    </table>
 
-              <Chart
-                width={'100%'}
-                height={'400px'}
-                chartType="LineChart"
-                loader={<div>Loading Chart</div>}
-                data={generateChartData()}
-                options={{
-                  title: 'Tasks completed per month',
-                  hAxis: { title: 'Month', titleTextStyle: { color: '#333', fontName: 'Montserrat' } },
-                  vAxis: { minValue: 0 },
-                  series: {
-                    0: { axis: 'Estimated Schedule' },
-                    1: { axis: 'Real Timeline' },
-                  },
-                  axes: {
-                    y: {
-                      'Estimated Schedule': { label: 'Estimated Schedule' },
-                      'Real Timeline': { label: 'Real Timeline' },
-                    },
-                  },
-                }}
-              />
+                    <table style={{ marginTop: '2rem' }}>
+                        <thead>
+                            <tr>
+                                <th colSpan={5}>PROJECT STATUS (KPI ANALYSIS)</th>
+                            </tr>
+                            <tr>
+                                <th>Scope</th>
+                                <th>Schedule</th>
+                                <th>Cost</th>
+                                <th>Risk</th>
+                                <th>Quality</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style={{ fontSize: 'small', borderStyle: 'solid' }}>
+                                    <select name='scopeStatus'
+                                        value={kpyAnalysisStatus.scopeStatus}
+                                        onChange={(e) => handleChange(e, kpyAnalysisStatus, setKpiAnalysisStatus)}>
+                                        <option value='Safe'>Safe</option>
+                                        <option value='Requires attention'>Requires attention</option>
+                                        <option value='Unsafe'>Unsafe</option>
+                                    </select>
+                                </td>
+                                <td style={{ fontSize: 'small', borderStyle: 'solid' }}>
+                                    <select name='scheduleStatus'
+                                        value={kpyAnalysisStatus.scheduleStatus}
+                                        onChange={(e) => handleChange(e, kpyAnalysisStatus, setKpiAnalysisStatus)}>
+                                        <option value='Safe'>Safe</option>
+                                        <option value='Requires attention'>Requires attention</option>
+                                        <option value='Unsafe'>Unsafe</option>
+                                    </select>
+                                </td>
+                                <td style={{ fontSize: 'small', borderStyle: 'solid' }}>
+                                    {costDados.status || '-'}
+                                </td>
+                                <td style={{ fontSize: 'small', borderStyle: 'solid' }}>
+                                    <select name='riskStatus'
+                                        value={kpyAnalysisStatus.riskStatus}
+                                        onChange={(e) => handleChange(e, kpyAnalysisStatus, setKpiAnalysisStatus)}>
+                                        <option value='Safe'>Safe</option>
+                                        <option value='Requires attention'>Requires attention</option>
+                                        <option value='Unsafe'>Unsafe</option>
+                                    </select>
+                                </td>
+                                <td style={{ fontSize: 'small', borderStyle: 'solid' }}>
+                                    <select name='qualityStatus'
+                                        value={kpyAnalysisStatus.qualityStatus}
+                                        onChange={(e) => handleChange(e, kpyAnalysisStatus, setKpiAnalysisStatus)}>
+                                        <option value='Safe'>Safe</option>
+                                        <option value='Requires attention'>Requires attention</option>
+                                        <option value='Unsafe'>Unsafe</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input
+                                        name="scope"
+                                        value={kpyAnalysisText.scope}
+                                        onChange={(e) => handleChange(e, kpyAnalysisText, setKpiAnalysisText)}
+                                    />
+                                </td>
+                                <td>
+                                    <input
+                                        name="schedule"
+                                        value={kpyAnalysisText.schedule}
+                                        onChange={(e) => handleChange(e, kpyAnalysisText, setKpiAnalysisText)}
+                                    />
+                                </td>
+                                <td>
+                                    {costDados.valor ? (
+                                        `Cash in bank account as of this document's date: R$${costDados.valor}`
+                                    ) : '-'}
+                                </td>
+                                <td>
+                                    <input
+                                        name="risk"
+                                        value={kpyAnalysisText.risk}
+                                        onChange={(e) => handleChange(e, kpyAnalysisText, setKpiAnalysisText)}
+                                    />
+                                </td>
+                                <td>
+                                    <input
+                                        name="quality"
+                                        value={kpyAnalysisText.quality}
+                                        onChange={(e) => handleChange(e, kpyAnalysisText, setKpiAnalysisText)}
+                                    />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <table style={{ marginTop: '2rem' }}>
+                        <thead>
+                            <tr>
+                                <th colSpan={4}>PROJECT DETAILS (AREA ANALYSIS)</th>
+                            </tr>
+                            <tr>
+                                <th>Area</th>
+                                <th>Situation</th>
+                                <th>Status</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {areaAnalysis.map((area, index) => (
+                                <tr key={index}>
+                                    <td>{area.area}</td>
+                                    <td>{area.state}</td>
+                                    <td>{area.status}</td>
+                                    <td>
+                                        <input
+                                        name={`${area.area}_notas`}
+                                        value={notasAreas[`${area.area}_notas`]}
+                                        onChange={(e) =>  handleChange(e, notasAreas, setNotasAreas)}
+                                        />
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </React.Fragment>
+            )}
             </div>
-          </div>
-        )}
-                    <div className="html2pdf__page-break"/>
-          {selectedMonth && selectedYear && (
-          <div>
-            <div className="cabecario" style={{marginTop: '10px'}}>
-            <img src={'/images/logo.png'} alt="Logo" style={{width: '80px', marginRight: '20px'}}/>
-            <b>Alpha - Status Report {selectedMonth}/{selectedYear}</b>
-          </div>
-            <div style={{marginTop: '10px'}}>
-            <b style={{fontSize: '25px', color: '#ff00e3'}}>Financial results</b><br/>
-              
-  <h4>Monthly releases</h4>
-
-  {selectedMonthData.length > 0 ? (
-
-    // Renderizar lançamentos por tipo
-    tiposOrdenados.map((tipo) => (
-      <div key={tipo}>
-        <h5>{tipo}</h5>
-        <ul>
-        {filteredLancamentosPorMes
-        .filter((lancamento) => lancamento.tipo === tipo)
-        .map((lancamento) => (
-
-            <li key={lancamento._id}>
-              {lancamento.descricao} - R${Math. abs(lancamento.valor.toFixed(2))} ({new Date(lancamento.data).toLocaleDateString()})
-            </li>
-          ))}
-        </ul>
-      </div>
-    ))
-  ) : (
-    <p>Nenhum lançamento para o mês selecionado.</p>
-  )}
-  <div style={{marginTop: '10px'}}>
-    <div>
-    <span style={{fontSize: '20px'}}><b>Total revenue: </b>
-            R${Number(receitasPorMes.find(
-              item => item._id === `${selectedYear}/${selectedMonth}`
-            )?.total || 0).toFixed(2)}
-            </span>
-    </div>
-            
-              
-            <div style={{marginBottom: '20px'}}>
-            <span style={{fontSize: '20px'}}><b>Total cost: </b>R${Number(-despesasPorMes.find(
-              item => item._id === `${selectedYear}/${selectedMonth}`
-            )?.total || 0).toFixed(2)}
-            <br/></span>
-              </div>
-          
-            </div>
-</div>
-
-<label style={{fontWeight: 'bold'}}>Comments:</label>
-<p style={{border: '1px dotted #000000', borderRadius: '10px', padding: '5px'}}>{customText}</p>
-
-          </div>
-        )}
         </div>
+    )
+}
 
-        
-      </div>
-    </div>
-  );
-};
-
-export default Resumo;
+export default Relatorio;

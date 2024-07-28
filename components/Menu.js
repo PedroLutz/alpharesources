@@ -70,14 +70,14 @@ const { setTitulo } = useContext(TituloContext);
                     <br/>Risk<br/>Management
                 </Link>
             </span>
-            {/*Item Report
+            {/* Item Report */}
             <span>
                 <Link href="/pages/report">
-                    <img src={'/images/report_logo.png'} alt="Planning Logo" className="logoItem"/>
+                    <img src={'/images/report_logo.png'} alt="Planning Logo" className={logoItem}/>
                     Report generator
                 </Link>
             </span>
-            */}
+           
         </div>
     </div>
   );

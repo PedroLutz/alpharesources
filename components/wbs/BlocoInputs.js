@@ -23,7 +23,7 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
 
     const handleChange = (e, setter, obj) => {
         const { name, value } = e.target;
-        var key;
+        var areaValor, key;
         if (area) { areaValor = e.target.getAttribute('data-area'); key = `novo${area}` };
         const index = emptyFields.indexOf(name);
         index > -1 && emptyFields.splice(index, 1);
@@ -76,8 +76,8 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
             if (!isInvalido) {
                 if (area) {
                     await funcao(e, area);
-                    var areaValor, key;
-                    areaValor = e.target.getAttribute('data-area'); key = `novo${area}`;
+                    var key;
+                    key = `novo${area}`;
                     objSetter(prevState => ({
                         ...prevState,
                         [key]: {
@@ -85,7 +85,6 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
                             item: ''
                         }
                     }));
-
                 } else {
                     funcao(e);
                 }
