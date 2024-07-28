@@ -142,7 +142,14 @@ const Relatorio = () => {
             const planoUltimo = dupla[0].ultimo;
             const ganttPrimeiro = dupla[1].primeiro;
             const ganttUltimo = dupla[1].ultimo;
-            const hoje = new Date().toISOString();
+
+            const getLastDayOfMonth = (monthYear) => {
+                const { year, month } = monthYear;
+                const lastDay = new Date(year, month, 0).getDate(); // Dia 0 do próximo mês retorna o último dia do mês atual
+                return new Date(year, month - 1, lastDay); // month - 1 porque os meses são indexados de 0 a 11
+            };
+
+            const hoje = getLastDayOfMonth(monthYear).toISOString();
 
             //executing
             if (ganttUltimo.situacao === "em andamento") {
