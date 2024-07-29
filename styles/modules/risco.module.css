@@ -1,4 +1,4 @@
-.tabela_financas table {
+.tabelaRisco table, .tabelaPlano table {
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(167, 167, 167);
@@ -8,16 +8,16 @@
     table-layout: fixed; 
 }
 
-.tabela_financas_container{
+.tabelaRisco_container{
     overflow: auto;
 }
 
-.tabela_financas_wrapper{
+.tabelaRisco_wrapper{
     max-width: 1200px;
     display:block;
 }
 
-.tabela_financas td, .tabela_financas th {
+.tabelaRisco td, .tabelaRisco th, .tabelaPlano td, .tabelaPlano th{
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(167, 167, 167);
@@ -26,7 +26,7 @@
     word-wrap: break-word;
 }
 
-.tabela_financas td input, .tabela_financas td select {
+.tabelaRisco td input, .tabelaRisco td select, .tabelaPlano td input, .tabelaPlano td select {
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(167, 167, 167);
@@ -36,20 +36,32 @@
     outline: none;
 }
 
-.tabela_financas td input:hover, .tabela_financas td select:hover, .tabela_financas button:hover {
+.tabelaRisco td input:hover, .tabelaRisco td select:hover, .tabelaRisco button:hover, 
+.tabelaPlano td input:hover, .tabelaPlano td select:hover, .tabelaPlano button:hover{
     background-color: rgb(231, 231, 231);
 }
 
-.tabela_financas td input, .tabela_financas td select {
-    width: 6.2rem;
+.tabelaRisco td input, .tabelaRisco td select,
+.tabelaPlano td input, .tabelaPlano td select {
+    width: 10rem;
     font-size: small;
 }
 
-.tabela_financas td input[type='date'] {
+.tabelaRisco td:nth-child(8) input, 
+.tabelaRisco td:nth-child(9) input, 
+.tabelaRisco td:nth-child(10) input{
+    width: 3rem;
+}
+
+.tabelaRisco td input[type='date'] {
     width: 7rem;
 }
 
-.tabela_financas th {
+.tabelaPlano td:nth-child(2) select{
+    width: 6rem;
+}
+
+.tabelaRisco th, .tabelaPlano th {
     background-color: #ff8ff2;
     border-width: 0.1rem;
     font-size: 0.9rem;
@@ -58,21 +70,27 @@
     padding: 0.3rem;
 }
 
-.tabela_financas td {
+.tabelaRisco td {
     width: 6rem;
+    text-align: left;
 }
 
-.tabela_financas td:nth-child(3){
-    width: 8rem;
+.tabelaRisco td:nth-child(5), .tabelaRisco td:nth-child(6), 
+.tabelaRisco td:nth-child(7), .tabelaRisco td:nth-child(8), 
+.tabelaRisco td:nth-child(9), .tabelaRisco td:nth-child(10), 
+.tabelaRisco td:nth-child(11), .tabelaRisco td:nth-child(13), 
+.tabelaRisco td:nth-child(14), .tabelaRisco td:last-child {
+    text-align: center;
 }
 
-.tabela_financas td:nth-child(4),
-.tabela_financas td:nth-child(5),
-.tabela_financas td:nth-child(11) {
-    width: 10rem;
+.tabelaRisco th:nth-child(8), 
+.tabelaRisco th:nth-child(9), .tabelaRisco th:nth-child(10), 
+.tabelaRisco th:nth-child(11), .tabelaRisco th:nth-child(13), 
+.tabelaRisco th:nth-child(14) {
+    font-size: 0.7rem;
 }
 
-.tabela_financas button{
+.tabelaRisco button, .tabelaPlano button{
     background-color: transparent;
     border-width: 0.1rem;
     border-style: solid;

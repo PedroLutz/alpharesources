@@ -197,8 +197,8 @@ const Tabela = () => {
           <div className="modal">
             <p>Are you sure you want to delete "{confirmDeleteItem.area} - {confirmDeleteItem.item}"?</p>
             <div style={{ display: 'flex', gap: '10px' }}>
-              <button className="botao-cadastro" onClick={handleConfirmDelete}>Confirm</button>
-              <button className="botao-cadastro" onClick={() => setConfirmDeleteItem(null)}>Cancel</button>
+              <button className="botao-padrao" onClick={handleConfirmDelete}>Confirm</button>
+              <button className="botao-padrao" onClick={() => setConfirmDeleteItem(null)}>Cancel</button>
             </div>
           </div>
         </div>
@@ -208,7 +208,7 @@ const Tabela = () => {
         <div className="overlay">
           <div className="modal">
             <p>{deleteSuccess ? 'Deletion successful!' : 'Deletion failed.'}</p>
-            <button className="botao-cadastro" onClick={() => setDeleteSuccess(false)}>Close</button>
+            <button className="botao-padrao" onClick={() => setDeleteSuccess(false)}>Close</button>
           </div>
         </div>
       )}
@@ -247,9 +247,9 @@ const Tabela = () => {
                 <th>Task</th>
                 <th>Start</th>
                 <th>End</th>
-                <th style={{ width: '11%' }}>Dependency: Area</th>
-                <th style={{ width: '11%' }}>Dependency: Item</th>
-                <th style={{ width: '5%' }}>Actions</th>
+                <th>Dependency: Area</th>
+                <th>Dependency: Item</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -289,7 +289,7 @@ const Tabela = () => {
                         <td>{item.dp_area || '-'}</td>
                         <td>{item.dp_item || '-'}</td>
                         <td>
-                          <div className="botoes-acoes">
+                          <div className={styles.botoesAcoes}>
                             <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
                             <button onClick={() => {
                               linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)

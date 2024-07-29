@@ -113,6 +113,7 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     return (
         <tr>
             <td>
+                <div>
                 <select
                     name="area"
                     onChange={handleAreaChange}
@@ -123,7 +124,10 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                         <option key={index} value={area}>{area}</option>
                     ))};
                 </select>
+                </div>
+                
                 <select
+                    style={{marginTop: '0.3rem'}}
                     value={obj.risco}
                     name='risco'
                     onChange={(e) => handleChange(e, objSetter, obj)}
@@ -156,12 +160,12 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     ref={el => (camposRef.current.detalhamento = el)}
                 />
             </td>
-            <td>
+            <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
-                    <button onClick={handleSubmit}>buceta</button>
+                    <button onClick={handleSubmit}>Add new</button>
                 ) : (
                     <React.Fragment>
-                        <button onClick={handleSubmit}>clicket</button>
+                        <button onClick={handleSubmit}>✔️</button>
                         <button onClick={funcao.funcao2}>✖️</button>
                     </React.Fragment>
                 )}

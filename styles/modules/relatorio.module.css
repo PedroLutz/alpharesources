@@ -1,0 +1,136 @@
+.menu {
+    border-width: 0.1rem;
+    border-style: solid;
+    border-radius: 1rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.menu select {
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    border-radius: 0.4rem;
+    padding: 0.2rem;
+    transition: 0.2s;
+    outline: none;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+}
+
+.menu select:hover {
+    background-color: rgb(231, 231, 231);
+}
+
+.report {
+    border-style: solid;
+    border-radius: 2rem;
+    padding: 1.5rem;
+    width: 60rem;
+}
+
+.tableInformation, .tableProgress, .tableStatus, .tableDetails{
+    border-color: black;
+    border-style: solid;
+    border-width: 0.1rem;
+    border-collapse: collapse;
+}
+
+.tableInformation {
+    width: 60%
+}
+
+.tableProgress, .tableStatus, .tableDetails {
+    width: 100%
+}
+
+.tableInformation th, .tableProgress th, .tableStatus thead tr:first-child, .tableDetails thead tr:first-child {
+    background-color: #ff00e3;
+    border-color: black;
+    font-weight: bolder;
+    border-style: solid;
+    border-width: 0.1rem;
+    color: white;
+}
+
+.tableStatus thead tr:last-child th, .tableDetails thead tr:last-child th {
+    border-color: black;
+    font-weight: bold;
+    border-style: solid;
+    border-width: 0.1rem;
+    background-color: #ffccf9;
+    font-weight: bold;
+    width: 10rem;
+    text-align: center;
+}
+
+.tableInformation tr td:first-child, .tableProgress tr td:first-child {
+    background-color: #ffccf9;
+    font-weight: bold;
+    width: 10rem;
+    text-align: left;
+}
+
+.tableInformation td, .tableProgress td, .tableStatus td, .tableDetails td {
+    border-color: black;
+    border-style: solid;
+    border-width: 0.1rem;
+    color: black;
+    padding: 0.2rem;
+    text-align: left;
+}
+
+.tableStatus td, .tableDetails td{
+    text-align: center;
+}
+
+.tableDetails td:nth-child(1){
+    width: 20%;
+}
+
+.tableDetails td:nth-child(2), .tableDetails td:nth-child(3){
+    width: 11%;
+}
+
+.tableInformation td, .tableInformation td input,
+.tableProgress td, .tableProgress td textarea,
+.tableStatus td, .tableStatus td textarea, .tableStatus td select,
+.tableDetails td, .tableDetails input{
+    font-size: small;
+}
+
+.tableInformation td input, .tableProgress td textarea, 
+.tableStatus td textarea, .tableStatus td select,
+.tableDetails td textarea{
+    width: 12rem;
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    border-radius: 0.4rem;
+    padding: 0.2rem;
+    transition: 0.2s;
+    outline: none;
+    font-size: small;
+    margin: 0.3rem;
+}
+
+.tableStatus td select{
+    width: 9.5rem;
+}
+
+.tableProgress td textarea, .tableStatus td textarea, .tableDetails td textarea {
+    width: 98%;
+    resize: none;
+    margin: 0.1rem;
+    height: 2rem;
+}
+
+.tableStatus td textarea, .tableDetails td textarea{
+    width: 92%;
+    height: 3rem;
+}
+
+.tableDetails td textarea{
+    width: 95%;
+    height: 1rem;
+}

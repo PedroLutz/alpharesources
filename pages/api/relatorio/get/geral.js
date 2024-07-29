@@ -101,39 +101,28 @@ export default async (req, res) => {
         })) : [{ _id: null }]
       }, 'risco');
 
-      const caixaPorMes = await Lancamento.aggregate([
+      const caixaBusca = await Lancamento.aggregate([
         {
           $match: {
             tipo: { $in: ['Income', 'Expense'] },
-            deletado: false
-          }
-        },
-        {
-          $project: {
-            monthYear: {
-              $dateToString: {
-                format: '%Y-%m', 
-                date: '$data' 
-              }
-            },
-            valor: 1
-          }
-        },
-        {
-          $match: {
-            monthYear: monthYear
+            deletado: false,
+            data: {$lte: endDate}
           }
         },
         {
           $group: {
-            _id: '$monthYear',
+            _id: null,
             total: { $sum: '$valor' }
           }
-        },
-        {
-          $sort: { _id: 1 }
         }
       ]);
+
+      var caixaPorMes = [];
+      if (caixaBusca.length > 0) {
+        caixaPorMes = caixaBusca;
+      } else {
+        caixaPorMes = [{ _id: null, total: 0 }];
+      }
 
       res.status(200).json({ 
         tarefasConcluidas, 

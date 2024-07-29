@@ -6,7 +6,7 @@ body {
     margin: 0;
 }
 
-text, button, input, select {
+text, button, input, select, textarea {
     font-family: 'Montserrat' !important;
 }
 
@@ -63,4 +63,24 @@ label {
 
 .modal p {
     margin-bottom: 10px;
+}
+
+.status_td:not(.unsafe){
+    background-color: #d8ffc6;
+    color: rgb(1, 148, 1);
+}
+
+.status_td.unsafe {
+    background-color: rgb(255, 214, 214);
+    color: rgb(255, 0, 0); 
+}
+
+.status_td.attention {
+    background-color: rgb(255, 233, 162);
+    color: rgb(121, 92, 0); 
+}
+
+.status_td.hold {
+    background-color: rgb(206, 206, 206);
+    color: rgb(56, 56, 56); 
 }

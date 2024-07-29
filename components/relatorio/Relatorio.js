@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { fetchData, handleSubmit } from "../../functions/crud";
+import React, { useState } from "react";
+import { fetchData } from "../../functions/crud";
+import styles from '../../styles/modules/relatorio.module.css'
+import { handleExport } from "../../functions/exportHtml";
 
 const Relatorio = () => {
     const months = [
@@ -17,6 +19,7 @@ const Relatorio = () => {
         ['12', 'December'],
     ]
     const years = ['2024', '2025', '2026', '2027', '2028', '2029', '2030'];
+    const [showTable, setShowTable] = useState(false);
     const [monthYear, setMonthYear] = useState({
         year: '',
         month: ''
@@ -34,6 +37,10 @@ const Relatorio = () => {
         riskStatus: '',
         qualityStatus: ''
     });
+    const [information, setInformation] = useState({
+        data: '',
+        manager: ''
+    })
     const [tarefasIniciadas, setTarefasIniciadas] = useState([]);
     const [costDados, setCostDados] = useState([]);
     const [tarefasEmAndamento, setTarefasEmAndamento] = useState([]);
@@ -81,25 +88,40 @@ const Relatorio = () => {
         }
     }
 
-    const checkAllDados = () => {
-        if (!tarefasIniciadas) return false;
-        if (!tarefasEmAndamento) return false;
-        if (!tarefasConcluidas) return false;
-        if (!tarefasPlanejadas) return false;
-        if (!riscos) return false;
-        return true;
-    }
-
     const handleChange = (e, obj, setter) => {
         const { name, value } = e.target;
         setter({
             ...obj,
             [name]: value,
         });
-        e.target.classList.remove('campo-vazio');
+        const tdElement = e.target.closest('td');
+        if(obj === kpyAnalysisStatus)
+        if (value === 'Unsafe') {
+            tdElement.classList.remove('attention');
+            tdElement.classList.add('unsafe');
+        } else if (value === 'Requires attention'){
+            tdElement.classList.add('attention');
+            tdElement.classList.remove('unsafe');
+        } else {
+            tdElement.classList.remove('unsafe');
+            tdElement.classList.remove('attention');
+        }
     };
 
     const busca = async () => {
+        setIssues('');
+        setKpiAnalysisStatus({scopeStatus: '',
+            scheduleStatus: '',
+            riskStatus: '',
+            qualityStatus: ''})
+        setKpiAnalysisText({scope: '',
+            schedule: '',
+            risk: '',
+            quality: ''})
+        setInformation({
+            data: '',
+            manager: ''
+        })
         const mesAno = `${monthYear.year}-${monthYear.month}`
         try {
             const response = await fetch(`/api/relatorio/get/geral`, {
@@ -151,286 +173,301 @@ const Relatorio = () => {
 
             const hoje = getLastDayOfMonth(monthYear).toISOString();
 
-            //executing
             if (ganttUltimo.situacao === "em andamento") {
-                var obj = { area: area, state: 'EXECUTING' }
+                var obj = { area: area, state: 'Executing' }
                 if (planoUltimo.termino >= hoje) {
-                    obj = { ...obj, status: 'uptodate' }
+                  obj = { ...obj, status: 'On Schedule' }
                 } else {
-                    obj = { ...obj, status: 'late' }
+                  obj = { ...obj, status: 'Overdue' }
                 }
                 arrayAnalise.push(obj);
-            }
-
-            //hold
-            if (planoUltimo.item !== ganttUltimo.item && ganttUltimo.situacao === 'concluida') {
-                var obj = { area: area, state: 'HOLD' }
+              }
+        
+              //hold
+              if (planoUltimo.item !== ganttUltimo.item && ganttUltimo.situacao === 'concluida') {
+                var obj = { area: area, state: 'Hold' }
                 if (planoUltimo.termino >= hoje) {
-                    obj = { ...obj, status: 'onschedule' }
+                  obj = { ...obj, status: 'On Schedule' }
                 } else {
-                    obj = { ...obj, status: 'overdue' }
+                  obj = { ...obj, status: 'Overdue' }
                 }
                 arrayAnalise.push(obj);
-            }
-
-            //complete
-            if (planoUltimo.item === ganttUltimo.item && ganttUltimo.situacao === 'concluida') {
-                var obj = { area: area, state: 'COMPLETE' }
+              }
+        
+              //complete
+              if (planoUltimo.item === ganttUltimo.item && ganttUltimo.situacao === 'concluida') {
+                var obj = { area: area, state: 'Complete' }
                 if (planoUltimo.termino >= ganttUltimo.termino) {
-                    obj = { ...obj, status: 'uptodate' }
+                  obj = { ...obj, status: 'On Schedule' }
                 } else {
-                    obj = { ...obj, status: 'late' }
+                  obj = { ...obj, status: 'Overdue' }
                 }
                 arrayAnalise.push(obj);
-            }
-
-            //to begin
-            if (ganttPrimeiro.inicio === null && ganttUltimo.termino === null) {
-                var obj = { area: area, state: 'TOBEGIN' }
+              }
+        
+              //to begin
+              if (ganttPrimeiro.inicio === null && ganttUltimo.termino === null) {
+                var obj = { area: area, state: 'To Begin' }
                 if (planoUltimo.termino >= hoje) {
-                    obj = { ...obj, status: 'onschedule' }
+                  obj = { ...obj, status: 'On Schedule' }
                 } else {
-                    obj = { ...obj, status: 'overdue' }
+                  obj = { ...obj, status: 'Overdue' }
                 }
                 arrayAnalise.push(obj);
-            }
+              }
         })
         setAreaAnalysis(arrayAnalise)
-        console.log(notasAreas)
+        setShowTable(true);
     }
 
-    const handleExport = () => {
-        const element = document.querySelector(".downloadDiv");
-        const clonedElement = element.cloneNode(true);
-    
-        // Desativar todos os inputs, selects e botões no elemento clonado
-        const inputs = clonedElement.querySelectorAll("input");
-        const selects = clonedElement.querySelectorAll("select");
-        const buttons = clonedElement.querySelectorAll("button");
-    
-        inputs.forEach(input => input.setAttribute("disabled", true));
-        selects.forEach(select => select.setAttribute("disabled", true));
-        buttons.forEach(button => button.setAttribute("disabled", true));
-    
-        const htmlString = `
-            <html>
-                <head>
-                    <style>
-                        input[disabled], select[disabled], button[disabled] {
-                            opacity: 1;
-                            background-color: white;
-                            color: #000;
-                            border: 1px solid #ccc;
-                            cursor: not-allowed;
-                        }
-                    </style>
-                </head>
-                <body>
-                    ${clonedElement.outerHTML}
-                </body>
-            </html>
-        `;
-        const blob = new Blob([htmlString], { type: 'text/html' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'relatorio.html';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    const exportar = () => {
+        handleExport('.report');
     };
-    
 
     return (
         <div className="centered-container">
             <h2>Status Report Generator</h2>
-            <div>
-                <select
-                    name="month"
-                    onChange={(e) => handleChange(e, monthYear, setMonthYear)}
-                    value={monthYear.month}>
-                    <option value='' disabled>Select month</option>
-                    {months.map((month, index) => (
-                        <option key={index} value={month[0]}>{month[1]}</option>
-                    ))}
-                </select>
+            <div className={styles.menu}>
+                <h3>Select Month</h3>
+                <div>
+                    <select
+                        name="month"
+                        onChange={(e) => handleChange(e, monthYear, setMonthYear)}
+                        value={monthYear.month}>
+                        <option value='' disabled>Select month</option>
+                        {months.map((month, index) => (
+                            <option key={index} value={month[0]}>{month[1]}</option>
+                        ))}
+                    </select>
 
-                <select
-                    name="year"
-                    onChange={(e) => handleChange(e, monthYear, setMonthYear)}
-                    value={monthYear.year}>
-                    <option value='' disabled>Select year</option>
-                    {years.map((year, index) => (
-                        <option key={index} value={year}>{year}</option>
-                    ))}
-                </select>
+                    <select
+                        name="year"
+                        onChange={(e) => handleChange(e, monthYear, setMonthYear)}
+                        value={monthYear.year}>
+                        <option value='' disabled>Select year</option>
+                        {years.map((year, index) => (
+                            <option key={index} value={year}>{year}</option>
+                        ))}
+                    </select>
+                </div>
+                <button className="botao-padrao" onClick={busca}>Buscar</button>
+                {showTable && (
+                <button className="botao-padrao" onClick={exportar}>Exportar</button>)}
             </div>
-            <button onClick={busca}>Buscar</button>
-            <button onClick={handleExport}>Exportar</button>
-            <div className="downloadDiv">
+            {showTable && (
+            <div className={`report ${styles.report}`}>
+                
+                    <React.Fragment>
+                        <div style={{display: 'flex'}}>
+                            <table className={`tableInformation ${styles.tableInformation}`}>
+                                <thead>
+                                    <tr>
+                                        <th colSpan={2}>PROJECT INFORMATION</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Project Name</td>
+                                        <td>Alpha Scuderia</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Month of report</td>
+                                        <td>{monthYear.month}/{monthYear.year}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Projected Date of Completion</td>
+                                        <td><input type="date"
+                                        name='data'
+                                        value={information.data}
+                                        onChange={(e) => handleChange(e, information, setInformation)}/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Project Manager</td>
+                                        <td><input name='manager'
+                                        value={information.manager}
+                                        onChange={(e) => handleChange(e, information, setInformation)}/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div style={{width: '90%'}}>
+                            <img src={'/images/logo.png'} alt="Logo" style={{width: '200px', margin: '-10px'}}/>
+                            </div>
+                            
+                        </div>
+                        <table style={{ marginTop: '2rem' }} className={`tableProgress ${styles.tableProgress}`}>
+                            <thead>
+                                <tr>
+                                    <th colSpan={2}>PROJECT PROGRESS (TASK ANALYSIS)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Tasks initiated</td>
+                                    <td>{tarefasIniciadas || '-'}</td>
+                                </tr>
+                                <tr>
+                                    <td>Tasks in execution</td>
+                                    <td>{tarefasEmAndamento || '-'}</td>
+                                </tr>
+                                <tr>
+                                    <td>Tasks finished</td>
+                                    <td>{tarefasConcluidas || '-'}</td>
+                                </tr>
+                                <tr>
+                                    <td>Tasks planned for next month</td>
+                                    <td>{tarefasPlanejadas || '-'}</td>
+                                </tr>
+                                <tr>
+                                    <td>Risks</td>
+                                    <td>{riscos || '-'}</td>
+                                </tr>
+                                <tr>
+                                    <td>Issues</td>
+                                    <td><textarea value={issues} name="issues"
+                                        onChange={(e) => { setIssues(e.target.value) }} /></td>
+                                </tr>
+                            </tbody>
+                        </table>
 
-            
-            {!checkAllDados() && (
-                <React.Fragment>
-                    <table style={{ marginTop: '2rem' }}>
-                        <thead>
-                            <tr>
-                                <th colSpan={2}>PROJECT PROGRESS (TASK ANALYSIS)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr style={{ borderStyle: 'solid' }}>
-                                <td style={{ borderStyle: 'solid' }}>Tasks initiated</td>
-                                <td>{tarefasIniciadas || '-'}</td>
-                            </tr>
-                            <tr style={{ borderStyle: 'solid' }}>
-                                <td style={{ borderStyle: 'solid' }}>Tasks in execution</td>
-                                <td>{tarefasEmAndamento || '-'}</td>
-                            </tr>
-                            <tr style={{ borderStyle: 'solid' }}>
-                                <td style={{ borderStyle: 'solid' }}>Tasks finished</td>
-                                <td>{tarefasConcluidas || '-'}</td>
-                            </tr>
-                            <tr style={{ borderStyle: 'solid' }}>
-                                <td style={{ borderStyle: 'solid' }}>Tasks planned for next month</td>
-                                <td>{tarefasPlanejadas || '-'}</td>
-                            </tr>
-                            <tr style={{ borderStyle: 'solid' }}>
-                                <td style={{ borderStyle: 'solid' }}>Risks</td>
-                                <td>{riscos || '-'}</td>
-                            </tr>
-                            <tr>
-                                <td style={{ borderStyle: 'solid' }}>Issues</td>
-                                <td><input value={issues} name="issues"
-                                    onChange={(e) => { setIssues(e.target.value) }} /></td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <table style={{ marginTop: '2rem' }}>
-                        <thead>
-                            <tr>
-                                <th colSpan={5}>PROJECT STATUS (KPI ANALYSIS)</th>
-                            </tr>
-                            <tr>
-                                <th>Scope</th>
-                                <th>Schedule</th>
-                                <th>Cost</th>
-                                <th>Risk</th>
-                                <th>Quality</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td style={{ fontSize: 'small', borderStyle: 'solid' }}>
-                                    <select name='scopeStatus'
-                                        value={kpyAnalysisStatus.scopeStatus}
-                                        onChange={(e) => handleChange(e, kpyAnalysisStatus, setKpiAnalysisStatus)}>
-                                        <option value='Safe'>Safe</option>
-                                        <option value='Requires attention'>Requires attention</option>
-                                        <option value='Unsafe'>Unsafe</option>
-                                    </select>
-                                </td>
-                                <td style={{ fontSize: 'small', borderStyle: 'solid' }}>
-                                    <select name='scheduleStatus'
-                                        value={kpyAnalysisStatus.scheduleStatus}
-                                        onChange={(e) => handleChange(e, kpyAnalysisStatus, setKpiAnalysisStatus)}>
-                                        <option value='Safe'>Safe</option>
-                                        <option value='Requires attention'>Requires attention</option>
-                                        <option value='Unsafe'>Unsafe</option>
-                                    </select>
-                                </td>
-                                <td style={{ fontSize: 'small', borderStyle: 'solid' }}>
-                                    {costDados.status || '-'}
-                                </td>
-                                <td style={{ fontSize: 'small', borderStyle: 'solid' }}>
-                                    <select name='riskStatus'
-                                        value={kpyAnalysisStatus.riskStatus}
-                                        onChange={(e) => handleChange(e, kpyAnalysisStatus, setKpiAnalysisStatus)}>
-                                        <option value='Safe'>Safe</option>
-                                        <option value='Requires attention'>Requires attention</option>
-                                        <option value='Unsafe'>Unsafe</option>
-                                    </select>
-                                </td>
-                                <td style={{ fontSize: 'small', borderStyle: 'solid' }}>
-                                    <select name='qualityStatus'
-                                        value={kpyAnalysisStatus.qualityStatus}
-                                        onChange={(e) => handleChange(e, kpyAnalysisStatus, setKpiAnalysisStatus)}>
-                                        <option value='Safe'>Safe</option>
-                                        <option value='Requires attention'>Requires attention</option>
-                                        <option value='Unsafe'>Unsafe</option>
-                                    </select>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <input
-                                        name="scope"
-                                        value={kpyAnalysisText.scope}
-                                        onChange={(e) => handleChange(e, kpyAnalysisText, setKpiAnalysisText)}
-                                    />
-                                </td>
-                                <td>
-                                    <input
-                                        name="schedule"
-                                        value={kpyAnalysisText.schedule}
-                                        onChange={(e) => handleChange(e, kpyAnalysisText, setKpiAnalysisText)}
-                                    />
-                                </td>
-                                <td>
-                                    {costDados.valor ? (
-                                        `Cash in bank account as of this document's date: R$${costDados.valor}`
-                                    ) : '-'}
-                                </td>
-                                <td>
-                                    <input
-                                        name="risk"
-                                        value={kpyAnalysisText.risk}
-                                        onChange={(e) => handleChange(e, kpyAnalysisText, setKpiAnalysisText)}
-                                    />
-                                </td>
-                                <td>
-                                    <input
-                                        name="quality"
-                                        value={kpyAnalysisText.quality}
-                                        onChange={(e) => handleChange(e, kpyAnalysisText, setKpiAnalysisText)}
-                                    />
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <table style={{ marginTop: '2rem' }}>
-                        <thead>
-                            <tr>
-                                <th colSpan={4}>PROJECT DETAILS (AREA ANALYSIS)</th>
-                            </tr>
-                            <tr>
-                                <th>Area</th>
-                                <th>Situation</th>
-                                <th>Status</th>
-                                <th>Notes</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {areaAnalysis.map((area, index) => (
-                                <tr key={index}>
-                                    <td>{area.area}</td>
-                                    <td>{area.state}</td>
-                                    <td>{area.status}</td>
+                        <table className={`tableStatus ${styles.tableStatus}`} style={{ marginTop: '2rem' }}>
+                            <thead>
+                                <tr>
+                                    <th colSpan={5}>PROJECT STATUS (KPI ANALYSIS)</th>
+                                </tr>
+                                <tr>
+                                    <th>Scope</th>
+                                    <th>Schedule</th>
+                                    <th>Cost</th>
+                                    <th>Risk</th>
+                                    <th>Quality</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td className='status_td'>
+                                        <select name='scopeStatus'
+                                            value={kpyAnalysisStatus.scopeStatus}
+                                            onChange={(e) => handleChange(e, kpyAnalysisStatus, setKpiAnalysisStatus)}>
+                                            <option value='Safe'>Safe</option>
+                                            <option value='Requires attention'>Requires attention</option>
+                                            <option value='Unsafe'>Unsafe</option>
+                                        </select>
+                                    </td>
+                                    <td className="status_td">
+                                        <select name='scheduleStatus'
+                                            value={kpyAnalysisStatus.scheduleStatus}
+                                            onChange={(e) => handleChange(e, kpyAnalysisStatus, setKpiAnalysisStatus)}>
+                                            <option value='Safe'>Safe</option>
+                                            <option value='Requires attention'>Requires attention</option>
+                                            <option value='Unsafe'>Unsafe</option>
+                                        </select>
+                                    </td>
+                                    <td className={costDados.status === 'Unsafe' ? 'status_td unsafe' : (
+                                        costDados.status === 'Requires attention' ? 'status_td attention' : 'status_td'
+                                    )}>
+                                        {costDados.status || '-'}
+                                    </td>
+                                    <td className="status_td">
+                                        <select name='riskStatus'
+                                            value={kpyAnalysisStatus.riskStatus}
+                                            onChange={(e) => handleChange(e, kpyAnalysisStatus, setKpiAnalysisStatus)}>
+                                            <option value='Safe'>Safe</option>
+                                            <option value='Requires attention'>Requires attention</option>
+                                            <option value='Unsafe'>Unsafe</option>
+                                        </select>
+                                    </td>
+                                    <td className="status_td">
+                                        <select name='qualityStatus'
+                                            value={kpyAnalysisStatus.qualityStatus}
+                                            onChange={(e) => handleChange(e, kpyAnalysisStatus, setKpiAnalysisStatus)}>
+                                            <option value='Safe'>Safe</option>
+                                            <option value='Requires attention'>Requires attention</option>
+                                            <option value='Unsafe'>Unsafe</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
                                     <td>
-                                        <input
-                                        name={`${area.area}_notas`}
-                                        value={notasAreas[`${area.area}_notas`]}
-                                        onChange={(e) =>  handleChange(e, notasAreas, setNotasAreas)}
+                                        <textarea
+                                            name="scope"
+                                            value={kpyAnalysisText.scope}
+                                            onChange={(e) => handleChange(e, kpyAnalysisText, setKpiAnalysisText)}
+                                        />
+                                    </td>
+                                    <td>
+                                        <textarea
+                                            name="schedule"
+                                            value={kpyAnalysisText.schedule}
+                                            onChange={(e) => handleChange(e, kpyAnalysisText, setKpiAnalysisText)}
+                                        />
+                                    </td>
+                                    <td>
+                                        Cash in bank account as of this document's date: R$
+                                        {costDados.valor ? (
+                                            `${costDados.valor}`
+                                        ) : `$0.00`}
+                                    </td>
+                                    <td>
+                                        <textarea
+                                            name="risk"
+                                            value={kpyAnalysisText.risk}
+                                            onChange={(e) => handleChange(e, kpyAnalysisText, setKpiAnalysisText)}
+                                        />
+                                    </td>
+                                    <td>
+                                        <textarea
+                                            name="quality"
+                                            value={kpyAnalysisText.quality}
+                                            onChange={(e) => handleChange(e, kpyAnalysisText, setKpiAnalysisText)}
                                         />
                                     </td>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </React.Fragment>
-            )}
+                            </tbody>
+                        </table>
+
+                        <table className={`tableDetails ${styles.tableDetails}`} style={{ marginTop: '2rem' }}>
+                            <thead>
+                                <tr>
+                                    <th colSpan={4}>PROJECT DETAILS (AREA ANALYSIS)</th>
+                                </tr>
+                                <tr>
+                                    <th>Area</th>
+                                    <th>Situation</th>
+                                    <th>Status</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {areaAnalysis.map((area, index) => (
+                                    <tr key={index}>
+                                        <td>{area.area}</td>
+                                        <td
+                      className={
+                        area.state === 'To Begin' ? 'status_td unsafe' : (
+                          area.state === 'Complete' ? 'status_td' : (
+                            area.state === 'Hold' ? 'status_td hold' : 'status_td attention'
+                          )
+                        )
+                      }>{area.state}</td>
+                    <td
+                    className={ 
+                      area.status === 'Overdue' ? 'status_td unsafe' : 'status_td' 
+                    }>{area.status}</td>
+                                        <td>
+                                            <textarea
+                                                name={`${area.area}_notas`}
+                                                value={notasAreas[`${area.area}_notas`]}
+                                                onChange={(e) => handleChange(e, notasAreas, setNotasAreas)}
+                                            />
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </React.Fragment>
+                
             </div>
+            )}
         </div>
     )
 }

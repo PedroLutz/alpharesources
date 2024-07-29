@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import styles from '../../styles/modules/comunicacao.module.css'
+import styles from '../../styles/modules/risco.module.css'
 import CadastroInputs from "./InputPlanos";
 import Modal from "../Modal";
 import Loading from "../Loading";
@@ -135,9 +135,9 @@ const TabelaPlanos = () => {
                 }} />
             )}
 
-            <div className={styles.tabelaComunicacao_container}>
-                <div className={styles.tabelaComunicacao_wrapper}>
-                    <table className={styles.tabelaComunicacao}>
+            <div className={styles.tabelaRisco_container}>
+                <div className={styles.tabelaRisco_wrapper}>
+                    <table className={styles.tabelaPlano}>
                         <thead>
                             <tr>
                                 <th>Risk</th>
@@ -170,12 +170,12 @@ const TabelaPlanos = () => {
                                             <td>{item.risco}</td>
                                             <td>{item.estrategia}</td>
                                             <td>{item.detalhamento}</td>
-                                            <td>
+                                            <td className='botoes_acoes'>
+                                                <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
                                                 <button onClick={() => {
                                                     setLinhaVisivel(item._id); handleUpdateClick(item)
                                                 }
-                                                }>Update</button>
-                                                <button onClick={() => setConfirmDeleteItem(item)}>Delete</button>
+                                                }>⚙️</button>
                                             </td>
                                         </tr>
                                     )}

@@ -86,7 +86,7 @@ const Tabela = () => {
                 setExibirModal(`deleteSuccess-${getDeleteSuccess}`)
             }
         }
-        if(getDeleteSuccess){
+        if (getDeleteSuccess) {
             setExibirModal(`deleteSuccess`)
         } else {
             setExibirModal(`deleteFail`)
@@ -95,13 +95,13 @@ const Tabela = () => {
     };
 
     const fetchStakeholders = async () => {
-        try{
+        try {
             const data = await fetchData('stakeholders/get/all');
             setStakeholders(data.stakeholders);
         } finally {
             setLoading(false);
         }
-        
+
     };
 
     const generateMapping = (p, i) => {
@@ -121,7 +121,7 @@ const Tabela = () => {
 
     useEffect(() => {
         setReload(false);
-        fetchStakeholders();  
+        fetchStakeholders();
     }, [reload]);
 
     const checkDados = (tipo) => {
@@ -211,9 +211,25 @@ const Tabela = () => {
                                             <td>{stakeholder.name}</td>
                                             <td>{stakeholder.involvement}</td>
                                             <td>{stakeholder.influence}</td>
-                                            <td>{stakeholder.power ? 'High' : 'Low'}</td>
-                                            <td>{stakeholder.interest ? 'High' : 'Low'}</td>
-                                            <td>{generateMapping(stakeholder.power, stakeholder.interest)}</td>
+                                            <td
+                                                style={{
+                                                    backgroundColor: stakeholder.power ? '#ffcdcd' : '#daffcd'
+                                                }}
+                                            >{stakeholder.power ? 'High' : 'Low'}</td>
+                                            <td
+                                                style={{
+                                                    backgroundColor: stakeholder.interest ? '#ffcdcd' : '#daffcd'
+                                                }}
+                                            >{stakeholder.interest ? 'High' : 'Low'}</td>
+                                            <td
+                                                style={{
+                                                    backgroundColor: (stakeholder.power && stakeholder.interest) ? '#ffcdcd' : (
+                                                        (stakeholder.power && !stakeholder.interest) ? '#cddeff' : (
+                                                            (!stakeholder.power && stakeholder.interest) ? '#daffcd' : '#ffffcd'
+                                                        )
+                                                    )
+                                                }}
+                                            >{generateMapping(stakeholder.power, stakeholder.interest)}</td>
                                             <td>{stakeholder.expectations}</td>
                                             <td>{stakeholder.requisites}</td>
                                             <td>{stakeholder.information}</td>
@@ -221,12 +237,12 @@ const Tabela = () => {
                                             <td>{stakeholder.timing}</td>
                                             <td>{stakeholder.tools}</td>
                                             <td>{stakeholder.responsible}</td>
-                                            <td>
+                                            <td className='botoes_acoes'>
+                                                <button onClick={() => setConfirmDeleteItem(stakeholder)}>❌</button>
                                                 <button onClick={() => {
                                                     setLinhaVisivel(stakeholder._id); handleUpdateClick(stakeholder)
                                                 }
-                                                }>Update</button>
-                                                <button onClick={() => setConfirmDeleteItem(stakeholder)}>Delete</button>
+                                                }>⚙️</button>
                                             </td>
                                         </tr>
                                     )}

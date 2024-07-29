@@ -9,7 +9,7 @@
     display: inline-block;
 }
 
-.tabelaCronograma table {
+.tabelaCronograma table, .areaAnalysis table {
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(167, 167, 167);
@@ -18,7 +18,7 @@
     border-collapse: collapse;
 }
 
-.tabelaCronograma td {
+.tabelaCronograma td, .areaAnalysis td {
     border-width: 0.1rem;
     border-style: solid;
     width: 5rem;
@@ -27,11 +27,110 @@
     font-size: small;
 }
 
-.tabelaCronograma th {
+.tabelaCronograma th, .areaAnalysis th {
     background-color: #ff8ff2;
     border-width: 0.1rem;
     border-style: solid;
     font-size: 0.9rem;
     border-color: rgb(167, 167, 167);
     padding: 0.3rem;
+}
+
+.tabelaCronograma td input, .tabelaCronograma td select {
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    border-radius: 0.4rem;
+    padding: 0.2rem;
+    transition: 0.2s;
+    outline: none;
+    width: 9rem;
+    font-size: small;
+}
+
+.tabelaCronograma td input:hover, .tabelaCronograma td select:hover, .botaoCadastro:hover {
+    background-color: rgb(231, 231, 231);
+}
+
+.tabelaCronograma button{
+    background-color: transparent;
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    border-radius: 0.4rem;
+    height: 1.6rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.tabelaCronograma th:first-child, .tabelaCronograma th:nth-child(2) {
+    width: 8rem;
+}
+
+.tabelaCronograma th:nth-child(5), .tabelaCronograma th:nth-child(6) {
+    font-size: small;
+}
+
+.tabelaCronograma th:nth-child(8) {
+    width: 2rem;
+}
+
+.botoesAcoes button{
+    width: 1.8rem;
+    border-color: transparent;
+} 
+
+.botaoCadastro {
+    width: 4.7rem;
+}
+
+.quickUpdate{
+    border-style: solid;
+    border-width: 0.1rem;
+    border-color: rgb(175, 175, 175);
+    border-radius: 1rem;
+    padding: 1.5rem;
+}
+
+.quickUpdate select{
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    border-radius: 0.4rem;
+    padding: 0.2rem;
+    transition: 0.2s;
+    margin: 0.2rem;
+    margin-bottom: 1rem;
+    outline: none;
+    width: 10rem;
+    font-size: small;
+}
+
+.quickUpdate button{
+    background-color: transparent;
+    border-width: 0.1rem;
+    border-style: solid;
+    width: 8rem;
+    border-color: rgb(167, 167, 167);
+    border-radius: 0.4rem;
+    height: 1.6rem;
+    margin: 0.2rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.quickUpdate button:hover, .quickUpdate select:hover{
+    background-color: rgb(233, 233, 233);
+}
+
+.areaAnalysis {
+    margin-top: 2rem;
+}
+
+.areaAnalysis th:first-child{
+    width: 12rem;
+}
+
+.areaAnalysis th:nth-child(2), .areaAnalysis th:nth-child(3){
+    width: 8rem;
 }

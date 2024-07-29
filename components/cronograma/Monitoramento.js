@@ -146,44 +146,44 @@ const Tabela = () => {
 
       //executing
       if (ganttUltimo.situacao === "em andamento") {
-        var obj = { area: area, state: 'EXECUTING' }
+        var obj = { area: area, state: 'Executing' }
         if (planoUltimo.termino >= hoje) {
-          obj = { ...obj, status: 'uptodate' }
+          obj = { ...obj, status: 'On Schedule' }
         } else {
-          obj = { ...obj, status: 'late' }
+          obj = { ...obj, status: 'Overdue' }
         }
         arrayAnalise.push(obj);
       }
 
       //hold
       if (planoUltimo.item !== ganttUltimo.item && ganttUltimo.situacao === 'concluida') {
-        var obj = { area: area, state: 'HOLD' }
+        var obj = { area: area, state: 'Hold' }
         if (planoUltimo.termino >= hoje) {
-          obj = { ...obj, status: 'onschedule' }
+          obj = { ...obj, status: 'On Schedule' }
         } else {
-          obj = { ...obj, status: 'overdue' }
+          obj = { ...obj, status: 'Overdue' }
         }
         arrayAnalise.push(obj);
       }
 
       //complete
       if (planoUltimo.item === ganttUltimo.item && ganttUltimo.situacao === 'concluida') {
-        var obj = { area: area, state: 'COMPLETE' }
+        var obj = { area: area, state: 'Complete' }
         if (planoUltimo.termino >= ganttUltimo.termino) {
-          obj = { ...obj, status: 'uptodate' }
+          obj = { ...obj, status: 'On Schedule' }
         } else {
-          obj = { ...obj, status: 'late' }
+          obj = { ...obj, status: 'Overdue' }
         }
         arrayAnalise.push(obj);
       }
 
       //to begin
       if (ganttPrimeiro.inicio === null && ganttUltimo.termino === null) {
-        var obj = { area: area, state: 'TOBEGIN' }
+        var obj = { area: area, state: 'To Begin' }
         if (planoUltimo.termino >= hoje) {
-          obj = { ...obj, status: 'onschedule' }
+          obj = { ...obj, status: 'On Schedule' }
         } else {
-          obj = { ...obj, status: 'overdue' }
+          obj = { ...obj, status: 'Overdue' }
         }
         arrayAnalise.push(obj);
       }
@@ -376,62 +376,64 @@ const Tabela = () => {
         />
       )}
 
-      <div className='mini-input'>
-        <label htmlFor="filtroArea">Quick update</label>
-        <select
-          name="area"
-          value={filtroAreaSelecionada}
-          onChange={(e) => {
-            setFiltroAreaSelecionada(e.target.value);
-            setItemSelecionado('');
-          }}
-          required
-        >
-          <option value="" disabled>Select an area</option>
-          {[...new Set(cronogramas.map((item) => item.area))].map((area, index) => (
-            <option key={index} value={area}>
-              {area}
-            </option>
-          ))}
-        </select>
-      </div>
 
-      <div className='mini-input'>
+
+      <div className={styles.quickUpdate}>
+          <h4>Quick update</h4>
+        <div>
         <select
-          name="item"
-          value={itemSelecionado}
-          onChange={(e) => {
-            setItemSelecionado(e.target.value);
-            setExibirModal(null);
-          }}
-          required
-        >
-          <option value="" disabled>Select an item</option>
-          {cronogramas
-            .filter((item) => item.area.toLowerCase() === filtroAreaSelecionada.toLowerCase() && !item.plano)
-            .map((item, index) => (
-              <option key={index} value={item.item}>
-                {item.item}
+            name="area"
+            value={filtroAreaSelecionada}
+            onChange={(e) => {
+              setFiltroAreaSelecionada(e.target.value);
+              setItemSelecionado('');
+            }}
+            required
+          >
+            <option value="" disabled>Select an area</option>
+            {[...new Set(cronogramas.map((item) => item.area))].map((area, index) => (
+              <option key={index} value={area}>
+                {area}
               </option>
             ))}
-        </select>
+          </select>
+          <select
+            name="item"
+            value={itemSelecionado}
+            onChange={(e) => {
+              setItemSelecionado(e.target.value);
+              setExibirModal(null);
+            }}
+            required
+          >
+            <option value="" disabled>Select an item</option>
+            {cronogramas
+              .filter((item) => item.area.toLowerCase() === filtroAreaSelecionada.toLowerCase() && !item.plano)
+              .map((item, index) => (
+                <option key={index} value={item.item}>
+                  {item.item}
+                </option>
+              ))}
+          </select>
+        </div>
+
+        <div>
+          <button onClick={() => handleAtualizarTarefa('em andamento')}>
+            Start task
+          </button>
+          <button onClick={() => handleAtualizarTarefa('check')}>
+            Check execution
+          </button>
+          <button onClick={() => {
+            itemSelecionado ? setConfirmCompleteTask(itemSelecionado) : setExibirModal('semtarefa')
+          }}>
+            Complete task
+          </button>
+        </div>
       </div>
 
-      <div>
-        <button onClick={() => handleAtualizarTarefa('em andamento')} style={{ width: '100px' }}>
-          Start task
-        </button>
-        <button onClick={() => handleAtualizarTarefa('check')}>
-          Check execution
-        </button>
-        <button onClick={() => {
-          itemSelecionado ? setConfirmCompleteTask(itemSelecionado) : setExibirModal('semtarefa')
-        }} style={{ width: '150px' }}>
-          Complete task
-        </button>
-      </div>
 
-      <button className="botao-cadastro"
+      <button className="botao-padrao"
         style={{ marginTop: '20px' }}
         onClick={() => {
           setMostrarTabela(!mostrarTabela);
@@ -450,10 +452,10 @@ const Tabela = () => {
                     <th>Task</th>
                     <th>Start</th>
                     <th>End</th>
-                    <th style={{ width: '11%' }}>Dependency: Area</th>
-                    <th style={{ width: '11%' }}>Dependency: Item</th>
+                    <th>Dependency: Area</th>
+                    <th>Dependency: Item</th>
                     <th>Situation</th>
-                    <th style={{ width: '5%' }}>Delete</th>
+                    <th>Options</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -484,24 +486,23 @@ const Tabela = () => {
                           <td>{item.dp_item || '-'}</td>
                           <td>{labelsSituacao[item.situacao.toLowerCase().replace(/\s/g, '')] || '-'}</td>
                           <td>
-                            <div className="botoes-acoes">
+                            <div className='botoes_acoes'>
                               <button onClick={() => handleClick(item)}>❌</button>
+                              <button onClick={() => {
+                                linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
+                              }}>⚙️</button>
                             </div>
-                            <button onClick={() => {
-                              linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
-                            }}>⚙️</button>
                           </td>
                         </React.Fragment>
-
                       )}
-
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           </div>
-          <div>
+
+          <div className={styles.areaAnalysis}>
             <table>
               <thead>
                 <tr>
@@ -514,8 +515,18 @@ const Tabela = () => {
                 {report.map((area, index) => (
                   <tr key={index}>
                     <td>{area.area}</td>
-                    <td>{area.state}</td>
-                    <td>{area.status}</td>
+                    <td
+                      style={{backgroundColor: 
+                        area.state === 'To Begin' ? '#ffc6c6' : (
+                          area.state === 'Complete' ? '#d8ffc6' : (
+                            area.state === 'Hold' ? '#e1e1e1' : '#cdf2ff'
+                          )
+                        ),
+                      }}>{area.state}</td>
+                    <td
+                    style={{backgroundColor: 
+                      area.status === 'Overdue' ? '#ffc6c6' : '#d8ffc6' 
+                    }}>{area.status}</td>
                   </tr>
                 ))}
               </tbody>

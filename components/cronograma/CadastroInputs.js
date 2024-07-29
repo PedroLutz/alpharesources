@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { fetchData } from "../../functions/crud";
+import styles from '../../styles/modules/cronograma.module.css';
 
 const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => {
     const [emptyFields, setEmptyFields] = useState([]);
@@ -273,7 +274,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
             )}
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
-                    <button onClick={(e) => handleSubmit(e)}>Add new</button>
+                    <button className={styles.botaoCadastro} onClick={(e) => handleSubmit(e)}>Add new</button>
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>

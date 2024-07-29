@@ -180,10 +180,10 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     ref={el => (camposRef.current.timing = el)}
                 >
                     <option disabled value="">Select</option>
-                    <option value='demand'>On demand</option>
-                    <option value='daily'>Daily</option>
-                    <option value='weekly'>Weekly</option>
-                    <option value='monthly'>Monthly</option>
+                    <option value='On demand'>On demand</option>
+                    <option value='Daily'>Daily</option>
+                    <option value='Weekly'>Weekly</option>
+                    <option value='Monthly'>Monthly</option>
                 </select>
             </td>
             <td>
@@ -208,10 +208,10 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
             </td>
             <td>
                 {tipo !== 'update' ? (
-                    <button onClick={handleSubmit}>buceta</button>
+                    <button onClick={handleSubmit}>Add new</button>
                 ) : (
                     <React.Fragment>
-                        <button onClick={handleSubmit}>clicket</button>
+                        <button onClick={handleSubmit}>✔️</button>
                         <button onClick={funcao.funcao2}>✖️</button>
                     </React.Fragment>
                 )}

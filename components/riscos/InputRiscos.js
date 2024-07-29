@@ -73,6 +73,21 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     };
 
     const validaDados = () => {
+        if(obj.ocorrencia < 0){
+            camposRef.current['ocorrencia'].classList.add('campo-vazio');
+            checkDados('valorNegativo')
+            return true;
+        }
+        if(obj.impacto < 0){
+            camposRef.current['impacto'].classList.add('campo-vazio');
+            checkDados('valorNegativo')
+            return true;
+        }
+        if(obj.urgencia < 0){
+            camposRef.current['urgencia'].classList.add('campo-vazio');
+            checkDados('valorNegativo')
+            return true;
+        }
         const [isEmpty, camposVazios] = isFormVazio(obj);
         console.log(camposVazios);
         if (isEmpty) {
@@ -199,12 +214,12 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
             <td>
                 {(obj.ocorrencia * obj.impacto * obj.urgencia)}
             </td>
-            <td>
+            <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
-                    <button onClick={handleSubmit}>buceta</button>
+                    <button onClick={handleSubmit}>Add new</button>
                 ) : (
                     <React.Fragment>
-                        <button onClick={handleSubmit}>clicket</button>
+                        <button onClick={handleSubmit}>✔️</button>
                         <button onClick={funcao.funcao2}>✖️</button>
                     </React.Fragment>
                 )}
