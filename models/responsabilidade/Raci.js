@@ -4,10 +4,13 @@ import mongoose from 'mongoose';
 delete mongoose.connection.models['Raci'];
 
 // Defina o modelo 'Person' apenas uma vez com a coleção "financas"
-const raciSchema = new mongoose.Schema({
+const RaciSchema = new mongoose.Schema({
   area: String,
   item: String,
   responsabilidades: String
 }, { collection: 'raci' }); 
 
-export default mongoose.models['Raci'] || mongoose.model('Raci', raciSchema);
+
+const Raci = mongoose.models['Raci'] || mongoose.model('Raci', RaciSchema);
+
+export default {Raci , RaciSchema};

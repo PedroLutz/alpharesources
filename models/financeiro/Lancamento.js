@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 delete mongoose.connection.models['Lancamento'];
 
-const lancamentoSchema = new mongoose.Schema({
+const LancamentoSchema = new mongoose.Schema({
   tipo: String,
   descricao: String,
   valor: Number,
@@ -10,6 +10,9 @@ const lancamentoSchema = new mongoose.Schema({
   area: String,
   origem: String,
   destino: String,
+  deletado: Boolean
 }, { collection: 'financas' }); 
 
-export default mongoose.models['Lancamento'] || mongoose.model('Lancamento', lancamentoSchema);
+const Lancamento = mongoose.models['Lancamento'] || mongoose.model('Lancamento', LancamentoSchema); 
+
+export default {Lancamento, LancamentoSchema};

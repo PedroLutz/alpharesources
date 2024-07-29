@@ -2,10 +2,12 @@ import mongoose from 'mongoose';
 
 delete mongoose.connection.models['Membro'];
 
-const membroSchema = new mongoose.Schema({
+const MembroSchema = new mongoose.Schema({
   nome: String,
   softskills: String,
   hardskills: String
 }, { collection: 'membros' });
+ 
+const Membro = mongoose.models['Membro'] || mongoose.model('Membro', MembroSchema);
 
-export default mongoose.models['Membro'] || mongoose.model('Membro', membroSchema);
+export default { Membro, MembroSchema };

@@ -6,7 +6,7 @@ import Navbar from '../../../../components/financeiro/financas/Navegador';
 function ResumoPage() {
   return (
     <div>
-      <Navbar />
+      <Navbar/>
       <Resumo />
     </div>
   );

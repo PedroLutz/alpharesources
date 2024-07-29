@@ -5,8 +5,8 @@ import Navbar from '../../../components/cronograma/Navegador';
 function CadastroPage() {
   return (
     <div>
-      <Navbar />
-      <Tabela />
+      <Navbar/>
+      <Tabela/>
     </div>
   );
 }

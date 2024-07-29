@@ -1,34 +1,39 @@
 import React from 'react';
 import Link from 'next/link';
 import styles from '../../../styles/modules/navbar.module.css';
+import Logout from '../../LogoutButton';
+import { useEffect, useContext } from 'react';
+import { TituloContext } from '../../../contexts/TituloContext';
 
 const Navbar = () => {
-    return (
-      <nav className={styles.nav}>
+  const { setTitulo } = useContext(TituloContext);
 
-        {/*titulo e logo*/}
-        <h2><Link href="/pages/financial/finances/register">Alpha Management/Finances</Link></h2>
-        <img src={'/images/logo.png'} alt="Logo"/>
+  useEffect(() => {
+    setTitulo('Resource Management');
+  }, [setTitulo]);
 
-        {/*links*/}
-        <ul>
-          <li>
-            <Link href="/pages/financial/finances/register">Register</Link>
-          </li>
-          <li>
-            <Link href="/pages/financial/finances/table">Spreadsheet</Link>
-          </li>
-          <li>
-            <Link href="/pages/financial/finances/report">Report</Link>
-          </li>
-          <li>
-            <Link href="/">Go to Menu</Link>
-          </li>
-        </ul>
+  return (
+    <nav className={styles.nav}>
+      <h2><Link href="/pages/financial/finances/register">Alpha Management/Resource Management</Link></h2>
+      <img src={'/images/logo.png'} alt="Logo" />
 
-      {/*fim do nav*/}
-      </nav>
-    );
-  };
-  
-  export default Navbar;
+      <ul>
+        <li>
+          <Link href="/pages/financial/finances/table">Spreadsheet</Link>
+        </li>
+        <li>
+          <Link href="/pages/financial/finances/report">Report</Link>
+        </li>
+        <li>
+          <Link href="/pages/financial/plan/table">Planning</Link>
+        </li>
+        <li>
+          <Link href="/">Go to Menu</Link>
+        </li>
+        <Logout/>
+      </ul>
+    </nav>
+  );
+};
+
+export default Navbar;

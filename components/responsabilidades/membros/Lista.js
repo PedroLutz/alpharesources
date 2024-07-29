@@ -1,18 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import members from '../../../styles/modules/members.module.css';
 import Loading from '../../Loading';
+import Modal from '../../Modal';
+import CadastroInputs from './CadastroInputs';
+import { fetchData, handleDelete, handleUpdate, handleSubmit } from '../../../functions/crud';
+import { cleanForm } from '../../../functions/general';
 
 const Tabela = () => {
   const [membros, setMembros] = useState([]);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
   const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
+  const [exibirModal, setExibirModal] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [novosDados, setNovosDados] = useState({
+  const [linhaVisivel, setLinhaVisivel] = useState({});
+  const [reload, setReload] = useState(false);
+  const camposVazios = {
     nome: '',
     softskills: '',
     hardskills: '',
-  });
+  };
+  const [novoSubmit, setNovoSubmit] = useState(camposVazios);
+  const [novosDados, setNovosDados] = useState(camposVazios);
 
   const handleChange = (e) => {
     setNovosDados({
@@ -21,61 +30,61 @@ const Tabela = () => {
     });
   };
 
-  const handleClick = (item) => {
-    setConfirmDeleteItem(item);
-  };
-
   const handleUpdateClick = (item) => {
     setConfirmUpdateItem(item);
     setNovosDados({
-        nome: item.nome,
-        softskills: item.softskills,
-        hardskills: item.hardskills,
+      nome: item.nome,
+      softskills: item.softskills,
+      hardskills: item.hardskills,
     });
   };
 
   const fetchMembros = async () => {
     try {
-      const response = await fetch('/api/responsabilidades/membros/get', {
-        method: 'GET',
-      });
-
-      if (response.status === 200) {
-        const data = await response.json();
-        setMembros(data.membros);
-      } else {
-        console.error('Error in searching for members data');
-      }
-    } catch (error) {
-      console.error('Error in searching for members data', error);
+      const data = await fetchData('responsabilidades/membros/get/all');
+      setMembros(data.membros);
     } finally {
-      setLoading(false)};
+      setLoading(false)
+    };
   };
 
   useEffect(() => {
+    setReload(false);
     fetchMembros();
-  }, []);
+  }, [reload]);
+
+  const enviar = async (e) => {
+    e.preventDefault();
+    handleSubmit({
+      route: 'responsabilidades/membros',
+      dados: novoSubmit
+    });
+    cleanForm(novoSubmit, setNovoSubmit);
+    setReload(true);
+  };
+
+  const checkDados = (tipo) => {
+    setExibirModal(tipo); return;
+  };
+
+  const modalLabels = {
+    'inputsVazios': 'Fill out all fields before adding new data!',
+  };
 
   const handleConfirmDelete = () => {
     if (confirmDeleteItem) {
-      fetch(`/api/responsabilidades/membros/delete?id=${confirmDeleteItem._id}`, {
-        method: 'DELETE',
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log(data.message); 
-          fetchMembros();
-          setDeleteSuccess(true);
-        })
-        .catch((error) => {
-          console.error('Erro ao excluir membro', error);
+      var getDeleteSuccess = false;
+      try {
+        getDeleteSuccess = handleDelete({
+          route: 'responsabilidades/membros',
+          item: confirmDeleteItem,
+          fetchDados: fetchMembros
         });
+      } finally {
+        setDeleteSuccess(getDeleteSuccess);
+      }
     }
     setConfirmDeleteItem(null);
-  };
-
-  const handleCloseModal = () => {
-    setDeleteSuccess(false);
   };
 
   function insertBreak(text) {
@@ -98,134 +107,108 @@ const Tabela = () => {
 
   const handleUpdateItem = async () => {
     if (confirmUpdateItem) {
-      const { nome, softskills, hardskills } = novosDados;
+      const updatedItem = { _id: confirmUpdateItem._id, ...novosDados };
+      const updatedMembros = membros.map(item =>
+        item._id === updatedItem._id ? { ...updatedItem } : item
+      );
 
+      setMembros(updatedMembros);
+      linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
+      setConfirmUpdateItem(null);
       try {
-        const response = await fetch(`/api/responsabilidades/membros/update?id=${String(confirmUpdateItem._id)}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ nome, softskills, hardskills }),
+        await handleUpdate({
+          route: 'responsabilidades/membros',
+          dados: updatedItem,
+          item: confirmUpdateItem
         });
-
-        if (response.status === 200) {
-          console.log('Member updated successfully!');
-          fetchMembros();
-        } else {
-          console.error('Error in updating member');
-        }
       } catch (error) {
-        console.error('Error in updating member', error);
+        setMembros(membros);
+        setConfirmUpdateItem(confirmUpdateItem);
+        console.error("Update failed:", error);
       }
     }
-    setConfirmUpdateItem(null);
-    setNovosDados({
-        nome: '',
-        softskills: '',
-        hardskills: '',
-    })
   };
 
+  return (
+    <div className="centered-container">
+      {loading && <Loading />}
+      <h2>Team members</h2>
+      <div id="report" className={members.containerPai}>
+        <CadastroInputs
+          tipo='cadastro'
+          obj={novoSubmit}
+          objSetter={setNovoSubmit}
+          funcao={enviar}
+          checkDados={checkDados}
+        />
+        {membros.map((item, index) => (
+          <React.Fragment key={item._id}>
+            {linhaVisivel === item._id ? (
+              <React.Fragment>
+                <CadastroInputs
+                obj={novosDados}
+                objSetter={setNovosDados}
+                tipo="update"
+                checkDados={checkDados}
+                funcao={{
+                  funcao1: () => handleUpdateItem(),
+                  funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
+                }}/>
+              </React.Fragment>
+            ) : (
+              <React.Fragment>
+                <div key={index} className={members.container}>
+                  <div><b>Name:</b> {item.nome}</div>
+                  <div>
+                    <b>Softskills:</b> {item.softskills}
+                  </div>
+                  <div>
+                    <b>Hardskills:</b> {item.hardskills}
+                  </div>
+                  <div className={members.botoesAcoes}>
+                    <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
+                    <button onClick={() => {
+                      linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
+                    }}>⚙️</button>
+                  </div>
+                </div>
+              </React.Fragment>
+            )}
 
-return (
-  <div className="centered-container">
-    {loading && <Loading/>}
-    <h2>Team members</h2>
-    <div id="report" className={members.containerPai}>
-    {membros.map((item, index) => (
-        <div key={index} className={members.container}>
-            <div><b>Name:</b> {item.nome}</div>
-            <div>
-            <b>Softskills:</b> {insertBreak(item.softskills)}
-            </div>
-            <div>
-            <b>Hardskills:</b> {insertBreak(item.hardskills)}
-            </div>
-            <div className={members.botoesAcoes}>
-            <button onClick={() => handleClick(item)}>❌</button>
-            <button onClick={() => handleUpdateClick(item)}>⚙️</button>
-            </div>
-        </div>
-    ))}
-    </div>
+          </React.Fragment>
+
+        ))}
+      </div>
 
       {confirmDeleteItem && (
-        <div className="overlay">
-            <div className="modal">
-            <p>Are you sure you want to delete "{confirmDeleteItem.nome}"?</p>
-                <div style={{display: 'flex', gap: '10px'}}>
-                    <button className="botao-cadastro" onClick={handleConfirmDelete}>Confirm</button>
-                    <button className="botao-cadastro" onClick={() => setConfirmDeleteItem(null)}>Cancel</button>
-                </div>
-            </div>
-        </div>
+        <Modal objeto={{
+          titulo: `Are you sure you want to delete "${confirmDeleteItem.nome}"?`,
+          alerta: true,
+          botao1: {
+            funcao: handleConfirmDelete, texto: 'Confirm'
+          },
+          botao2: {
+            funcao: () => setConfirmDeleteItem(null), texto: 'Cancel'
+          }
+        }} />
       )}
 
       {deleteSuccess && (
-        <div className="overlay">
-          <div className="modal">
-            <p>{deleteSuccess ? 'Deletion successful!' : 'Deletion failed.'}</p>
-            <button className="botao-cadastro" onClick={handleCloseModal}>Close</button>
-          </div>
-        </div>
+        <Modal objeto={{
+          titulo: deleteSuccess ? 'Deletion successful!' : 'Deletion failed.',
+          botao1: {
+            funcao: () => setDeleteSuccess(false), texto: 'Close'
+          },
+        }} />
       )}
 
-      {confirmUpdateItem && (
-        <div className="overlay"> 
-          <div className="modal">
-            {/*outros inputs*/}
-            <div className="centered-container">
-                
-                {/*input nome*/}
-                    <div className="mini-input">
-                        <label htmlFor="nome">Name</label>
-                        <input
-                        type="text"
-                        id="nome"
-                        name="nome"
-                        placeholder=""
-                        onChange={handleChange}
-                        value={novosDados.nome}
-                        required
-                        />
-                    </div>
-
-                {/*input softskills*/}
-                <div className="mini-input">
-                    <label htmlFor="softskills">Softskills</label>
-                    <textarea
-                    type="text"
-                    id="softkills"
-                    name="softskills"
-                    onChange={handleChange}
-                    value={novosDados.softskills}
-                    required
-                    />    
-                </div>
-
-                {/*input hardskills*/}
-                <div className="mini-input">
-                    <label htmlFor="hardskills">Hardskills</label>
-                    <textarea
-                    type="text"
-                    name="hardskills"
-                    id="hardskills"
-                    onChange={handleChange}
-                    value={novosDados.hardskills}
-                    required
-                    />
-                </div>
-                
-            {/*fim outros inputs*/}
-            </div>
-            <div style={{display: 'flex', gap: '10px'}}>
-              <button className="botao-cadastro" onClick={handleUpdateItem}>Update</button>
-              <button className="botao-cadastro" onClick={() => setConfirmUpdateItem(null)}>Cancel</button>
-            </div>
-
-          </div>
-        </div>
+      {exibirModal != null && (
+        <Modal objeto={{
+          titulo: modalLabels[exibirModal],
+          botao1: {
+            funcao: () => setExibirModal(null), texto: 'Okay'
+          },
+        }} />
       )}
     </div>
   );

@@ -5,8 +5,8 @@ import Navbar from '../../../../components/financeiro/plano/Navegador';
 function TabelaPage() {
   return (
     <div>
-      <Navbar />
-      <Tabela />
+      <Navbar/>
+      <Tabela/>
     </div>
   );
 }

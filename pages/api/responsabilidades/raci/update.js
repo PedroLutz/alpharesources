@@ -1,35 +1,48 @@
 import connectToDatabase from '../../../../lib/db';
-import Raci from '../../../../models/responsabilidade/Raci';
+import RaciModel from '../../../../models/responsabilidade/Raci';
+
+const { Raci, RaciSchema } = RaciModel;
 
 export default async (req, res) => {
   try {
     await connectToDatabase();
 
-    if (req.method === 'PUT') { 
-      const { id } = req.query; 
+    if (req.method === 'PUT') {
+      const { id } = req.query;
 
       if (!id) {
-        return res.status(400).json({ error: 'O ID do item RACI é obrigatório para a atualização.' });
+        return res.status(400).json({ error: 'O ID do Raci é obrigatório para a atualização.' });
       }
 
-      const { area, item, responsabilidades } = req.body;
-
-      if (!area || !item || !responsabilidades) {
-        return res.status(400).json({ error: 'Todos os itens são necessários para atualizá-lo.' });
+      const propriedadesNomes = Object.keys(RaciSchema.paths);
+      const updateFields = {};
+      
+      for (const key in req.body) {
+        if (req.body[key]) {
+          if (propriedadesNomes.includes(key)) {
+            updateFields[key] = req.body[key];
+          } else {
+            return res.status(400).json({ error: 'Os campos fornecidos não são compatíveis com o do modelo!' });
+          }
+        }
       }
 
-      const updatedRaci = await Raci.findByIdAndUpdate(id, { area, item, responsabilidades }, { new: true });
-
-      if (!updatedRaci) {
-        return res.status(404).json({ error: 'Item RACI não encontrado.' });
+      if (Object.keys(updateFields).length === 0) {
+        return res.status(400).json({ error: 'Pelo menos um campo deve ser fornecido para a atualização.' });
       }
 
-      return res.status(200).json(updatedRaci);
+      const updatedData = await Raci.findByIdAndUpdate(id, updateFields, { new: true });
+
+      if (!updatedData) {
+        return res.status(404).json({ error: 'Raci não encontrado.' });
+      }
+
+      return res.status(200).json(updatedData);
     } else {
       res.status(405).json({ error: 'Método não permitido' });
     }
   } catch (error) {
-    console.error('Erro ao atualizar o item RACI', error);
-    res.status(500).json({ error: 'Erro ao atualizar o item RACI' });
+    console.error('Erro ao atualizar o Raci', error);
+    res.status(500).json({ error: 'Erro ao atualizar o Raci' });
   }
 };

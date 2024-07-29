@@ -1,0 +1,108 @@
+.tabela_financas table {
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    padding: 0.3rem;
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; 
+}
+
+.tabela_financas_container{
+    overflow: auto;
+}
+
+.tabela_financas_wrapper{
+    max-width: 1200px;
+    display:block;
+}
+
+.tabela_financas td, .tabela_financas th {
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    padding: 0.3rem;
+    font-size: small;
+    word-wrap: break-word;
+}
+
+.tabela_financas td input, .tabela_financas td select {
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    border-radius: 0.4rem;
+    padding: 0.2rem;
+    transition: 0.2s;
+    outline: none;
+}
+
+.tabela_financas td input:hover, .tabela_financas td select:hover, .tabela_financas button:hover {
+    background-color: rgb(231, 231, 231);
+}
+
+.tabela_financas td input, .tabela_financas td select {
+    width: 6.2rem;
+    font-size: small;
+}
+
+.tabela_financas td input[type='date'] {
+    width: 7rem;
+}
+
+.tabela_financas th {
+    background-color: #ff8ff2;
+    border-width: 0.1rem;
+    font-size: 0.9rem;
+    border-style: solid;
+    border-color: rgb(105, 105, 105);
+    padding: 0.3rem;
+}
+
+.tabela_financas td {
+    width: 6rem;
+}
+
+.tabela_financas td:nth-child(3){
+    width: 8rem;
+}
+
+.tabela_financas td:nth-child(4),
+.tabela_financas td:nth-child(5),
+.tabela_financas td:nth-child(11) {
+    width: 10rem;
+}
+
+.tabela_financas button{
+    background-color: transparent;
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    border-radius: 0.4rem;
+    height: 1.6rem;
+    width: 4.7rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.botao_bonito {
+    background-color: #fc79ec;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 3px;
+    color: black;
+    font-weight: bold;
+    font-size: 0.9rem;
+    cursor: pointer;
+    width: 12rem;
+    transition: 0.1s;
+    height: 1.7rem;
+    margin: 0.5rem;
+}
+
+.botao_bonito:hover {
+    background-color: #a84ee0;
+    font-size: 0.8rem;
+    font-weight: bold;
+    width: 10rem;
+    height: 1.7rem;
+}

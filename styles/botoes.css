@@ -1,0 +1,69 @@
+.botao-padrao {
+    background-color: transparent;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 3px;
+    color: black;
+    font-size: 0.9rem;
+    cursor: pointer;
+    width: 7rem;
+    transition: 0.1s;
+    height: 1.7rem;
+    margin: 0.5rem;
+}
+
+.botao-padrao:hover {
+    background-color: #ffa4f3;
+    font-size: 0.8rem;
+    font-weight: bold;
+    width: 7rem;
+    height: 1.7rem;
+}
+
+.botao-bonito {
+    background-color: #fc79ec;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 3px;
+    color: black;
+    font-weight: bold;
+    font-size: 0.9rem;
+    cursor: pointer;
+    width: 7rem;
+    transition: 0.1s;
+    height: 1.7rem;
+    margin: 0.5rem;
+}
+
+.margem{
+    margin-top: -10px; 
+    margin-bottom: 30px
+}
+
+.botao-bonito:hover {
+    background-color: #a84ee0;
+    font-size: 0.8rem;
+    font-weight: bold;
+    width: 7rem;
+    height: 1.7rem;
+}
+
+.botoes_acoes button {
+    border-width: 0rem !important;
+    cursor: pointer;
+    width: 2rem !important;
+}
+
+.botao_logout {
+    background-color: transparent;
+    border: none;
+    font-size: medium;
+    color: white;
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+.botao_logout:hover{
+    color: #46205e;
+  text-decoration: none;
+}

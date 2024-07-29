@@ -3,6 +3,10 @@ import { useEffect, useState } from 'react';
 import { Chart } from 'react-google-charts';
 import { sortBy } from 'lodash';
 import Loading from '../../Loading';
+import styles from '../../../styles/modules/resumo.module.css'
+import { fetchData } from '../../../functions/crud';
+
+const {grafico, pie_direita, pie_esquerda, pie_container, h3_resumo, custom_span} = styles;
 
 const Resumo = () => {
   const [totalValor, setTotalValor] = useState(0);
@@ -73,15 +77,13 @@ const Resumo = () => {
       CrescimentoDosGastosGraph.push([formattedDate, gastosAcumulados]);
   });
 
-  //receber dados das financas
-  useEffect(() => {
-    fetch('/api/financeiro/financas/get')
-      .then((response) => response.json())
-      .then((data) => {
-        const { somaValores, receitasPorArea, despesasPorArea,
-          receitasPorMes, despesasPorMes , maiorEMenorValor,
-          receitasTotais, despesasTotais } = data;
-
+    //receber dados das financas
+  const fetchResumos = async () => {
+    try {
+      const data = await fetchData('financeiro/financas/get/resumo');
+      const { somaValores, receitasPorArea, despesasPorArea,
+        receitasPorMes, despesasPorMes , maiorEMenorValor,
+        receitasTotais, despesasTotais } = data;
         setTotalValor(somaValores[0]?.total || 0);
         setReceitasPorArea(receitasPorArea);
         setDespesasPorArea(despesasPorArea);
@@ -91,11 +93,13 @@ const Resumo = () => {
         setMenorValor(maiorEMenorValor[0]?.min || 0);
         setReceitasTotais(receitasTotais[0]?.total || 0); 
         setDespesasTotais(despesasTotais[0]?.total || 0); 
-      })
-      .catch((error) => {
-        console.error('Erro ao buscar informações de resumo', error);
-      }).finally(() => {
-        setLoading(false);})
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchResumos();
   }, []);
 
   const estiloGraph = {
@@ -116,18 +120,18 @@ const Resumo = () => {
   }
 
   return (
-    <div className="h3-resumo">
+    <div className={h3_resumo}>
       {loading && <Loading/>}
       <div className="centered-container">
         <h2>Report</h2>
 
         <div>
-          <span className="custom-span">Cash value:<br/>R${Number(totalValor).toFixed(2)}</span>
+          <span className={custom_span}>Cash value:<br/>R${Number(totalValor).toFixed(2)}</span>
           <br/>
-          <span className="custom-span">Largest income:<br/>R${Number(maiorValor).toFixed(2)}</span>
-          <span className="custom-span">Total revenue:<br/>R${Number(receitasTotais).toFixed(2)}</span>
-          <span className="custom-span">Largest expense:<br/>{menorValor < 0 ? `R$${Number(-menorValor).toFixed(2)}` : 'R$0.00'}</span>
-          <span className="custom-span">Total cost:<br/>R${Number(-despesasTotais).toFixed(2)}</span>
+          <span className={custom_span}>Largest income:<br/>{Number(maiorValor).toFixed(2) > 0 ? `R$${Number(maiorValor).toFixed(2)}` : 'R$0.00'}</span>
+          <span className={custom_span}>Total revenue:<br/>R${Number(receitasTotais).toFixed(2)}</span>
+          <span className={custom_span}>Largest expense:<br/>{menorValor < 0 ? `R$${Number(-menorValor).toFixed(2)}` : 'R$0.00'}</span>
+          <span className={custom_span}>Total cost:<br/>R${Number(-despesasTotais).toFixed(2)}</span>
         </div>
 
       </div>
@@ -135,8 +139,8 @@ const Resumo = () => {
       <div>
         <h3>Releases per area</h3>
 
-        <div style={{ display: 'flex'}}>
-          <div className="pie-esquerda">
+        <div style={{ display: 'flex'}} className={pie_container}>
+          <div className={pie_esquerda}>
             <Chart
               width={"100%"}
               height={"400px"}
@@ -151,7 +155,7 @@ const Resumo = () => {
             />
           </div>
 
-          <div className="pie-direita">
+          <div className={pie_direita}>
             <Chart
               width={"100%"}
               height={"400px"}
@@ -167,7 +171,7 @@ const Resumo = () => {
           </div>
         </div>
 
-        <div className="grafico">
+        <div className={grafico}>
           <Chart
               width={"90%"}
               height={"400px"}
@@ -182,7 +186,7 @@ const Resumo = () => {
 
       <div>
         <h3>Releases per month</h3>
-        <div className="grafico">
+        <div className={grafico}>
           <Chart
               width={"90%"}
               height={"400px"}
@@ -198,7 +202,7 @@ const Resumo = () => {
             />
         </div>
 
-        <div className="grafico">
+        <div className={grafico}>
           <h3>Cash value per month</h3>
           <Chart
               width={"90%"}
@@ -217,7 +221,7 @@ const Resumo = () => {
             />
         </div>
 
-        <div className="grafico">
+        <div className={grafico}>
           <h3>Cost growth per month</h3>
           <Chart
               width={"90%"}

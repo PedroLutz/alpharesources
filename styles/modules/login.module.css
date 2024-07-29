@@ -1,0 +1,39 @@
+.modal_login {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: 1px solid rgb(179, 179, 179);
+    border-radius: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    width: 350px;
+    height: 350px;
+}
+
+.gradient_text {
+    background: linear-gradient(45deg, #FF00e3, #9006e3);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    display: inline-block;
+}
+
+.input_login div input{
+    width: 15rem;
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    border-radius: 0.4rem;
+    margin: 0.3rem;
+    padding: 0.2rem;
+    transition: 0.2s;
+    outline: none;
+    font-size: medium;
+}
+
+.input_login div p{
+    font-size: 0.8rem;
+    color: red;
+    margin: 0.1rem;
+}

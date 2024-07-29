@@ -1,33 +1,30 @@
 import connectToDatabase from '../../../../lib/db';
-import Lancamento from '../../../../models/financeiro/Lancamento';
+import LancamentoModel from '../../../../models/financeiro/Lancamento';
+
+const { Lancamento, LancamentoSchema } = LancamentoModel;
 
 export default async (req, res) => {
   try {
     await connectToDatabase();
 
     if (req.method === 'POST') {
-      const { tipo, descricao, valor, data, area, origem, destino } = req.body;
+      const propriedadesNomes = Object.keys(LancamentoSchema.paths);
 
-      const valorAjustado = tipo === 'Expense' ? -1 * valor : valor;
-
-      const newLancamento = new Lancamento({
-        tipo,
-        descricao,
-        valor: valorAjustado,
-        data,
-        area,
-        origem,
-        destino,
+      const requestBodyObject = {};
+      propriedadesNomes.forEach(prop => {
+        requestBodyObject[prop] = req.body[prop];
       });
 
-      await newLancamento.save();
+      const newData = new Lancamento(requestBodyObject);
 
-      res.status(201).json({ message: 'Lançamento cadastrado com sucesso!' });
+      await newData.save();
+
+      res.status(201).json({ message: 'Lancamento cadastrado com sucesso!' });
     } else {
       res.status(405).json({ error: 'Método não permitido' });
     }
   } catch (error) {
-    console.error('Erro ao cadastrar o lançamento', error);
-    res.status(500).json({ error: 'Erro ao cadastrar o lançamento' });
+    console.error('Erro ao cadastrar o Lancamento', error);
+    res.status(500).json({ error: 'Erro ao cadastrar o Lancamento' });
   }
 };

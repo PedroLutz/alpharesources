@@ -1,174 +1,217 @@
 import React, { useEffect, useState } from 'react';
 import Loading from '../../Loading';
-import styles from '../../../styles/modules/radio.module.css';
-
-const formatDate = (dateString) => {
-  // Converte a data da string para um objeto de data
-  const date = new Date(dateString);
-
-  // Adiciona um dia à data
-  date.setDate(date.getDate() + 1);
-
-  // Formata a data
-  const formattedDate = date.toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  });
-
-  return formattedDate;
-};
+import Modal from '../../Modal';
+import CadastroInputs from './CadastroInputs';
+import styles from '../../../styles/modules/tabela.module.css'
+import { handleSubmit, fetchData, handleDelete, handleUpdate, handlePseudoDelete } from '../../../functions/crud';
+import { jsDateToEuDate, euDateToIsoDate, cleanForm } from '../../../functions/general';
 
 const labelsTipo = {
   Income: 'Income',
   Expense: 'Cost',
-  Exchange: 'Exchange' 
-}
+  Exchange: 'Exchange'
+};
 
 const Tabela = () => {
   const [lancamentos, setLancamentos] = useState([]);
-  const [deleteSuccess, setDeleteSuccess] = useState(false);
-  const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
-  const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
+  const [lancamentosDeletados, setLancamentosDeletados] = useState([]);
+  const [dadosTabela, setDadosTabela] = useState({ object: [], isDeletados: null, garbageButtonLabel: 'Garbage bin 🗑️' });
+  const [deleteInfo, setDeleteInfo] = useState({ success: null, item: null });
+  const [confirmItemAction, setConfirmItemAction] = useState({ action: '', item: null });
+  const [limparLixo, setLimparLixo] = useState(false);
+  const [exibirModal, setExibirModal] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [novosDados, setNovosDados] = useState({
+  const [linhaVisivel, setLinhaVisivel] = useState({});
+  const [reload, setReload] = useState(false);
+  const camposVazios = {
     tipo: '',
     descricao: '',
     valor: '',
     data: '',
     area: '',
     origem: '',
-    destino: ''
-  });
-
-  const handleChange = (e) => {
-    setNovosDados({
-      ...novosDados,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleClick = (item) => {
-    setConfirmDeleteItem(item);
-  };
-
-  const handleUpdateClick = (item) => {
-    let valorCorrigido = 0;
-    if(Number(item.valor) < 0){
-      valorCorrigido = -Number(item.valor);
-    } else {
-      valorCorrigido = item.valor;
-    }
-
-    const parts = item.data.split('/');
-    const itemDate = new Date(parts[2], parts[1] - 1, parts[0]); 
-  
-    setConfirmUpdateItem(item);
-    setNovosDados({
-      tipo: item.tipo,
-      descricao: item.descricao,
-      valor: valorCorrigido,
-      data: itemDate.toISOString().split('T')[0], 
-      area: item.area,
-      origem: item.origem,
-      destino: item.destino,
-    });
-  };
+    destino: '',
+  }
+  const [novoSubmit, setNovoSubmit] = useState(camposVazios);
+  const [novosDados, setNovosDados] = useState(camposVazios);
 
   const fetchLancamentos = async () => {
     try {
-      const response = await fetch('/api/financeiro/financas/get', {
-        method: 'GET',
+      const data = await fetchData('financeiro/financas/get/lancamentos');
+      data.lancamentos.forEach((item) => {
+        item.data = jsDateToEuDate(item.data);
       });
+      const [lancamentos, lancamentosDeletados] = data.lancamentos.reduce(
+        ([ativos, deletados], item) => {
+          if (item.deletado) {
+            deletados.push(item);
+          } else {
+            ativos.push(item);
+          }
+          return [ativos, deletados];
+        },
+        [[], []]
+      );
 
-      if (response.status === 200) {
-        const data = await response.json();
-        data.lancamentos.forEach((item) => {
-          item.data = formatDate(item.data);
-        });
-        setLancamentos(data.lancamentos);
-      } else {
-        console.error('Error in searching for financal releases data');
-      }
-    } catch (error) {
-      console.error('Error in searching for financal releases data', error);
+      setLancamentos(lancamentos);
+      setDadosTabela({ object: lancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' })
+      setLancamentosDeletados(lancamentosDeletados);
+
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    setReload(false);
     fetchLancamentos();
-  }, []);
+  }, [reload]);
 
   const handleConfirmDelete = () => {
-    if (confirmDeleteItem) {
-      fetch(`/api/financeiro/financas/delete?id=${confirmDeleteItem._id}`, {
-        method: 'DELETE',
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log(data.message); // Exibir uma mensagem de sucesso
-          // Atualize os dados na tabela após a exclusão
-          // Você pode recarregar a página ou atualizar os dados de outra forma
-          fetchLancamentos();
-          setDeleteSuccess(true);
-        })
-        .catch((error) => {
-          console.error('Erro ao excluir elemento', error);
+    if (deleteInfo.item) {
+      var getDeleteSuccess = false;
+      try {
+        getDeleteSuccess = handleDelete({
+          route: 'financeiro/financas',
+          item: deleteInfo.item,
+          fetchDados: fetchLancamentos
         });
+      } finally {
+        setDeleteInfo({ success: getDeleteSuccess, item: null })
+      }
     }
-    setConfirmDeleteItem(null);
+    setDeleteInfo({ success: getDeleteSuccess, item: null })
   };
 
-  const handleCloseModal = () => {
-    setDeleteSuccess(false);
+  const checkDados = (tipo) => {
+    setExibirModal(tipo); return;
+  };
+
+  const modalLabels = {
+    'inputsVazios': 'Fill out all fields before adding new data!',
+    'valorNegativo': 'The value cannot be negative!',
+  };
+
+  const enviar = async (e) => {
+    e.preventDefault();
+    const isExpense = novoSubmit.tipo === 'Expense';
+    const valor = isExpense ? -parseFloat(novoSubmit.valor) : parseFloat(novoSubmit.valor);
+    const updatedNovoSubmit = {
+      ...novoSubmit,
+      deletado: false,
+      valor: valor
+    };
+    handleSubmit({
+      route: 'financeiro/financas',
+      dados: updatedNovoSubmit
+    });
+    cleanForm(novoSubmit, setNovoSubmit);
+    setReload(true);
+  };
+
+  const handleUpdateClick = (item) => {
+    let valorCorrigido = 0;
+    if (Number(item.valor) < 0) {
+      valorCorrigido = item.valor * -1;
+    } else {
+      valorCorrigido = item.valor;
+    }
+
+    setConfirmItemAction({ action: 'update', item: item })
+    setNovosDados({
+      tipo: item.tipo,
+      descricao: item.descricao,
+      valor: valorCorrigido,
+      data: euDateToIsoDate(item.data),
+      area: item.area,
+      origem: item.origem,
+      destino: item.destino,
+    });
   };
 
   const handleUpdateItem = async () => {
-    if (confirmUpdateItem) {
-      const isExpense = confirmUpdateItem.tipo === "Expense";
-      const newValueWithSign = isExpense ? -novosDados.valor : novosDados.valor;
-      const { tipo, descricao, data, area, origem, destino } = novosDados;
+    if (confirmItemAction.action === 'update' && confirmItemAction.item) {
+      const isExpense = confirmItemAction.item.tipo === 'Expense';
+      const valorInverso = isExpense ? novosDados.valor * -1 : novosDados.valor;
+      const updatedItem = { ...confirmItemAction.item, ...novosDados, valor: valorInverso };
 
+      const updatedLancamentos = lancamentos.map(item =>
+        item._id === updatedItem._id ? { ...updatedItem, data: jsDateToEuDate(updatedItem.data) } : item
+      );
+      setLancamentos(updatedLancamentos);
+      setDadosTabela({ object: updatedLancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' });
+      setConfirmItemAction({ action: '', item: null })
+      linhaVisivel === confirmItemAction.item._id ? setLinhaVisivel() : setLinhaVisivel(confirmItemAction.item._id);
+      setReload(true);
       try {
-        const response = await fetch(`/api/financeiro/financas/update?id=${String(confirmUpdateItem._id)}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ tipo, descricao, valor: newValueWithSign, data, area, origem, destino }),
+        await handleUpdate({
+          route: 'financeiro/financas/update?id',
+          dados: updatedItem,
+          item: confirmItemAction.item
         });
-
-        if (response.status === 200) {
-          console.log('Release updated successfully!');
-          fetchLancamentos();
-        } else {
-          console.error('Error in updating release');
-        }
       } catch (error) {
-        console.error('Error in updating release', error);
+        setLancamentos(lancamentos);
+        setConfirmItemAction({ action: 'update', item: confirmItemAction.item })
+        console.error("Update failed:", error);
       }
     }
-    setConfirmUpdateItem(null);
-    setNovosDados({
-      tipo: '',
-      descricao: '',
-      valor: '',
-      data: '',
-      area: '',
-      origem: '',
-      destino: ''
-    })
+  };
+
+  const handleRestoreItem = async () => {
+    if (confirmItemAction.action === 'restore' || confirmItemAction.item) {
+      const updatedItem = { ...confirmItemAction.item, deletado: false };
+
+      const index = lancamentosDeletados.indexOf(confirmItemAction.item);
+      index > -1 && lancamentosDeletados.splice(index, 1);
+      lancamentos.push(updatedItem);
+
+      setLancamentos(lancamentos);
+      setLancamentosDeletados(lancamentosDeletados);
+      setDadosTabela({ object: lancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' });
+      setConfirmItemAction({ action: '', item: null });
+      setReload(true);
+      await handlePseudoDelete({
+        route: 'financeiro/financas',
+        item: confirmItemAction.item,
+        deletar: false
+      });
+    }
+  }
+
+  const handlePseudoDeleteItem = async () => {
+    if (confirmItemAction.action === 'delete' || confirmItemAction.item) {
+      const updatedItem = { ...confirmItemAction.item, deletado: true };
+
+      const index = lancamentos.indexOf(confirmItemAction.item);
+      index > -1 && lancamentos.splice(index, 1);
+      lancamentosDeletados.push(updatedItem);
+
+      setLancamentos(lancamentos);
+      setLancamentosDeletados(lancamentosDeletados);
+      setDadosTabela({ object: lancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' });
+      setConfirmItemAction({ action: '', item: null })
+      setReload(true);
+      try {
+        await handlePseudoDelete({
+          route: 'financeiro/financas',
+          item: confirmItemAction.item,
+          deletar: true
+        });
+      } catch (error) {
+        setLancamentos(lancamentos);
+        setDadosTabela({ object: lancamentos, isDeletados: false, })
+        setConfirmItemAction({ action: 'update', item: confirmItemAction.item })
+        console.error("Delete failed:", error);
+      }
+    }
   };
 
   const generatePDF = () => {
     import('html2pdf.js').then((html2pdfModule) => {
       const html2pdf = html2pdfModule.default;
-  
+
       const content = document.getElementById('report');
-  
-      // Opções de configuração do PDF
+
       const pdfOptions = {
         margin: 10,
         filename: `report.pdf`,
@@ -176,192 +219,177 @@ const Tabela = () => {
         html2canvas: { scale: 1 },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
       };
-  
+
       html2pdf().from(content).set(pdfOptions).save();
     });
   };
 
-return (
-  <div className="centered-container">
-    {loading && <Loading/>}
-    <h2>Financial Releases Data</h2>
-    <button onClick={generatePDF} className="botao-cadastro" style={{marginTop: '-10px', marginBottom: '30px'}}>Export Table</button>
-    <div id="report">
-      <table>
-        <thead>
-          <tr>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Value</th>
-            <th>Date</th>
-            <th>Area</th>
-            <th style={{ width: '10%' }}>Origin</th>
-            <th style={{ width: '10%' }}>Destiny</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-        {lancamentos.map((item, index) => (
-          <>
-            {index % 12 === 0 && index !== 0 && <div className="html2pdf__page-break"/>}
-            <tr key={index}>
-              <td>{labelsTipo[item.tipo]}</td>
-              <td style={{ color: item.tipo === 'Income' ? 'green' : item.tipo === 'Exchange' ? '#335EFF' : 'red' }}>
-                {item.descricao}
-              </td>
-              <td style={{ color: item.tipo === 'Income' ? 'green' : item.tipo === 'Exchange' ? '#335EFF' : 'red' }}>
-                <b>R${Math.abs(item.valor).toFixed(2)}</b>
-              </td>
-              <td>{item.data}</td>
-              <td>{item.area}</td>
-              <td>{item.origem}</td>
-              <td>{item.destino}</td>
-              <td>
-                <div className="botoes-acoes">
-                  <button onClick={() => handleClick(item)}>❌</button>
-                  <button onClick={() => handleUpdateClick(item)}>⚙️</button>
-                </div>
-              </td>
-            </tr>
-          </>
-        ))}
-        </tbody>
-      </table>
-    </div>
+  const limparLixeira = async () => {
+    await fetch(`/api/financeiro/financas/delete/cleanBin`, {
+      method: 'DELETE',
+    })
+    setReload(true);
+  }
 
-      {confirmDeleteItem && (
-        <div className="overlay">
-            <div className="modal">
-            <p>Are you sure you want to delete "{confirmDeleteItem.descricao}"?</p>
-                <div style={{display: 'flex', gap: '10px'}}>
-                    <button className="botao-cadastro" onClick={handleConfirmDelete}>Confirm</button>
-                    <button className="botao-cadastro" onClick={() => setConfirmDeleteItem(null)}>Cancel</button>
-                </div>
-            </div>
+  return (
+    <div className="centered-container">
+      {loading && <Loading />}
+      <h2>Financial Releases Data</h2>
+      <button onClick={generatePDF} className='botao-bonito margem'>Export Table</button>
+      <div id="report" className={styles.tabela_financas_container}>
+        <div className={styles.tabela_financas_wrapper}>
+          <table className={styles.tabela_financas}>
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Value</th>
+                <th>Date</th>
+                <th>Area</th>
+                <th>Origin</th>
+                <th>Destiny</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <CadastroInputs
+                obj={novoSubmit}
+                objSetter={setNovoSubmit}
+                funcao={enviar}
+                checkDados={checkDados}
+                tipo='cadastro'
+              />
+              {dadosTabela.object.map((item, index) => (
+                <React.Fragment key={item._id}>
+                  {index % 12 === 0 && index !== 0 && <div className="html2pdf__page-break" />}
+                  {linhaVisivel === item._id ? (
+                    <React.Fragment>
+                      <CadastroInputs
+                        obj={novosDados}
+                        objSetter={setNovosDados}
+                        funcao={{
+                          funcao1: () => handleUpdateItem(),
+                          funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
+                        }}
+                        checkDados={checkDados}
+                        tipo='update' />
+                    </React.Fragment>
+                  ) : (
+                    <React.Fragment>
+                      <tr>
+                        <td>{labelsTipo[item.tipo]}</td>
+                        <td style={{ color: item.tipo === 'Income' ? 'green' : item.tipo === 'Exchange' ? '#335EFF' : 'red' }}>
+                          {item.descricao}
+                        </td>
+                        <td style={{ color: item.tipo === 'Income' ? 'green' : item.tipo === 'Exchange' ? '#335EFF' : 'red' }}>
+                          <b>R${Math.abs(item.valor).toFixed(2)}</b>
+                        </td>
+                        <td>{item.data}</td>
+                        <td>{item.area}</td>
+                        <td>{item.origem}</td>
+                        <td>{item.destino}</td>
+                        {!dadosTabela.isDeletados ? (
+                          <td className="botoes_acoes">
+                            <button onClick={() => setConfirmItemAction({ action: 'delete', item: item })}>❌</button>
+                            <button onClick={() => {
+                              linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
+                            }}>⚙️</button>
+                          </td>
+                        ) : (
+                          <td className="botoes_acoes">
+                            <button onClick={() => setDeleteInfo({ success: null, item: item })}>❌</button>
+                            <button onClick={() => setConfirmItemAction({ action: 'restore', item: item })}>🔄</button>
+                          </td>
+                        )}
+                      </tr>
+                    </React.Fragment>
+                  )}
+                </React.Fragment>
+              ))}
+            </tbody>
+          </table>
         </div>
+      </div>
+      <div>
+      <button className="botao-padrao" style={{ width: '130px' }} onClick={() => {
+        dadosTabela.isDeletados ?
+          setDadosTabela({ object: lancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' })
+          :
+          setDadosTabela({ object: lancamentosDeletados, isDeletados: true, garbageButtonLabel: 'Exit bin 🗑️' })
+      }}>
+        {dadosTabela.garbageButtonLabel}</button>
+        {dadosTabela.isDeletados && (
+          <button className="botao-padrao" style={{ width: '130px' }} onClick={() => setLimparLixo(true)}>Clean bin ♻️</button>
+        )}
+      </div>
+      
+
+      {confirmItemAction.action === 'delete' && confirmItemAction.item && (
+        <Modal objeto={{
+          titulo: `Are you sure you want to delete "${confirmItemAction.item.descricao}"?`,
+          botao1: {
+            funcao: () => { handlePseudoDeleteItem(); setConfirmItemAction({ action: '', item: null }) }, texto: 'Confirm'
+          },
+          botao2: {
+            funcao: () => setConfirmItemAction({ action: '', item: null }), texto: 'Cancel'
+          }
+        }} />
       )}
 
-      {deleteSuccess && (
-        <div className="overlay">
-          <div className="modal">
-            <p>{deleteSuccess ? 'Deletion successful!' : 'Deletion failed.'}</p>
-            <button className="botao-cadastro" onClick={handleCloseModal}>Close</button>
-          </div>
-        </div>
+      {deleteInfo.item && (
+        <Modal objeto={{
+          titulo: `Are you sure you want to PERMANENTLY delete "${deleteInfo.item.descricao}"?`,
+          alerta: true,
+          botao1: {
+            funcao: handleConfirmDelete, texto: 'Confirm'
+          },
+          botao2: {
+            funcao: () => setDeleteInfo({ success: null, item: null }), texto: 'Cancel'
+          }
+        }} />
       )}
 
-      {confirmUpdateItem && (
-        <div className="overlay"> 
-          <div className="modal">
-            <div className={styles.containerPai}>
-              <label className={styles.container}>
-                <input
-                  type="radio"
-                  name="tipo"
-                  value="Income"
-                  checked={novosDados.tipo === 'Income'}
-                  onChange={handleChange}
-                  required
-                />
-                <span className={styles.checkmark}></span>
-                Income
-              </label>
-              <label className={styles.container}>
-                <input
-                  type="radio"
-                  name="tipo"
-                  value="Expense"
-                  checked={novosDados.tipo === 'Expense'}
-                  onChange={handleChange}
-                  required
-                />
-                <span className={styles.checkmark}></span>
-                Expense
-              </label>
-              <label className={styles.container}>
-                <input
-                  type="radio"
-                  name="tipo"
-                  value="Exchange"
-                  checked={novosDados.tipo === 'Exchange'}
-                  onChange={handleChange}
-                  required
-                />
-                <span className={styles.checkmark}></span>
-                Exchange
-              </label>
-            </div>
-            <div className="centered-container">
-              <label htmlFor="descricao">Description</label>
-              <input
-                type="text"
-                id="descricao"
-                name="descricao"
-                placeholder=""
-                onChange={handleChange}
-                value={novosDados.descricao}
-                required
-              />
-              <label htmlFor="valor">Value</label>
-              <input
-                type="number"
-                name="valor"
-                onChange={handleChange}
-                value={novosDados.valor}
-                required
-              />
-              <label htmlFor="data">Date</label>
-              <input
-                type="date"
-                name="data"
-                onChange={handleChange}
-                value={novosDados.data}
-                required
-              />
-              <label htmlFor="area">Area</label>
-              <select
-                name="area"
-                onChange={handleChange}
-                value={novosDados.area}
-                required
-              >
-                <option value="" disabled>Select an area</option>
-                <option value="3D printing">3D printing</option>
-                <option value="Engineering">Engineering</option>
-                <option value="Extras">Extras</option>
-                <option value="Marketing">Marketing</option>
-                <option value="Machining">Machining</option>
-                <option value="Painting">Painting</option>
-                <option value="Pit Display">Pit Display</option>
-                <option value="Portfolios">Portfolios</option>
-                <option value="Sponsorship">Sponsorship</option>
-                <option value="Traveling">Traveling</option>
-              </select>
-              <label htmlFor="origem">Credited Account (Origin)</label>
-              <input
-                type="text"
-                name="origem"
-                placeholder=""
-                onChange={handleChange}
-                value={novosDados.origem}
-                required
-              />
-              <label htmlFor="destino">Debited Account (Destiny)</label>
-              <input
-                type="text"
-                name="destino"
-                placeholder=""
-                onChange={handleChange}
-                value={novosDados.destino}
-                required
-              />
-            </div>
-            <div style={{display: 'flex', gap: '10px'}}>
-              <button className="botao-cadastro" onClick={handleUpdateItem}>Update</button>
-              <button className="botao-cadastro" onClick={() => setConfirmUpdateItem(null)}>Cancel</button>
-            </div>
-          </div>
-        </div>
+      {confirmItemAction.action === 'restore' && confirmItemAction.item && (
+        <Modal objeto={{
+          titulo: `Do you want to restore "${confirmItemAction.item.descricao}"?`,
+          botao1: {
+            funcao: () => { handleRestoreItem(); setConfirmItemAction({ action: '', item: null }) }, texto: 'Confirm'
+          },
+          botao2: {
+            funcao: () => setConfirmItemAction({ action: '', item: null }), texto: 'Cancel'
+          }
+        }} />
+      )}
+
+      {limparLixo && (
+        <Modal objeto={{
+          titulo: `Are you sure you want to PERMANENTLY delete all itens in the garbage bin?`,
+          alerta: true,
+          botao1: {
+            funcao: () => { limparLixeira(); setLimparLixo(false) }, texto: 'Confirm'
+          },
+          botao2: {
+            funcao: () => setLimparLixo(false), texto: 'Cancel'
+          }
+        }} />
+      )}
+
+      {deleteInfo.success != null && (
+        <Modal objeto={{
+          titulo: deleteInfo.success ? 'Deletion successful!' : 'Deletion failed.',
+          botao1: {
+            funcao: () => setDeleteInfo({ success: null, item: null }), texto: 'Close'
+          },
+        }} />
+      )}
+
+      {exibirModal != null && (
+        <Modal objeto={{
+          titulo: modalLabels[exibirModal],
+          botao1: {
+            funcao: () => setExibirModal(null), texto: 'Okay'
+          },
+        }} />
       )}
     </div>
   );

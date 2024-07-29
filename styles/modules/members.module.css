@@ -8,6 +8,8 @@
 }
 
 .container {
+    width: 25rem;
+    word-break: normal;
     border-style: solid;
     border-color: rgb(172, 172, 172);
     border-radius: 20px;
@@ -15,6 +17,60 @@
     padding: 10px;
     margin: 10px;
     text-align: start;
+}
+
+.container div {
+    margin-top: 0.1rem;
+    margin-bottom: 0.1rem;
+}
+
+.container input {
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    border-radius: 0.4rem;
+    padding: 0.2rem;
+    transition: 0.2s;
+    outline: none;
+    width: 10rem;
+    height: 1rem;
+    margin-top: 0.1rem;
+    margin-bottom: 0.1rem;
+}
+
+.container div input:hover, .container div select:hover, .container:first-child div button:hover {
+    background-color: rgb(231, 231, 231);
+}
+
+.container div:nth-child(1) input{
+    width: 83%;
+}
+
+.container div:nth-child(2) input{
+    width: 76.5%;
+}
+
+.container div:nth-child(3) input{
+    width: 74.9%;
+}
+
+.container div:nth-child(4){
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.container:first-child div button{
+    background-color: transparent;
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    border-radius: 0.4rem;
+    height: 1.6rem;
+    cursor: pointer;
+    transition: 0.2s;
 }
 
 .botoesAcoes {
@@ -25,7 +81,7 @@
     text-align: center;
 }
 
-.botoesAcoes button {
+.botoesAcoes button{
     border-color: transparent;
     background-color: transparent;
     font-size: 12px;
@@ -46,40 +102,98 @@
     overflow-wrap: break-word;
 }
 
+.tabelaRaci_container{
+    overflow: auto;
+}
+
+.tabelaRaci_wrapper{
+    max-width: 1000px;
+    display: inline-block;
+}
+
 .tabelaRaci {
     font-size: 15px;
 }
 
-.tabelaRaci th{
-    cursor: default;
-    width: 0px;
-    padding-left: 0.5rem !important;
-    padding-right: 0.5rem !important;
-    padding: 0.1rem;
-    font-size: 15px;
-    border-spacing: 0px;
-    font-weight: bold;
+.tabelaRaci th {
+    background-color: #ff8ff2;
+    border-width: 0.1rem;
+    border-style: solid;
+    font-size: 0.9rem;
+    border-color: rgb(167, 167, 167);
+    padding: 0.3rem;
 }
 
-.tabelaRaci tr{
+.tabelaRaci tr {
     font-size: 14px;
+    border-style: solid;
+    border-width: 0.1rem;
+    padding: 1rem;
 }
 
-.areaTc{
-    text-align: start;
-    padding: 0.5rem;
-    width: auto; 
+.tabelaRaci td {
+    border-width: 0.1rem;
+    border-style: solid;
+    width: 5rem;
+    border-color: rgb(167, 167, 167);
+    padding: 0.3rem;
+    font-size: small;
+}
+
+.tabelaRaci tr:nth-child(1) td:nth-child(1) select,
+.tabelaRaci tr:nth-child(1) td:nth-child(2) select{
+    width: 8rem;
+}
+
+.tabelaRaci tr:not(:nth-child(1)) td:not(:nth-child(1)),
+.tabelaRaci tr:nth-child(1) td:not(:nth-child(1)):not(:nth-child(2)) {
+    width: 1.5rem;
+}
+
+.tabelaRaci td input:hover, .tabelaRaci td select:hover, .tabelaRaci button:hover {
+    background-color: rgb(231, 231, 231);
+}
+
+.tabelaRaci td input, .tabelaRaci td select {
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    border-radius: 0.4rem;
+    width: 4rem;
+    font-size: 0.75rem;
+    padding: 0.2rem;
+    transition: 0.2s;
+    outline: none;
+}
+
+.areaTc {
+    text-align: center;
+    padding: 1rem;
+    width: auto;
     font-weight: bold;
+    border-style: solid;
+    border-width: 0.1rem;
 }
 
 .itemTc {
     text-align: start;
-    padding: 0.2rem;
-    width: auto; 
+    padding: 0.4rem;
+    border-style: solid;
+    border-width: 0.1rem;
+    width: auto;
     overflow: hidden;
-    white-space: nowrap; 
+    white-space: nowrap;
 }
 
-
-
-
+.tabelaRaci button {
+    background-color: transparent;
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    border-radius: 0.4rem;
+    height: 1.6rem;
+    cursor: pointer;
+    padding: 0.1rem;
+    width: 4.2rem;
+    transition: 0.2s;
+}

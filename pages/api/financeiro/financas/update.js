@@ -1,35 +1,48 @@
 import connectToDatabase from '../../../../lib/db';
-import Lancamento from '../../../../models/financeiro/Lancamento';
+import LancamentoModel from '../../../../models/financeiro/Lancamento';
+
+const { Lancamento, LancamentoSchema } = LancamentoModel;
 
 export default async (req, res) => {
   try {
     await connectToDatabase();
 
-    if (req.method === 'PUT') { 
-      const { id } = req.query; 
+    if (req.method === 'PUT') {
+      const { id } = req.query;
 
       if (!id) {
-        return res.status(400).json({ error: 'O ID do lançamento é obrigatório para a atualização.' });
+        return res.status(400).json({ error: 'O ID do Lancamento é obrigatório para a atualização.' });
       }
 
-      const { tipo, descricao, valor, data, area, origem, destino } = req.body;
-
-      if (!tipo || !descricao || !valor || !data || !area || !origem || !destino) {
-        return res.status(400).json({ error: 'O valor do lançamento é obrigatório para a atualização.' });
+      const propriedadesNomes = Object.keys(LancamentoSchema.paths);
+      const updateFields = {};
+      
+      for (const key in req.body) {
+        if (req.body[key]) {
+          if (propriedadesNomes.includes(key)) {
+            updateFields[key] = req.body[key];
+          } else {
+            return res.status(400).json({ error: 'Os campos fornecidos não são compatíveis com o do modelo!' });
+          }
+        }
       }
 
-      const updatedLancamento = await Lancamento.findByIdAndUpdate(id, { tipo, descricao, valor, data, area, origem, destino }, { new: true });
-
-      if (!updatedLancamento) {
-        return res.status(404).json({ error: 'Lançamento não encontrado.' });
+      if (Object.keys(updateFields).length === 0) {
+        return res.status(400).json({ error: 'Pelo menos um campo deve ser fornecido para a atualização.' });
       }
 
-      return res.status(200).json(updatedLancamento);
+      const updatedData = await Lancamento.findByIdAndUpdate(id, updateFields, { new: true });
+
+      if (!updatedData) {
+        return res.status(404).json({ error: 'Lancamento não encontrado.' });
+      }
+
+      return res.status(200).json(updatedData);
     } else {
       res.status(405).json({ error: 'Método não permitido' });
     }
   } catch (error) {
-    console.error('Erro ao atualizar o lançamento', error);
-    res.status(500).json({ error: 'Erro ao atualizar o lançamento' });
+    console.error('Erro ao atualizar o Lancamento', error);
+    res.status(500).json({ error: 'Erro ao atualizar o Lancamento' });
   }
 };

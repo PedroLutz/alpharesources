@@ -1,0 +1,126 @@
+.tabelaRisco table, .tabelaPlano table {
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    padding: 0.3rem;
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; 
+}
+
+.tabelaRisco_container{
+    overflow: auto;
+}
+
+.tabelaRisco_wrapper{
+    max-width: 1200px;
+    display:block;
+}
+
+.tabelaRisco td, .tabelaRisco th, .tabelaPlano td, .tabelaPlano th{
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    padding: 0.3rem;
+    font-size: small;
+    word-wrap: break-word;
+}
+
+.tabelaRisco td input, .tabelaRisco td select, .tabelaPlano td input, .tabelaPlano td select {
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    border-radius: 0.4rem;
+    padding: 0.2rem;
+    transition: 0.2s;
+    outline: none;
+}
+
+.tabelaRisco td input:hover, .tabelaRisco td select:hover, .tabelaRisco button:hover, 
+.tabelaPlano td input:hover, .tabelaPlano td select:hover, .tabelaPlano button:hover{
+    background-color: rgb(231, 231, 231);
+}
+
+.tabelaRisco td input, .tabelaRisco td select,
+.tabelaPlano td input, .tabelaPlano td select {
+    width: 10rem;
+    font-size: small;
+}
+
+.tabelaRisco td:nth-child(8) input, 
+.tabelaRisco td:nth-child(9) input, 
+.tabelaRisco td:nth-child(10) input{
+    width: 3rem;
+}
+
+.tabelaRisco td input[type='date'] {
+    width: 7rem;
+}
+
+.tabelaPlano td:nth-child(2) select{
+    width: 6rem;
+}
+
+.tabelaRisco th, .tabelaPlano th {
+    background-color: #ff8ff2;
+    border-width: 0.1rem;
+    font-size: 0.9rem;
+    border-style: solid;
+    border-color: rgb(105, 105, 105);
+    padding: 0.3rem;
+}
+
+.tabelaRisco td {
+    width: 6rem;
+    text-align: left;
+}
+
+.tabelaRisco td:nth-child(5), .tabelaRisco td:nth-child(6), 
+.tabelaRisco td:nth-child(7), .tabelaRisco td:nth-child(8), 
+.tabelaRisco td:nth-child(9), .tabelaRisco td:nth-child(10), 
+.tabelaRisco td:nth-child(11), .tabelaRisco td:nth-child(13), 
+.tabelaRisco td:nth-child(14), .tabelaRisco td:last-child {
+    text-align: center;
+}
+
+.tabelaRisco th:nth-child(8), 
+.tabelaRisco th:nth-child(9), .tabelaRisco th:nth-child(10), 
+.tabelaRisco th:nth-child(11), .tabelaRisco th:nth-child(13), 
+.tabelaRisco th:nth-child(14) {
+    font-size: 0.7rem;
+}
+
+.tabelaRisco button, .tabelaPlano button{
+    background-color: transparent;
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    border-radius: 0.4rem;
+    height: 1.6rem;
+    width: 4.7rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.botao_bonito {
+    background-color: #fc79ec;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 3px;
+    color: black;
+    font-weight: bold;
+    font-size: 0.9rem;
+    cursor: pointer;
+    width: 12rem;
+    transition: 0.1s;
+    height: 1.7rem;
+    margin: 0.5rem;
+}
+
+.botao_bonito:hover {
+    background-color: #a84ee0;
+    font-size: 0.8rem;
+    font-weight: bold;
+    width: 10rem;
+    height: 1.7rem;
+}
