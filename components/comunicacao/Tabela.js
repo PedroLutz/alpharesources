@@ -188,12 +188,7 @@ const Tabela = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            <CadastroInputs
-                                obj={novoSubmit}
-                                objSetter={setNovoSubmit}
-                                funcao={enviar}
-                                checkDados={checkDados}
-                            />
+                            
                             {stakeholders.map((stakeholder, index) => (
                                 <React.Fragment key={index}>
                                     {linhaVisivel === stakeholder._id ? (
@@ -248,6 +243,12 @@ const Tabela = () => {
                                     )}
                                 </React.Fragment>
                             ))}
+                            <CadastroInputs
+                                obj={novoSubmit}
+                                objSetter={setNovoSubmit}
+                                funcao={enviar}
+                                checkDados={checkDados}
+                            />
                         </tbody>
                     </table>
                 </div>

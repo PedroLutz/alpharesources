@@ -82,20 +82,29 @@ const Tabela = () => {
 
   const generateInputNames = () => {
     const firstNames = new Map();
+    const fullNames = [];
     const inputNames = [];
 
     nomesMembros.forEach((membro) => {
       const nomeCompleto = membro.nome;
       const firstName = nomeCompleto.split(' ')[0];
       const lastName = nomeCompleto.split(' ')[1];
+      const corrigirNomeCompleto = () => {
+        let index = fullNames.findIndex(x => x.includes(firstName));
+        let otherLastName = fullNames[index].split(' ')[1];
+        inputNames[index] = `${firstName} ${otherLastName}`;
+      };
 
       if (firstNames.has(firstName)) {
         const existingHeader = firstNames.get(firstName);
         inputNames.push(`${existingHeader} ${lastName}`);
+        fullNames.push(`${firstName} ${lastName}`);
+        corrigirNomeCompleto();
       } else {
         firstNames.set(firstName, nomeCompleto.split(' ')[0]);
-        inputNames.push(nomeCompleto.split(' ')[0]);
-      }
+        inputNames.push(firstName);
+        fullNames.push(`${firstName} ${lastName}`);
+      };
     });
     return inputNames;
   };
@@ -202,7 +211,6 @@ const Tabela = () => {
       const responsabilidadesString = Object.keys(novosDados)
         .filter(key => key.startsWith('input'))
         .map(key => novosDados[key]).join(', ');
-
       const { area, item } = novosDados;
       const updatedItem = { _id: confirmUpdateItem._id, area, item, responsabilidades: responsabilidadesString };
       const updatedItensRaci = itensRaci.map(item =>
@@ -233,82 +241,85 @@ const Tabela = () => {
       {loading && <Loading />}
       <h2>RACI Matrix</h2>
       <button className="botao-bonito" style={{ width: '9rem' }} onClick={() => setVerOpcoes(!verOpcoes)}>Toggle options</button>
-      <div id="report">
-        <table className={members.tabelaRaci}>
-          <thead>
-            <tr>
-              <th>Area</th>
-              <th>Item</th>
-              {!verOpcoes ? (
-                <React.Fragment>
-                  {tableHeaders.map((membro, index) => (
-                    <th key={index} className='notLast'>{membro}</th>
-                  ))}
-
-                </React.Fragment>
-              ) : (
-                <React.Fragment>
-                  {tableNames.map((membro, index) => (
-                    <th key={index}>{membro}</th>
-                  ))}
-                  <th style={{ width: '5rem' }}>Actions</th>
-                </React.Fragment>
-              )}
-
-            </tr>
-          </thead>
-          <tbody>
-            {verOpcoes && (
-              <tr className="linha-cadastro">
-                <CadastroInputs
-                  obj={novoSubmit}
-                  objSetter={setNovoSubmit}
-                  funcao={enviar}
-                  checkDados={checkDados}
-                  tipo='cadastro' />
-              </tr>
-            )}
-            {itensRaci.map((item, index) => (
-              <tr key={index}>
-                {index === 0 || itensRaci[index - 1].area !== item.area ? (
-                  <td rowSpan={calculateRowSpan(itensRaci, item.area, index)}
-                    className={members.areaTc}>{item.area}</td>
-                ) : null}
-                <td className={members.itemTc}>{item.item}</td>
-                {linhaVisivel === item._id ? (
+      <div className={members.tabelaRaci_container}>
+        <div className={members.tabelaRaci_wrapper}>
+          <table className={members.tabelaRaci}>
+            <thead>
+              <tr>
+                <th>Area</th>
+                <th>Item</th>
+                {!verOpcoes ? (
                   <React.Fragment>
-                    <CadastroInputs
-                      obj={novosDados}
-                      objSetter={setNovosDados}
-                      funcao={{
-                        funcao1: () => handleUpdateItem(),
-                        funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
-                      }}
-                      tipo='update' />
+                    {tableHeaders.map((membro, index) => (
+                      <th key={index} className='notLast'>{membro}</th>
+                    ))}
+
                   </React.Fragment>
                 ) : (
                   <React.Fragment>
-                    {tableHeaders.map((membro, index) => (
-                      <td key={index} className='notLast'>{item.responsabilidades.split(', ')[tableHeaders.indexOf(membro)] || '-'}</td>
+                    {tableNames.map((membro, index) => (
+                      <th key={index}>{membro}</th>
                     ))}
-                    {verOpcoes && (
-                      <td>
-                        <div className="botoes_acoes lastMaior">
-                          <button type="button" onClick={() => setConfirmDeleteItem(item)}>❌</button>
-                          <button onClick={() => {
-                            linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
-                          }}>⚙️</button>
-                        </div>
-                      </td>
-                    )}
-
+                    <th style={{ width: '5rem' }}>Actions</th>
                   </React.Fragment>
-                )
-                }
+                )}
+
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {verOpcoes && (
+                <tr className="linha-cadastro">
+                  <CadastroInputs
+                    obj={novoSubmit}
+                    objSetter={setNovoSubmit}
+                    funcao={enviar}
+                    checkDados={checkDados}
+                    tipo='cadastro' />
+                </tr>
+              )}
+              {itensRaci.map((item, index) => (
+                <tr key={index}>
+                  {index === 0 || itensRaci[index - 1].area !== item.area ? (
+                    <td rowSpan={calculateRowSpan(itensRaci, item.area, index)}
+                      className={members.areaTc}>{item.area}</td>
+                  ) : null}
+                  <td className={members.itemTc}>{item.item}</td>
+                  {linhaVisivel === item._id ? (
+                    <React.Fragment>
+                      <CadastroInputs
+                        obj={novosDados}
+                        objSetter={setNovosDados}
+                        funcao={{
+                          funcao1: () => handleUpdateItem(),
+                          funcao2: () => linhaVisivel === item._id ? setLinhaVisivel(null) : setLinhaVisivel(item._id)
+                        }}
+                        tipo='update' />
+                    </React.Fragment>
+                  ) : (
+                    <React.Fragment>
+                      {tableHeaders.map((membro, index) => (
+                        <td key={index} className='notLast'>{item.responsabilidades.split(', ')[tableHeaders.indexOf(membro)] || '-'}</td>
+                      ))}
+                      {verOpcoes && (
+                        <td>
+                          <div className="botoes_acoes lastMaior">
+                            <button type="button" onClick={() => setConfirmDeleteItem(item)}>❌</button>
+                            <button onClick={() => {
+                              linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
+                            }}>⚙️</button>
+                          </div>
+                        </td>
+                      )}
+
+                    </React.Fragment>
+                  )
+                  }
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
       </div>
 
       {confirmDeleteItem && (

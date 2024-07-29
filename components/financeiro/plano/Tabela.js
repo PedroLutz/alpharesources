@@ -185,13 +185,7 @@ const Tabela = () => {
               </tr>
             </thead>
             <tbody>
-              <CadastroInputs
-                obj={novoSubmit}
-                objSetter={setNovoSubmit}
-                funcao={enviar}
-                checkDados={checkDados}
-                tipo='cadastro'
-              />
+              
               {planos
                 .filter(item => item.plano === view)
                 .map((item, index) => (
@@ -237,6 +231,13 @@ const Tabela = () => {
                     )}
                   </React.Fragment>
                 ))}
+                <CadastroInputs
+                obj={novoSubmit}
+                objSetter={setNovoSubmit}
+                funcao={enviar}
+                checkDados={checkDados}
+                tipo='cadastro'
+              />
             </tbody>
           </table>
         </div>

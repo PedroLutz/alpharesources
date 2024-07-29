@@ -94,6 +94,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     name="name"
                     onChange={handleChange}
                     value={obj.name}
+                    placeholder="Stakeholder"
                     ref={el => (camposRef.current.name = el)}
                 />
             </td>
@@ -102,6 +103,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     name="involvement"
                     onChange={handleChange}
                     value={obj.involvement}
+                    placeholder="Involvement"
                     ref={el => (camposRef.current.involvement = el)}
                 />
             </td>
@@ -110,6 +112,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     name="influence"
                     onChange={handleChange}
                     value={obj.influence}
+                    placeholder="Potencial Influence"
                     ref={el => (camposRef.current.influence = el)}
                 />
             </td>
@@ -120,7 +123,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     value={obj.power}
                     ref={el => (camposRef.current.power = el)}
                 >
-                    <option disabled value="">Select</option>
+                    <option disabled value="">Power</option>
                     <option value={true}>High</option>
                     <option value={false}>Low</option>
                 </select>
@@ -132,7 +135,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     value={obj.interest}
                     ref={el => (camposRef.current.interest = el)}
                 >
-                    <option disabled value="">Select</option>
+                    <option disabled value="">Interest</option>
                     <option value={true}>High</option>
                     <option value={false}>Low</option>
                 </select>
@@ -145,6 +148,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     name="expectations"
                     onChange={handleChange}
                     value={obj.expectations}
+                    placeholder="Expectations"
                     ref={el => (camposRef.current.expectations = el)}
                 />
             </td>
@@ -153,6 +157,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     name="requisites"
                     onChange={handleChange}
                     value={obj.requisites}
+                    placeholder="Requisites"
                     ref={el => (camposRef.current.requisites = el)}
                 />
             </td>
@@ -161,6 +166,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     name="information"
                     onChange={handleChange}
                     value={obj.information}
+                    placeholder="Information"
                     ref={el => (camposRef.current.information = el)}
                 />
             </td>
@@ -169,6 +175,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     name="method"
                     onChange={handleChange}
                     value={obj.method}
+                    placeholder="Method"
                     ref={el => (camposRef.current.method = el)}
                 />
             </td>
@@ -179,7 +186,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     value={obj.timing}
                     ref={el => (camposRef.current.timing = el)}
                 >
-                    <option disabled value="">Select</option>
+                    <option disabled value="">Timing</option>
                     <option value='On demand'>On demand</option>
                     <option value='Daily'>Daily</option>
                     <option value='Weekly'>Weekly</option>
@@ -191,6 +198,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     name="tools"
                     onChange={handleChange}
                     value={obj.tools}
+                    placeholder="Tools"
                     ref={el => (camposRef.current.tools = el)}
                 />
             </td>
@@ -200,13 +208,14 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     onChange={handleChange}
                     value={obj.responsible}
                     ref={el => (camposRef.current.responsible = el)}>
-                    <option disabled value="">Select</option>
+                    <option disabled value="">Responsible</option>
+                    <option value='Circunstancial'>Circunstancial</option>
                     {nomesMembros.map((membro, index) => (
                         <option key={index} value={membro.nome}>{membro.nome}</option>
                     ))}
                 </select>
             </td>
-            <td>
+            <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
                     <button onClick={handleSubmit}>Add new</button>
                 ) : (

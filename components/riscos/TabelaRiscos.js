@@ -115,6 +115,7 @@ const TabelaRiscos = () => {
         'deleteSuccess': 'Deletion Successful!',
         'deleteFail': 'Deletion Failed!',
         'valorNegativo': 'No fields can have negative values!',
+        'maiorQueCinco': 'Classifications must be between 1 and 5!'
     };
 
     return (
@@ -132,7 +133,7 @@ const TabelaRiscos = () => {
 
             {confirmDeleteItem && (
                 <Modal objeto={{
-                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.name}"?`,
+                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.risco}"?`,
                     alerta: true,
                     botao1: {
                         funcao: handleConfirmDelete, texto: 'Confirm'
@@ -163,12 +164,7 @@ const TabelaRiscos = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            <CadastroInputs
-                                obj={novoSubmit}
-                                objSetter={setNovoSubmit}
-                                funcao={enviar}
-                                checkDados={checkDados}
-                            />
+                            
                             {riscos.map((item, index) => (
                                 <React.Fragment key={index}>
                                     {linhaVisivel === item._id ? (
@@ -205,6 +201,12 @@ const TabelaRiscos = () => {
                                     )}
                                 </React.Fragment>
                             ))}
+                            <CadastroInputs
+                                obj={novoSubmit}
+                                objSetter={setNovoSubmit}
+                                funcao={enviar}
+                                checkDados={checkDados}
+                            />
                         </tbody>
                     </table>
                 </div>

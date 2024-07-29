@@ -65,7 +65,7 @@ const handleExport = (containerSelector) => {
                         border: 1px solid #ccc;
                     }
 
-                    .status_td {
+                    .status_td:not(.unsafe) {
                         background-color: rgb(182, 255, 148);
                         color: rgb(0, 161, 0);
                     }

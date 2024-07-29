@@ -45,7 +45,7 @@ export default async (req, res) => {
                     }
                   },
                   {
-                    $match: { plano: false } // Garantir que apenas documentos com plano: false sejam incluídos
+                    $match: { plano: false }
                   },
                   {
                     $project: {

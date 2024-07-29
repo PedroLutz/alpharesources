@@ -152,6 +152,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                 <input type='text'
                     value={obj.recurso}
                     name='recurso'
+                    placeholder='Resource'
                     onChange={(e) => handleChange(e, objSetter, obj)}
                     min="0"
                     ref={el => (camposRef.current.recurso = el)} />
@@ -160,6 +161,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                 <input type='text'
                     value={obj.uso}
                     name='uso'
+                    placeholder='Use'
                     onChange={(e) => handleChange(e, objSetter, obj)}
                     min="0"
                     ref={el => (camposRef.current.uso = el)} />
@@ -169,6 +171,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     type="text"
                     value={obj.plano_a}
                     name='plano_a'
+                    placeholder='Plan A'
                     onChange={(e) => handleChange(e, objSetter, obj)}
                     ref={el => (camposRef.current.plano_a = el)} />
             </td>
@@ -188,6 +191,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                 <input type='number'
                     value={obj.valor_a}
                     name='valor_a'
+                    placeholder='Value'
                     onChange={(e) => handleChange(e, objSetter, obj)}
                     min="0"
                     ref={el => (camposRef.current.valor_a = el)} />
@@ -221,6 +225,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     type="text"
                     value={obj.plano_b}
                     name='plano_b'
+                    placeholder='Plan B'
                     onChange={(e) => handleChange(e, objSetter, obj)}
                     ref={el => (camposRef.current.plano_b = el)} />
             </td>
@@ -240,6 +245,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                 <input type='number'
                     value={obj.valor_b}
                     name='valor_b'
+                    placeholder='Value'
                     onChange={(e) => handleChange(e, objSetter, obj)}
                     min="0"
                     ref={el => (camposRef.current.valor_b = el)} />

@@ -135,7 +135,7 @@ const Tabela = () => {
     })
 
     let arrayAnalise = [];
-
+    console.log(duplas)
     duplas.forEach((dupla) => {
 
       const area = dupla[0].area;

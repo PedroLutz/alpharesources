@@ -51,6 +51,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
         const { name, value } = e.target;
         const index = emptyFields.indexOf(name);
         index > -1 && emptyFields.splice(index, 1);
+        console.log(name, value)
         setter({
             ...obj,
             [name]: value,
@@ -134,6 +135,8 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                 [`input${getCleanName(membro)}`]: ''
             }));
         });
+        console.log(inputNames)
+        console.log(obj)
     };
 
     
@@ -189,11 +192,11 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                         value={obj["input" + getCleanName(membro)]}
                         required
                     >
-                        <option value="" disabled>Select</option>
-                        <option value="R">Responsible</option>
-                        <option value="A">Accountable</option>
-                        <option value="C">Consulted</option>
-                        <option value="I">Informed</option>
+                        <option value="" disabled>RACI</option>
+                        <option value="R">R</option>
+                        <option value="A">A</option>
+                        <option value="C">C</option>
+                        <option value="I">I</option>
                     </select>
                 </td>
             ))}

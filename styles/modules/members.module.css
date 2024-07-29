@@ -102,6 +102,15 @@
     overflow-wrap: break-word;
 }
 
+.tabelaRaci_container{
+    overflow: auto;
+}
+
+.tabelaRaci_wrapper{
+    max-width: 1000px;
+    display: inline-block;
+}
+
 .tabelaRaci {
     font-size: 15px;
 }
@@ -150,7 +159,8 @@
     border-style: solid;
     border-color: rgb(167, 167, 167);
     border-radius: 0.4rem;
-    width: 8rem;
+    width: 4rem;
+    font-size: 0.75rem;
     padding: 0.2rem;
     transition: 0.2s;
     outline: none;
@@ -183,5 +193,7 @@
     border-radius: 0.4rem;
     height: 1.6rem;
     cursor: pointer;
+    padding: 0.1rem;
+    width: 4.2rem;
     transition: 0.2s;
 }

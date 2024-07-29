@@ -109,6 +109,18 @@ const TabelaPlanos = () => {
         'deleteFail': 'Deletion Failed!',
     };
 
+    const calculateRowSpan = (itens, currentArea, currentIndex) => {
+        let rowSpan = 1;
+        for (let i = currentIndex + 1; i < itens.length; i++) {
+          if (itens[i].risco === currentArea) {
+            rowSpan++;
+          } else {
+            break;
+          }
+        }
+        return rowSpan;
+      };
+
     return (
         <div className="centered-container">
             {loading && <Loading />}
@@ -124,7 +136,7 @@ const TabelaPlanos = () => {
 
             {confirmDeleteItem && (
                 <Modal objeto={{
-                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.name}"?`,
+                    titulo: `Are you sure you want to PERMANENTLY delete the response for "${confirmDeleteItem.risk}"?`,
                     alerta: true,
                     botao1: {
                         funcao: handleConfirmDelete, texto: 'Confirm'
@@ -167,6 +179,7 @@ const TabelaPlanos = () => {
                                         />
                                     ) : (
                                         <tr>
+                                            
                                             <td>{item.risco}</td>
                                             <td>{item.estrategia}</td>
                                             <td>{item.detalhamento}</td>

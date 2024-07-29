@@ -48,7 +48,6 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         }
     }, [obj.area, elementosWBS]);
 
-
     const handleAreaChange = (e) => {
         const areaSelecionada = e.target.value;
         const itensDaArea = elementosWBS.filter(item => item.area === areaSelecionada).map(item => item.item);
@@ -73,20 +72,19 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     };
 
     const validaDados = () => {
-        if(obj.ocorrencia < 0){
-            camposRef.current['ocorrencia'].classList.add('campo-vazio');
-            checkDados('valorNegativo')
-            return true;
-        }
-        if(obj.impacto < 0){
-            camposRef.current['impacto'].classList.add('campo-vazio');
-            checkDados('valorNegativo')
-            return true;
-        }
-        if(obj.urgencia < 0){
-            camposRef.current['urgencia'].classList.add('campo-vazio');
-            checkDados('valorNegativo')
-            return true;
+        const campos = {ocorrencia: obj.ocorrencia, impacto: obj.impacto, urgencia: obj.urgencia};
+        
+        for (const [key, value] of Object.entries(campos)) {
+            if (value < 0) {
+                camposRef.current[key].classList.add('campo-vazio');
+                checkDados('valorNegativo');
+                return true;
+            }
+            if (value > 5) {
+                camposRef.current[key].classList.add('campo-vazio');
+                checkDados('maiorQueCinco');
+                return true;
+            }
         }
         const [isEmpty, camposVazios] = isFormVazio(obj);
         console.log(camposVazios);
@@ -145,6 +143,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     name="risco"
                     onChange={handleChange}
                     value={obj.risco}
+                    placeholder='Risk'
                     ref={el => (camposRef.current.risco = el)}
                 />
             </td>
@@ -153,6 +152,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     name="efeito"
                     onChange={handleChange}
                     value={obj.efeito}
+                    placeholder='Effect'
                     ref={el => (camposRef.current.efeito = el)}
                 />
             </td>
@@ -163,7 +163,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     value={obj.ehNegativo}
                     ref={el => (camposRef.current.ehNegativo = el)}
                 >
-                    <option disabled value="">Select</option>
+                    <option disabled value="">Category</option>
                     <option value={true}>Threat</option>
                     <option value={false}>Opportunity</option>
                 </select>
@@ -173,6 +173,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     name="causas"
                     onChange={handleChange}
                     value={obj.causas}
+                    placeholder='Causes'
                     ref={el => (camposRef.current.causas = el)}
                 />
             </td>
@@ -181,6 +182,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     name="gatilho"
                     onChange={handleChange}
                     value={obj.gatilho}
+                    placeholder='Trigger'
                     ref={el => (camposRef.current.gatilho = el)}
                 />
             </td>
@@ -190,6 +192,8 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     name="ocorrencia"
                     onChange={handleChange}
                     value={obj.ocorrencia}
+                    min={1}
+                    max={5}
                     ref={el => (camposRef.current.ocorrencia = el)}
                 />
             </td>
@@ -199,6 +203,8 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     name="impacto"
                     onChange={handleChange}
                     value={obj.impacto}
+                    min={1}
+                    max={5}
                     ref={el => (camposRef.current.impacto = el)}
                 />
             </td>
@@ -208,6 +214,8 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     name="urgencia"
                     onChange={handleChange}
                     value={obj.urgencia}
+                    min='1'
+                    max='5'
                     ref={el => (camposRef.current.urgencia = el)}
                 />
             </td>
