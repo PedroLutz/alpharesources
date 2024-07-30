@@ -8,7 +8,7 @@ export default async (req, res) => {
     await connectToDatabase();
 
     if (req.method === 'GET') {
-        const cronogramas = await Gantt.find();
+        const cronogramas = await Gantt.find().sort({ data: -1 });
 
         function sort(query) {
           query.sort((a, b) => {

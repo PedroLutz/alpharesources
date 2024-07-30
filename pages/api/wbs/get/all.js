@@ -8,7 +8,7 @@ export default async (req, res) => {
     await connectToDatabase();
 
     if (req.method === 'GET') {
-        const elementos = await Wbs.find();
+        const elementos = await Wbs.find().sort({ area: 1 });
 
         res.status(200).json({ elementos });
     } else {
