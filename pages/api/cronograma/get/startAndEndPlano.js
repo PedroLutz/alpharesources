@@ -88,6 +88,9 @@ export default async (req, res) => {
               situacao: "$ultimo.situacao"
             }
           }
+        },
+        {
+          $sort: { area: 1 } // Ordenar em ordem alfabética das áreas
         }
       ]);
 

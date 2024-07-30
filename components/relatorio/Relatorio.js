@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { fetchData } from "../../functions/crud";
 import styles from '../../styles/modules/relatorio.module.css'
 import { handleExport } from "../../functions/exportHtml";
+import Loading from "../Loading";
 
 const Relatorio = () => {
     const months = [
@@ -48,6 +49,7 @@ const Relatorio = () => {
     const [tarefasPlanejadas, setTarefasPlanejadas] = useState([]);
     const [areaAnalysis, setAreaAnalysis] = useState([]);
     const [notasAreas, setNotasAreas] = useState({});
+    const [loading, setLoading] = useState(false);
     const [riscos, setRiscos] = useState([]);
 
     const generateLabelsTarefas = (dados, setter) => {
@@ -109,6 +111,7 @@ const Relatorio = () => {
     };
 
     const busca = async () => {
+        setLoading(true)
         setIssues('');
         setKpiAnalysisStatus({scopeStatus: '',
             scheduleStatus: '',
@@ -216,7 +219,8 @@ const Relatorio = () => {
                 arrayAnalise.push(obj);
               }
         })
-        setAreaAnalysis(arrayAnalise)
+        setAreaAnalysis(arrayAnalise);
+        setLoading(false);
         setShowTable(true);
     }
 
@@ -227,6 +231,7 @@ const Relatorio = () => {
     return (
         <div className="centered-container">
             <h2>Status Report Generator</h2>
+            {loading && <Loading/>}
             <div className={styles.menu}>
                 <h3>Select Month</h3>
                 <div>
