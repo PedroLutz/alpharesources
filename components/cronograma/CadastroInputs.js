@@ -62,6 +62,10 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
 
     const checkDpOkay = async (item) => {
         var found;
+        console.log(item);
+        if(item.inicio === '' && item.termino === ''){
+            return true;
+        }
         await fetch(`/api/cronograma/checks/dpIsOkay`, {
             method: 'POST',
             headers: {
@@ -82,6 +86,13 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
                 ...obj,
                 dp_area: '',
                 dp_item: ''
+            }
+        }
+        if(obj.inicio === "1970-01-01" && obj.termino === "1970-01-01"){
+            objEnviado = {
+                ...obj,
+                inicio: '',
+                termino: ''
             }
         }
         const isUsed = await checkIfUsed(objEnviado);

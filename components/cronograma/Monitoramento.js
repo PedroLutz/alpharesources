@@ -63,6 +63,11 @@ const Tabela = () => {
         return;
       }
 
+      if (situacao !== 'em andamento' && itemParaAtualizar.situacao === 'iniciar') {
+        setExibirModal('tarefaNaoIniciada')
+        return;
+      }
+
       const today = new Date();
       const formattedDate = today.
         toLocaleString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' })
@@ -121,6 +126,7 @@ const Tabela = () => {
     'datasErradas': 'The finishing date must be after the starting date!',
     'semtarefa': 'Select a task to update.',
     'tarefaConcluida': "You can't update a task you've already completed!",
+    'tarefaNaoIniciada': "You can't update a task you haven't started yet!"
   };
 
   const generateReport = async () => {
