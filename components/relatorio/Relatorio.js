@@ -255,9 +255,9 @@ const Relatorio = () => {
                         ))}
                     </select>
                 </div>
-                <button className="botao-padrao" onClick={busca}>Buscar</button>
+                <button className="botao-padrao" onClick={busca}>Get data</button>
                 {showTable && (
-                <button className="botao-padrao" onClick={exportar}>Exportar</button>)}
+                <button className="botao-padrao" onClick={exportar}>Export</button>)}
             </div>
             {showTable && (
             <div className={`report ${styles.report}`}>
