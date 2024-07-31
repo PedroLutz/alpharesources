@@ -62,7 +62,6 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
 
     const checkDpOkay = async (item) => {
         var found;
-        console.log(item);
         if(item.inicio === '' && item.termino === ''){
             return true;
         }
@@ -102,12 +101,10 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
         if (objEnviado.dp_area !== '' || objEnviado.dp_item !== '') {
             if (!dpIsUsed) {
                 checkDados('dpNotUsed');
-                console.log(true)
                 return true;
             }
             if (!dpIsOkay) {
                 checkDados('dpNotOkay');
-                console.log(true)
                 return true;
             }
         }
@@ -117,7 +114,6 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
         }
         if (isUsed) {
             checkDados('dadosUsados');
-            console.log(true)
             return true;
         }
         if (isEmpty) {
