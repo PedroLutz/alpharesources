@@ -174,7 +174,7 @@ const Tabela = () => {
                             <tr>
                                 <th>Stakeholder</th>
                                 <th>Involvement</th>
-                                <th>Potencial Influence</th>
+                                <th>Potential Influence</th>
                                 <th>Power</th>
                                 <th>Interest</th>
                                 <th>Mapping</th>
