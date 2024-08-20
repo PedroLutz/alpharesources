@@ -70,7 +70,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ dp_area: item.dp_area, dp_item: item.dp_item, inicio: item.inicio }),
+            body: JSON.stringify({ dp_area: item.dp_area, dp_item: item.dp_item, inicio: item.inicio, plano: item.plano }),
         })
 
             .then(response => response.json()).then(data => { found = data.found });
@@ -276,6 +276,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
                         <option value="iniciar">Starting</option>
                         <option value="em andamento">Executing</option>
                         <option value="concluida">Completed</option>
+                        <option value="aguardo">On hold</option>
                     </select>
                 </td>
             )}

@@ -8,8 +8,9 @@ export default async (req, res) => {
         await connectToDatabase();
 
         if (req.method === 'POST') {
-            const {dp_area, dp_item, inicio} = req.body;
-            const gantt = await Gantt.findOne({ area: dp_area, item: dp_item, plano: true });
+            const {dp_area, dp_item, inicio, plano} = req.body;
+            const gantt = await Gantt.findOne({ area: dp_area, item: dp_item, plano: plano });
+
 
             function formatDate(dateString) {
                 const date = new Date(dateString);

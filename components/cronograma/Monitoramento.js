@@ -23,6 +23,7 @@ const Tabela = () => {
   const [linhaVisivel, setLinhaVisivel] = useState({});
   const [reload, setReload] = useState(false);
   const camposVazios = {
+    plano: '',
     item: '',
     area: '',
     inicio: '',
@@ -36,7 +37,8 @@ const Tabela = () => {
   const labelsSituacao = {
     iniciar: 'Starting',
     emandamento: 'Executing',
-    concluida: 'Completed'
+    concluida: 'Completed',
+    aguardo: 'On hold'
   }
 
   const handleAtualizarTarefa = async (situacao) => {
@@ -89,6 +91,10 @@ const Tabela = () => {
           termino: formattedDate,
           situacao: situacao
         };
+      } else if (situacao === 'aguardo') {
+        updatedItem = {
+          situacao: situacao
+        }
       }
 
       await handleUpdate({
@@ -141,9 +147,7 @@ const Tabela = () => {
     })
 
     let arrayAnalise = [];
-    console.log(duplas)
     duplas.forEach((dupla) => {
-
       const area = dupla[0].area;
       const planoUltimo = dupla[0].ultimo;
       const ganttPrimeiro = dupla[1].primeiro;
@@ -162,7 +166,8 @@ const Tabela = () => {
       }
 
       //hold
-      if (planoUltimo.item !== ganttUltimo.item && ganttUltimo.situacao === 'concluida') {
+      if ((planoUltimo.item !== ganttUltimo.item && ganttUltimo.situacao === 'concluida') 
+        || ganttUltimo.situacao === 'aguardo') {
         var obj = { area: area, state: 'Hold' }
         if (planoUltimo.termino >= hoje) {
           obj = { ...obj, status: 'On Schedule' }
@@ -275,6 +280,7 @@ const Tabela = () => {
   const handleUpdateClick = (item) => {
     setConfirmUpdateItem(item);
     setNovosDados({
+      plano: false,
       inicio: euDateToIsoDate(item.inicio),
       termino: euDateToIsoDate(item.termino),
       dp_item: item.dp_item || undefined,
@@ -429,6 +435,9 @@ const Tabela = () => {
           </button>
           <button onClick={() => handleAtualizarTarefa('check')}>
             Check execution
+          </button>
+          <button onClick={() => handleAtualizarTarefa('aguardo')}>
+            Put on hold
           </button>
           <button onClick={() => {
             itemSelecionado ? setConfirmCompleteTask(itemSelecionado) : setExibirModal('semtarefa')

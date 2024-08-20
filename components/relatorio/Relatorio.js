@@ -187,7 +187,8 @@ const Relatorio = () => {
               }
         
               //hold
-              if (planoUltimo.item !== ganttUltimo.item && ganttUltimo.situacao === 'concluida') {
+              if ((planoUltimo.item !== ganttUltimo.item && ganttUltimo.situacao === 'concluida') 
+                || ganttUltimo.situacao === 'aguardo') {
                 var obj = { area: area, state: 'Hold' }
                 if (planoUltimo.termino >= hoje) {
                   obj = { ...obj, status: 'On Schedule' }

@@ -32,6 +32,7 @@ const Tabela = () => {
   const handleUpdateClick = (item) => {
     setConfirmUpdateItem(item);
     setNovosDados({
+      plano: true,
       inicio: euDateToIsoDate(item.inicio),
       termino: euDateToIsoDate(item.termino),
       dp_item: item.dp_item || undefined,
