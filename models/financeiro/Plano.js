@@ -16,7 +16,10 @@ const PlanoSchema = new mongoose.Schema({
   data_limite: Date,
   plano_b: String,
   tipo_b: String,
-  valor_b: Number
+  valor_b: Number,
+  plano_real: String,
+  valor_real: String,
+  data_real: String
 }, { collection: 'planos' });
 
 const Plano = mongoose.models['Plano'] || mongoose.model('Plano', PlanoSchema);

@@ -1,7 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { fetchData } from '../../../functions/crud';
 
 const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
     const [emptyFields, setEmptyFields] = useState([]);
+    const [elementosWBS, setElementosWBS] = useState([]);
     const camposRef = useRef({
         tipo: null,
         descricao: null,
@@ -17,6 +19,15 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
         return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
     };
 
+    const fetchElementos = async () => {
+        const data = await fetchData('wbs/get/all');
+        setElementosWBS(data.elementos);
+    };
+
+    useEffect(() => {
+        fetchElementos();
+    }, []);
+
     const handleChange = (e, setter, obj) => {
         const {name, value} = e.target;
         const index = emptyFields.indexOf(name);
@@ -26,6 +37,14 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
             [name]: value,
         });
         e.target.classList.remove('campo-vazio');
+    };
+
+    const handleAreaChange = (e) => {
+        const areaSelecionada = e.target.value;
+        const itensDaArea = elementosWBS.filter(item => item.area === areaSelecionada).map(item => item.item);
+        setItensPorArea(itensDaArea);
+
+        handleChange(e, objSetter, obj);
     };
 
     const validaDados = () => {
@@ -95,23 +114,19 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
             </td>
             <td>
                 <select
-                    value={obj.area}
-                    name='area'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
-                    ref={el => (camposRef.current.area = el)}
-                >
-                    <option value="" disabled>Area</option>
-                    <option value="3D printing">3D printing</option>
-                    <option value="Engineering">Engineering</option>
-                    <option value="Extras">Extras</option>
-                    <option value="Marketing">Marketing</option>
-                    <option value="Machining">Machining</option>
-                    <option value="Painting">Painting</option>
-                    <option value="Pit Display">Pit Display</option>
-                    <option value="Portfolios">Portfolios</option>
-                    <option value="Sponsorship">Sponsorship</option>
-                    <option value="Traveling">Traveling</option>
-                </select>
+                        name="area"
+                        onChange={handleAreaChange}
+                        value={obj.area}
+                        ref={el => (camposRef.current.area = el)}
+
+                    >
+                        <option value="" disabled>Area</option>
+                        {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
+                            <option key={index} value={area}>{area}</option>
+                        ))};
+                        <option value="Travel">Travel</option>
+                        <option value="Others">Others</option>
+                    </select>
             </td>
             <td>
                 <input

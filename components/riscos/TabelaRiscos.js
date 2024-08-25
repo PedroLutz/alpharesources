@@ -48,6 +48,7 @@ const TabelaRiscos = () => {
 
     const handleUpdateItem = async () => {
         if (confirmUpdateItem) {
+            setLoading(true);
             const updatedItem = { ...confirmUpdateItem, ...novosDados };
 
             const updatedRiscos = riscos.map(item =>
@@ -68,6 +69,7 @@ const TabelaRiscos = () => {
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
+            setLoading(false);
         }
     };
 

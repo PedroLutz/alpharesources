@@ -17,8 +17,25 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
     });
 
     const isFormVazio = (form) => {
-        const emptyFields = Object.entries(form).filter(([key, value]) => !value);
-        return [emptyFields.length > 2, emptyFields.map(([key]) => key)];
+        console.log(obj)
+        let camposConsiderados;
+        if(tipo === 'update'){
+            camposConsiderados = {
+                inicio: form.inicio,
+                termino: form.termino,
+                situacao: form.situacao
+            }
+        } else if (tipo === 'cadastro'){
+            camposConsiderados = {
+                area: form.area,
+                item: form.item,
+                inicio: form.inicio,
+                termino: form.termino,
+            }
+        }
+        const emptyFields = Object.entries(camposConsiderados).filter(([key, value]) => !value);
+        console.log(emptyFields)
+        return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
     };
 
     const handleChange = (e) => {

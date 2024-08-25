@@ -45,6 +45,9 @@ export default async (req, res) => {
       const updatedGantt = await Gantt.updateMany(
         { area: oldWBS.area, item: oldWBS.item }, { $set: { item: updateFields.item } }
       );
+      const updatedGanttDp = await Gantt.updateMany(
+        { dp_area: oldWBS.area, dp_item: oldWBS.item }, { $set: { dp_item: updateFields.item } }
+      );
       const updatedRaci = await Raci.updateMany(
         { area: oldWBS.area, item: oldWBS.item }, { $set: { item: updateFields.item } }
       );

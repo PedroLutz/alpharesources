@@ -107,6 +107,7 @@ const Tabela = () => {
 
   const handleUpdateItem = async () => {
     if (confirmUpdateItem) {
+      setLoading(true);
       const updatedItem = { _id: confirmUpdateItem._id, ...novosDados };
       const updatedMembros = membros.map(item =>
         item._id === updatedItem._id ? { ...updatedItem } : item
@@ -126,6 +127,7 @@ const Tabela = () => {
         setConfirmUpdateItem(confirmUpdateItem);
         console.error("Update failed:", error);
       }
+      setLoading(false);
     }
   };
 

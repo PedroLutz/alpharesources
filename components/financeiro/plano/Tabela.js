@@ -30,7 +30,10 @@ const Tabela = () => {
     data_limite: '',
     plano_b: '',
     tipo_b: '',
-    valor_b: ''
+    valor_b: '',
+    plano_real: '',
+    data_real: '',
+    valor_real: ''
   }
   const [novoSubmit, setNovoSubmit] = useState(camposVazios);
   const [novosDados, setNovosDados] = useState(camposVazios);
@@ -52,23 +55,18 @@ const Tabela = () => {
       data_limite: euDateToIsoDate(item.data_limite),
       plano_b: item.plano_b,
       tipo_b: item.tipo_b,
-      valor_b: item.valor_b
+      valor_b: item.valor_b,
+      plano_real: item.plano_real,
+      data_real: item.data_real,
+      valor_real: item.valor_real,
     }
     setNovosDados(obj);
   };
 
   const handleUpdateItem = async () => {
     if (confirmUpdateItem) {
+      setLoading(true);
       const updatedItem = { ...confirmUpdateItem, ...novosDados };
-      const updatedPlanos = planos.map(item =>
-        item._id === updatedItem._id ? {
-          ...novosDados,
-          data_inicial: jsDateToEuDate(updatedItem.data_inicial),
-          data_esperada: jsDateToEuDate(updatedItem.data_esperada),
-          data_limite: jsDateToEuDate(updatedItem.data_limite),
-        } : item
-      );
-      setPlanos(updatedPlanos);
       setConfirmUpdateItem(null);
       linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
       try {
@@ -82,6 +80,8 @@ const Tabela = () => {
         setConfirmUpdateItem(confirmUpdateItem);
         console.error("Update failed:", error);
       }
+      setReload(true);
+      setLoading(false);
     }
     cleanForm(novosDados, setNovosDados);
   };
@@ -93,6 +93,7 @@ const Tabela = () => {
         item.data_inicial = jsDateToEuDate(item.data_inicial);
         item.data_esperada = jsDateToEuDate(item.data_esperada);
         item.data_limite = jsDateToEuDate(item.data_limite);
+        item.data_real = jsDateToEuDate(item.data_real);
       });
       setPlanos(data.planos);
     } finally {
@@ -166,6 +167,7 @@ const Tabela = () => {
                 <th colSpan="3">Plan A</th>
                 <th colSpan="3">Milestones</th>
                 <th colSpan="3">Plan B</th>
+                <th colSpan="3">Results</th>
                 <th rowSpan="2">Options</th>
               </tr>
               <tr>
@@ -182,6 +184,9 @@ const Tabela = () => {
                 <th>Plan</th>
                 <th>Type</th>
                 <th>Value</th>
+                <th>Actual plan</th>
+                <th>Actual date</th>
+                <th>Actual value</th>
               </tr>
             </thead>
             <tbody>
@@ -218,6 +223,9 @@ const Tabela = () => {
                           <td>{item.plano_b || '-'}</td>
                           <td>{item.tipo_b || '-'}</td>
                           <td>{item.valor_b ? `R$${item.valor_b}` : '-'}</td>
+                          <td>{item.plano_real || '-'}</td>
+                          <td>{item.data_real || '-'}</td>
+                          <td>{item.valor_real ? `R$${item.valor_real}` : '-'}</td>
                           <td>
                             <div className="botoes_acoes">
                               <button style={{ color: 'red' }} onClick={() => setConfirmDeleteItem(item)}>❌</button>

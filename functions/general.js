@@ -9,12 +9,15 @@ function cleanForm(object, setter) {
 
 //js Date to 'dd/MM/yyyy' format
 function jsDateToEuDate(dateData) {
-    const date = new Date(dateData);
-    const day = String(date.getUTCDate()).padStart(2, '0');
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-    const year = date.getUTCFullYear();
+    if(dateData != null){
+        const date = new Date(dateData);
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const year = date.getUTCFullYear();
 
-    return `${day}/${month}/${year}`;
+        return `${day}/${month}/${year}`;
+    }
+    return null;
 }
 //'dd/MM/yyyy' format to 'yyyy-MM-dd' format
 function euDateToIsoDate (dateString) {
@@ -24,8 +27,11 @@ function euDateToIsoDate (dateString) {
 }
 //'dd/MM/yyyy' format to js Date
 function euDateToJsDate(dateString) {
-    var dateParts = dateString.split("/");
-    return new Date(+dateParts[2], dateParts[1] - 1, dateParts[0]);
+    if(dateString != null){
+        var dateParts = dateString.split("/");
+        return new Date(+dateParts[2], dateParts[1] - 1, dateParts[0]); 
+    }
+    return null;
 }
 
 //'yyyy-MM-dd' format to js Date

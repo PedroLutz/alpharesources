@@ -23,6 +23,9 @@ export default async (req, res) => {
       const updatedGantt = await Gantt.updateMany(
         { area: oldArea }, { $set: { area: area } }
       );
+      const updatedGanttdp = await Gantt.updateMany(
+        { dp_area: oldArea }, { $set: { dp_area: area } }
+      );
       const updatedRaci = await Raci.updateMany(
         { area: oldArea }, { $set: { area: area } }
       );

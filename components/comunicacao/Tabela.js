@@ -50,6 +50,7 @@ const Tabela = () => {
 
     const handleUpdateItem = async () => {
         if (confirmUpdateItem) {
+            setLoading(true);
             const updatedItem = { ...confirmUpdateItem, ...novosDados };
 
             const updatedStakeholders = stakeholders.map(item =>
@@ -70,6 +71,7 @@ const Tabela = () => {
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
+            setLoading(false)
         }
     };
 

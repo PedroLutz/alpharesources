@@ -52,7 +52,6 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
     
     const isFirstRender = useRef(true);
 
-
     const handleAreaChange = (e) => {
         const areaSelecionada = e.target.value;
         const itensDaArea = elementosWBS.filter(item => item.area === areaSelecionada).map(item => item.item);
@@ -62,7 +61,23 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
     };
 
     const isFormVazio = (form) => {
-        const emptyFields = Object.entries(form).filter(([key, value]) => !value);
+        let camposConsiderados = {
+            plano: form.plano,
+            area: form.area,
+            item: form.item,
+            recurso: form.recurso,
+            uso: form.uso,
+            tipo_a: form.tipo_a,
+            valor_a: form.valor_a,
+            plano_a: form.plano_a,
+            data_inicial: form.data_inicial,
+            data_esperada: form.data_esperada,
+            data_limite: form.data_limite,
+            plano_b: form.plano_b,
+            tipo_b: form.tipo_b,
+            valor_b: form.valor_b
+        }
+        const emptyFields = Object.entries(camposConsiderados).filter(([key, value]) => !value);
         return [emptyFields.length > 1, emptyFields.map(([key]) => key)];
     };
 
@@ -132,6 +147,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
                         <option key={index} value={area}>{area}</option>
                     ))};
+                    <option value="Others">Others</option>
                 </select>
             </td>
             <td>
@@ -146,6 +162,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     {itensPorArea.map((item, index) => (
                         <option key={index} value={item}>{item}</option>
                     ))}
+                    <option value="Others">Others</option>
                 </select>
             </td>
             <td>
@@ -250,6 +267,40 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     min="0"
                     ref={el => (camposRef.current.valor_b = el)} />
             </td>
+            {tipo === 'cadastro' ? (
+                <React.Fragment>
+                    <td> - </td>
+                    <td> - </td>
+                    <td> - </td>
+                </React.Fragment>
+            ) : (
+                <React.Fragment>
+                    <td>
+                        <input
+                            type="text"
+                            value={obj.plano_real || ''}
+                            name='plano_real'
+                            placeholder='Actual plan'
+                            onChange={(e) => handleChange(e, objSetter, obj)} />
+                    </td>
+                    <td>
+                        <input
+                            type="date"
+                            value={obj.data_real || ''}
+                            name='data_real'
+                            onChange={(e) => handleChange(e, objSetter, obj)} />
+                    </td>
+                    <td>
+                        <input 
+                            type='number'
+                            value={obj.valor_real || ''}
+                            name='valor_real'
+                            placeholder='Actual value'
+                            onChange={(e) => handleChange(e, objSetter, obj)}
+                            min="0"/>
+                    </td>
+                </React.Fragment>
+            )}
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
                     <button onClick={(e) => handleSubmit(e)}>Add new</button>

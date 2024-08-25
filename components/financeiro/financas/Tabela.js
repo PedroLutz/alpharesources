@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Loading from '../../Loading';
 import Modal from '../../Modal';
 import CadastroInputs from './CadastroInputs';
@@ -29,6 +29,7 @@ const Tabela = () => {
     valor: '',
     data: '',
     area: '',
+    item: '',
     origem: '',
     destino: '',
   }
@@ -66,6 +67,8 @@ const Tabela = () => {
     setReload(false);
     fetchLancamentos();
   }, [reload]);
+
+  
 
   const handleConfirmDelete = () => {
     if (deleteInfo.item) {
@@ -131,6 +134,7 @@ const Tabela = () => {
 
   const handleUpdateItem = async () => {
     if (confirmItemAction.action === 'update' && confirmItemAction.item) {
+      setLoading(true);
       const isExpense = confirmItemAction.item.tipo === 'Expense';
       const valorInverso = isExpense ? novosDados.valor * -1 : novosDados.valor;
       const updatedItem = { ...confirmItemAction.item, ...novosDados, valor: valorInverso };
@@ -154,6 +158,7 @@ const Tabela = () => {
         setConfirmItemAction({ action: 'update', item: confirmItemAction.item })
         console.error("Update failed:", error);
       }
+      setLoading(false);
     }
   };
 
@@ -261,7 +266,6 @@ const Tabela = () => {
               />
               {dadosTabela.object.map((item, index) => (
                 <React.Fragment key={item._id}>
-                  {index % 12 === 0 && index !== 0 && <div className="html2pdf__page-break" />}
                   {linhaVisivel === item._id ? (
                     <React.Fragment>
                       <CadastroInputs

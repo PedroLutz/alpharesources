@@ -208,6 +208,7 @@ const Tabela = () => {
 
   const handleUpdateItem = async () => {
     if (confirmUpdateItem) {
+      setLoading(true);
       const responsabilidadesString = Object.keys(novosDados)
         .filter(key => key.startsWith('input'))
         .map(key => novosDados[key]).join(', ');
@@ -230,6 +231,7 @@ const Tabela = () => {
         setConfirmUpdateItem(confirmUpdateItem);
         console.error("Update failed:", error);
       }
+      setLoading(false);
     }
     setLinhaVisivel();
     setConfirmUpdateItem(null);

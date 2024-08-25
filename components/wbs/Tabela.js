@@ -125,6 +125,7 @@ const WBS = () => {
   const handleUpdateItem = async () => {
     if (confirmUpdateItem) {
       if (typeof (confirmUpdateItem) == 'object') {
+        setLoading(true);
         const updatedItem = { ...confirmUpdateItem, ...novosDados };
         const updatedElementos = elementos.map(item =>
           item._id === updatedItem._id ? { ...updatedItem } : item
@@ -145,6 +146,7 @@ const WBS = () => {
           console.error("Update failed:", error);
         }
         setReload(true);
+        setLoading(false)
       } else {
         setReload(true);
         linhaVisivel === confirmUpdateItem ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem);

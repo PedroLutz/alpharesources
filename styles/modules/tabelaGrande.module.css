@@ -14,16 +14,20 @@
 
 .tabela_financas_wrapper{
     max-width: 1200px;
-    display:block;
+    display: block;
 }
 
-.tabela_financas td, .tabela_financas th {
+.tabela_financas td {
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(167, 167, 167);
     padding: 0.3rem;
     font-size: small;
-    word-wrap: break-word;
+    min-width: 7rem;
+}
+
+.tabela_financas td:last-child{
+    min-width: 5rem;
 }
 
 .tabela_financas td input, .tabela_financas td select {
@@ -34,15 +38,12 @@
     padding: 0.2rem;
     transition: 0.2s;
     outline: none;
+    width: 9rem;
+    font-size: small;
 }
 
 .tabela_financas td input:hover, .tabela_financas td select:hover, .tabela_financas button:hover {
     background-color: rgb(231, 231, 231);
-}
-
-.tabela_financas td input, .tabela_financas td select {
-    width: 6.2rem;
-    font-size: small;
 }
 
 .tabela_financas td input[type='date'] {
@@ -56,20 +57,6 @@
     border-style: solid;
     border-color: rgb(105, 105, 105);
     padding: 0.3rem;
-}
-
-.tabela_financas td {
-    width: 6rem;
-}
-
-.tabela_financas td:nth-child(3){
-    width: 8rem;
-}
-
-.tabela_financas td:nth-child(4),
-.tabela_financas td:nth-child(5),
-.tabela_financas td:nth-child(11) {
-    width: 10rem;
 }
 
 .tabela_financas button{

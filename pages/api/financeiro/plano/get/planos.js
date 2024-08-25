@@ -8,7 +8,7 @@ export default async (req, res) => {
         await connectToDatabase();
 
         if (req.method === 'GET') {
-            const planos = await Plano.find().sort({ plano: 1, data_esperada: -1 });
+            const planos = await Plano.find().sort({ plano: 1, area: 1 });
 
             res.status(200).json({ planos });
         } else {

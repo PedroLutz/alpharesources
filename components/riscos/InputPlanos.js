@@ -123,6 +123,7 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     {[...new Set(riscos.map(item => item.area))].map((area, index) => (
                         <option key={index} value={area}>{area}</option>
                     ))};
+                    <option value="Others">Others</option>
                 </select>
                 </div>
                 

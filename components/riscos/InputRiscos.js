@@ -122,6 +122,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
                         <option key={index} value={area}>{area}</option>
                     ))};
+                    <option value="Others">Others</option>
                 </select>
             </td>
             <td>
@@ -136,6 +137,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     {itensPorArea.map((item, index) => (
                         <option key={index} value={item}>{item}</option>
                     ))}
+                    <option value="Others">Others</option>
                 </select>
             </td>
             <td>

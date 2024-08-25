@@ -41,6 +41,7 @@ const TabelaPlanos = () => {
 
     const handleUpdateItem = async () => {
         if (confirmUpdateItem) {
+            setLoading(true);
             const updatedItem = { ...confirmUpdateItem, ...novosDados };
 
             const updatedRespostas = respostas.map(item =>
@@ -61,6 +62,7 @@ const TabelaPlanos = () => {
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
+            setLoading(false);
         }
     };
 
