@@ -37,7 +37,12 @@ export default async (req, res) => {
                             $sum: "$valor_a"
                         }
                     }
-                }
+                },
+                {
+                    $sort: {
+                      _id: 1 // Ordena `_id` (que representa `area`) em ordem decrescente
+                    }
+                  }
             ]);
 
             const linhaDoTempo = await Plano.aggregate([

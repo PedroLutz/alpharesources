@@ -22,7 +22,7 @@ export default async (req, res) => {
           }
         }
       ]);
-      
+
 
       const receitasTotais = await Lancamento.aggregate([
         {
@@ -53,7 +53,7 @@ export default async (req, res) => {
           }
         }
       ]);
-      
+
 
       const receitasPorArea = await Lancamento.aggregate([
         {
@@ -82,6 +82,11 @@ export default async (req, res) => {
             _id: '$area',
             total: { $sum: { $cond: [{ $eq: ['$tipo', 'Expense'] }, '$valor', { $multiply: ['$valor', -1] }] } }
           }
+        },
+        {
+          $sort: {
+            _id: 1 // Ordena `_id` (que representa `area`) em ordem decrescente
+          }
         }
       ]);
 
@@ -96,8 +101,8 @@ export default async (req, res) => {
           $project: {
             monthYear: {
               $dateToString: {
-                format: '%Y/%m', 
-                date: '$data' 
+                format: '%Y/%m',
+                date: '$data'
               }
             },
             valor: 1
@@ -148,7 +153,7 @@ export default async (req, res) => {
           $sort: { _id: 1 }
         }
       ]);
-         
+
 
       const maiorEMenorValor = await Lancamento.aggregate([
         {
@@ -165,15 +170,16 @@ export default async (req, res) => {
         }
       ])
 
-      res.status(200).json({ 
-        somaValores, 
-        receitasPorArea, 
-        despesasPorArea, 
-        receitasPorMes, 
-        despesasPorMes, 
-        maiorEMenorValor, 
-        receitasTotais, 
-        despesasTotais });
+      res.status(200).json({
+        somaValores,
+        receitasPorArea,
+        despesasPorArea,
+        receitasPorMes,
+        despesasPorMes,
+        maiorEMenorValor,
+        receitasTotais,
+        despesasTotais
+      });
     } else {
       res.status(405).json({ error: 'Método não permitido' });
     }

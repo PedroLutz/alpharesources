@@ -5,6 +5,7 @@ import { sortBy } from 'lodash';
 import Loading from '../../Loading';
 import styles from '../../../styles/modules/resumo.module.css'
 import { fetchData } from '../../../functions/crud';
+import tabela from '../../../styles/modules/tabela.module.css'
 
 const {grafico, pie_direita, pie_esquerda, pie_container, h3_resumo, custom_span} = styles;
 
@@ -16,6 +17,8 @@ const Resumo = () => {
   const [despesasPorMes, setDespesasPorMes] = useState([]);
   const [maiorValor, setMaiorValor] = useState([]);
   const [menorValor, setMenorValor] = useState([]);
+  const [valoresPlanejados, setValoresPlanejados] = useState([]);
+  const [kpis, setKpis] = useState([])
   const [receitasTotais, setReceitasTotais] = useState([]);
   const [despesasTotais, setDespesasTotais] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -84,15 +87,44 @@ const Resumo = () => {
       const { somaValores, receitasPorArea, despesasPorArea,
         receitasPorMes, despesasPorMes , maiorEMenorValor,
         receitasTotais, despesasTotais } = data;
-        setTotalValor(somaValores[0]?.total || 0);
-        setReceitasPorArea(receitasPorArea);
-        setDespesasPorArea(despesasPorArea);
-        setReceitasPorMes(receitasPorMes);
-        setDespesasPorMes(despesasPorMes);
-        setMaiorValor(maiorEMenorValor[0]?.max || 0);
-        setMenorValor(maiorEMenorValor[0]?.min || 0);
-        setReceitasTotais(receitasTotais[0]?.total || 0); 
-        setDespesasTotais(despesasTotais[0]?.total || 0); 
+      setTotalValor(somaValores[0]?.total || 0);
+      setReceitasPorArea(receitasPorArea);
+      setDespesasPorArea(despesasPorArea);
+      setReceitasPorMes(receitasPorMes);
+      setDespesasPorMes(despesasPorMes);
+      setMaiorValor(maiorEMenorValor[0]?.max || 0);
+      setMenorValor(maiorEMenorValor[0]?.min || 0);
+      setReceitasTotais(receitasTotais[0]?.total || 0); 
+      setDespesasTotais(despesasTotais[0]?.total || 0); 
+
+      const dataValoresPlanejados = await fetchData('financeiro/plano/get/valoresPorArea');
+      setValoresPlanejados(dataValoresPlanejados.valoresPorArea);
+
+      const comparacoesPorcentagem = await fetchData('cronograma/get/comparacoesPorcentagem');
+
+      const kpis = valoresPlanejados.map(vp => {
+        const area = vp._id;
+
+        const porcentagensDeExecucao = comparacoesPorcentagem.percentageComparison;
+      
+        const comparacao = porcentagensDeExecucao.find(c => c.area === area);
+        const despesa = despesasPorArea.find(d => d._id === area);
+      
+        const valorPlanejado = vp.totalValorA;
+        const porcentagem = comparacao ? comparacao.porcentagem : 0;
+        const custoReal = despesa ? despesa.total : 0;
+        const valorAgregado = valorPlanejado * (porcentagem / 100);
+      
+        return {
+          area,
+          valorPlanejado,
+          custoReal,
+          porcentagem,
+          valorAgregado
+        };
+        
+      });
+      setKpis(kpis);
     } finally {
       setLoading(false);
     }
@@ -240,6 +272,32 @@ const Resumo = () => {
             />
         </div>
       </div>
+
+      <div className='centered-container'>
+          <h3>KPIs per area</h3>
+          <table className={tabela.tabela_financas}>
+            <tr>
+              <th style={{width: '8rem'}}>Area</th>
+              <th>Planned cost</th>
+              <th>Real cost</th>
+              <th>Percentage of execution</th>
+              <th>Aggregated value*</th>
+              <th>Cost performance index**</th>
+            </tr>
+            {kpis.map((item, index) => (
+              <tr key={index}>
+                <td>{item.area}</td>
+                <td>R${item.valorPlanejado}</td>
+                <td>R${item.custoReal * -1}</td>
+                <td>{Number(item.porcentagem).toFixed(2)}%</td>
+                <td>R${Number(item.valorAgregado).toFixed(2)}</td>
+                <td>{item.custoReal != 0 ? Number(item.valorAgregado/(item.custoReal * -1)).toFixed(2) : '-'}</td>
+              </tr>
+            ))}
+          </table>
+          <p style={{fontSize: 'small'}}>*Percentage of execution multiplied by the planned cost</p>
+          <p style={{fontSize: 'small', marginTop: '-0.8rem'}}>**Aggregated value/Real cost</p>
+        </div>
     </div>
   );
 };
