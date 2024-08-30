@@ -21,7 +21,8 @@ function jsDateToEuDate(dateData) {
 }
 //'dd/MM/yyyy' format to 'yyyy-MM-dd' format
 function euDateToIsoDate (dateString) {
-    if(dateString != 'NaN/NaN/NaN'){
+    if(dateString != 'NaN/NaN/NaN' && dateString != null){
+        
         const parts = dateString.split('/');
     const dataFormatada = new Date(parts[2], parts[1] - 1, parts[0]);
     return dataFormatada.toISOString().split('T')[0];

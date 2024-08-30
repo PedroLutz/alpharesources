@@ -10,7 +10,7 @@ export default async (req, res) => {
     if (req.method === 'GET') {
       const resultadosPlano = await Gantt.aggregate([
         {
-          $match: { plano: true }
+          $match: { plano: true } // Apenas documentos com plano: false
         },
         {
           $group: {
@@ -43,6 +43,9 @@ export default async (req, res) => {
                     ]
                   }
                 }
+              },
+              {
+                $match: { plano: true }
               },
               {
                 $project: {

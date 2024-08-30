@@ -38,7 +38,6 @@ const Tabela = () => {
     iniciar: 'Starting',
     emandamento: 'Executing',
     concluida: 'Completed',
-    aguardo: 'On hold'
   }
 
   const handleAtualizarTarefa = async (situacao) => {
