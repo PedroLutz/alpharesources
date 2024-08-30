@@ -7,7 +7,7 @@ import styles from '../../../styles/modules/resumo.module.css'
 import { fetchData } from '../../../functions/crud';
 import tabela from '../../../styles/modules/tabela.module.css'
 
-const {grafico, pie_direita, pie_esquerda, pie_container, h3_resumo, custom_span} = styles;
+const { grafico, pie_direita, pie_esquerda, pie_container, h3_resumo, custom_span } = styles;
 
 const Resumo = () => {
   const [totalValor, setTotalValor] = useState(0);
@@ -17,7 +17,6 @@ const Resumo = () => {
   const [despesasPorMes, setDespesasPorMes] = useState([]);
   const [maiorValor, setMaiorValor] = useState([]);
   const [menorValor, setMenorValor] = useState([]);
-  const [valoresPlanejados, setValoresPlanejados] = useState([]);
   const [kpis, setKpis] = useState([])
   const [receitasTotais, setReceitasTotais] = useState([]);
   const [despesasTotais, setDespesasTotais] = useState([]);
@@ -69,23 +68,23 @@ const Resumo = () => {
 
     const saldoMes = receitaValor - despesaValor;
 
-      saldoAcumulado += saldoMes;
-      gastosAcumulados += despesaValor;
+    saldoAcumulado += saldoMes;
+    gastosAcumulados += despesaValor;
 
-      const dateParts = mesNome.split('/');
-      const formattedDate = `${dateParts[1]}/${dateParts[0]}`;
-    
-      ValoresPorMesGraph.push([formattedDate, receitaValor, despesaValor]);
-      CaixaMensalGraph.push([formattedDate, saldoAcumulado]);
-      CrescimentoDosGastosGraph.push([formattedDate, gastosAcumulados]);
+    const dateParts = mesNome.split('/');
+    const formattedDate = `${dateParts[1]}/${dateParts[0]}`;
+
+    ValoresPorMesGraph.push([formattedDate, receitaValor, despesaValor]);
+    CaixaMensalGraph.push([formattedDate, saldoAcumulado]);
+    CrescimentoDosGastosGraph.push([formattedDate, gastosAcumulados]);
   });
 
-    //receber dados das financas
+  //receber dados das financas
   const fetchResumos = async () => {
     try {
-      const data = await fetchData('financeiro/financas/get/resumo');
+      const data = await fetchData('financas/get/resumo');
       const { somaValores, receitasPorArea, despesasPorArea,
-        receitasPorMes, despesasPorMes , maiorEMenorValor,
+        receitasPorMes, despesasPorMes, maiorEMenorValor,
         receitasTotais, despesasTotais } = data;
       setTotalValor(somaValores[0]?.total || 0);
       setReceitasPorArea(receitasPorArea);
@@ -94,27 +93,26 @@ const Resumo = () => {
       setDespesasPorMes(despesasPorMes);
       setMaiorValor(maiorEMenorValor[0]?.max || 0);
       setMenorValor(maiorEMenorValor[0]?.min || 0);
-      setReceitasTotais(receitasTotais[0]?.total || 0); 
-      setDespesasTotais(despesasTotais[0]?.total || 0); 
+      setReceitasTotais(receitasTotais[0]?.total || 0);
+      setDespesasTotais(despesasTotais[0]?.total || 0);
 
       const dataValoresPlanejados = await fetchData('financeiro/plano/get/valoresPorArea');
-      setValoresPlanejados(dataValoresPlanejados.valoresPorArea);
+      const valoresPlanejados = dataValoresPlanejados.valoresPorArea;
 
       const comparacoesPorcentagem = await fetchData('cronograma/get/comparacoesPorcentagem');
+      const porcentagensDeExecucao = comparacoesPorcentagem.percentageComparison;
 
       const kpis = valoresPlanejados.map(vp => {
         const area = vp._id;
 
-        const porcentagensDeExecucao = comparacoesPorcentagem.percentageComparison;
-      
         const comparacao = porcentagensDeExecucao.find(c => c.area === area);
         const despesa = despesasPorArea.find(d => d._id === area);
-      
+
         const valorPlanejado = vp.totalValorA;
         const porcentagem = comparacao ? comparacao.porcentagem : 0;
         const custoReal = despesa ? despesa.total : 0;
         const valorAgregado = valorPlanejado * (porcentagem / 100);
-      
+
         return {
           area,
           valorPlanejado,
@@ -122,7 +120,6 @@ const Resumo = () => {
           porcentagem,
           valorAgregado
         };
-        
       });
       setKpis(kpis);
     } finally {
@@ -140,38 +137,69 @@ const Resumo = () => {
       color: "black"
     },
     legend: {
-      textStyle: {color: 'black'}
+      textStyle: { color: 'black' }
     },
     hAxis: {
-      textStyle: {color: 'black'},
-      gridlines: {color: 'black'}
+      textStyle: { color: 'black' },
+      gridlines: { color: 'black' }
     },
     vAxis: {
-      textStyle: {color: 'black'},
+      textStyle: { color: 'black' },
     },
   }
 
   return (
     <div className={h3_resumo}>
-      {loading && <Loading/>}
+      {loading && <Loading />}
       <div className="centered-container">
         <h2>Report</h2>
 
         <div>
-          <span className={custom_span}>Cash value:<br/>R${Number(totalValor).toFixed(2)}</span>
-          <br/>
-          <span className={custom_span}>Largest income:<br/>{Number(maiorValor).toFixed(2) > 0 ? `R$${Number(maiorValor).toFixed(2)}` : 'R$0.00'}</span>
-          <span className={custom_span}>Total revenue:<br/>R${Number(receitasTotais).toFixed(2)}</span>
-          <span className={custom_span}>Largest expense:<br/>{menorValor < 0 ? `R$${Number(-menorValor).toFixed(2)}` : 'R$0.00'}</span>
-          <span className={custom_span}>Total cost:<br/>R${Number(-despesasTotais).toFixed(2)}</span>
+          <span className={custom_span}>Cash value:<br />R${Number(totalValor).toFixed(2)}</span>
+          <br />
+          <span className={custom_span}>Largest income:<br />{Number(maiorValor).toFixed(2) > 0 ? `R$${Number(maiorValor).toFixed(2)}` : 'R$0.00'}</span>
+          <span className={custom_span}>Total revenue:<br />R${Number(receitasTotais).toFixed(2)}</span>
+          <span className={custom_span}>Largest expense:<br />{menorValor < 0 ? `R$${Number(-menorValor).toFixed(2)}` : 'R$0.00'}</span>
+          <span className={custom_span}>Total cost:<br />R${Number(-despesasTotais).toFixed(2)}</span>
         </div>
 
       </div>
-      
+
+      <div className='centered-container'>
+        <h3>KPIs per area</h3>
+        <table className={tabela.tabela_financas}>
+          <thead>
+            <tr>
+              <th style={{ width: '8rem' }}>Area</th>
+              <th>Planned cost</th>
+              <th>Real cost</th>
+              <th>Percentage of execution</th>
+              <th>Aggregated value*</th>
+              <th>Cost performance index**</th>
+            </tr>
+          </thead>
+          <tbody>
+            {kpis.map((item, index) => (
+              <tr key={index}>
+                <td>{item.area}</td>
+                <td>R${item.valorPlanejado}</td>
+                <td>R${item.custoReal * -1}</td>
+                <td>{Number(item.porcentagem).toFixed(2)}%</td>
+                <td>R${Number(item.valorAgregado).toFixed(2)}</td>
+                <td>{item.custoReal != 0 ? Number(item.valorAgregado / (item.custoReal * -1)).toFixed(2) : '-'}</td>
+              </tr>
+            ))}
+          </tbody>
+
+        </table>
+        <p style={{ fontSize: 'small' }}>*Percentage of execution multiplied by the planned cost</p>
+        <p style={{ fontSize: 'small', marginTop: '-0.8rem' }}>**Aggregated value/Real cost</p>
+      </div>
+
       <div>
         <h3>Releases per area</h3>
 
-        <div style={{ display: 'flex'}} className={pie_container}>
+        <div style={{ display: 'flex' }} className={pie_container}>
           <div className={pie_esquerda}>
             <Chart
               width={"100%"}
@@ -205,14 +233,14 @@ const Resumo = () => {
 
         <div className={grafico}>
           <Chart
-              width={"90%"}
-              height={"400px"}
-              chartType="ColumnChart"
-              loader={<div>Loading graph</div>}
-              options={{...estiloGraph, colors: ['green', 'red']}}
-              data={ValoresPorAreaGraph}
-              rootProps={{ 'data-testid': '1' }}
-            />
+            width={"90%"}
+            height={"400px"}
+            chartType="ColumnChart"
+            loader={<div>Loading graph</div>}
+            options={{ ...estiloGraph, colors: ['green', 'red'] }}
+            data={ValoresPorAreaGraph}
+            rootProps={{ 'data-testid': '1' }}
+          />
         </div>
       </div>
 
@@ -220,84 +248,61 @@ const Resumo = () => {
         <h3>Releases per month</h3>
         <div className={grafico}>
           <Chart
-              width={"90%"}
-              height={"400px"}
-              chartType="ColumnChart"
-              loader={<div>Loading graph</div>}
-              data={ValoresPorMesGraph}
-              options={{
-                ...estiloGraph,
-                title: 'Releases per month',
-                colors: ['green', 'red']
-              }}
-              rootProps={{ 'data-testid': '1' }}
-            />
+            width={"90%"}
+            height={"400px"}
+            chartType="ColumnChart"
+            loader={<div>Loading graph</div>}
+            data={ValoresPorMesGraph}
+            options={{
+              ...estiloGraph,
+              title: 'Releases per month',
+              colors: ['green', 'red']
+            }}
+            rootProps={{ 'data-testid': '1' }}
+          />
         </div>
 
         <div className={grafico}>
           <h3>Cash value per month</h3>
           <Chart
-              width={"90%"}
-              height={"400px"}
-              chartType="LineChart"
-              loader={<div>Loading graph</div>}
-              data={CaixaMensalGraph}
-              options={{...estiloGraph, 
-                colors: ["#ff00e3"], 
-                series: {
+            width={"90%"}
+            height={"400px"}
+            chartType="LineChart"
+            loader={<div>Loading graph</div>}
+            data={CaixaMensalGraph}
+            options={{
+              ...estiloGraph,
+              colors: ["#ff00e3"],
+              series: {
                 0: {
-                  lineWidth: 5, 
+                  lineWidth: 5,
                 },
-              },}}
-              rootProps={{ 'data-testid': '1' }}
-            />
+              },
+            }}
+            rootProps={{ 'data-testid': '1' }}
+          />
         </div>
 
         <div className={grafico}>
           <h3>Cost growth per month</h3>
           <Chart
-              width={"90%"}
-              height={"400px"}
-              chartType="LineChart"
-              loader={<div>Loading graph</div>}
-              data={CrescimentoDosGastosGraph}
-              options={{...estiloGraph, colors: ["#ff00e3"], 
+            width={"90%"}
+            height={"400px"}
+            chartType="LineChart"
+            loader={<div>Loading graph</div>}
+            data={CrescimentoDosGastosGraph}
+            options={{
+              ...estiloGraph, colors: ["#ff00e3"],
               series: {
                 0: {
                   lineWidth: 5,
                 },
               }
-              }}
-              rootProps={{ 'data-testid': '1' }}
-            />
+            }}
+            rootProps={{ 'data-testid': '1' }}
+          />
         </div>
       </div>
-
-      <div className='centered-container'>
-          <h3>KPIs per area</h3>
-          <table className={tabela.tabela_financas}>
-            <tr>
-              <th style={{width: '8rem'}}>Area</th>
-              <th>Planned cost</th>
-              <th>Real cost</th>
-              <th>Percentage of execution</th>
-              <th>Aggregated value*</th>
-              <th>Cost performance index**</th>
-            </tr>
-            {kpis.map((item, index) => (
-              <tr key={index}>
-                <td>{item.area}</td>
-                <td>R${item.valorPlanejado}</td>
-                <td>R${item.custoReal * -1}</td>
-                <td>{Number(item.porcentagem).toFixed(2)}%</td>
-                <td>R${Number(item.valorAgregado).toFixed(2)}</td>
-                <td>{item.custoReal != 0 ? Number(item.valorAgregado/(item.custoReal * -1)).toFixed(2) : '-'}</td>
-              </tr>
-            ))}
-          </table>
-          <p style={{fontSize: 'small'}}>*Percentage of execution multiplied by the planned cost</p>
-          <p style={{fontSize: 'small', marginTop: '-0.8rem'}}>**Aggregated value/Real cost</p>
-        </div>
     </div>
   );
 };

@@ -19,7 +19,7 @@ const Navbar = () => {
       <img src={'/images/logo.png'} alt="Logo" />
       <ul>
         <li>
-          <Link href="/">Go to menu</Link>
+          <Link href="/">Menu</Link>
         </li>
         <Logout/>
       </ul>

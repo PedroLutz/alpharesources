@@ -27,7 +27,7 @@ const Navbar = () => {
           <Link href="/pages/financial/finances/table">Monitoring</Link>
         </li>
         <li>
-          <Link href="/">Go to Menu</Link>
+          <Link href="/">Menu</Link>
         </li>
         <Logout/>
       </ul>

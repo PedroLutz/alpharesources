@@ -293,7 +293,6 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
                         <option value="iniciar">Starting</option>
                         <option value="em andamento">Executing</option>
                         <option value="concluida">Completed</option>
-                        <option value="aguardo">On hold</option>
                     </select>
                 </td>
             )}

@@ -1,6 +1,8 @@
-const handleExport = (containerSelector) => {
+const handleExport = (containerSelector, monthYear) => {
     const element = document.querySelector(containerSelector);
     const clonedElement = element.cloneNode(true);
+
+    const {month, year} = monthYear;
 
     const transformSelectsToText = () => {
         const originalSelects = element.querySelectorAll("select");
@@ -213,7 +215,7 @@ const handleExport = (containerSelector) => {
     const blob = new Blob([htmlString], { type: 'text/html' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'relatorio.html';
+    link.download = `status_report_${year}_${month}.html`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

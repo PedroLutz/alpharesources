@@ -91,10 +91,6 @@ const Tabela = () => {
           termino: formattedDate,
           situacao: situacao
         };
-      } else if (situacao === 'aguardo') {
-        updatedItem = {
-          situacao: situacao
-        }
       }
 
       await handleUpdate({
@@ -166,8 +162,7 @@ const Tabela = () => {
       }
 
       //hold
-      if ((planoUltimo.item !== ganttUltimo.item && ganttUltimo.situacao === 'concluida') 
-        || ganttUltimo.situacao === 'aguardo') {
+      if ((planoUltimo.item !== ganttUltimo.item && ganttUltimo.situacao === 'concluida')) {
         var obj = { area: area, state: 'Hold' }
         if (planoUltimo.termino >= hoje) {
           obj = { ...obj, status: 'On Schedule' }
@@ -435,9 +430,6 @@ const Tabela = () => {
           </button>
           <button onClick={() => handleAtualizarTarefa('check')}>
             Check execution
-          </button>
-          <button onClick={() => handleAtualizarTarefa('aguardo')}>
-            Put on hold
           </button>
           <button onClick={() => {
             itemSelecionado ? setConfirmCompleteTask(itemSelecionado) : setExibirModal('semtarefa')

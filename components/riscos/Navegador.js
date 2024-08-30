@@ -25,7 +25,7 @@ const Navbar = () => {
           <Link href="/pages/risk/response">Response Planning</Link>
         </li>
         <li>
-          <Link href="/">Go to menu</Link>
+          <Link href="/">Menu</Link>
         </li>
         <Logout/>
       </ul>

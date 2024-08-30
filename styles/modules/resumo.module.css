@@ -14,13 +14,13 @@
 }
 
 .pie_esquerda{
-    margin-left: 200px; 
-    width: 100%
+    width: 100%;
+    margin-left: 600px; 
 }
 
 .pie_direita{
-    margin-right: 200px; 
-    width: 100%
+    width: 100%;
+    margin-right: 600px; 
 }
 
 .h3_resumo h3{

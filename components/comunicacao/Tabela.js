@@ -103,7 +103,6 @@ const Tabela = () => {
         } finally {
             setLoading(false);
         }
-
     };
 
     const generateMapping = (p, i) => {

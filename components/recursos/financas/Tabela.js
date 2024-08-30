@@ -29,7 +29,6 @@ const Tabela = () => {
     valor: '',
     data: '',
     area: '',
-    item: '',
     origem: '',
     destino: '',
   }
@@ -38,7 +37,7 @@ const Tabela = () => {
 
   const fetchLancamentos = async () => {
     try {
-      const data = await fetchData('financeiro/financas/get/lancamentos');
+      const data = await fetchData('financas/get/lancamentos');
       data.lancamentos.forEach((item) => {
         item.data = jsDateToEuDate(item.data);
       });
@@ -75,7 +74,7 @@ const Tabela = () => {
       var getDeleteSuccess = false;
       try {
         getDeleteSuccess = handleDelete({
-          route: 'financeiro/financas',
+          route: 'financas',
           item: deleteInfo.item,
           fetchDados: fetchLancamentos
         });
@@ -105,7 +104,7 @@ const Tabela = () => {
       valor: valor
     };
     handleSubmit({
-      route: 'financeiro/financas',
+      route: 'financas',
       dados: updatedNovoSubmit
     });
     cleanForm(novoSubmit, setNovoSubmit);
@@ -147,9 +146,10 @@ const Tabela = () => {
       setConfirmItemAction({ action: '', item: null })
       linhaVisivel === confirmItemAction.item._id ? setLinhaVisivel() : setLinhaVisivel(confirmItemAction.item._id);
       setReload(true);
+      console.log(updatedItem)
       try {
         await handleUpdate({
-          route: 'financeiro/financas/update?id',
+          route: 'financas',
           dados: updatedItem,
           item: confirmItemAction.item
         });
@@ -176,7 +176,7 @@ const Tabela = () => {
       setConfirmItemAction({ action: '', item: null });
       setReload(true);
       await handlePseudoDelete({
-        route: 'financeiro/financas',
+        route: 'financas',
         item: confirmItemAction.item,
         deletar: false
       });
@@ -198,7 +198,7 @@ const Tabela = () => {
       setReload(true);
       try {
         await handlePseudoDelete({
-          route: 'financeiro/financas',
+          route: 'financas',
           item: confirmItemAction.item,
           deletar: true
         });
@@ -230,7 +230,7 @@ const Tabela = () => {
   };
 
   const limparLixeira = async () => {
-    await fetch(`/api/financeiro/financas/delete/cleanBin`, {
+    await fetch(`/api/financas/cleanBin`, {
       method: 'DELETE',
     })
     setReload(true);
@@ -240,7 +240,6 @@ const Tabela = () => {
     <div className="centered-container">
       {loading && <Loading />}
       <h2>Financial Releases Data</h2>
-      <button onClick={generatePDF} className='botao-bonito margem'>Export Table</button>
       <div id="report" className={styles.tabela_financas_container}>
         <div className={styles.tabela_financas_wrapper}>
           <table className={styles.tabela_financas}>

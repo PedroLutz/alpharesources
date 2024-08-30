@@ -1,6 +1,6 @@
 import React from 'react';
-import Tabela from '../../../../components/financeiro/financas/Tabela';
-import Navbar from '../../../../components/financeiro/financas/Navegador';
+import Tabela from '../../../components/recursos/financas/Tabela';
+import Navbar from '../../../components/recursos/Navbar';
 
 function TabelaPage() {
   return (

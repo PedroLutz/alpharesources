@@ -18,7 +18,7 @@ const Navbar = () => {
       <img src={'/images/logo.png'} alt="Logo" style={{ width: '80px' }} />
       <ul>
         <li>
-          <Link href="/">Go to Menu</Link>
+          <Link href="/">Menu</Link>
         </li>
         <Logout/>
       </ul>

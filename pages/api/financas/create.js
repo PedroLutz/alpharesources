@@ -1,5 +1,5 @@
-import connectToDatabase from '../../../../lib/db';
-import LancamentoModel from '../../../../models/financeiro/Lancamento';
+import connectToDatabase from '../../../lib/db';
+import LancamentoModel from '../../../models/LancamentoFinanceiro';
 
 const { Lancamento, LancamentoSchema } = LancamentoModel;
 

@@ -163,11 +163,11 @@ const Relatorio = () => {
         let arrayAnalise = [];
 
         duplas.forEach((dupla) => {
+            console.log(dupla)
             const area = dupla[0].area;
             const planoUltimo = dupla[0].ultimo;
             const ganttPrimeiro = dupla[1].primeiro;
             const ganttUltimo = dupla[1].ultimo;
-
             const getLastDayOfMonth = (monthYear) => {
                 const { year, month } = monthYear;
                 const lastDay = new Date(year, month, 0).getDate(); // Dia 0 do próximo mês retorna o último dia do mês atual
@@ -187,8 +187,7 @@ const Relatorio = () => {
               }
         
               //hold
-              if ((planoUltimo.item !== ganttUltimo.item && ganttUltimo.situacao === 'concluida') 
-                || ganttUltimo.situacao === 'aguardo') {
+              if ((planoUltimo.item !== ganttUltimo.item && ganttUltimo.situacao === 'concluida') ) {
                 var obj = { area: area, state: 'Hold' }
                 if (planoUltimo.termino >= hoje) {
                   obj = { ...obj, status: 'On Schedule' }
@@ -226,7 +225,7 @@ const Relatorio = () => {
     }
 
     const exportar = () => {
-        handleExport('.report');
+        handleExport('.report', monthYear);
     };
 
     return (

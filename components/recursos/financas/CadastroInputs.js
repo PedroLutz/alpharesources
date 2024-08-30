@@ -39,14 +39,6 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
         e.target.classList.remove('campo-vazio');
     };
 
-    const handleAreaChange = (e) => {
-        const areaSelecionada = e.target.value;
-        const itensDaArea = elementosWBS.filter(item => item.area === areaSelecionada).map(item => item.item);
-        setItensPorArea(itensDaArea);
-
-        handleChange(e, objSetter, obj);
-    };
-
     const validaDados = () => {
         if(obj.valor < 0){
             camposRef.current['valor'].classList.add('campo-vazio');
@@ -54,6 +46,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
             return true;
         }
         const [isEmpty, camposVazios] = isFormVazio(obj);
+        console.log(obj)
         if (isEmpty) {
             camposVazios.forEach(campo => {
                 if (camposRef.current[campo]) {
@@ -115,7 +108,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
             <td>
                 <select
                         name="area"
-                        onChange={handleAreaChange}
+                        onChange={(e) => handleChange(e, objSetter, obj)}
                         value={obj.area}
                         ref={el => (camposRef.current.area = el)}
 
