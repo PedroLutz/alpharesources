@@ -9,18 +9,16 @@
 
 .pie_container{
     width: 100%;
-    overflow-x:auto;
+    overflow-x: auto;
     overflow-y: hidden;
 }
 
 .pie_esquerda{
-    width: 100%;
-    margin-left: 600px; 
+    width: 90%;
 }
 
 .pie_direita{
-    width: 100%;
-    margin-right: 600px; 
+    width: 90%;
 }
 
 .h3_resumo h3{

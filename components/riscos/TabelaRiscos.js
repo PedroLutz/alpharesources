@@ -120,6 +120,18 @@ const TabelaRiscos = () => {
         'maiorQueCinco': 'Classifications must be between 1 and 5!'
     };
 
+    const calculateRowSpan = (itensArea, currentArea, currentIndex) => {
+        let rowSpan = 1;
+        for (let i = currentIndex + 1; i < itensArea.length; i++) {
+            if (itensArea[i].area === currentArea) {
+                rowSpan++;
+            } else {
+                break;
+            }
+        }
+        return rowSpan;
+    };
+
     return (
         <div className="centered-container">
             {loading && <Loading/>}
@@ -180,8 +192,11 @@ const TabelaRiscos = () => {
                                             checkDados={checkDados}
                                         />
                                     ) : (
-                                        <tr>
-                                            <td>{item.area}</td>
+                                        <tr> 
+                                            {index === 0 || riscos[index - 1].area !== item.area? (
+                                                <td rowSpan={calculateRowSpan(riscos, item.area, index)}
+                                                >{item.area}</td>
+                                            ) : null}
                                             <td>{item.item}</td>
                                             <td>{item.risco}</td>
                                             <td>{item.efeito}</td>

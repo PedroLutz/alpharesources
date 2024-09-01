@@ -1,8 +1,9 @@
-function cleanForm(object, setter) {
+function cleanForm(object, setter, camposVazios) {
     const fields = Object.keys(object);
+    const values = Object.values(camposVazios)
     const returnObject = {};
     for(let i = 0; i < fields.length; i++){
-        returnObject[fields[i]] = '';
+        returnObject[fields[i]] = values[i];
     }
     setter(returnObject);
 }

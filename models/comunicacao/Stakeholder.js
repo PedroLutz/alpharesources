@@ -12,7 +12,6 @@ const StakeholderSchema = new mongoose.Schema({
   requisites: String,
   information: String,
   method: String,
-  timing: String,
   tools: String,
   responsible: String
 }, { collection: 'stakeholders' }); 

@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import React from "react";
-import { fetchData } from "../../functions/crud";
+import { fetchData } from "../../../functions/crud";
 
 const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     const [emptyFields, setEmptyFields] = useState([]);
@@ -178,20 +178,6 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     placeholder="Method"
                     ref={el => (camposRef.current.method = el)}
                 />
-            </td>
-            <td>
-                <select
-                    name="timing"
-                    onChange={handleChange}
-                    value={obj.timing}
-                    ref={el => (camposRef.current.timing = el)}
-                >
-                    <option disabled value="">Timing</option>
-                    <option value='On demand'>On demand</option>
-                    <option value='Daily'>Daily</option>
-                    <option value='Weekly'>Weekly</option>
-                    <option value='Monthly'>Monthly</option>
-                </select>
             </td>
             <td>
                 <input

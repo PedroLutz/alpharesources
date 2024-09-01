@@ -254,6 +254,7 @@ const Tabela = () => {
           }
           ganttData.push([taskID, taskName, resource, startDate, endDate, 0, 100, dependencies]);
         }
+        
       }
     });
 

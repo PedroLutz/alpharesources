@@ -18,6 +18,12 @@ const Navbar = () => {
       <img src={'/images/logo.png'} alt="Logo" style={{ width: '80px' }} />
       <ul>
         <li>
+          <Link href="/pages/communication/stakeholders">Stakeholders</Link>
+        </li>
+        <li>
+          <Link href="/pages/communication/monitoring">Monitoring</Link>
+        </li>
+        <li>
           <Link href="/">Menu</Link>
         </li>
         <Logout/>

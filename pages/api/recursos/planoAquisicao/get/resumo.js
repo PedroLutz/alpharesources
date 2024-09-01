@@ -30,6 +30,29 @@ export default async (req, res) => {
                 }
             ]);
 
+            const planosPorArea_all = await PlanoAquisicao.aggregate([
+                {
+                    $group: {
+                        _id: "$area",
+                        totalA: { $sum: "$valor_a" },
+                        totalB: { $sum: "$valor_b" }
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        totalA: 1,
+                        totalB: 1,
+                        mediaPonderada: {
+                            $divide: [
+                                { $add: [{ $multiply: ["$totalA", 2] }, "$totalB"] }, // (totalA * 2) + (totalB * 1)
+                                3 // soma dos pesos (2 + 1)
+                            ]
+                        }
+                    }
+                }
+            ]);
+
             const planosAPorArea_Essencial = await PlanoAquisicao.aggregate([
                 {
                     $match: {
@@ -57,6 +80,34 @@ export default async (req, res) => {
                         _id: "$area",
                         total: {
                             $sum: "$valor_b"
+                        }
+                    }
+                }
+            ]);
+
+            const planosPorArea_Essencial = await PlanoAquisicao.aggregate([
+                {
+                    $match: {
+                        ehEssencial: true
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$area",
+                        totalA: { $sum: "$valor_a" },
+                        totalB: { $sum: "$valor_b" }
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        totalA: 1,
+                        totalB: 1,
+                        mediaPonderada: {
+                            $divide: [
+                                { $add: [{ $multiply: ["$totalA", 2] }, "$totalB"] }, // (totalA * 2) + (totalB * 1)
+                                3 // soma dos pesos (2 + 1)
+                            ]
                         }
                     }
                 }
@@ -94,6 +145,34 @@ export default async (req, res) => {
                 }
             ]);
 
+            const planosSoma_Essencial = await PlanoAquisicao.aggregate([
+                {
+                    $match: {
+                        ehEssencial: true
+                    }
+                },
+                {
+                    $group: {
+                        _id: null,
+                        totalA: { $sum: "$valor_a" },
+                        totalB: { $sum: "$valor_b" }
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        totalA: 1,
+                        totalB: 1,
+                        mediaPonderada: {
+                            $divide: [
+                                { $add: [{ $multiply: ["$totalA", 2] }, "$totalB"] }, // (totalA * 2) + (totalB * 1)
+                                3 // soma dos pesos (2 + 1)
+                            ]
+                        }
+                    }
+                }
+            ]);
+
             const planosASoma_all = await PlanoAquisicao.aggregate([
                 {
                     $group: {
@@ -111,6 +190,29 @@ export default async (req, res) => {
                         _id: null,
                         total: {
                             $sum: "$valor_b"
+                        }
+                    }
+                }
+            ]);
+
+            const planosSoma_all = await PlanoAquisicao.aggregate([
+                {
+                    $group: {
+                        _id: null,
+                        totalA: { $sum: "$valor_a" },
+                        totalB: { $sum: "$valor_b" }
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        totalA: 1,
+                        totalB: 1,
+                        mediaPonderada: {
+                            $divide: [
+                                { $add: [{ $multiply: ["$totalA", 2] }, "$totalB"] }, // (totalA * 2) + (totalB * 1)
+                                3 // soma dos pesos (2 + 1)
+                            ]
                         }
                     }
                 }
@@ -140,9 +242,10 @@ export default async (req, res) => {
                     }
                 }
             ]);
-            res.status(200).json({ planosAPorArea_Essencial, planosBPorArea_Essencial, planosAPorArea_all, planosBPorArea_all,
-                                    planosASoma_Essencial, planosBSoma_Essencial, planosASoma_all, planosBSoma_all,
-                                    linhaDoTempoEssencial, linhaDoTempoAll
+            res.status(200).json({ 
+                planosPorArea_Essencial, planosPorArea_all,                  
+                planosSoma_Essencial, planosSoma_all,               
+                linhaDoTempoEssencial, linhaDoTempoAll
              });
         } else {
             res.status(405).json({ error: 'Método não permitido' });

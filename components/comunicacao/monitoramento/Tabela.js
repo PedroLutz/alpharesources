@@ -1,31 +1,24 @@
 import React, { useEffect, useState } from "react"
-import styles from '../../styles/modules/comunicacao.module.css'
+import styles from '../../../styles/modules/infoComunicada.module.css'
 import CadastroInputs from "./CadastroInputs";
-import Modal from "../Modal";
-import Loading from "../Loading";
-import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../functions/crud";
-import { cleanForm } from "../../functions/general";
+import InputCheck from './InputCheck'
+import Modal from "../../Modal";
+import Loading from "../../Loading";
+import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../functions/crud";
+import { cleanForm } from "../../../functions/general";
 
 const Tabela = () => {
     const camposVazios = {
-        name: "",
-        involvement: "",
-        influence: "",
-        power: "",
-        interest: "",
-        expectations: "",
-        requisites: "",
-        information: "",
-        method: "",
+        stakeholder: "",
+        informacao: "",
         timing: "",
-        tools: "",
-        responsible: ""
+        check: false
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
     const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
-    const [stakeholders, setStakeholders] = useState([]);
+    const [infoComunicada, setInfoComunicada] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [reload, setReload] = useState(false);
@@ -34,10 +27,10 @@ const Tabela = () => {
     const enviar = async (e) => {
         e.preventDefault();
         handleSubmit({
-            route: 'stakeholders',
+            route: 'infoComunicada',
             dados: novoSubmit
         });
-        cleanForm(novoSubmit, setNovoSubmit);
+        cleanForm(novoSubmit, setNovoSubmit, camposVazios);
         setReload(true);
     };
 
@@ -48,26 +41,43 @@ const Tabela = () => {
         });
     };
 
+    const handleUpdateCheck = async (checked, item) => {
+        if(item) {
+            setLoading(true);
+            const updatedItem = { _id: item._id, check: checked};
+            try{
+                await handleUpdate({
+                    route: 'infoComunicada',
+                    dados: updatedItem,
+                    item: item
+                })
+            } catch (error){
+                console.error('Update failed: ', error)
+            }
+            setLoading(false);
+        }
+    }
+
     const handleUpdateItem = async () => {
         if (confirmUpdateItem) {
             setLoading(true);
             const updatedItem = { ...confirmUpdateItem, ...novosDados };
 
-            const updatedStakeholders = stakeholders.map(item =>
+            const updatedInfoComunicadas = infoComunicada.map(item =>
                 item._id === updatedItem._id ? { ...updatedItem } : item
             );
-            setStakeholders(updatedStakeholders);
+            setInfoComunicada(updatedInfoComunicadas);
             setConfirmUpdateItem(null)
             linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
             setReload(true);
             try {
                 await handleUpdate({
-                    route: 'stakeholders',
+                    route: 'infoComunicada',
                     dados: updatedItem,
                     item: confirmUpdateItem
                 });
             } catch (error) {
-                setStakeholders(stakeholders);
+                setInfoComunicada(infoComunicada);
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
@@ -80,7 +90,7 @@ const Tabela = () => {
             var getDeleteSuccess = false;
             try {
                 getDeleteSuccess = handleDelete({
-                    route: 'stakeholders',
+                    route: 'infoComunicada',
                     item: confirmDeleteItem,
                     fetchDados: fetchStakeholders
                 });
@@ -98,27 +108,12 @@ const Tabela = () => {
 
     const fetchStakeholders = async () => {
         try {
-            const data = await fetchData('stakeholders/get/all');
-            setStakeholders(data.stakeholders);
+            const data = await fetchData('infoComunicada/get/all');
+            setInfoComunicada(data.infoComunicada);
         } finally {
             setLoading(false);
         }
     };
-
-    const generateMapping = (p, i) => {
-        if (p && i) {
-            return "Close Management"
-        }
-        if (!p && i) {
-            return "Keep informed"
-        }
-        if (p && !i) {
-            return "Keep satisfied"
-        }
-        if (!p && !p) {
-            return "Monitor"
-        }
-    }
 
     useEffect(() => {
         setReload(false);
@@ -133,6 +128,18 @@ const Tabela = () => {
         'inputsVazios': 'Fill out all fields before adding new data!',
         'deleteSuccess': 'Deletion Successful!',
         'deleteFail': 'Deletion Failed!',
+    };
+
+    const calculateRowSpan = (infoComunicadas, currentArea, currentIndex) => {
+        let rowSpan = 1;
+        for (let i = currentIndex + 1; i < infoComunicadas.length; i++) {
+            if (infoComunicadas[i].stakeholder === currentArea) {
+                rowSpan++;
+            } else {
+                break;
+            }
+        }
+        return rowSpan;
     };
 
     return (
@@ -150,7 +157,7 @@ const Tabela = () => {
 
             {confirmDeleteItem && (
                 <Modal objeto={{
-                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.name}"?`,
+                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.informacao}"?`,
                     alerta: true,
                     botao1: {
                         funcao: handleConfirmDelete, texto: 'Confirm'
@@ -166,83 +173,47 @@ const Tabela = () => {
                     <table className={styles.tabelaComunicacao}>
                         <thead>
                             <tr>
-                                <th colSpan="6">Basic info</th>
-                                <th colSpan="2">Needs</th>
-                                <th colSpan="3">Strategy</th>
-                                <th colSpan="2">Details</th>
-                                <th rowSpan="2">Actions</th>
-                            </tr>
-                            <tr>
                                 <th>Stakeholder</th>
-                                <th>Involvement</th>
-                                <th>Potential Influence</th>
-                                <th>Power</th>
-                                <th>Interest</th>
-                                <th>Mapping</th>
-                                <th>Expectations</th>
-                                <th>Requisites</th>
-                                <th>Information communicated</th>
-                                <th>Method</th>
+                                <th>Information</th>
                                 <th>Timing</th>
-                                <th>Communication tools</th>
-                                <th>Responsible</th>
+                                <th>Check</th>
+                                <th>Options</th>
                             </tr>
                         </thead>
                         <tbody>
-                            
-                            {stakeholders.map((stakeholder, index) => (
-                                <React.Fragment key={index}>
-                                    {linhaVisivel === stakeholder._id ? (
+                            {infoComunicada.map((info, index) => (
+                                <tr key={index}>
+                                    {index === 0 || infoComunicada[index - 1].stakeholder !== info.stakeholder ? (
+                                                <td rowSpan={calculateRowSpan(infoComunicada, info.stakeholder, index)}
+                                                >{info.stakeholder}</td>
+                                            ) : null}
+                                    {linhaVisivel === info._id ? (
                                         <CadastroInputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
                                             funcao={{
                                                 funcao1: () => handleUpdateItem(),
-                                                funcao2: () => linhaVisivel === stakeholder._id ? setLinhaVisivel() : setLinhaVisivel(stakeholder._id)
+                                                funcao2: () => linhaVisivel === info._id ? setLinhaVisivel() : setLinhaVisivel(info._id)
                                             }}
                                             checkDados={checkDados}
                                         />
                                     ) : (
-                                        <tr>
-                                            <td>{stakeholder.name}</td>
-                                            <td>{stakeholder.involvement}</td>
-                                            <td>{stakeholder.influence}</td>
-                                            <td
-                                                style={{
-                                                    backgroundColor: stakeholder.power ? '#ffcdcd' : '#daffcd'
-                                                }}
-                                            >{stakeholder.power ? 'High' : 'Low'}</td>
-                                            <td
-                                                style={{
-                                                    backgroundColor: stakeholder.interest ? '#ffcdcd' : '#daffcd'
-                                                }}
-                                            >{stakeholder.interest ? 'High' : 'Low'}</td>
-                                            <td
-                                                style={{
-                                                    backgroundColor: (stakeholder.power && stakeholder.interest) ? '#ffcdcd' : (
-                                                        (stakeholder.power && !stakeholder.interest) ? '#cddeff' : (
-                                                            (!stakeholder.power && stakeholder.interest) ? '#daffcd' : '#ffffcd'
-                                                        )
-                                                    )
-                                                }}
-                                            >{generateMapping(stakeholder.power, stakeholder.interest)}</td>
-                                            <td>{stakeholder.expectations}</td>
-                                            <td>{stakeholder.requisites}</td>
-                                            <td>{stakeholder.information}</td>
-                                            <td>{stakeholder.method}</td>
-                                            <td>{stakeholder.timing}</td>
-                                            <td>{stakeholder.tools}</td>
-                                            <td>{stakeholder.responsible}</td>
+                                        
+                                            <React.Fragment>
+                                            
+                                            <td>{info.informacao}</td>
+                                            <td>{info.timing}</td>
+                                            <td style={{width: '2rem'}}><InputCheck funcao={handleUpdateCheck} item={info}/></td>
                                             <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(stakeholder)}>❌</button>
+                                                <button onClick={() => setConfirmDeleteItem(info)}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(stakeholder._id); handleUpdateClick(stakeholder)
+                                                    setLinhaVisivel(info._id); handleUpdateClick(info)
                                                 }
                                                 }>⚙️</button>
                                             </td>
-                                        </tr>
+                                            </React.Fragment>  
                                     )}
-                                </React.Fragment>
+                                </tr>
                             ))}
                             <CadastroInputs
                                 obj={novoSubmit}

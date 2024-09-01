@@ -7,14 +7,10 @@ import styles from '../../../styles/modules/resumo.module.css'
 const { grafico, pie_direita, pie_esquerda, pie_container, h3_resumo, custom_span } = styles;
 
 const Resumo = () => {
-    const [planosAPorArea_Essencial, setPlanosAPorArea_Essencial] = useState([]);
-    const [planosBPorArea_Essencial, setPlanosBPorArea_Essencial] = useState([]);
-    const [planosAPorArea_all, setPlanosAPorArea_all] = useState([]);
-    const [planosBPorArea_all, setPlanosBPorArea_all] = useState([]);
-    const [planosASoma_Essencial, setPlanosASoma_Essencial] = useState([]);
-    const [planosBSoma_Essencial, setPlanosBSoma_Essencial] = useState([]);
-    const [planosASoma_all, setPlanosASoma_all] = useState([]);
-    const [planosBSoma_all, setPlanosBSoma_all] = useState([]);
+    const [planosPorArea_Essencial, setPlanosPorArea_Essencial] = useState([]);
+    const [planosPorArea_all, setPlanosPorArea_all] = useState([]);
+    const [planosSoma_Essencial, setPlanosSoma_Essencial] = useState([]);
+    const [planosSoma_all, setPlanosSoma_all] = useState([]);
     const [linhaDoTempoEssencial, setLinhaDoTempoEssencial] = useState([]);
     const [linhaDoTempoAll, setLinhaDoTempoAll] = useState([]);
 
@@ -27,14 +23,10 @@ const Resumo = () => {
     const fetchResumos = async () => {
         try {
             const data = await fetchData('recursos/planoAquisicao/get/resumo');
-            setPlanosAPorArea_Essencial(data.planosAPorArea_Essencial);
-            setPlanosBPorArea_Essencial(data.planosBPorArea_Essencial);
-            setPlanosAPorArea_all(data.planosAPorArea_all);
-            setPlanosBPorArea_all(data.planosBPorArea_all);
-            setPlanosASoma_Essencial(data.planosASoma_Essencial[0].total);
-            setPlanosBSoma_Essencial(data.planosBSoma_Essencial[0].total);
-            setPlanosASoma_all(data.planosASoma_all[0].total);
-            setPlanosBSoma_all(data.planosBSoma_all[0].total);
+            setPlanosPorArea_Essencial(data.planosPorArea_Essencial);
+            setPlanosPorArea_all(data.planosPorArea_all);
+            setPlanosSoma_Essencial(data.planosSoma_Essencial[0]);
+            setPlanosSoma_all(data.planosSoma_all[0]);
             setLinhaDoTempoEssencial(data.linhaDoTempoEssencial);
             setLinhaDoTempoAll(data.linhaDoTempoAll);
         } finally {
@@ -46,24 +38,15 @@ const Resumo = () => {
         fetchResumos();
     }, []);
 
-    const planosAPorArea_Essencial_graph = [['Area', 'Value']]
-    planosAPorArea_Essencial.forEach((area) => {
-        planosAPorArea_Essencial_graph.push([area._id, area.total]);
+    const planosPorArea_Essencial_graph = [['Area', 'Value']]
+    planosPorArea_Essencial.forEach((area) => {
+        planosPorArea_Essencial_graph.push([area._id, parseFloat(area.mediaPonderada *1.1).toFixed(2)]);
     });
 
-    const planosBPorArea_Essencial_graph = [['Area', 'Value']]
-    planosBPorArea_Essencial.forEach((area) => {
-        planosBPorArea_Essencial_graph.push([area._id, area.total]);
-    });
-
-    const planosAPorArea_all_graph = [['Area', 'Value']]
-    planosAPorArea_all.forEach((area) => {
-        planosAPorArea_all_graph.push([area._id, area.total]);
-    });
-
-    const planosBPorArea_all_graph = [['Area', 'Value']]
-    planosBPorArea_all.forEach((area) => {
-        planosBPorArea_all_graph.push([area._id, area.total]);
+    const planosPorArea_all_graph = [['Area', 'Value']];
+    planosPorArea_all.forEach((area) => {
+        console.log(area.mediaPonderada)
+        planosPorArea_all_graph.push([area._id, parseFloat((area.mediaPonderada*1.1).toFixed(2) )]);
     });
 
     const linhaDoTempoEssencial_graph = [['Resource', 'Resource', 'Start', 'End']];
@@ -73,7 +56,7 @@ const Resumo = () => {
         const dataLimite = new Date(recurso.data_limite)
 
         linhaDoTempoEssencial_graph.push([recurso._id, `Expected`, dataInicial, dataEsperada]);
-        linhaDoTempoEssencial_graph.push([recurso._id, `Critical`, dataInicial, dataLimite]);
+        linhaDoTempoEssencial_graph.push([recurso._id, `Critical`, dataEsperada, dataLimite]);
     });
 
     const linhaDoTempoAll_graph = [['Resource', 'Resource', 'Start', 'End']];
@@ -83,7 +66,7 @@ const Resumo = () => {
         const dataLimite = new Date(recurso.data_limite)
 
         linhaDoTempoAll_graph.push([recurso._id, `Expected`, dataInicial, dataEsperada]);
-        linhaDoTempoAll_graph.push([recurso._id, `Critical`, dataInicial, dataLimite]);
+        linhaDoTempoAll_graph.push([recurso._id, `Critical`, dataEsperada, dataLimite]);
     });
 
     useEffect(() => {
@@ -124,84 +107,48 @@ const Resumo = () => {
             <div>
                 <h3>Budget</h3>
 
+                <div style={{ display: 'flex' }} className={pie_container}>
+                        <div className={pie_esquerda}>
+                            <Chart
+                                width={'100%'}
+                                height={'400px'}
+                                chartType="PieChart"
+                                loader={<div>Loading graph</div>}
+                                data={planosPorArea_Essencial_graph}
+                                options={{
+                                    ...estiloGraph,
+                                    title: 'Essencial Scenario',
+                                }}
+                                rootProps={{ 'data-testid': '1' }}
+                            />
+                        </div>
+
+                        <div className={pie_direita}>
+                            <Chart
+                                width={'100%'}
+                                height={'400px'}
+                                chartType="PieChart"
+                                loader={<div>Loading graph</div>}
+                                data={planosPorArea_all_graph}
+                                options={{
+                                    ...estiloGraph,
+                                    title: 'Ideal Scenario',
+                                }}
+                                rootProps={{ 'data-testid': '1' }}
+                            />
+                        </div>
+                    </div>
+
+                <div className="centered-container" style={{ flexDirection: "row" }}>
+                    <span className={custom_span}>Essential Scenario: R${parseFloat((planosSoma_Essencial.mediaPonderada *1.1)).toFixed(2) }</span>
+                    <span className={custom_span}>Ideal Scenario: R${parseFloat((planosSoma_all.mediaPonderada)*1.1).toFixed(2)}</span>
+                </div>
+
                 <div className='centered-container'>
                     <button className='botao-bonito' style={{ width: '10rem', height: !pieEssencial ? '3rem' : '2rem' }} onClick={() => setPieEssencial(!pieEssencial)}>
                         {pieEssencial ? `View all resources` : `View only essential resources`}
                     </button>
                 </div>
-
-                {pieEssencial ?
-                    (<div style={{ display: 'flex' }} className={pie_container}>
-                        <div className={pie_esquerda}>
-                            <Chart
-                                width={'100%'}
-                                height={'400px'}
-                                chartType="PieChart"
-                                loader={<div>Loading graph</div>}
-                                data={planosAPorArea_Essencial_graph}
-                                options={{
-                                    ...estiloGraph,
-                                    title: 'Plan A',
-                                }}
-                                rootProps={{ 'data-testid': '1' }}
-                            />
-                        </div>
-
-                        <div className={pie_direita}>
-                            <Chart
-                                width={'100%'}
-                                height={'400px'}
-                                chartType="PieChart"
-                                loader={<div>Loading graph</div>}
-                                data={planosBPorArea_Essencial_graph}
-                                options={{
-                                    ...estiloGraph,
-                                    title: 'Plan B',
-                                }}
-                                rootProps={{ 'data-testid': '1' }}
-                            />
-                        </div>
-                    </div>) : (<div style={{ display: 'flex' }} className={pie_container}>
-                        <div className={pie_esquerda}>
-                            <Chart
-                                width={'100%'}
-                                height={'400px'}
-                                chartType="PieChart"
-                                loader={<div>Loading graph</div>}
-                                data={planosAPorArea_all_graph}
-                                options={{
-                                    ...estiloGraph,
-                                    title: 'Plan A',
-                                }}
-                                rootProps={{ 'data-testid': '1' }}
-                            />
-                        </div>
-
-                        <div className={pie_direita}>
-                            <Chart
-                                width={'100%'}
-                                height={'400px'}
-                                chartType="PieChart"
-                                loader={<div>Loading graph</div>}
-                                data={planosBPorArea_all_graph}
-                                options={{
-                                    ...estiloGraph,
-                                    title: 'Plan B',
-                                }}
-                                rootProps={{ 'data-testid': '1' }}
-                            />
-                        </div>
-                    </div>)}
-
-                {pieEssencial ? (<div className="centered-container" style={{ flexDirection: "row" }}>
-                    <span className={custom_span}>Plan A - Total Cost: R${planosASoma_Essencial}</span>
-                    <span className={custom_span}>Plan B - Total Cost: R${planosBSoma_Essencial}</span>
-                </div>) : (
-                    <div className="centered-container" style={{ flexDirection: "row" }}>
-                        <span className={custom_span}>Plan A - Total Cost: R${planosASoma_all}</span>
-                        <span className={custom_span}>Plan B - Total Cost: R${planosBSoma_all}</span>
-                    </div>
-                )}
 
                 {chartDataLoaded && (
                     <React.Fragment>
@@ -222,9 +169,14 @@ const Resumo = () => {
                                             ...estiloGraph,
                                             timeline: {
                                                 rowLabelStyle: {
-                                                    color: 'black'
-                                                }
-                                            }
+                                                    color: 'black',
+                                                    fontSize: 12, 
+                                                },
+                                                barLabelStyle: {
+                                                    fontSize: 9, 
+                                                },
+                                                showRowLabels: true, 
+                                            },
                                         }}
                                         rootProps={{ 'data-testid': '1' }}
                                     />
@@ -245,9 +197,14 @@ const Resumo = () => {
                                             ...estiloGraph,
                                             timeline: {
                                                 rowLabelStyle: {
-                                                    color: 'black'
+                                                    color: 'black',
+                                                    fontSize: 12, 
                                                 },
-                                            }
+                                                barLabelStyle: {
+                                                    fontSize: 9, 
+                                                },
+                                                showRowLabels: true, 
+                                            },
                                         }}
                                         data={linhaDoTempoAll_graph}
                                         rootProps={{ 'data-testid': '1' }}

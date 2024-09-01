@@ -58,7 +58,7 @@ const { setTitulo } = useContext(TituloContext);
             </span>
             {/*Item Comunicação*/}
             <span>
-                <Link href="/pages/communication">
+                <Link href="/pages/communication/stakeholders">
                     <img src={'/images/communication_logo.png'} alt="Planning Logo" className={logoItem}/>
                     Communication management
                 </Link>

@@ -105,7 +105,7 @@ const handleUpdate = async (o) => {
     } else {
         route = `/api/${o.route}/update?id=${String(o.item._id)}`
     }
-
+    console.log(o.dados)
     try {
         const response = await fetch(route, {
             method: 'PUT',

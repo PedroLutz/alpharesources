@@ -1,5 +1,5 @@
 import connectToDatabase from '../../../lib/db';
-import StakeholderModel from '../../../models/Stakeholder';
+import StakeholderModel from '../../../models/comunicacao/Stakeholder';
 
 const { Stakeholder, StakeholderSchema } = StakeholderModel;
 
