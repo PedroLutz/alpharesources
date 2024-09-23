@@ -107,7 +107,7 @@ const Tabela = () => {
       route: 'financas',
       dados: updatedNovoSubmit
     });
-    cleanForm(novoSubmit, setNovoSubmit);
+    cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     setReload(true);
   };
 

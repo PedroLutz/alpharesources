@@ -24,6 +24,17 @@ const Tabela = () => {
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [cores, setCores] = useState([]);
+
+    const fetchCores = async () => {
+        const data = await fetchData('wbs/get/cores');
+        var cores = {};
+        data.areasECores.forEach((area) => {
+          cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
+        })
+        setCores(cores);
+      }
 
     const enviar = async (e) => {
         e.preventDefault();
@@ -31,7 +42,7 @@ const Tabela = () => {
             route: 'recursos/recurso',
             dados: novoSubmit
         });
-        cleanForm(novoSubmit, setNovoSubmit);
+        cleanForm(novoSubmit, setNovoSubmit, camposVazios);
         setReload(true);
     };
 
@@ -97,6 +108,7 @@ const Tabela = () => {
     useEffect(() => {
         setReload(false);
         fetchRecursos();
+        fetchCores();
     }, [reload]);
 
     const checkDados = (tipo) => {
@@ -107,6 +119,18 @@ const Tabela = () => {
         'inputsVazios': 'Fill out all fields before adding new data!',
         'deleteSuccess': 'Deletion Successful!',
         'deleteFail': 'Deletion Failed!',
+    };
+
+    const calculateRowSpan = (itens, currentArea, currentIndex, parametro) => {
+        let rowSpan = 1;
+        for (let i = currentIndex + 1; i < itens.length; i++) {
+            if (itens[i][parametro] === currentArea) {
+                rowSpan++;
+            } else {
+                break;
+            }
+        }
+        return rowSpan;
     };
 
     return (
@@ -159,14 +183,32 @@ const Tabela = () => {
                                             objSetter={setNovosDados}
                                             funcao={{
                                                 funcao1: () => handleUpdateItem(),
-                                                funcao2: () => linhaVisivel === recurso._id ? setLinhaVisivel() : setLinhaVisivel(recurso._id)
+                                                funcao2: () => { linhaVisivel === recurso._id ? setLinhaVisivel() : setLinhaVisivel(recurso._id); setIsUpdating(false) }
                                             }}
                                             checkDados={checkDados}
                                         />
                                     ) : (
-                                        <tr>
-                                            <td>{recurso.area}</td>
-                                            <td>{recurso.item}</td>
+                                        <tr style={{backgroundColor: cores[recurso.area]}}>
+                                            {!isUpdating || isUpdating[0] !== recurso.area ? (
+                                                <React.Fragment>
+                                                    {index === 0 || recursos[index - 1].area !== recurso.area ? (
+                                                        <td rowSpan={calculateRowSpan(recursos, recurso.area, index, 'area')}
+                                                        >{recurso.area}</td>
+                                                    ) : null}
+                                                </React.Fragment>
+                                            ) : (
+                                                <td>{recurso.area}</td>
+                                            )}
+                                            {!isUpdating || isUpdating[1] !== recurso.item ? (
+                                                <React.Fragment>
+                                                    {index === 0 || recursos[index - 1].item !== recurso.item ? (
+                                                        <td rowSpan={calculateRowSpan(recursos, recurso.item, index, 'item')}
+                                                        >{recurso.item}</td>
+                                                    ) : null}
+                                                </React.Fragment>
+                                            ) : (
+                                                <td>{recurso.item}</td>
+                                            )}
                                             <td>{recurso.recurso}</td>
                                             <td>{recurso.uso}</td>
                                             <td>{recurso.status}</td>
@@ -174,7 +216,7 @@ const Tabela = () => {
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(recurso)}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(recurso._id); handleUpdateClick(recurso)
+                                                    setLinhaVisivel(recurso._id); handleUpdateClick(recurso); setIsUpdating([recurso.area, recurso.item])
                                                 }
                                                 }>⚙️</button>
                                             </td>
@@ -192,7 +234,6 @@ const Tabela = () => {
                     </table>
                 </div>
             </div>
-
         </div>
     )
 }

@@ -6,6 +6,7 @@ import { fetchData, handleDelete, handleUpdate } from '../../functions/crud';
 import { jsDateToEuDate, euDateToJsDate, euDateToIsoDate, cleanForm } from '../../functions/general';
 import styles from '../../styles/modules/cronograma.module.css';
 import CadastroInputs from './CadastroInputs';
+import chroma from 'chroma-js';
 
 const Tabela = () => {
   const [cronogramas, setCronogramas] = useState([]);
@@ -22,6 +23,7 @@ const Tabela = () => {
   const [loading, setLoading] = useState(true);
   const [linhaVisivel, setLinhaVisivel] = useState({});
   const [reload, setReload] = useState(false);
+  const [cores, setCores] = useState({});
   const camposVazios = {
     plano: '',
     item: '',
@@ -105,9 +107,19 @@ const Tabela = () => {
     }
   };
 
+  const fetchCores = async () => {
+    const data = await fetchData('wbs/get/cores');
+    var cores = {};
+    data.areasECores.forEach((area) => {
+      cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
+    })
+    setCores(cores);
+  }
+
   useEffect(() => {
     setReload(false);
     fetchCronogramas();
+    fetchCores();
   }, [reload]);
 
   const handleClick = (item) => {
@@ -218,6 +230,7 @@ const Tabela = () => {
 
   useEffect(() => {
     fetchCronogramas();
+    fetchCores();
   }, []);
 
   const handleConfirmDelete = () => {
@@ -235,13 +248,27 @@ const Tabela = () => {
     }
   };
 
+  const generatePaleta = () => {
+
+    var paleta = [];
+    for (const [key, value] of Object.entries(cores)) {
+      paleta.push({
+        "color": value ? chroma(value).darken().saturate(3).hex() : '#000000',
+        "dark": value ? chroma(value).hex() : '#000000',
+        "light": value ? chroma(value).darken().hex() : '#000000'
+      })
+    }
+    return paleta;
+  }
+  const paleta = generatePaleta();
+
   const createGanttData = (cronogramas) => {
     const ganttData = [['Task ID', 'Task Name', 'Resource', 'Start Date', 'End Date', 'Duration', 'Percent Complete', 'Dependencies']];
-
+  
     cronogramas.forEach((item) => {
       if (!item.plano) {
         if (euDateToJsDate(item.inicio) < euDateToJsDate(item.termino)) {
-          var dependencies = ''
+          var dependencies = '';
           const taskID = `${item.area}_${item.item}`;
           const taskName = item.item;
           const resource = item.area;
@@ -254,12 +281,11 @@ const Tabela = () => {
           }
           ganttData.push([taskID, taskName, resource, startDate, endDate, 0, 100, dependencies]);
         }
-        
       }
     });
-
     return ganttData;
   };
+  
 
   const chartData = createGanttData(cronogramas);
 
@@ -317,6 +343,18 @@ const Tabela = () => {
     cleanForm(novosDados, setNovosDados);
     setLinhaVisivel();
     window.location.reload();
+  };
+
+  const calculateRowSpan = (itens, currentArea, currentIndex) => {
+    let rowSpan = 1;
+    for (let i = currentIndex + 1; i < itens.length; i++) {
+      if (itens[i].area === currentArea) {
+        rowSpan++;
+      } else {
+        break;
+      }
+    }
+    return rowSpan;
   };
 
   return (
@@ -378,7 +416,11 @@ const Tabela = () => {
             gantt: {
               trackHeight: 30,
               sortTasks: false,
+              palette: paleta,
+              shadowEnabled: false,
+              criticalPathEnabled: false,
             },
+            
           }}
         />
       )}
@@ -386,9 +428,9 @@ const Tabela = () => {
 
 
       <div className={styles.quickUpdate}>
-          <h4>Quick update</h4>
+        <h4>Quick update</h4>
         <div>
-        <select
+          <select
             name="area"
             value={filtroAreaSelecionada}
             onChange={(e) => {
@@ -467,13 +509,12 @@ const Tabela = () => {
                 </thead>
                 <tbody>
                   {cronogramas.filter((item) => !item.plano).map((item, index) => (
-                    <tr key={index}>
-                      <td>
-                        {item.area}
-                      </td>
-                      <td>
-                        {item.item}
-                      </td>
+                    <tr key={index} style={{backgroundColor: cores[item.area]}}>
+                      {index === 0 || cronogramas[index - 1].area !== item.area ? (
+                        <td rowSpan={calculateRowSpan(cronogramas, item.area, index)}
+                        >{item.area}</td>
+                      ) : null}
+                      <td>{item.item}</td>
                       {linhaVisivel === item._id ? (
                         <CadastroInputs
                           tipo="update"
@@ -523,17 +564,19 @@ const Tabela = () => {
                   <tr key={index}>
                     <td>{area.area}</td>
                     <td
-                      style={{backgroundColor: 
-                        area.state === 'To Begin' ? '#ffc6c6' : (
-                          area.state === 'Complete' ? '#d8ffc6' : (
-                            area.state === 'Hold' ? '#e1e1e1' : '#cdf2ff'
-                          )
-                        ),
+                      style={{
+                        backgroundColor:
+                          area.state === 'To Begin' ? '#ffc6c6' : (
+                            area.state === 'Complete' ? '#d8ffc6' : (
+                              area.state === 'Hold' ? '#e1e1e1' : '#cdf2ff'
+                            )
+                          ),
                       }}>{area.state}</td>
                     <td
-                    style={{backgroundColor: 
-                      area.status === 'Overdue' ? '#ffc6c6' : '#d8ffc6' 
-                    }}>{area.status}</td>
+                      style={{
+                        backgroundColor:
+                          area.status === 'Overdue' ? '#ffc6c6' : '#d8ffc6'
+                      }}>{area.status}</td>
                   </tr>
                 ))}
               </tbody>

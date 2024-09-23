@@ -1,5 +1,5 @@
 import connectToDatabase from '../../../../lib/db';
-import WbsModel from '../../../../models/WorkBS';
+import WbsModel from '../../../../models/wbs/wbs';
 import PlanoModel from '../../../../models/financeiro/Plano'
 import RaciModel from '../../../../models/responsabilidade/Raci'
 import GanttModel from '../../../../models/Gantt'

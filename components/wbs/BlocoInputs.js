@@ -4,6 +4,7 @@ import styles from '../../styles/modules/wbs.module.css';
 const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
     const [emptyFields, setEmptyFields] = useState([]);
     const camposRef = useRef({
+        cor: null,
         item: null,
         area: null
     });
@@ -20,6 +21,14 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
         const emptyFields = Object.entries(form).filter(([key, value]) => !value);
         return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
     };
+
+    const handleChangeCor = (e) => {
+        const { name, value } = e.target;
+        objSetter({
+            ...obj,
+            [name]: value
+        })
+    }
 
     const handleChange = (e, setter, obj) => {
         const { name, value } = e.target;
@@ -69,7 +78,7 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
 
 
     const handleSubmit = async (e) => {
-        const isInvalido = validaDados();
+        var isInvalido = tipo === 'updateCor' ? false : validaDados();
         if (funcao.funcao1) {
             !isInvalido && funcao.funcao1();
         } else {
@@ -106,6 +115,13 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
                     name='item'
                     onChange={(e) => handleChange(e, objSetter, obj)}
                     ref={el => (camposRef.current.item = el)} />
+                <input
+                    type='color'
+                    value={obj.cor}
+                    name='cor'
+                    style={{width: '11.5rem', backgroundColor: 'transparent'}}
+                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    ref={el => (camposRef.current.cor = el)} />
                 <button onClick={(e) => handleSubmit(e)}>Add new</button>
             </div>
         )
@@ -148,6 +164,22 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
                     name='area'
                     onChange={(e) => handleChange(e, objSetter, obj)}
                     ref={el => (camposRef.current.area = el)} />
+                <button onClick={handleSubmit}>✔️</button>
+                <button onClick={funcao.funcao2}>✖️</button>
+                </div>
+                
+            </React.Fragment>
+        )
+    }
+    if (tipo === 'updateCor') {
+        return (
+            <React.Fragment>
+                <div className={styles.editArea}>
+                <input value={obj.cor}
+                    type='color'
+                    name='cor'
+                    onChange={handleChangeCor}
+                    ref={el => (camposRef.current.cor = el)} />
                 <button onClick={handleSubmit}>✔️</button>
                 <button onClick={funcao.funcao2}>✖️</button>
                 </div>

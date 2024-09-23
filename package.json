@@ -6,6 +6,8 @@
     "start": "next start"
   },
   "dependencies": {
+    "chroma": "^0.0.1",
+    "chroma-js": "^3.1.1",
     "cookie": "^0.6.0",
     "date-fns-tz": "^2.0.0",
     "dotenv": "^16.4.5",

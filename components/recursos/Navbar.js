@@ -11,6 +11,7 @@ const Navbar = () => {
   useEffect(() => {
     setTitulo('Budget & Resource Management');
   }, [setTitulo]);
+  
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const toggleDropdown = () => {

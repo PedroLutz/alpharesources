@@ -1,7 +1,7 @@
 .tabela_financas table {
     border-width: 0.1rem;
     border-style: solid;
-    border-color: rgb(167, 167, 167);
+    border-color: rgb(0, 0, 0);
     padding: 0.3rem;
     width: 100%;
     border-collapse: collapse;
@@ -19,7 +19,7 @@
 .tabela_financas td {
     border-width: 0.1rem;
     border-style: solid;
-    border-color: rgb(167, 167, 167);
+    border-color: rgb(0, 0, 0);
     padding: 0.3rem;
     font-size: small;
 }
@@ -57,7 +57,7 @@
     border-width: 0.1rem;
     font-size: 0.9rem;
     border-style: solid;
-    border-color: rgb(105, 105, 105);
+    border-color: rgb(0, 0, 0);
     padding: 0.3rem;
 }
 

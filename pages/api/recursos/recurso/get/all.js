@@ -8,7 +8,7 @@ export default async (req, res) => {
     await connectToDatabase();
 
     if (req.method === 'GET') {
-      const recursos = await Recurso.find().sort({ area: 1 });
+      const recursos = await Recurso.find().sort({ area: 1, item: 1, recurso: 1 });
 
 
       res.status(200).json({ recursos });

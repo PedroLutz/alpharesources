@@ -24,7 +24,7 @@ const { setTitulo } = useContext(TituloContext);
         <div className={menuGroup}>
             {/*Item WBS*/}
             <span>
-                <Link href="/pages/wbs">
+                <Link href="/pages/wbs/wbs">
                     <img src={'/images/wbs_logo.png'} alt="Planning Logo" className={logoItem}/><br/>
                     Work Breakdown Structure
                 </Link>

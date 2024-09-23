@@ -96,8 +96,8 @@ const Resumo = () => {
       setReceitasTotais(receitasTotais[0]?.total || 0);
       setDespesasTotais(despesasTotais[0]?.total || 0);
 
-      const dataValoresPlanejados = await fetchData('financeiro/plano/get/valoresPorArea');
-      const valoresPlanejados = dataValoresPlanejados.valoresPorArea;
+      const dataValoresPlanejados = await fetchData('recursos/planoAquisicao/get/valoresPorArea');
+      const valoresPlanejados = dataValoresPlanejados.valoresPorArea_all;
 
       const comparacoesPorcentagem = await fetchData('cronograma/get/comparacoesPorcentagem');
       const porcentagensDeExecucao = comparacoesPorcentagem.percentageComparison;
@@ -108,7 +108,7 @@ const Resumo = () => {
         const comparacao = porcentagensDeExecucao.find(c => c.area === area);
         const despesa = despesasPorArea.find(d => d._id === area);
 
-        const valorPlanejado = vp.totalValorA;
+        const valorPlanejado = parseFloat((vp.totalValorA*2 + vp.totalValorB)/3).toFixed(2);
         const porcentagem = comparacao ? comparacao.porcentagem : 0;
         const custoReal = despesa ? despesa.total : 0;
         const valorAgregado = valorPlanejado * (porcentagem / 100);

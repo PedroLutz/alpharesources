@@ -5,8 +5,6 @@ import Modal from "../../Modal";
 import Loading from "../../Loading";
 import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../functions/crud";
 import { cleanForm, jsDateToEuDate, euDateToIsoDate } from "../../../functions/general";
-import { update } from "lodash";
-
 
 const PlanoAquisicao = () => {
     const camposVazios = {
@@ -32,6 +30,7 @@ const PlanoAquisicao = () => {
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [isUpdating, setIsUpdating] = useState(false);
 
     const enviar = async (e) => {
         e.preventDefault();
@@ -40,7 +39,7 @@ const PlanoAquisicao = () => {
             route: 'recursos/planoAquisicao',
             dados: novoSubmit
         });
-        cleanForm(novoSubmit, setNovoSubmit);
+        cleanForm(novoSubmit, setNovoSubmit, camposVazios);
         setReload(true);
     };
 
@@ -127,6 +126,18 @@ const PlanoAquisicao = () => {
         'deleteFail': 'Deletion Failed!',
     };
 
+    const calculateRowSpan = (itens, currentArea, currentIndex) => {
+        let rowSpan = 1;
+        for (let i = currentIndex + 1; i < itens.length; i++) {
+          if (itens[i].recurso === currentArea) {
+            rowSpan++;
+          } else {
+            break;
+          }
+        }
+        return rowSpan;
+      };
+
     return (
         <div className="centered-container">
             {loading && <Loading />}
@@ -187,26 +198,35 @@ const PlanoAquisicao = () => {
                                             objSetter={setNovosDados}
                                             funcao={{
                                                 funcao1: () => handleUpdateItem(),
-                                                funcao2: () => linhaVisivel === plano._id ? setLinhaVisivel() : setLinhaVisivel(plano._id)
+                                                funcao2: () => {linhaVisivel === plano._id ? setLinhaVisivel() : setLinhaVisivel(plano._id); setIsUpdating(false)}
                                             }}
                                             checkDados={checkDados}
                                         />
                                     ) : (
                                         <tr>
-                                            <td>{plano.recurso}</td>
+                                            {!isUpdating || isUpdating !== plano.recurso ? (
+                                                <React.Fragment>
+                                                    {index === 0 || planos[index - 1].recurso !== plano.recurso ? (
+                                                        <td rowSpan={calculateRowSpan(planos, plano.recurso, index)}
+                                                        >{plano.recurso}</td>
+                                                    ) : null}
+                                                </React.Fragment>
+                                            ) : (
+                                                <td>{plano.recurso}</td>
+                                            )}
                                             <td>{plano.plano_a}</td>
-                                            <td>{plano.valor_a}</td>
+                                            <td>R${Number(plano.valor_a).toFixed(2)}</td>
                                             <td>{plano.data_esperada}</td>
                                             <td>{plano.data_limite}</td>
                                             <td>{plano.plano_b}</td>
-                                            <td>{plano.valor_b}</td>
+                                            <td>R${Number(plano.valor_b).toFixed(2)}</td>
                                             <td>{plano.plano_real || '-'}</td>
                                             <td>{plano.data_real != 'NaN/NaN/NaN' ? plano.data_real : '-'}</td>
-                                            <td>{plano.valor_real || '-'}</td>
+                                            <td>R${Number(plano.valor_real).toFixed(2) || '-'}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(plano)}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(plano._id); handleUpdateClick(plano)
+                                                    setLinhaVisivel(plano._id); handleUpdateClick(plano); setIsUpdating(plano.recurso)
                                                 }
                                                 }>⚙️</button>
                                             </td>

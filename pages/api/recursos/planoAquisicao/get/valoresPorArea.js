@@ -8,7 +8,7 @@ export default async (req, res) => {
         await connectToDatabase();
 
         if (req.method === 'GET') {
-            const valoresPorArea_all = await Plano.aggregate([
+            const valoresPorArea_all = await PlanoAquisicao.aggregate([
                 {
                     $group: {
                         _id: "$area",
@@ -23,7 +23,7 @@ export default async (req, res) => {
                 }
             ]);
 
-            const valoresPorArea_Essencial = await Plano.aggregate([
+            const valoresPorArea_Essencial = await PlanoAquisicao.aggregate([
                 {
                     $match: {
                         ehEssencial: true

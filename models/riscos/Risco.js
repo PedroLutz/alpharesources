@@ -6,13 +6,11 @@ const RiscoSchema = new mongoose.Schema({
   area: String,
   item: String,
   risco: String,
-  efeito: String,
+  classificacao: String,
   ehNegativo: Boolean,
-  causas: String,
-  gatilho: String,
-  ocorrencia: Number,
-  impacto: Number,
-  urgencia: Number,
+  efeito: String,
+  causa: String,
+  gatilho: String
 }, { collection: 'riscos' }); 
 
 const Risco = mongoose.models['Risco'] || mongoose.model('Risco', RiscoSchema);

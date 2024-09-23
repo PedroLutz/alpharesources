@@ -30,13 +30,15 @@ const Relatorio = () => {
         scope: '',
         schedule: '',
         risk: '',
-        quality: ''
+        quality: '',
+        cost:''
     })
     const [kpyAnalysisStatus, setKpiAnalysisStatus] = useState({
         scopeStatus: '',
         scheduleStatus: '',
         riskStatus: '',
-        qualityStatus: ''
+        qualityStatus: '',
+        costStatus: ''
     });
     const [information, setInformation] = useState({
         data: '',
@@ -367,10 +369,14 @@ const Relatorio = () => {
                                             <option value='Unsafe'>Unsafe</option>
                                         </select>
                                     </td>
-                                    <td className={costDados.status === 'Unsafe' ? 'status_td unsafe' : (
-                                        costDados.status === 'Requires attention' ? 'status_td attention' : 'status_td'
-                                    )}>
-                                        {costDados.status || '-'}
+                                    <td className="status_td">
+                                        <select name='costStatus'
+                                            value={kpyAnalysisStatus.costStatus}
+                                            onChange={(e) => handleChange(e, kpyAnalysisStatus, setKpiAnalysisStatus)}>
+                                            <option value='Safe'>Safe</option>
+                                            <option value='Requires attention'>Requires attention</option>
+                                            <option value='Unsafe'>Unsafe</option>
+                                        </select>
                                     </td>
                                     <td className="status_td">
                                         <select name='riskStatus'
@@ -407,10 +413,11 @@ const Relatorio = () => {
                                         />
                                     </td>
                                     <td>
-                                        Cash in bank account as of this document's date: R$
-                                        {costDados.valor ? (
-                                            `${costDados.valor}`
-                                        ) : `$0.00`}
+                                        <textarea
+                                            name="cost"
+                                            value={kpyAnalysisText.cost}
+                                            onChange={(e) => handleChange(e, kpyAnalysisText, setKpiAnalysisText)}
+                                        />
                                     </td>
                                     <td>
                                         <textarea

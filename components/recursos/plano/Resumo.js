@@ -40,12 +40,11 @@ const Resumo = () => {
 
     const planosPorArea_Essencial_graph = [['Area', 'Value']]
     planosPorArea_Essencial.forEach((area) => {
-        planosPorArea_Essencial_graph.push([area._id, parseFloat(area.mediaPonderada *1.1).toFixed(2)]);
+        planosPorArea_Essencial_graph.push([area._id, parseFloat((area.mediaPonderada*1.1).toFixed(2) )]);
     });
 
     const planosPorArea_all_graph = [['Area', 'Value']];
     planosPorArea_all.forEach((area) => {
-        console.log(area.mediaPonderada)
         planosPorArea_all_graph.push([area._id, parseFloat((area.mediaPonderada*1.1).toFixed(2) )]);
     });
 

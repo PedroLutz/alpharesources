@@ -1,5 +1,5 @@
 import connectToDatabase from '../../../lib/db';
-import WbsModel from '../../../models/WorkBS';
+import WbsModel from '../../../models/wbs/wbs';
 
 const { Wbs } = WbsModel;
 

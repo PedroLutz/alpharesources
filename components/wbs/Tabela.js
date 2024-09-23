@@ -9,6 +9,7 @@ import { cleanForm } from '../../functions/general';
 const WBS = () => {
   const [elementosPorArea, setElementosPorArea] = useState([]);
   const [elementos, setElementos] = useState([]);
+  const [cores, setCores] = useState([]);
   const [linhaVisivel, setLinhaVisivel] = useState({});
   const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
   const [verOpcoes, setVerOpcoes] = useState(false);
@@ -19,6 +20,7 @@ const WBS = () => {
   const camposVazios = {
     item: '',
     area: '',
+    cor: ''
   };
   const [reload, setReload] = useState(false);
   const [novoSubmit, setNovoSubmit] = useState(camposVazios);
@@ -32,7 +34,7 @@ const WBS = () => {
       dados: novoSubmit,
     });
     setReload(true);
-    cleanForm(novoSubmit, setNovoSubmit);
+    cleanForm(novoSubmit, setNovoSubmit, camposVazios);
   };
 
   const enviarEmArea = async (e, area) => {
@@ -50,12 +52,20 @@ const WBS = () => {
   }
 
   const handleUpdateClick = (item) => {
+    console.log(item)
     setConfirmUpdateItem(item);
     if (typeof (item) === 'object') {
-      setNovosDados({
-        item: item.item,
-        area: item.area
-      });
+      if (!item.cor) {
+        setNovosDados({
+          item: item.item,
+          area: item.area
+        });
+      } else {
+        setNovosDados({
+          cor: item.cor,
+          area: item.area
+        })
+      }
     } else {
       setNovosDados({
         area: item,
@@ -80,6 +90,15 @@ const WBS = () => {
       setLoading(false);
     }
   };
+
+  const fetchCores = async () => {
+    const data = await fetchData('wbs/get/cores');
+    var cores = {};
+    data.areasECores.forEach((area) => {
+      cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
+    })
+    setCores(cores);
+  }
 
   const checkDados = (tipo) => {
     setExibirModal(tipo); return;
@@ -120,33 +139,58 @@ const WBS = () => {
   };
   useEffect(() => {
     fetchElementos();
+    fetchCores();
   }, []);
+
+  const handleUpdateCor = async () => {
+    if(confirmUpdateItem){
+      setReload(true);
+        linhaVisivel === confirmUpdateItem ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem);
+        try {
+          const response = await fetch(`/api/wbs/update/cor`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(novosDados),
+          });
+
+          if (response.status === 200) {
+            return;
+          } else {
+            console.error(`Erro ao atualizar cor`);
+          }
+        } catch (error) {
+          console.error(`Erro ao atualizar cor, ${error}`);
+        }
+    }
+  }
 
   const handleUpdateItem = async () => {
     if (confirmUpdateItem) {
       if (typeof (confirmUpdateItem) == 'object') {
-        setLoading(true);
-        const updatedItem = { ...confirmUpdateItem, ...novosDados };
-        const updatedElementos = elementos.map(item =>
-          item._id === updatedItem._id ? { ...updatedItem } : item
-        );
+          setLoading(true);
+          const updatedItem = { ...confirmUpdateItem, ...novosDados };
+          const updatedElementos = elementos.map(item =>
+            item._id === updatedItem._id ? { ...updatedItem } : item
+          );
 
-        setElementos(updatedElementos);
-        setConfirmUpdateItem(null);
-        linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-        try {
-          await handleUpdate({
-            route: 'wbs/update/item?id',
-            dados: updatedItem,
-            item: confirmUpdateItem
-          });
-        } catch (error) {
-          setElementos(elementos);
-          setConfirmUpdateItem(confirmUpdateItem);
-          console.error("Update failed:", error);
-        }
-        setReload(true);
-        setLoading(false)
+          setElementos(updatedElementos);
+          setConfirmUpdateItem(null);
+          linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
+          try {
+            await handleUpdate({
+              route: 'wbs/update/item?id',
+              dados: updatedItem,
+              item: confirmUpdateItem
+            });
+          } catch (error) {
+            setElementos(elementos);
+            setConfirmUpdateItem(confirmUpdateItem);
+            console.error("Update failed:", error);
+          }
+          setReload(true);
+          setLoading(false);
       } else {
         setReload(true);
         linhaVisivel === confirmUpdateItem ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem);
@@ -174,6 +218,7 @@ const WBS = () => {
   useEffect(() => {
     setReload(false);
     fetchElementos();
+    fetchCores();
   }, [reload]);
 
   const renderWBS = () => {
@@ -196,18 +241,18 @@ const WBS = () => {
       grupos[grupoIndex].push({ area, elementos: elementosPorArea[area] });
       return grupos;
     }, []);
-    
+
 
     return (
       <div>
         {gruposDeAreas.length === 0 && (
           <BlocoInputs
-          tipo='cadastroArea'
-          obj={novoSubmit}
-          objSetter={setNovoSubmit}
-          funcao={enviar}
-          checkDados={checkDados}
-        />
+            tipo='cadastroArea'
+            obj={novoSubmit}
+            objSetter={setNovoSubmit}
+            funcao={enviar}
+            checkDados={checkDados}
+          />
         )}
         {gruposDeAreas.map((grupo, index) => (
           <div className={styles.wbsContainer} key={index}>
@@ -220,7 +265,7 @@ const WBS = () => {
                 checkDados={checkDados}
               />}
             {grupo.map(({ area, elementos }) => (
-              <div className={styles.wbsArea} key={area}>
+              <div className={styles.wbsArea} key={area} style={{ backgroundColor: cores[area] }}>
                 {verOpcoes ? (
                   <React.Fragment>
                     {linhaVisivel === area ? (
@@ -243,8 +288,27 @@ const WBS = () => {
                               handleUpdateClick(area); setLinhaVisivel(area);
                             }}>⚙️</button>
                         </div>
-
                       </React.Fragment>
+                    )}
+                    {linhaVisivel === `${area}Cor` ? (
+                      <BlocoInputs
+                        tipo='updateCor'
+                        obj={novosDados}
+                        objSetter={setNovosDados}
+                        funcao={{
+                          funcao1: handleUpdateCor,
+                          funcao2: () => linhaVisivel === `${area}Cor` ? setLinhaVisivel() : setLinhaVisivel(item._id)
+                        }}
+                        checkDados={checkDados}
+                      />
+                    ) : (
+                      <div className={styles.areaTitle} style={{ marginBottom: '1rem' }}>
+                        Change color
+                        <button
+                          onClick={() => {
+                            handleUpdateClick({ area: area, cor: cores[area] ? cores[area] : '' }); setLinhaVisivel(`${area}Cor`);
+                          }}>⚙️</button>
+                      </div>
                     )}
                   </React.Fragment>
                 ) : (
@@ -273,7 +337,8 @@ const WBS = () => {
                                   checkDados={checkDados} />
                               </React.Fragment>
                             ) : (
-                              <React.Fragment>{item.item}
+                              <React.Fragment>
+                                {item.item}
                                 <button onClick={() => { handleUpdateClick(item); setLinhaVisivel(item); }}>⚙️</button>
                                 <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
                               </React.Fragment>
@@ -287,13 +352,18 @@ const WBS = () => {
                       </div>
                     ))}
                   {verOpcoes &&
-                    <BlocoInputs
-                      tipo='cadastroItem'
-                      area={area}
-                      obj={submitEmArea}
-                      objSetter={setSubmitEmArea}
-                      funcao={enviarEmArea}
-                      checkDados={checkDados} />}
+                    <React.Fragment>
+                      <BlocoInputs
+                        tipo='cadastroItem'
+                        area={area}
+                        obj={submitEmArea}
+                        objSetter={setSubmitEmArea}
+                        funcao={enviarEmArea}
+                        checkDados={checkDados} />
+                    </React.Fragment>
+
+                  }
+
                 </div>
               </div>
             ))}

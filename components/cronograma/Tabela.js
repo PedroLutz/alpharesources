@@ -6,6 +6,7 @@ import { fetchData, handleDelete, handleUpdate, handleSubmit } from '../../funct
 import { cleanForm, jsDateToEuDate, euDateToIsoDate, euDateToJsDate } from '../../functions/general';
 import styles from '../../styles/modules/cronograma.module.css';
 import CadastroInputs from './CadastroInputs';
+import chroma from 'chroma-js';
 
 const Tabela = () => {
   const [cronogramas, setCronogramas] = useState([]);
@@ -18,6 +19,7 @@ const Tabela = () => {
   const [linhaVisivel, setLinhaVisivel] = useState({});
   const [reload, setReload] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [cores, setCores] = useState({});
   const camposVazios = {
     item: '',
     area: '',
@@ -40,6 +42,15 @@ const Tabela = () => {
       situacao: item.situacao,
     });
   };
+
+  const fetchCores = async () => {
+    const data = await fetchData('wbs/get/cores');
+    var cores = {};
+    data.areasECores.forEach((area) => {
+      cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
+    })
+    setCores(cores);
+  }
 
   const handleConfirmDelete = () => {
     setConfirmDeleteItem(null);
@@ -112,9 +123,24 @@ const Tabela = () => {
     'datasErradas': 'The finishing date must be after the starting date!'
   };
 
+  const generatePaleta = () => {
+
+    var paleta = [];
+    for (const [key, value] of Object.entries(cores)) {
+      paleta.push({
+        "color": value ? chroma(value).darken().saturate(3).hex() : '#000000',
+        "dark": value ? chroma(value).hex() : '#000000',
+        "light": value ? chroma(value).darken().hex() : '#000000'
+      })
+    }
+    return paleta;
+  }
+  const paleta = generatePaleta();
+
   useEffect(() => {
     setReload(false);
     fetchCronogramas();
+    fetchCores();
   }, [reload]);
 
   useEffect(() => {
@@ -189,6 +215,18 @@ const Tabela = () => {
     setReload(true);
   };
 
+  const calculateRowSpan = (itens, currentArea, currentIndex) => {
+    let rowSpan = 1;
+    for (let i = currentIndex + 1; i < itens.length; i++) {
+      if (itens[i].area === currentArea) {
+        rowSpan++;
+      } else {
+        break;
+      }
+    }
+    return rowSpan;
+  };
+
   return (
     <div className="centered-container">
       {loading && <Loading />}
@@ -234,6 +272,9 @@ const Tabela = () => {
             gantt: {
               trackHeight: 30,
               sortTasks: false,
+              palette: paleta,
+              shadowEnabled: false,
+              criticalPathEnabled: false,
             },
           }}
         />
@@ -264,11 +305,12 @@ const Tabela = () => {
                 />
               </tr>
               {cronogramas.filter((item) => item.plano).map((item, index) => (
-                <tr key={index}>
+                <tr key={index} style={{backgroundColor: cores[item.area]}}>
                   <React.Fragment>
-                    <td>
-                      {item.area}
-                    </td>
+                  {index === 0 || cronogramas[index - 1].area !== item.area ? (
+                        <td rowSpan={calculateRowSpan(cronogramas, item.area, index)}
+                        >{item.area}</td>
+                      ) : null}
                     <td>
                       {item.item}
                     </td>

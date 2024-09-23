@@ -1,7 +1,7 @@
-.tabelaRisco table, .tabelaPlano table {
+.tabelaRisco table, .tabelaPlano table, .tabelaAnalise table {
     border-width: 0.1rem;
     border-style: solid;
-    border-color: rgb(167, 167, 167);
+    border-color: rgb(0, 0, 0);
     padding: 0.3rem;
     width: 100%;
     border-collapse: collapse;
@@ -17,16 +17,21 @@
     display:block;
 }
 
-.tabelaRisco td, .tabelaRisco th, .tabelaPlano td, .tabelaPlano th{
+.tabelaRisco td, .tabelaRisco th, 
+.tabelaPlano td, .tabelaPlano th,
+.tabelaAnalise td, .tabelaAnalise th{
     border-width: 0.1rem;
     border-style: solid;
-    border-color: rgb(167, 167, 167);
+    border-color: rgb(0, 0, 0);
     padding: 0.3rem;
     font-size: small;
     word-wrap: break-word;
+    max-width: 10.5rem;
 }
 
-.tabelaRisco td input, .tabelaRisco td select, .tabelaPlano td input, .tabelaPlano td select {
+.tabelaRisco td input, .tabelaRisco td select, 
+.tabelaPlano td input, .tabelaPlano td select, 
+.tabelaAnalise td input, .tabelaAnalise td select{
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(167, 167, 167);
@@ -37,19 +42,22 @@
 }
 
 .tabelaRisco td input:hover, .tabelaRisco td select:hover, .tabelaRisco button:hover, 
-.tabelaPlano td input:hover, .tabelaPlano td select:hover, .tabelaPlano button:hover{
+.tabelaPlano td input:hover, .tabelaPlano td select:hover, .tabelaPlano button:hover,
+.tabelaAnalise td input:hover, .tabelaAnalise td select:hover, .tabelaAnalise button:hover{
     background-color: rgb(231, 231, 231);
 }
 
 .tabelaRisco td input, .tabelaRisco td select,
-.tabelaPlano td input, .tabelaPlano td select {
+.tabelaPlano td input, .tabelaPlano td select{
     width: 10rem;
     font-size: small;
 }
 
-.tabelaRisco td:nth-child(8) input, 
-.tabelaRisco td:nth-child(9) input, 
-.tabelaRisco td:nth-child(10) input{
+.tabelaAnalise td:first-child input, .tabelaAnalise td:first-child select{
+    width: 10rem;
+}
+
+.tabelaAnalise td input, .tabelaAnalise td select{
     width: 3rem;
 }
 
@@ -61,12 +69,12 @@
     width: 6rem;
 }
 
-.tabelaRisco th, .tabelaPlano th {
+.tabelaRisco th, .tabelaPlano th, .tabelaAnalise th {
     background-color: #ff8ff2;
     border-width: 0.1rem;
     font-size: 0.9rem;
     border-style: solid;
-    border-color: rgb(105, 105, 105);
+    border-color: rgb(0, 0, 0);
     padding: 0.3rem;
 }
 
@@ -75,22 +83,11 @@
     text-align: left;
 }
 
-.tabelaRisco td:nth-child(5), .tabelaRisco td:nth-child(6), 
-.tabelaRisco td:nth-child(7), .tabelaRisco td:nth-child(8), 
-.tabelaRisco td:nth-child(9), .tabelaRisco td:nth-child(10), 
-.tabelaRisco td:nth-child(11), .tabelaRisco td:nth-child(13), 
-.tabelaRisco td:nth-child(14), .tabelaRisco td:last-child {
+.tabelaRisco td:last-child {
     text-align: center;
-}
+} 
 
-.tabelaRisco th:nth-child(8), 
-.tabelaRisco th:nth-child(9), .tabelaRisco th:nth-child(10), 
-.tabelaRisco th:nth-child(11), .tabelaRisco th:nth-child(13), 
-.tabelaRisco th:nth-child(14) {
-    font-size: 0.7rem;
-}
-
-.tabelaRisco button, .tabelaPlano button{
+.tabelaRisco button, .tabelaPlano button, .tabelaAnalise button{
     background-color: transparent;
     border-width: 0.1rem;
     border-style: solid;

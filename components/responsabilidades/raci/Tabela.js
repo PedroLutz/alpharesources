@@ -17,6 +17,7 @@ const Tabela = () => {
   const [exibirModal, setExibirModal] = useState(null);
   const [linhaVisivel, setLinhaVisivel] = useState({});
   const [reload, setReload] = useState(false);
+  const [cores, setCores] = useState({});
   const camposVazios = {
     area: "",
     item: "",
@@ -41,6 +42,15 @@ const Tabela = () => {
       }));
     });
   };
+
+  const fetchCores = async () => {
+    const data = await fetchData('wbs/get/cores');
+    var cores = {};
+    data.areasECores.forEach((area) => {
+      cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
+    })
+    setCores(cores);
+  }
 
   const fetchItensRaci = async () => {
     const data = await fetchData('responsabilidades/raci/get');
@@ -131,6 +141,7 @@ const Tabela = () => {
     try {
       fetchNomesMembros();
       fetchItensRaci();
+      fetchCores();
     } finally {
       setLoading(false);
     }
@@ -280,7 +291,7 @@ const Tabela = () => {
                 </tr>
               )}
               {itensRaci.map((item, index) => (
-                <tr key={index}>
+                <tr key={index} style={{backgroundColor: cores[item.area]}}>
                   {index === 0 || itensRaci[index - 1].area !== item.area ? (
                     <td rowSpan={calculateRowSpan(itensRaci, item.area, index)}
                       className={members.areaTc}>{item.area}</td>

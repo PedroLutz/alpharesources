@@ -6,7 +6,7 @@ const RespostaSchema = new mongoose.Schema({
   risco: String,
   estrategia: String,
   detalhamento: String
-}, { collection: 'respostas' }); 
+}, { collection: 'riscoRespostas' }); 
 
 const Resposta = mongoose.models['Resposta'] || mongoose.model('Resposta', RespostaSchema);
 
