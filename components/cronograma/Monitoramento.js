@@ -340,7 +340,7 @@ const Tabela = () => {
       }
     }
     setConfirmUpdateItem(null);
-    cleanForm(novosDados, setNovosDados);
+    cleanForm(novosDados, setNovosDados, camposVazios);
     setLinhaVisivel();
     window.location.reload();
   };

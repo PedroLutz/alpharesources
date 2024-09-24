@@ -174,7 +174,7 @@ const Tabela = () => {
       route: 'cronograma',
       dados: formDataGantt,
     });
-    cleanForm(novoSubmit, setNovoSubmit);
+    cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     window.location.reload();
   };
 
@@ -210,7 +210,7 @@ const Tabela = () => {
       }
     }
     setConfirmUpdateItem(null);
-    cleanForm(novosDados, setNovosDados);
+    cleanForm(novosDados, setNovosDados, camposVazios);
     setLinhaVisivel();
     setReload(true);
   };

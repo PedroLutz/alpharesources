@@ -80,7 +80,7 @@ const Tabela = () => {
       route: 'responsabilidades/raci',
       dados: updatedFormData,
     });
-    cleanForm(novoSubmit, setNovoSubmit);
+    cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     await fetchItensRaci();
     setReload(true);
   };

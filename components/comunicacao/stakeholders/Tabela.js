@@ -37,7 +37,7 @@ const Tabela = () => {
             route: 'stakeholders',
             dados: novoSubmit
         });
-        cleanForm(novoSubmit, setNovoSubmit);
+        cleanForm(novoSubmit, setNovoSubmit, camposVazios);
         setReload(true);
     };
 
