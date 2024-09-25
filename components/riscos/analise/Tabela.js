@@ -129,6 +129,10 @@ const TabelaAnalise = () => {
         return rowSpan;
     };
 
+    const calculaRPN = (item) => {
+        return item.ocorrencia * item.impacto * item.acao * item.urgencia;
+    }
+
     return (
         <div className="centered-container">
             {loading && <Loading />}
@@ -201,9 +205,10 @@ const TabelaAnalise = () => {
                                             <td>{item.impacto}</td>
                                             <td>{item.acao}</td>
                                             <td>{item.urgencia}</td>
-                                            <td>{item.ocorrencia * item.impacto * item.acao * item.urgencia}</td>
-                                            <td>{item.impactoFinanceiro}</td>
-                                            <td>{(item.impactoFinanceiro * (item.impacto/5)).toFixed(2)}</td>
+                                            <td style={{backgroundColor: calculaRPN(item) >= 150 ? '#f7b2b2' : (calculaRPN(item) >= 50 ? '#f7dcb2' : '')
+                                                }}>{calculaRPN(item)}</td>
+                                            <td>{item.impactoFinanceiro != 0 ? `R$${(Number(item.impactoFinanceiro)).toFixed(2)}` : '-'}</td>
+                                            <td>{item.impactoFinanceiro != 0 ? `R$${(item.impactoFinanceiro * (item.ocorrencia/5)).toFixed(2)}`: '-'}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
                                                 <button onClick={() => {

@@ -193,7 +193,7 @@ const TabelaAnalise = () => {
                                             )}
                                             <td>{item.areaImpacto}</td>
                                             <td style={{width: '3rem', textAlign: 'center'}}>{item.valor}</td>
-                                            <td>{item.descricao}</td>
+                                            <td style={{fontSize: '0.7rem'}}>{item.descricao}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
                                                 <button onClick={() => {
