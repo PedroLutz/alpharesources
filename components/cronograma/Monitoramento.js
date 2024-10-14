@@ -12,8 +12,11 @@ const Tabela = () => {
   const [cronogramas, setCronogramas] = useState([]);
   const [deleteInfo, setDeleteInfo] = useState({ success: false, item: null });
   const [filtroAreaSelecionada, setFiltroAreaSelecionada] = useState('');
+  const [filtroAreaResetarData, setFiltroAreaResetarData] = useState('');
   const [itemSelecionado, setItemSelecionado] = useState('');
+  const [itemSelecionadoResetar, setItemSelecionadoResetar] = useState('');
   const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
+  const [confirmResetData, setConfirmResetData] = useState(false);
   const [report, setReport] = useState([])
   const [exibirModal, setExibirModal] = useState(null);
   const [mostrarTabela, setMostrarTabela] = useState(false);
@@ -106,6 +109,46 @@ const Tabela = () => {
       console.error('Erro ao atualizar a situação do cronograma', error);
     }
   };
+
+  const handleResetarData = async () => {
+    if (itemSelecionadoResetar === '') {
+      setExibirModal('semtarefa');
+      return;
+    }
+
+    try {
+      const itemParaAtualizar = cronogramas.find(
+        (item) =>
+          item.area.toLowerCase() === filtroAreaResetarData.toLowerCase() &&
+          item.item === itemSelecionadoResetar &&
+          !item.plano
+      );
+
+      console.log(itemParaAtualizar)
+
+      if (!itemParaAtualizar) {
+        setExibirModal('semtarefa');
+        return;
+      }
+
+      var updatedItem = {
+        inicio: null,
+        termino: null
+      }
+
+      await handleUpdate({
+        route: 'cronograma',
+        dados: updatedItem,
+        item: itemParaAtualizar
+      });
+      setConfirmResetData(false)
+
+      fetchCronogramas();
+      setReload(true);
+    } catch (error) {
+      console.error('Erro ao atualizar a situação do cronograma', error);
+    }
+  }
 
   const fetchCores = async () => {
     const data = await fetchData('wbs/get/cores');
@@ -264,7 +307,7 @@ const Tabela = () => {
 
   const createGanttData = (cronogramas) => {
     const ganttData = [['Task ID', 'Task Name', 'Resource', 'Start Date', 'End Date', 'Duration', 'Percent Complete', 'Dependencies']];
-  
+
     cronogramas.forEach((item) => {
       if (!item.plano) {
         if (euDateToJsDate(item.inicio) < euDateToJsDate(item.termino)) {
@@ -285,7 +328,7 @@ const Tabela = () => {
     });
     return ganttData;
   };
-  
+
 
   const chartData = createGanttData(cronogramas);
 
@@ -374,6 +417,19 @@ const Tabela = () => {
         }} />
       )}
 
+      {confirmResetData && (
+        <Modal objeto={{
+          alerta: true,
+          titulo: `Are you sure you want to reset the dates?`,
+          botao1: {
+            funcao: handleResetarData, texto: 'Confirm'
+          },
+          botao2: {
+            funcao: () => setConfirmResetData(false), texto: 'Cancel'
+          }
+        }} />
+      )}
+
       {deleteInfo.item && (
         <Modal objeto={{
           titulo: `Are you sure you want to delete "${deleteInfo.item.area} - ${deleteInfo.item.item}"?`,
@@ -420,12 +476,10 @@ const Tabela = () => {
               shadowEnabled: false,
               criticalPathEnabled: false,
             },
-            
+
           }}
         />
       )}
-
-
 
       <div className={styles.quickUpdate}>
         <h4>Quick update</h4>
@@ -509,7 +563,7 @@ const Tabela = () => {
                 </thead>
                 <tbody>
                   {cronogramas.filter((item) => !item.plano).map((item, index) => (
-                    <tr key={index} style={{backgroundColor: cores[item.area]}}>
+                    <tr key={index} style={{ backgroundColor: cores[item.area] }}>
                       {index === 0 || cronogramas[index - 1].area !== item.area ? (
                         <td rowSpan={calculateRowSpan(cronogramas, item.area, index)}
                         >{item.area}</td>
@@ -582,7 +636,54 @@ const Tabela = () => {
               </tbody>
             </table>
           </div>
+
+          <div className={styles.quickUpdate} style={{ marginTop: '2rem' }}>
+            <h4>Reset date</h4>
+            <div>
+              <select
+                name="area"
+                value={filtroAreaResetarData}
+                onChange={(e) => {
+                  setFiltroAreaResetarData(e.target.value);
+                  setItemSelecionadoResetar('');
+                }}
+                required
+              >
+                <option value="" disabled>Select an area</option>
+                {[...new Set(cronogramas.map((item) => item.area))].map((area, index) => (
+                  <option key={index} value={area}>
+                    {area}
+                  </option>
+                ))}
+              </select>
+              <select
+                name="item"
+                value={itemSelecionadoResetar}
+                onChange={(e) => {
+                  setItemSelecionadoResetar(e.target.value);
+                  setExibirModal(null);
+                }}
+                required
+              >
+                <option value="" disabled>Select an item</option>
+                {cronogramas
+                  .filter((item) => item.area.toLowerCase() === filtroAreaResetarData.toLowerCase() && !item.plano)
+                  .map((item, index) => (
+                    <option key={index} value={item.item}>
+                      {item.item}
+                    </option>
+                  ))}
+              </select>
+              <div>
+                <button onClick={() => setConfirmResetData({ ...confirmCompleteTask, question: true })}>
+                  Reset date
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
+
+
       )}
     </div>
   );

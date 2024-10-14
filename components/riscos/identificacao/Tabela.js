@@ -17,6 +17,10 @@ const TabelaRiscos = () => {
         causa: '',
         gatilho: ''
     }
+    const [dadosUpdateTudo, setDadosUpdateTudo] = useState({
+        oldRisco: '',
+        newRisco: ''
+    })
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
     const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
@@ -40,6 +44,11 @@ const TabelaRiscos = () => {
     };
 
     const handleUpdateClick = (item) => {
+        console.log(item)
+        setDadosUpdateTudo({
+            oldRisco: item.risco,
+            newRisco: ''
+        });
         setConfirmUpdateItem(item)
         setNovosDados({
             ...item
@@ -59,6 +68,11 @@ const TabelaRiscos = () => {
         if (confirmUpdateItem) {
             setLoading(true);
             const updatedItem = { ...confirmUpdateItem, ...novosDados };
+            const dadosUpdate = {
+                ...dadosUpdateTudo,
+                newRisco: novosDados.risco
+            }
+            console.log(dadosUpdate);
 
             const updatedRiscos = riscos.map(item =>
                 item._id === updatedItem._id ? { ...updatedItem } : item
@@ -69,7 +83,7 @@ const TabelaRiscos = () => {
             setReload(true);
             try {
                 await handleUpdate({
-                    route: 'riscos/risco/update?id',
+                    route: 'riscos/risco/update/update?id',
                     dados: updatedItem,
                     item: confirmUpdateItem
                 });
@@ -78,6 +92,25 @@ const TabelaRiscos = () => {
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
+            try {
+                const response = await fetch(`/api/riscos/risco/update/tudoRiscos`, {
+                  method: 'PUT',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(dadosUpdate),
+                });
+      
+                if (response.status === 200) {
+                  return;
+                } else {
+                  console.error(`Erro ao atualizar outras áreas de riscos`);
+                }
+              } catch (error) {
+                console.error(`Erro ao atualizar outros áreas de riscos, ${error}`);
+              }
+            setDadosUpdateTudo({oldRisco: '',
+                newRisco: ''});
             setLoading(false);
         }
     };

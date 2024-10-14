@@ -21,6 +21,7 @@ const Resumo = () => {
   const [receitasTotais, setReceitasTotais] = useState([]);
   const [despesasTotais, setDespesasTotais] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [cores, setCores] = useState({});
 
   //gerar Array do grafico de pizza Receitas Por Area
   const ReceitasPorAreaGraph = [['Area', 'Value']];
@@ -108,7 +109,7 @@ const Resumo = () => {
         const comparacao = porcentagensDeExecucao.find(c => c.area === area);
         const despesa = despesasPorArea.find(d => d._id === area);
 
-        const valorPlanejado = parseFloat((vp.totalValorA*2 + vp.totalValorB)/3).toFixed(2);
+        const valorPlanejado = parseFloat((vp.totalValorA * 2 + vp.totalValorB) / 3).toFixed(2);
         const porcentagem = comparacao ? comparacao.porcentagem : 0;
         const custoReal = despesa ? despesa.total : 0;
         const valorAgregado = valorPlanejado * (porcentagem / 100);
@@ -127,8 +128,18 @@ const Resumo = () => {
     }
   };
 
+  const fetchCores = async () => {
+    const data = await fetchData('wbs/get/cores');
+    var cores = {};
+    data.areasECores.forEach((area) => {
+      cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
+    })
+    setCores(cores);
+  }
+
   useEffect(() => {
     fetchResumos();
+    fetchCores();
   }, []);
 
   const estiloGraph = {
@@ -210,6 +221,12 @@ const Resumo = () => {
               options={{
                 ...estiloGraph,
                 title: 'Revenues per area',
+                slices: ReceitasPorAreaGraph.slice(1).map((row, index) => ({
+                  color: cores[row[0]] || '#ccc', 
+                })),
+                pieSliceTextStyle: {
+                  color: 'black', 
+                },
               }}
               rootProps={{ 'data-testid': '1' }}
             />
@@ -225,7 +242,14 @@ const Resumo = () => {
               options={{
                 ...estiloGraph,
                 title: 'Costs per area',
+                slices: DespesasPorAreaGraph.slice(1).map((row) => ({
+                  color: cores[row[0]] || '#ccc', // usa a cor correta para cada área
+                })),
+                pieSliceTextStyle: {
+                  color: 'black', // Define a cor das porcentagens como preta
+                },
               }}
+
               rootProps={{ 'data-testid': '1' }}
             />
           </div>

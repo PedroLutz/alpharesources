@@ -1,5 +1,5 @@
-import connectToDatabase from '../../../../lib/db';
-import RiscoModel from '../../../../models/riscos/Risco';
+import connectToDatabase from '../../../../../lib/db';
+import RiscoModel from '../../../../../models/riscos/Risco'; 
 
 const { Risco, RiscoSchema } = RiscoModel;
 

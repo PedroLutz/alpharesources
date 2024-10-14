@@ -17,6 +17,7 @@ const Resumo = () => {
     const [loading, setLoading] = useState(true);
     const [chartHeight, setChartHeight] = useState('100px');
     const [chartDataLoaded, setChartDataLoaded] = useState(false);
+    const [cores, setCores] = useState({});
 
     const [pieEssencial, setPieEssencial] = useState(false);
 
@@ -33,8 +34,18 @@ const Resumo = () => {
             setLoading(false);
         }
     };
+    
+    const fetchCores = async () => {
+        const data = await fetchData('wbs/get/cores');
+        var cores = {};
+        data.areasECores.forEach((area) => {
+          cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
+        })
+        setCores(cores);
+      }
 
     useEffect(() => {
+        fetchCores();
         fetchResumos();
     }, []);
 
@@ -69,7 +80,7 @@ const Resumo = () => {
     });
 
     useEffect(() => {
-        const dados = [linhaDoTempoEssencial_graph, linhaDoTempoAll_graph]
+        let dados = pieEssencial ? [linhaDoTempoEssencial_graph] : [linhaDoTempoAll_graph]
         dados.forEach((dado) => {
             if (dado.length > 1) {
                 const linhaHeight = 40;
@@ -117,6 +128,12 @@ const Resumo = () => {
                                 options={{
                                     ...estiloGraph,
                                     title: 'Essencial Scenario',
+                                    slices: planosPorArea_Essencial_graph.slice(1).map((row, index) => ({
+                                        color: cores[row[0]] || '#ccc', 
+                                      })),
+                                      pieSliceTextStyle: {
+                                        color: 'black', 
+                                      },
                                 }}
                                 rootProps={{ 'data-testid': '1' }}
                             />
@@ -132,6 +149,12 @@ const Resumo = () => {
                                 options={{
                                     ...estiloGraph,
                                     title: 'Ideal Scenario',
+                                    slices: planosPorArea_all_graph.slice(1).map((row, index) => ({
+                                        color: cores[row[0]] || '#ccc', 
+                                      })),
+                                      pieSliceTextStyle: {
+                                        color: 'black', 
+                                      },
                                 }}
                                 rootProps={{ 'data-testid': '1' }}
                             />
