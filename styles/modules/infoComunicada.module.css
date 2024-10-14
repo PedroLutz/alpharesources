@@ -12,7 +12,8 @@
 }
 
 .tabelaComunicacao_wrapper{
-    max-width: 1200px;
+    max-width: 75rem;
+    max-height: 45rem;
     display:block;
 }
 

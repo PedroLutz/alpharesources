@@ -12,8 +12,9 @@
 }
 
 .tabela_financas_wrapper{
-    max-width: 1200px;
-    display: block;
+    max-width: 75rem;
+    max-height: 45rem;
+    display:block;
 }
 
 .tabela_financas td {
