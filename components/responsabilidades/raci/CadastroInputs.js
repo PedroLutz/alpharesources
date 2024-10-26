@@ -1,5 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import { fetchData } from '../../../functions/crud';
+import { AuthContext } from '../../../contexts/AuthContext';
 
 const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
     const [emptyFields, setEmptyFields] = useState([]);
@@ -11,6 +12,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
         item: null,
         responsabilidades: null,
     }));
+    const {isAdmin} = useContext(AuthContext)
 
     const fetchElementos = async () => {
         const data = await fetchData('wbs/get/all');
@@ -202,7 +204,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
             ))}
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
-                    <button onClick={(e) => handleSubmit(e)}>Add new</button>
+                    <button onClick={(e) => handleSubmit(e)} disabled={!isAdmin}>Add new</button>
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>

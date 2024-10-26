@@ -1,10 +1,11 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import Loading from '../../Loading';
 import Modal from '../../Modal';
 import CadastroInputs from './CadastroInputs';
 import styles from '../../../styles/modules/tabela.module.css'
 import { handleSubmit, fetchData, handleDelete, handleUpdate, handlePseudoDelete } from '../../../functions/crud';
 import { jsDateToEuDate, euDateToIsoDate, cleanForm } from '../../../functions/general';
+import { AuthContext } from '../../../contexts/AuthContext';
 
 const labelsTipo = {
   Income: 'Income',
@@ -34,6 +35,7 @@ const Tabela = () => {
   }
   const [novoSubmit, setNovoSubmit] = useState(camposVazios);
   const [novosDados, setNovosDados] = useState(camposVazios);
+  const {isAdmin} = useContext(AuthContext)
 
   const fetchLancamentos = async () => {
     try {
@@ -293,15 +295,19 @@ const Tabela = () => {
                         <td>{item.destino}</td>
                         {!dadosTabela.isDeletados ? (
                           <td className="botoes_acoes">
-                            <button onClick={() => setConfirmItemAction({ action: 'delete', item: item })}>❌</button>
+                            <button onClick={() => setConfirmItemAction({ action: 'delete', item: item })}
+                              disabled={!isAdmin}>❌</button>
                             <button onClick={() => {
                               linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
-                            }}>⚙️</button>
+                            }}
+                            disabled={!isAdmin}>⚙️</button>
                           </td>
                         ) : (
                           <td className="botoes_acoes">
-                            <button onClick={() => setDeleteInfo({ success: null, item: item })}>❌</button>
-                            <button onClick={() => setConfirmItemAction({ action: 'restore', item: item })}>🔄</button>
+                            <button onClick={() => setDeleteInfo({ success: null, item: item })}
+                              disabled={!isAdmin}>❌</button>
+                            <button onClick={() => setConfirmItemAction({ action: 'restore', item: item })}
+                              disabled={!isAdmin}>🔄</button>
                           </td>
                         )}
                       </tr>
@@ -322,7 +328,7 @@ const Tabela = () => {
       }}>
         {dadosTabela.garbageButtonLabel}</button>
         {dadosTabela.isDeletados && (
-          <button className="botao-padrao" style={{ width: '130px' }} onClick={() => setLimparLixo(true)}>Clean bin ♻️</button>
+          <button className="botao-padrao" style={{ width: '130px' }} disabled={!isAdmin} onClick={() => setLimparLixo(true)}>Clean bin ♻️</button>
         )}
       </div>
       

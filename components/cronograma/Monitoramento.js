@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Chart } from 'react-google-charts';
 import Loading from '../Loading';
 import Modal from '../Modal';
@@ -7,6 +7,7 @@ import { jsDateToEuDate, euDateToJsDate, euDateToIsoDate, cleanForm } from '../.
 import styles from '../../styles/modules/cronograma.module.css';
 import CadastroInputs from './CadastroInputs';
 import chroma from 'chroma-js';
+import { AuthContext } from "../../contexts/AuthContext";
 
 const Tabela = () => {
   const [cronogramas, setCronogramas] = useState([]);
@@ -38,6 +39,7 @@ const Tabela = () => {
     situacao: '',
   }
   const [novosDados, setNovosDados] = useState(camposVazios);
+  const {isAdmin} = useContext(AuthContext);
 
   const labelsSituacao = {
     iniciar: 'Starting',
@@ -521,15 +523,15 @@ const Tabela = () => {
         </div>
 
         <div>
-          <button onClick={() => handleAtualizarTarefa('em andamento')}>
+          <button onClick={() => handleAtualizarTarefa('em andamento')} disabled={!isAdmin}>
             Start task
           </button>
-          <button onClick={() => handleAtualizarTarefa('check')}>
+          <button onClick={() => handleAtualizarTarefa('check')} disabled={!isAdmin}>
             Check execution
           </button>
           <button onClick={() => {
             itemSelecionado ? setConfirmCompleteTask(itemSelecionado) : setExibirModal('semtarefa')
-          }}>
+          }} disabled={!isAdmin}>
             Complete task
           </button>
         </div>
@@ -589,10 +591,10 @@ const Tabela = () => {
                           <td>{labelsSituacao[item.situacao.toLowerCase().replace(/\s/g, '')] || '-'}</td>
                           <td>
                             <div className='botoes_acoes'>
-                              <button onClick={() => handleClick(item)}>❌</button>
+                              <button onClick={() => handleClick(item)} disabled={!isAdmin}>❌</button>
                               <button onClick={() => {
                                 linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
-                              }}>⚙️</button>
+                              }} disabled={!isAdmin}>⚙️</button>
                             </div>
                           </td>
                         </React.Fragment>
@@ -675,7 +677,8 @@ const Tabela = () => {
                   ))}
               </select>
               <div>
-                <button onClick={() => setConfirmResetData({ ...confirmCompleteTask, question: true })}>
+                <button onClick={() => setConfirmResetData({ ...confirmCompleteTask, question: true })} 
+                disabled={!isAdmin}>
                   Reset date
                 </button>
               </div>

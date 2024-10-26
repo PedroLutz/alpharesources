@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useContext } from "react"
 import styles from '../../../styles/modules/risco.module.css'
 import CadastroInputs from "./Inputs";
 import Modal from "../../Modal";
 import Loading from "../../Loading";
 import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../functions/crud";
 import { cleanForm } from "../../../functions/general";
+import { AuthContext } from "../../../contexts/AuthContext";
 
 const TabelaRiscos = () => {
     const camposVazios = {
@@ -32,6 +33,7 @@ const TabelaRiscos = () => {
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUptading] = useState(false);
     const [cores, setCores] = useState({});
+    const {isAdmin} = useContext(AuthContext);
 
     const enviar = async (e) => {
         e.preventDefault();
@@ -261,11 +263,11 @@ const TabelaRiscos = () => {
                                             <td>{item.causa}</td>
                                             <td>{item.gatilho}</td>
                                             <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
+                                                <button onClick={() => setConfirmDeleteItem(item)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
                                                     setLinhaVisivel(item._id); handleUpdateClick(item); setIsUptading([item.area, item.item])
                                                 }
-                                                }>⚙️</button>
+                                                } disabled={!isAdmin}>⚙️</button>
                                             </td>
                                         </tr>
                                     )}

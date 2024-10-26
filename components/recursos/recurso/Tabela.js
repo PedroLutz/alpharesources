@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useContext } from "react"
 import CadastroInputs from "./CadastroInputs";
 import styles from '../../../styles/modules/recursos.module.css'
 import Modal from "../../Modal";
 import Loading from "../../Loading";
 import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../functions/crud";
 import { cleanForm } from "../../../functions/general";
+import { AuthContext } from "../../../contexts/AuthContext";
 
 const Tabela = () => {
     const camposVazios = {
@@ -26,6 +27,7 @@ const Tabela = () => {
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
     const [cores, setCores] = useState([]);
+    const {isAdmin} = useContext(AuthContext)
 
     const fetchCores = async () => {
         const data = await fetchData('wbs/get/cores');
@@ -214,11 +216,12 @@ const Tabela = () => {
                                             <td>{recurso.status}</td>
                                             <td>{recurso.ehEssencial ? 'Yes' : 'No'}</td>
                                             <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(recurso)}>❌</button>
+                                                <button onClick={() => setConfirmDeleteItem(recurso)}
+                                                    disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
                                                     setLinhaVisivel(recurso._id); handleUpdateClick(recurso); setIsUpdating([recurso.area, recurso.item])
                                                 }
-                                                }>⚙️</button>
+                                                } disabled={!isAdmin}>⚙️</button>
                                             </td>
                                         </tr>
                                     )}

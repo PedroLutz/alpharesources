@@ -197,7 +197,9 @@ const Resumo = () => {
                 <td>R${item.custoReal * -1}</td>
                 <td>{Number(item.porcentagem).toFixed(2)}%</td>
                 <td>R${Number(item.valorAgregado).toFixed(2)}</td>
-                <td>{item.custoReal != 0 ? Number(item.valorAgregado / (item.custoReal * -1)).toFixed(2) : '-'}</td>
+                <td>{item.custoReal == 0 ? '-'
+                : (Number(item.valorAgregado / (item.custoReal * -1)).toFixed(2)) != 0 ? 
+                Number(item.valorAgregado / (item.custoReal * -1)).toFixed(2) : '-'}</td>
               </tr>
             ))}
           </tbody>

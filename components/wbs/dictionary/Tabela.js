@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useContext } from "react"
 import styles from '../../../styles/modules/risco.module.css'
 import CadastroInputs from "./Inputs";
 import Modal from "../../Modal";
 import Loading from "../../Loading";
 import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../functions/crud";
 import { cleanForm } from "../../../functions/general";
+import { AuthContext } from "../../../contexts/AuthContext";
 
 const TabelaAnalise = () => {
     const camposVazios = {
@@ -27,6 +28,7 @@ const TabelaAnalise = () => {
     const [loading, setLoading] = useState(true);
     const [cores, setCores] = useState({});
     const [isUpdating, setIsUpdating] = useState(false);
+    const {isAdmin} = useContext(AuthContext)
 
     const enviar = async (e) => {
         e.preventDefault();
@@ -215,11 +217,11 @@ const TabelaAnalise = () => {
                                             <td>{item.timing}</td>
                                             <td>{item.responsavel}</td>
                                             <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
+                                                <button onClick={() => setConfirmDeleteItem(item)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
                                                     setLinhaVisivel(item._id); handleUpdateClick(item); setIsUpdating(item.area)
                                                 }
-                                                }>⚙️</button>
+                                                } disabled={!isAdmin}>⚙️</button>
                                             </td>
                                         </tr>
                                     )}

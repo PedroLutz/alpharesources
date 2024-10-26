@@ -1,6 +1,7 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useContext } from "react";
 import React from "react";
 import { fetchData } from "../../../functions/crud";
+import { AuthContext } from "../../../contexts/AuthContext";
 
 const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     const [emptyFields, setEmptyFields] = useState([]);
@@ -19,6 +20,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         tools: null,
         responsible: null
     })
+    const {isAdmin} = useContext(AuthContext);
 
     const fetchMembros = async () => {
         const data = await fetchData('responsabilidades/membros/get/nomes');
@@ -203,7 +205,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
             </td>
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
-                    <button onClick={handleSubmit}>Add new</button>
+                    <button onClick={handleSubmit} disabled={!isAdmin}>Add new</button>
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>

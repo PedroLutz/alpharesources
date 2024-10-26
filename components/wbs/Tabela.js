@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import styles from '../../styles/modules/wbs.module.css';
 import Loading from '../Loading';
 import { fetchData, handleUpdate, handleDelete, handleSubmit } from '../../functions/crud';
 import Modal from '../Modal';
 import BlocoInputs from './BlocoInputs';
 import { cleanForm } from '../../functions/general';
+import { AuthContext } from '../../contexts/AuthContext';
 
 const WBS = () => {
   const [elementosPorArea, setElementosPorArea] = useState([]);
@@ -26,6 +27,7 @@ const WBS = () => {
   const [novoSubmit, setNovoSubmit] = useState(camposVazios);
   const [submitEmArea, setSubmitEmArea] = useState(camposVazios);
   const [novosDados, setNovosDados] = useState(camposVazios);
+  const {isAdmin} = useContext(AuthContext)
 
   const enviar = async (e) => {
     e.preventDefault();
@@ -286,7 +288,7 @@ const WBS = () => {
                           <button
                             onClick={() => {
                               handleUpdateClick(area); setLinhaVisivel(area);
-                            }}>⚙️</button>
+                            }} disabled={!isAdmin}>⚙️</button>
                         </div>
                       </React.Fragment>
                     )}
@@ -307,7 +309,7 @@ const WBS = () => {
                         <button
                           onClick={() => {
                             handleUpdateClick({ area: area, cor: cores[area] ? cores[area] : '' }); setLinhaVisivel(`${area}Cor`);
-                          }}>⚙️</button>
+                          }} disabled={!isAdmin}>⚙️</button>
                       </div>
                     )}
                   </React.Fragment>
@@ -339,8 +341,8 @@ const WBS = () => {
                             ) : (
                               <React.Fragment>
                                 {item.item}
-                                <button onClick={() => { handleUpdateClick(item); setLinhaVisivel(item); }}>⚙️</button>
-                                <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
+                                <button onClick={() => { handleUpdateClick(item); setLinhaVisivel(item); }} disabled={!isAdmin}>⚙️</button>
+                                <button onClick={() => setConfirmDeleteItem(item)} disabled={!isAdmin}>❌</button>
                               </React.Fragment>
                             )}
                           </React.Fragment>

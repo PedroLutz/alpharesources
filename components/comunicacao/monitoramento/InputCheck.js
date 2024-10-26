@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import React from "react";
+import { AuthContext } from "../../../contexts/AuthContext";
 
 const CadastroInputs = ({ funcao, item }) => {
     const [isChecked, setIsChecked] = useState([]);
+    const {isAdmin} = useContext(AuthContext)
 
     useEffect(() => {
         setIsChecked(item.check)
@@ -22,6 +24,7 @@ const CadastroInputs = ({ funcao, item }) => {
             style={{width: '1rem'}}
             onChange={handleCheck}
             checked={isChecked}
+            disabled={!isAdmin}
         />
     )
 }

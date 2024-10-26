@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useContext} from "react"
 import CadastroInputs from "./CadastroInputs";
 import styles from '../../../styles/modules/planoAquisicao.module.css'
 import Modal from "../../Modal";
 import Loading from "../../Loading";
 import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../functions/crud";
 import { cleanForm, jsDateToEuDate, euDateToIsoDate } from "../../../functions/general";
+import { AuthContext } from "../../../contexts/AuthContext"; 
 
 const PlanoAquisicao = () => {
     const camposVazios = {
@@ -31,6 +32,7 @@ const PlanoAquisicao = () => {
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
+    const {isAdmin} = useContext(AuthContext)
 
     const enviar = async (e) => {
         e.preventDefault();
@@ -224,11 +226,13 @@ const PlanoAquisicao = () => {
                                             <td>{plano.data_real != 'NaN/NaN/NaN' ? plano.data_real : '-'}</td>
                                             <td>R${Number(plano.valor_real).toFixed(2) || '-'}</td>
                                             <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(plano)}>❌</button>
+                                                <button onClick={() => setConfirmDeleteItem(plano)}
+                                                    disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
                                                     setLinhaVisivel(plano._id); handleUpdateClick(plano); setIsUpdating(plano.recurso)
                                                 }
-                                                }>⚙️</button>
+                                                }
+                                                disabled={!isAdmin}>⚙️</button>
                                             </td>
                                         </tr>
                                     )}

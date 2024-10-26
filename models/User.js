@@ -5,6 +5,7 @@ delete mongoose.connection.models['User'];
 const UserSchema = new mongoose.Schema({
   usuario: String,
   senha: String,
+  admin: Boolean
 }, { collection: 'users' }); 
 
 const User = mongoose.models['User'] || mongoose.model('User', UserSchema);

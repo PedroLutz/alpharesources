@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useContext } from "react"
 import styles from '../../../styles/modules/infoComunicada.module.css'
 import CadastroInputs from "./CadastroInputs";
 import InputCheck from './InputCheck'
@@ -6,6 +6,7 @@ import Modal from "../../Modal";
 import Loading from "../../Loading";
 import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../functions/crud";
 import { cleanForm } from "../../../functions/general";
+import { AuthContext } from "../../../contexts/AuthContext";
 
 const Tabela = () => {
     const camposVazios = {
@@ -23,6 +24,7 @@ const Tabela = () => {
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
+    const {isAdmin} = useContext(AuthContext);
 
     const enviar = async (e) => {
         e.preventDefault();
@@ -205,11 +207,11 @@ const Tabela = () => {
                                             <td>{info.timing}</td>
                                             <td style={{width: '2rem'}}><InputCheck funcao={handleUpdateCheck} item={info}/></td>
                                             <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(info)}>❌</button>
+                                                <button onClick={() => setConfirmDeleteItem(info)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
                                                     setLinhaVisivel(info._id); handleUpdateClick(info)
                                                 }
-                                                }>⚙️</button>
+                                                } disabled={!isAdmin}>⚙️</button>
                                             </td>
                                             </React.Fragment>  
                                     )}

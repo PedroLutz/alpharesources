@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useContext } from "react";
 import styles from '../../styles/modules/wbs.module.css';
+import { AuthContext } from "../../contexts/AuthContext";
 
 const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
     const [emptyFields, setEmptyFields] = useState([]);
@@ -8,6 +9,7 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
         item: null,
         area: null
     });
+    const {isAdmin} = useContext(AuthContext)
 
     useEffect(() => {
         if (area) {
@@ -122,7 +124,7 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
                     style={{width: '11.5rem', backgroundColor: 'transparent'}}
                     onChange={(e) => handleChange(e, objSetter, obj)}
                     ref={el => (camposRef.current.cor = el)} />
-                <button onClick={(e) => handleSubmit(e)}>Add new</button>
+                <button onClick={(e) => handleSubmit(e)} disabled={!isAdmin}>Add new</button>
             </div>
         )
     }
@@ -136,7 +138,7 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
                         data-area={area}
                         onChange={(e) => handleChange(e, objSetter, obj)}
                         ref={el => (camposRef.current.item = el)} />
-                        <button onClick={(e) => handleSubmit(e)}>➕</button>
+                        <button onClick={(e) => handleSubmit(e)} disabled={!isAdmin}>➕</button>
                 </div>
             </div>
         )

@@ -5,28 +5,33 @@ import { AuthContext } from "../contexts/AuthContext";
 const {modal_login, gradient_text, input_login} = styles;
 
 const FormularioLogin = () => {
-    const {autenticado, setAutenticado} = useContext(AuthContext);
+    const {autenticado, setAutenticado, setIsAdmin} = useContext(AuthContext);
     const [usuario, setUsuario] = useState("");
-    const [userInfo, setUserInfo] = useState("");
     const [senha, setSenha] = useState("");
     const [alert, setAlert] = useState(null);
 
-    const fetchAutenticacao = async () => {
+    const queryPorNome = async () => {
       try {
-        const response = await fetch('/api/login', {
+        const response = await fetch(`/api/users/getByUser?user=${usuario}`, {
           method: 'GET',
         });
   
         if (response.status === 200) {
           const data = await response.json();
-          setUserInfo(data.usuario[0]);
+          if(data.usuario[0] === undefined){
+            setAlert('user');
+            return false;
+          }
+          return data.usuario[0];
         } else {
           console.error('Error in searching for timeline data');
+          return false;
         }
       } catch (error) {
         console.error('Error in searching for financal releases data', error);
+        return false;
       }
-    };
+    }
 
   
     useEffect(() => {
@@ -44,36 +49,36 @@ const FormularioLogin = () => {
       } else {
           setAutenticado(false);
       }
-      fetchAutenticacao(); 
   }, []);
 
-    const validarCampos = () => {
+    const validarCampos = async (userData) => {
       if(usuario === '' || senha === '' ){
         setAlert('campos');
         return;
       }
-      if(usuario !== userInfo.usuario.trim()){
-        setAlert('user');
-        return;
-      }
-      if(senha !== userInfo.senha){
+      if(senha !== userData.senha){
         setAlert('senha');
         return;
       }
     }
   
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
       e.preventDefault();
-      setAlert(null);
-      validarCampos();
-      if (senha === userInfo.senha && usuario === userInfo.usuario.trim()) {
-        var d = new Date();
-        d.setMinutes(d.getMinutes() + 60);
-        
-        sessionStorage.setItem('tempoDeSessao', d.toString());
-  
-        setAutenticado(true);
-      };
+      const userData = await queryPorNome();
+      if(userData !== false){
+        setAlert(null);
+        await validarCampos(userData);
+        if (senha === userData.senha && usuario === userData.usuario.trim()) {
+          var d = new Date();
+          d.setMinutes(d.getMinutes() + 60);
+          sessionStorage.setItem('tempoDeSessao', d.toString());
+    
+          setAutenticado(true);
+          setIsAdmin(userData.admin);
+          console.log(userData.admin)
+        };
+      }
+      
       
     };
   

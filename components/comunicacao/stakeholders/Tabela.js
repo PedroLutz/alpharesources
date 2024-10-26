@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useContext } from "react"
 import styles from '../../../styles/modules/comunicacao.module.css'
 import CadastroInputs from "./CadastroInputs";
 import Modal from "../../Modal";
 import Loading from "../../Loading";
 import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../functions/crud";
 import { cleanForm } from "../../../functions/general";
+import { AuthContext } from "../../../contexts/AuthContext";
 
 const Tabela = () => {
     const camposVazios = {
@@ -30,6 +31,7 @@ const Tabela = () => {
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
+    const {isAdmin} = useContext(AuthContext)
 
     const enviar = async (e) => {
         e.preventDefault();
@@ -232,11 +234,11 @@ const Tabela = () => {
                                             <td>{stakeholder.tools}</td>
                                             <td>{stakeholder.responsible}</td>
                                             <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(stakeholder)}>❌</button>
+                                                <button onClick={() => setConfirmDeleteItem(stakeholder)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
                                                     setLinhaVisivel(stakeholder._id); handleUpdateClick(stakeholder)
                                                 }
-                                                }>⚙️</button>
+                                                } disabled={!isAdmin}>⚙️</button>
                                             </td>
                                         </tr>
                                     )}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import Loading from '../Loading';
 import Modal from '../Modal';
 import { Chart } from 'react-google-charts';
@@ -7,6 +7,7 @@ import { cleanForm, jsDateToEuDate, euDateToIsoDate, euDateToJsDate } from '../.
 import styles from '../../styles/modules/cronograma.module.css';
 import CadastroInputs from './CadastroInputs';
 import chroma from 'chroma-js';
+import { AuthContext } from "../../contexts/AuthContext";
 
 const Tabela = () => {
   const [cronogramas, setCronogramas] = useState([]);
@@ -30,6 +31,7 @@ const Tabela = () => {
   }
   const [novosDados, setNovosDados] = useState(camposVazios);
   const [novoSubmit, setNovoSubmit] = useState(camposVazios);
+  const {isAdmin} = useContext(AuthContext);
 
   const handleUpdateClick = (item) => {
     setConfirmUpdateItem(item);
@@ -333,10 +335,12 @@ const Tabela = () => {
                         <td>{item.dp_item || '-'}</td>
                         <td>
                           <div className={styles.botoesAcoes}>
-                            <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
+                            <button onClick={() => setConfirmDeleteItem(item)}
+                              disabled={!isAdmin}>❌</button>
                             <button onClick={() => {
                               linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
-                            }}>⚙️</button>
+                            }}
+                            disabled={!isAdmin}>⚙️</button>
                           </div>
                         </td>
                       </React.Fragment>

@@ -193,17 +193,17 @@ const handleExport = (containerSelector, monthYear) => {
                         width: 98%;
                         resize: none;
                         margin: 0.1rem;
-                        height: 2rem;
+                        height: 3rem;
                     }
 
                     .tableStatus td textarea, .tableDetails td textarea{
                         width: 92%;
-                        height: 3rem;
+                        height: 5rem;
                     }
 
                     .tableDetails td textarea{
                         width: 95%;
-                        height: 2rem;
+                        height: 3rem;
                     }
                 </style>
             </head>

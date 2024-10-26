@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useContext } from "react"
 import styles from '../../../styles/modules/risco.module.css'
 import CadastroInputs from "./Inputs";
 import Modal from "../../Modal";
 import Loading from "../../Loading";
 import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../functions/crud";
 import { cleanForm } from "../../../functions/general";
+import { AuthContext } from "../../../contexts/AuthContext";
 
 const TabelaAnalise = () => {
     const camposVazios = {
@@ -23,6 +24,7 @@ const TabelaAnalise = () => {
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
+    const {isAdmin} = useContext(AuthContext)
 
     const enviar = async (e) => {
         e.preventDefault();
@@ -195,11 +197,11 @@ const TabelaAnalise = () => {
                                             <td>{item.impactoFinanceiro}</td>
                                             <td>{item.descricaoImpacto}</td>
                                             <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
+                                                <button onClick={() => setConfirmDeleteItem(item)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
                                                     setLinhaVisivel(item._id); handleUpdateClick(item); setIsUpdating(item.risco)
                                                 }
-                                                }>⚙️</button>
+                                                } disabled={!isAdmin}>⚙️</button>
                                             </td>
                                         </tr>
                                     )}

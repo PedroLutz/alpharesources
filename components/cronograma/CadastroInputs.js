@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useContext } from "react";
 import { fetchData } from "../../functions/crud";
 import styles from '../../styles/modules/cronograma.module.css';
+import { AuthContext } from "../../contexts/AuthContext";
 
 const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => {
     const [emptyFields, setEmptyFields] = useState([]);
@@ -15,6 +16,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
         dp_area: null,
         situacao: null,
     });
+    const {isAdmin} = useContext(AuthContext);
 
     const isFormVazio = (form) => {
         console.log(obj)
@@ -298,7 +300,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
             )}
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
-                    <button className={styles.botaoCadastro} onClick={(e) => handleSubmit(e)}>Add new</button>
+                    <button className={styles.botaoCadastro} disabled={!isAdmin} onClick={(e) => handleSubmit(e)}>Add new</button>
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>

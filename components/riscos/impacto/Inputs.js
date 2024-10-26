@@ -1,6 +1,7 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useContext } from "react";
 import React from "react";
 import { fetchData } from "../../../functions/crud";
+import { AuthContext } from "../../../contexts/AuthContext";
 
 const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     const [riscos, setRiscos] = useState([])
@@ -12,6 +13,7 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         valor: null,
         descricao: null
     })
+    const {isAdmin} = useContext(AuthContext);
 
     const fetchRiscos = async () => {
         const data = await fetchData('riscos/risco/get/riscosAreas');
@@ -164,7 +166,7 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
             </td>
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
-                    <button onClick={handleSubmit}>Add new</button>
+                    <button onClick={handleSubmit} disabled={!isAdmin}>Add new</button>
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>

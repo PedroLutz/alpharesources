@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import members from '../../../styles/modules/members.module.css';
 import Loading from '../../Loading';
 import Modal from '../../Modal';
 import CadastroInputs from './CadastroInputs';
 import { fetchData, handleDelete, handleUpdate, handleSubmit } from '../../../functions/crud';
 import { cleanForm } from '../../../functions/general';
+import { AuthContext } from '../../../contexts/AuthContext';
 
 const Tabela = () => {
   const [itensRaci, setItensRaci] = useState([]);
@@ -25,6 +26,7 @@ const Tabela = () => {
   }
   const [novoSubmit, setNovoSubmit] = useState(camposVazios);
   const [novosDados, setNovosDados] = useState(camposVazios);
+  const {isAdmin} = useContext(AuthContext);
 
   const handleUpdateClick = (item) => {
     setConfirmUpdateItem(item);
@@ -316,10 +318,12 @@ const Tabela = () => {
                       {verOpcoes && (
                         <td>
                           <div className="botoes_acoes lastMaior">
-                            <button type="button" onClick={() => setConfirmDeleteItem(item)}>❌</button>
+                            <button type="button" 
+                            onClick={() => setConfirmDeleteItem(item)}
+                            disabled={!isAdmin}>❌</button>
                             <button onClick={() => {
                               linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
-                            }}>⚙️</button>
+                            }} disabled={!isAdmin}>⚙️</button>
                           </div>
                         </td>
                       )}

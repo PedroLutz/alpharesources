@@ -20,7 +20,7 @@ function MyApp({ Component, pageProps }) {
   );
 }
 
-function InnerApp({ Component, pageProps, autenticacao }) {
+function InnerApp({ Component, pageProps}) {
   const { titulo } = useContext(TituloContext);
   const { autenticado } = useContext(AuthContext);
   const title = `${titulo ? 'AM | ' + titulo : 'Alpha Management'}`

@@ -8,7 +8,7 @@ export default async (req, res) => {
     await connectToDatabase();
 
     if (req.method === 'GET') {
-        const itensRaci = await Raci.find();
+        const itensRaci = await Raci.find().sort({ area: 1 });
 
         const groupedByArea = {};
         itensRaci.forEach(item => {

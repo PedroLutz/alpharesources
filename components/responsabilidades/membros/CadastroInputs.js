@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useRef } from "react"
+import React, { useEffect, useState, useRef, useContext } from "react"
 import members from '../../../styles/modules/members.module.css';
+import { AuthContext } from "../../../contexts/AuthContext";
 
 const CadastroInputs = ({obj, objSetter, tipo, funcao, checkDados}) => {
     const [emptyFields, setEmptyFields] = useState([]);
@@ -8,6 +9,7 @@ const CadastroInputs = ({obj, objSetter, tipo, funcao, checkDados}) => {
         softskills: null,
         hardskills: null
     })
+    const {isAdmin} = useContext(AuthContext)
 
     const handleChange = (e, setter, obj) => {
         const { name, value } = e.target;
@@ -74,7 +76,7 @@ const CadastroInputs = ({obj, objSetter, tipo, funcao, checkDados}) => {
             </div>
             <div className={tipo == 'update' ? members.botoesAcoes : undefined}>
                 {tipo !== 'update' ? (
-                    <button onClick={(e) => handleSubmit(e)}>Add new</button>
+                    <button onClick={(e) => handleSubmit(e)} disabled={!isAdmin}>Add new</button>
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>
