@@ -6,6 +6,7 @@ const Logout = () => {
 
     const deslogar = () => {
         sessionStorage.setItem('tempoDeSessao', null)
+        sessionStorage.setItem('isAdmin', false)
         setAutenticado(false);
     }
 

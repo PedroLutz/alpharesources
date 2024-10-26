@@ -72,10 +72,10 @@ const FormularioLogin = () => {
           var d = new Date();
           d.setMinutes(d.getMinutes() + 60);
           sessionStorage.setItem('tempoDeSessao', d.toString());
+          sessionStorage.setItem('isAdmin', userData.admin)
     
           setAutenticado(true);
           setIsAdmin(userData.admin);
-          console.log(userData.admin)
         };
       }
       
