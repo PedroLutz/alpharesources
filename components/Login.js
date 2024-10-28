@@ -1,11 +1,13 @@
 import { useState, useEffect, useContext} from "react";
 import styles from '../styles/modules/login.module.css'
 import { AuthContext } from "../contexts/AuthContext";
+import Loading from "./Loading";
 
 const {modal_login, gradient_text, input_login} = styles;
 
 const FormularioLogin = () => {
     const {autenticado, setAutenticado, setIsAdmin} = useContext(AuthContext);
+    const [loading, setLoading] = useState(false);
     const [usuario, setUsuario] = useState("");
     const [senha, setSenha] = useState("");
     const [alert, setAlert] = useState(null);
@@ -54,18 +56,22 @@ const FormularioLogin = () => {
     const validarCampos = async (userData) => {
       if(usuario === '' || senha === '' ){
         setAlert('campos');
+        setLoading(false);
         return;
       }
       if(senha !== userData.senha){
         setAlert('senha');
+        setLoading(false);
         return;
       }
     }
   
     const handleSubmit = async (e) => {
       e.preventDefault();
+      setLoading(true);
       const userData = await queryPorNome();
       if(userData !== false){
+        setLoading(false);
         setAlert(null);
         await validarCampos(userData);
         if (senha === userData.senha && usuario === userData.usuario.trim()) {
@@ -83,7 +89,10 @@ const FormularioLogin = () => {
     };
   
     return (
-      <form onSubmit={handleSubmit}>
+      <div>
+        {loading && <Loading/>}
+        
+<form onSubmit={handleSubmit}>
         <div className="centered-container" style={{height: '100vh'}}>
           <div className={modal_login}>
             <div>
@@ -111,6 +120,8 @@ const FormularioLogin = () => {
           </div>
         </div>
       </form>
+      </div>
+      
     );
   };
 
