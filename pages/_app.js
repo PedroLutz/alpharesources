@@ -28,7 +28,7 @@ function InnerApp({ Component, pageProps}) {
   const [isMobile, setIsMobile] = useState(false);
 
   const handleResize = () => {
-    if (window.innerWidth < 1200) {
+    if (window.innerWidth < 900) {
         setIsMobile(true)
     } else {
         setIsMobile(false)

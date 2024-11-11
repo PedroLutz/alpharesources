@@ -24,6 +24,9 @@ const Navbar = () => {
           <Link href="/pages/timeline/monitoring">Monitoring</Link>
         </li>
         <li>
+          <Link href="/pages/timeline/comparison">Comparative Chart</Link>
+        </li>
+        <li>
           <Link href="/">Menu</Link>
         </li>
         <Logout/>

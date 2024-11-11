@@ -194,7 +194,7 @@ const TabelaAnalise = () => {
                                                 <td>{item.risco}</td>
                                             )}
                                             <td>{item.resposta}</td>
-                                            <td>{item.impactoFinanceiro}</td>
+                                            <td>R${Number(item.impactoFinanceiro).toFixed(2)}</td>
                                             <td>{item.descricaoImpacto}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(item)} disabled={!isAdmin}>❌</button>

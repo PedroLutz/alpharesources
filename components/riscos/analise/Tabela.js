@@ -45,6 +45,18 @@ const TabelaAnalise = () => {
         });
     };
 
+    const getRiscos = (occ, imp) => {
+        let coisos = []
+        if(analises){
+            analises.forEach((analise)=> {
+                if (analise.ocorrencia === occ && analise.impacto === imp){
+                    coisos.push(analise.risco)
+                }
+            })
+        }
+        return coisos.join(", ");
+    }
+
     const handleUpdateItem = async () => {
         if (confirmUpdateItem) {
             setLoading(true);
@@ -231,6 +243,66 @@ const TabelaAnalise = () => {
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            <div className={styles.tabelaRisco_container} style={{marginTop: '3rem'}}>
+                <h2>Risk Assessment Matrix</h2>
+                <div className={styles.tabelaRisco_wrapper}>
+            <table className={styles.tabelaAnalise} style={{ width:'75rem'}}>
+                <thead>
+                    <tr>
+                        <th style={{borderTop: 'transparent', borderLeft: 'transparent', backgroundColor: 'transparent'}}></th>
+                        <th>1</th>
+                        <th>2</th>
+                        <th>3</th>
+                        <th>4</th>
+                        <th>5</th>
+                    </tr>
+                </thead>
+                <tbody >
+                    <tr>
+                        <th>5</th>
+                        <td style={{backgroundColor: '#a5d68f'}}>{getRiscos(5, 1) || '-'}</td>
+                        <td style={{backgroundColor: '#ffe990'}}>{getRiscos(5, 2) || '-'}</td>
+                        <td style={{backgroundColor: '#ffb486'}}>{getRiscos(5, 3) || '-'}</td>
+                        <td style={{backgroundColor: '#ff9595'}}>{getRiscos(5, 4) || '-'}</td>
+                        <td style={{backgroundColor: '#ff9595'}}>{getRiscos(5, 5) || '-'}</td>
+                    </tr>
+                    <tr>
+                        <th>4</th>
+                        <td style={{backgroundColor: '#78bf9d'}}>{getRiscos(4, 1) || '-'}</td>
+                        <td style={{backgroundColor: '#a5d68f'}}>{getRiscos(4, 2) || '-'}</td>
+                        <td style={{backgroundColor: '#ffe990'}}>{getRiscos(4, 3) || '-'}</td>
+                        <td style={{backgroundColor: '#ffb486'}}>{getRiscos(4, 4) || '-'}</td>
+                        <td style={{backgroundColor: '#ff9595'}}>{getRiscos(4, 5) || '-'}</td>
+                    </tr>
+                    <tr>
+                        <th>3</th>
+                        <td style={{backgroundColor: '#78bf9d'}}>{getRiscos(3, 1) || '-'}</td>
+                        <td style={{backgroundColor: '#a5d68f'}}>{getRiscos(3, 2) || '-'}</td>
+                        <td style={{backgroundColor: '#ffe990'}}>{getRiscos(3, 3) || '-'}</td>
+                        <td style={{backgroundColor: '#ffb486'}}>{getRiscos(3, 4) || '-'}</td>
+                        <td style={{backgroundColor: '#ff9595'}}>{getRiscos(3, 5) || '-'}</td>
+                    </tr>
+                    <tr>
+                        <th>2</th>
+                        <td style={{backgroundColor: '#78bf9d'}}>{getRiscos(2, 1) || '-'}</td>
+                        <td style={{backgroundColor: '#a5d68f'}}>{getRiscos(2, 2) || '-'}</td>
+                        <td style={{backgroundColor: '#a5d68f'}}>{getRiscos(2, 3) || '-'}</td>
+                        <td style={{backgroundColor: '#ffe990'}}>{getRiscos(2, 4) || '-'}</td>
+                        <td style={{backgroundColor: '#ffb486'}}>{getRiscos(2, 5) || '-'}</td>
+                    </tr>
+                    <tr>
+                        <th>1</th>
+                        <td style={{backgroundColor: '#78bf9d'}}>{getRiscos(1, 1) || '-'}</td>
+                        <td style={{backgroundColor: '#78bf9d'}}>{getRiscos(1, 2) || '-'}</td>
+                        <td style={{backgroundColor: '#a5d68f'}}>{getRiscos(1, 3) || '-'}</td>
+                        <td style={{backgroundColor: '#ffe990'}}>{getRiscos(1, 4) || '-'}</td>
+                        <td style={{backgroundColor: '#ffe990'}}>{getRiscos(1, 5) || '-'}</td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
             </div>
         </div>
     )

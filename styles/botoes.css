@@ -61,6 +61,8 @@
     color: white;
     transition: 0.2s;
     cursor: pointer;
+    font-weight: bolder;
+    margin-left: 1rem;
 }
 
 .botao_logout:hover{
