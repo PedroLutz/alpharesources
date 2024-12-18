@@ -54,7 +54,7 @@ const Tabela = () => {
     setCores(cores);
   }
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     setConfirmDeleteItem(null);
     if (confirmDeleteItem) {
       var getDeleteSuccess = false;
@@ -64,6 +64,17 @@ const Tabela = () => {
           item: confirmDeleteItem,
           fetchDados: fetchCronogramas
         });
+        try {
+          const response = await fetch(`/api/cronograma/deleteByName`, {
+              method: 'DELETE',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({area: confirmDeleteItem.area, item: confirmDeleteItem.item}),
+          });
+      } catch (error) {
+          console.error(`Erro ao deletar`, error);
+      }
       } finally {
         setDeleteSuccess(getDeleteSuccess);
       }
@@ -161,6 +172,7 @@ const Tabela = () => {
       plano: true,
       situacao: 'concluida'
     };
+    
     const formDataGantt = {
       ...novoSubmit,
       plano: false,
@@ -168,6 +180,8 @@ const Tabela = () => {
       termino: null,
       situacao: 'iniciar'
     };
+    console.log(formDataPlano)
+    console.log(formDataGantt)
     handleSubmit({
       route: 'cronograma',
       dados: formDataPlano,
@@ -299,7 +313,7 @@ const Tabela = () => {
             <tbody>
               <tr>
                 <CadastroInputs
-                  obj={novoSubmit}
+                  obj={{...novoSubmit, plano: true}}
                   objSetter={setNovoSubmit}
                   tipo='cadastro'
                   funcao={enviar}

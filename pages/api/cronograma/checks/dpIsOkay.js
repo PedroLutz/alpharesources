@@ -9,7 +9,8 @@ export default async (req, res) => {
 
         if (req.method === 'POST') {
             const {dp_area, dp_item, inicio, plano} = req.body;
-            const gantt = await Gantt.findOne({ area: dp_area, item: dp_item, plano: plano });
+            console.log(req.body)
+            const gantt = await Gantt.findOne({ area: dp_area, item: dp_item, plano: plano});
 
 
             function formatDate(dateString) {
@@ -30,7 +31,7 @@ export default async (req, res) => {
                 if(months[0] > months[1]){
                     return true;
                 }
-                if(days[0] > days[1]){
+                if(days[0] >= days[1]){
                     return true;
                 }
             }

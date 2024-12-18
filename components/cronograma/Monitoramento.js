@@ -135,7 +135,8 @@ const Tabela = () => {
 
       var updatedItem = {
         inicio: null,
-        termino: null
+        termino: null,
+        situacao: 'iniciar'
       }
 
       await handleUpdate({
@@ -573,7 +574,7 @@ const Tabela = () => {
                       <td>{item.item}</td>
                       {linhaVisivel === item._id ? (
                         <CadastroInputs
-                          tipo="update"
+                          tipo="updatemonitoring"
                           gantt={true}
                           obj={novosDados}
                           objSetter={setNovosDados}
@@ -591,7 +592,7 @@ const Tabela = () => {
                           <td>{labelsSituacao[item.situacao.toLowerCase().replace(/\s/g, '')] || '-'}</td>
                           <td>
                             <div className='botoes_acoes'>
-                              <button onClick={() => handleClick(item)} disabled={!isAdmin}>❌</button>
+                              {/* <button onClick={() => handleClick(item)} disabled={!isAdmin}>❌</button> */}
                               <button onClick={() => {
                                 linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
                               }} disabled={!isAdmin}>⚙️</button>

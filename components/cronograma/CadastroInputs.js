@@ -21,7 +21,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
     const isFormVazio = (form) => {
         console.log(obj)
         let camposConsiderados;
-        if(tipo === 'update'){
+        if(tipo === 'update' || tipo === 'updatemonitoring'){
             camposConsiderados = {
                 inicio: form.inicio,
                 termino: form.termino,
@@ -258,7 +258,9 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
                     ref={el => (camposRef.current.termino = el)}
                 />
             </td>
-            <td>
+            {tipo !== 'updatemonitoring' ? (
+                <React.Fragment>
+                 <td>
                 <select
                     name="dp_area"
                     onChange={(e) => handleAreaChange(e, true)}
@@ -284,6 +286,14 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
                     ))}
                 </select>
             </td>
+                </React.Fragment>
+            ):(
+                <React.Fragment>
+                    <td>{obj.dp_area || '-'}</td>
+                    <td>{obj.dp_item || '-'}</td>
+                </React.Fragment>
+            )}
+           
             {gantt && (
                 <td>
                     <select
@@ -298,8 +308,8 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
                     </select>
                 </td>
             )}
-            <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
-                {tipo !== 'update' ? (
+            <td className={tipo !== 'cadastro' ? 'botoes_acoes' : undefined}>
+                {tipo === 'cadastro' ? (
                     <button className={styles.botaoCadastro} disabled={!isAdmin} onClick={(e) => handleSubmit(e)}>Add new</button>
                 ) : (
                     <React.Fragment>
