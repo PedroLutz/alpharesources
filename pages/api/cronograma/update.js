@@ -29,10 +29,16 @@ export default async (req, res) => {
         return res.status(400).json({ error: 'Pelo menos um campo deve ser fornecido para a atualização.' });
       }
 
+      console.log(req.body)
+
+      const {area, item, dp_item, dp_area} = req.body;
+
       const updatedData = await Gantt.findByIdAndUpdate(id, updateFields, { new: true });
 
       if (!updatedData) {
         return res.status(404).json({ error: 'Gantt não encontrado.' });
+      } else {
+        const updatedMonitoring = await Gantt.findOneAndUpdate({area: area, item: item, plano: false}, {dp_item: dp_item, dp_area: dp_area}, { new: true });
       }
 
       return res.status(200).json(updatedData);

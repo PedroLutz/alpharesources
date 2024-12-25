@@ -180,8 +180,6 @@ const Tabela = () => {
       termino: null,
       situacao: 'iniciar'
     };
-    console.log(formDataPlano)
-    console.log(formDataGantt)
     handleSubmit({
       route: 'cronograma',
       dados: formDataPlano,

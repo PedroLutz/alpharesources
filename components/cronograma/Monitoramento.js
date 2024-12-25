@@ -124,9 +124,7 @@ const Tabela = () => {
           item.area.toLowerCase() === filtroAreaResetarData.toLowerCase() &&
           item.item === itemSelecionadoResetar &&
           !item.plano
-      );
-
-      console.log(itemParaAtualizar)
+      ); 
 
       if (!itemParaAtualizar) {
         setExibirModal('semtarefa');

@@ -114,13 +114,12 @@ const Tabela = () => {
       const updatedMembros = membros.map(item =>
         item._id === updatedItem._id ? { ...updatedItem } : item
       );
-
       setMembros(updatedMembros);
       linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
       setConfirmUpdateItem(null);
       try {
         await handleUpdate({
-          route: 'responsabilidades/membros',
+          route: 'responsabilidades/membros/update?id',
           dados: updatedItem,
           item: confirmUpdateItem
         });
@@ -164,10 +163,10 @@ const Tabela = () => {
                 <div key={index} className={members.container}>
                   <div><b>Name:</b> {item.nome}</div>
                   <div>
-                    <b>Softskills:</b> {item.softskills}
+                    <b>Soft skills:</b> {item.softskills}
                   </div>
                   <div>
-                    <b>Hardskills:</b> {item.hardskills}
+                    <b>Hard skills:</b> {item.hardskills}
                   </div>
                   <div className={members.botoesAcoes}>
                     <button onClick={() => setConfirmDeleteItem(item)}

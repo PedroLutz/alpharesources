@@ -20,6 +20,7 @@ const CadastroInputs = ({obj, objSetter, tipo, funcao, checkDados}) => {
             [name]: value,
         });
         e.target.classList.remove('campo-vazio');
+        
     };
 
     const validaDados = () => {

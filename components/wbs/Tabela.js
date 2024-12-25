@@ -50,7 +50,7 @@ const WBS = () => {
       }
     })
     setReload(true);
-    cleanForm(camposVazios, setNovoSubmit);
+    cleanForm(novoSubmit, setNovoSubmit, camposVazios);
   }
 
   const handleUpdateClick = (item) => {

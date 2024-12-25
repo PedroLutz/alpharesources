@@ -8,7 +8,7 @@
   "dependencies": {
     "chroma": "^0.0.1",
     "chroma-js": "^3.1.1",
-    "cookie": "^0.6.0",
+    "cookie": "^1.0.2",
     "date-fns-tz": "^2.0.0",
     "dotenv": "^16.4.5",
     "html2pdf": "^0.0.11",
@@ -21,7 +21,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-google-charts": "^4.0.1",
-    "vercel": "^32.3.1"
+    "vercel": "^32.3.0"
   },
   "devDependencies": {
     "@types/node": "18.7.5",
