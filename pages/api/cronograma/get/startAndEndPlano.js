@@ -10,7 +10,7 @@ export default async (req, res) => {
     if (req.method === 'GET') {
       const resultadosPlano = await Gantt.aggregate([
         {
-          $match: { plano: true } // Apenas documentos com plano: false
+          $match: { plano: true } // Apenas documentos com plano: true
         },
         {
           $group: {
@@ -22,7 +22,7 @@ export default async (req, res) => {
         {
           $lookup: {
             from: 'gantt',
-            let: { area: "$_id", primeiroInicio: "$primeiroInicio", ultimoTermino: "$ultimoTermino" },
+            let: { area: "$_id", inicio: "$primeiroInicio", termino: "$ultimoTermino" },
             pipeline: [
               {
                 $match: {
@@ -31,13 +31,13 @@ export default async (req, res) => {
                       { 
                         $and: [
                           { $eq: ["$area", "$$area"] },
-                          { $eq: ["$inicio", "$$primeiroInicio"] }
+                          { $eq: ["$inicio", "$$inicio"] }
                         ]
                       },
                       { 
                         $and: [
                           { $eq: ["$area", "$$area"] },
-                          { $eq: ["$termino", "$$ultimoTermino"] }
+                          { $eq: ["$termino", "$$termino"] }
                         ]
                       }
                     ]
@@ -64,13 +64,28 @@ export default async (req, res) => {
           $unwind: "$detalhes"
         },
         {
+          $sort: { "detalhes.inicio": 1 } // Ordene por data de início para garantir consistência
+        },
+        {
           $group: {
             _id: "$_id",
             primeiro: {
-              $first: "$detalhes"
+              $first: {
+                area: "$detalhes.area",
+                item: "$detalhes.item",
+                inicio: "$detalhes.inicio",
+                termino: "$detalhes.termino",
+                situacao: "$detalhes.situacao"
+              }
             },
             ultimo: {
-              $last: "$detalhes"
+              $last: {
+                area: "$detalhes.area",
+                item: "$detalhes.item",
+                inicio: "$detalhes.inicio",
+                termino: "$detalhes.termino",
+                situacao: "$detalhes.situacao"
+              }
             }
           }
         },
@@ -86,8 +101,8 @@ export default async (req, res) => {
             },
             ultimo: {
               item: "$ultimo.item",
-              inicio: "$ultimo.inicio",
-              termino: "$ultimo.termino",
+              inicio: "$ultimo.inicio", 
+              termino: "$ultimo.termino", 
               situacao: "$ultimo.situacao"
             }
           }

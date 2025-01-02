@@ -71,7 +71,7 @@ const Resumo = () => {
 
     const linhaDoTempoAll_graph = [['Resource', 'Resource', 'Start', 'End']];
     linhaDoTempoAll.forEach((recurso) => {
-        const dataInicial = new Date(2024, 2, 13);
+        const dataInicial = new Date(2024, 11, 9);
         const dataEsperada = new Date(recurso.data_esperada);
         const dataLimite = new Date(recurso.data_limite)
 

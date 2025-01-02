@@ -205,6 +205,8 @@ const Tabela = () => {
       const ganttUltimo = dupla[1].ultimo;
       const hoje = new Date().toISOString();
 
+      console.log(dupla)
+
       //executing
       if (ganttUltimo.situacao === "em andamento") {
         var obj = { area: area, state: 'Executing' }
