@@ -6,6 +6,7 @@ import { AuthContext } from "../../../contexts/AuthContext";
 const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     const [elementosWBS, setElementosWBS] = useState([]);
     const [itensPorArea, setItensPorArea] = useState([]);
+    const [nomesMembros, setNomesMembros] = useState([]);
     const camposRef = useRef({
         area: null,
         item: null,
@@ -14,9 +15,19 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         ehNegativo: null,
         efeito: null,
         causa: null,
-        gatilho: null
+        gatilho: null,
+        dono: null
     })
     const {isAdmin} = useContext(AuthContext)
+
+    const fetchMembros = async () => {
+        const data = await fetchData('responsabilidades/membros/get/nomes');
+        setNomesMembros(data.nomes);
+    };
+    
+    useEffect(() => {
+        fetchMembros();
+    }, []);
 
     const fetchElementos = async () => {
         const data = await fetchData('wbs/get/all');
@@ -187,6 +198,21 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     placeholder='Trigger'
                     ref={el => (camposRef.current.gatilho = el)}
                 />
+            </td>
+            <td>
+                <select
+                    name="dono"
+                    onChange={handleChange}
+                    value={obj.dono}
+                    placeholder='Owner'
+                    ref={el => (camposRef.current.dono = el)}>
+                        <option disabled value="">Responsible</option>
+                    <option value='Circunstancial'>Circunstancial</option>
+                    {nomesMembros.map((membro, index) => (
+                        <option key={index} value={membro.nome}>{membro.nome}</option>
+                    ))}
+                    </select>
+                
             </td>
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (

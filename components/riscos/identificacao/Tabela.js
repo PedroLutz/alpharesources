@@ -16,7 +16,8 @@ const TabelaRiscos = () => {
         ehNegativo: '',
         efeito: '',
         causa: '',
-        gatilho: ''
+        gatilho: '',
+        dono: ''
     }
     const [dadosUpdateTudo, setDadosUpdateTudo] = useState({
         oldRisco: '',
@@ -217,6 +218,7 @@ const TabelaRiscos = () => {
                                 <th>Effect</th>
                                 <th>Cause</th>
                                 <th>Trigger</th>
+                                <th>Owner</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -262,6 +264,7 @@ const TabelaRiscos = () => {
                                             <td>{item.efeito}</td>
                                             <td>{item.causa}</td>
                                             <td>{item.gatilho}</td>
+                                            <td>{item.dono}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(item)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {

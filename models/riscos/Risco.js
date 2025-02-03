@@ -10,7 +10,8 @@ const RiscoSchema = new mongoose.Schema({
   ehNegativo: Boolean,
   efeito: String,
   causa: String,
-  gatilho: String
+  gatilho: String,
+  dono: String
 }, { collection: 'riscos' }); 
 
 const Risco = mongoose.models['Risco'] || mongoose.model('Risco', RiscoSchema);
