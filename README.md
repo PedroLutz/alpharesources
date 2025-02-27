@@ -1,6 +1,9 @@
 **PROJETO: Alpha Management**
+
 LINGUAGEM: Javascript (Next.js, Mongoose)
+
 BANCO DE DADOS: MongoDB
+
 HOSTEAMENTO: Vercel
 
 **PARA EXECUTAR:**
@@ -14,7 +17,7 @@ O sistema foi idealizado como um facilitador dos processos de Gestão de Projeto
 Para tanto, não apenas estudei programação, como estudei os processos de gerenciamento de projetos pelo PMBOK.
 O site todo está em inglês, pois é a língua obrigatória utilizada para participação na competição.
 
-**FUNCIONALIDADES**
+**FUNCIONALIDADES:**
 A base do aplicativo é a organização das áreas da equipe em uma WBS (Work Breakdown Structure, ou em português, EAP, ou Estrutura Analítica de Projeto). 
 O usuário cadastra no site todas as áreas e subáreas (que o site trata com itens), sendo esses dados a base por trás de todo o funcionamento do site, já que o MongoDB é um banco de dados não relacional.
 A partir do cadastro da WBS, o usuário pode fazer diversas coisas.
