@@ -31,7 +31,7 @@ const Relatorio = () => {
         schedule: '',
         risk: '',
         quality: '',
-        cost:''
+        cost: ''
     })
     const [kpyAnalysisStatus, setKpiAnalysisStatus] = useState({
         scopeStatus: '',
@@ -99,30 +99,34 @@ const Relatorio = () => {
             [name]: value,
         });
         const tdElement = e.target.closest('td');
-        if(obj === kpyAnalysisStatus)
-        if (value === 'Unsafe') {
-            tdElement.classList.remove('attention');
-            tdElement.classList.add('unsafe');
-        } else if (value === 'Requires attention'){
-            tdElement.classList.add('attention');
-            tdElement.classList.remove('unsafe');
-        } else {
-            tdElement.classList.remove('unsafe');
-            tdElement.classList.remove('attention');
-        }
+        if (obj === kpyAnalysisStatus)
+            if (value === 'Unsafe') {
+                tdElement.classList.remove('attention');
+                tdElement.classList.add('unsafe');
+            } else if (value === 'Requires attention') {
+                tdElement.classList.add('attention');
+                tdElement.classList.remove('unsafe');
+            } else {
+                tdElement.classList.remove('unsafe');
+                tdElement.classList.remove('attention');
+            }
     };
 
     const busca = async () => {
         setLoading(true)
         setIssues('');
-        setKpiAnalysisStatus({scopeStatus: '',
+        setKpiAnalysisStatus({
+            scopeStatus: '',
             scheduleStatus: '',
             riskStatus: '',
-            qualityStatus: ''})
-        setKpiAnalysisText({scope: '',
+            qualityStatus: ''
+        })
+        setKpiAnalysisText({
+            scope: '',
             schedule: '',
             risk: '',
-            quality: ''})
+            quality: ''
+        })
         setInformation({
             data: '',
             manager: ''
@@ -154,8 +158,27 @@ const Relatorio = () => {
 
         const responsePlano = await fetchData('cronograma/get/startAndEndPlano');
         const responseGantt = await fetchData('cronograma/get/startAndEndGantt');
+        const responseSituacoesGantt = await fetchData('cronograma/get/ganttsESituacoes');
         const dadosPlano = responsePlano.resultadosPlano;
         const dadosGantt = responseGantt.resultadosGantt;
+        const dadosSituacoesGantt = responseSituacoesGantt.ganttPorArea;
+
+        var objSituacao = {}
+        dadosSituacoesGantt.forEach((dado) => {
+            if (dado.itens.filter((item) => item.situacao === "em andamento").length === 0 &&
+                dado.itens.filter((item) => item.situacao === "iniciar").length === 0) {
+                objSituacao = { ...objSituacao, [dado.area]: "Complete" }
+            } else if (dado.itens.filter((item) => item.situacao === "em andamento").length === 0 &&
+                dado.itens.filter((item) => item.situacao === "iniciar").length > 0) {
+                objSituacao = { ...objSituacao, [dado.area]: "Hold" }
+            } else if (dado.itens.filter((item) => item.situacao === "em andamento").length > 0) {
+                objSituacao = { ...objSituacao, [dado.area]: "Executing" }
+            } else if (dado.itens.filter((item) => item.situacao === "em andamento").length === 0 &&
+                dado.itens.filter((item) => item.situacao === "concluida").length === 0) {
+                objSituacao = { ...objSituacao, [dado.area]: "To Begin" }
+            }
+        })
+
         var duplas = [];
         dadosPlano.forEach((dado) => {
             const gantt = dadosGantt.find(o => o.area === dado.area);
@@ -168,58 +191,55 @@ const Relatorio = () => {
             console.log(dupla)
             const area = dupla[0].area;
             const planoUltimo = dupla[0].ultimo;
-            const ganttPrimeiro = dupla[1].primeiro;
             const ganttUltimo = dupla[1].ultimo;
             const getLastDayOfMonth = (monthYear) => {
                 const { year, month } = monthYear;
                 const lastDay = new Date(year, month, 0).getDate(); // Dia 0 do próximo mês retorna o último dia do mês atual
                 return new Date(year, month - 1, lastDay); // month - 1 porque os meses são indexados de 0 a 11
             };
+            var obj = { area: area, state: objSituacao[area] }
 
             const hoje = getLastDayOfMonth(monthYear).toISOString();
 
-            if (ganttUltimo.situacao === "em andamento") {
-                var obj = { area: area, state: 'Executing' }
+            //executing
+            if (objSituacao[area] === "Executing") {
                 if (planoUltimo.termino >= hoje) {
-                  obj = { ...obj, status: 'On Schedule' }
+                    obj = { ...obj, status: 'On Schedule' }
                 } else {
-                  obj = { ...obj, status: 'Overdue' }
+                    obj = { ...obj, status: 'Overdue' }
                 }
                 arrayAnalise.push(obj);
-              }
-        
-              //hold
-              if ((planoUltimo.item !== ganttUltimo.item && ganttUltimo.situacao === 'concluida') ) {
-                var obj = { area: area, state: 'Hold' }
+            }
+
+            //hold
+            if (objSituacao[area] === "Hold") {
                 if (planoUltimo.termino >= hoje) {
-                  obj = { ...obj, status: 'On Schedule' }
+                    obj = { ...obj, status: 'On Schedule' }
                 } else {
-                  obj = { ...obj, status: 'Overdue' }
+                    obj = { ...obj, status: 'Overdue' }
                 }
                 arrayAnalise.push(obj);
-              }
-        
-              //complete
-              if (planoUltimo.item === ganttUltimo.item && ganttUltimo.situacao === 'concluida') {
-                var obj = { area: area, state: 'Complete' }
+            }
+
+            //complete
+            if (objSituacao[area] === "Complete") {
                 if (planoUltimo.termino >= ganttUltimo.termino) {
-                  obj = { ...obj, status: 'On Schedule' }
+                    obj = { ...obj, status: 'On Schedule' }
                 } else {
-                  obj = { ...obj, status: 'Overdue' }
+                    obj = { ...obj, status: 'Overdue' }
                 }
                 arrayAnalise.push(obj);
-              }
-        
-              //to begin
-              if (ganttPrimeiro.inicio === null && ganttUltimo.termino === null) {
-                var obj = { area: area, state: 'To Begin' }
+            }
+
+            //to begin
+            if (objSituacao[area] === "To Begin") {
                 if (planoUltimo.termino >= hoje) {
-                  obj = { ...obj, status: 'On Schedule' }
+                    obj = { ...obj, status: 'On Schedule' }
                 } else {
-                  obj = { ...obj, status: 'Overdue' }
+                    obj = { ...obj, status: 'Overdue' }
                 }
                 arrayAnalise.push(obj);
-              }
+            }
         })
         setAreaAnalysis(arrayAnalise);
         setLoading(false);
@@ -233,7 +253,7 @@ const Relatorio = () => {
     return (
         <div className="centered-container">
             <h2>Status Report Generator</h2>
-            {loading && <Loading/>}
+            {loading && <Loading />}
             <div className={styles.menu}>
                 <h3>Select Month</h3>
                 <div>
@@ -259,13 +279,13 @@ const Relatorio = () => {
                 </div>
                 <button className="botao-padrao" onClick={busca}>Get data</button>
                 {showTable && (
-                <button className="botao-padrao" onClick={exportar}>Export</button>)}
+                    <button className="botao-padrao" onClick={exportar}>Export</button>)}
             </div>
             {showTable && (
-            <div className={`report ${styles.report}`}>
-                
+                <div className={`report ${styles.report}`}>
+
                     <React.Fragment>
-                        <div style={{display: 'flex'}}>
+                        <div style={{ display: 'flex' }}>
                             <table className={`tableInformation ${styles.tableInformation}`}>
                                 <thead>
                                     <tr>
@@ -284,22 +304,22 @@ const Relatorio = () => {
                                     <tr>
                                         <td>Projected Date of Completion</td>
                                         <td><input type="date"
-                                        name='data'
-                                        value={information.data}
-                                        onChange={(e) => handleChange(e, information, setInformation)}/></td>
+                                            name='data'
+                                            value={information.data}
+                                            onChange={(e) => handleChange(e, information, setInformation)} /></td>
                                     </tr>
                                     <tr>
                                         <td>Project Manager</td>
                                         <td><input name='manager'
-                                        value={information.manager}
-                                        onChange={(e) => handleChange(e, information, setInformation)}/></td>
+                                            value={information.manager}
+                                            onChange={(e) => handleChange(e, information, setInformation)} /></td>
                                     </tr>
                                 </tbody>
                             </table>
-                            <div style={{width: '90%'}}>
-                            <img src={'/images/logo.png'} alt="Logo" style={{width: '200px', margin: '-10px'}}/>
+                            <div style={{ width: '90%' }}>
+                                <img src={'/images/logo.png'} alt="Logo" style={{ width: '200px', margin: '-10px' }} />
                             </div>
-                            
+
                         </div>
                         <table style={{ marginTop: '2rem' }} className={`tableProgress ${styles.tableProgress}`}>
                             <thead>
@@ -454,17 +474,17 @@ const Relatorio = () => {
                                     <tr key={index}>
                                         <td>{area.area}</td>
                                         <td
-                      className={
-                        area.state === 'To Begin' ? 'status_td unsafe' : (
-                          area.state === 'Complete' ? 'status_td' : (
-                            area.state === 'Hold' ? 'status_td hold' : 'status_td attention'
-                          )
-                        )
-                      }>{area.state}</td>
-                    <td
-                    className={ 
-                      area.status === 'Overdue' ? 'status_td unsafe' : 'status_td' 
-                    }>{area.status}</td>
+                                            className={
+                                                area.state === 'To Begin' ? 'status_td unsafe' : (
+                                                    area.state === 'Complete' ? 'status_td' : (
+                                                        area.state === 'Hold' ? 'status_td hold' : 'status_td attention'
+                                                    )
+                                                )
+                                            }>{area.state}</td>
+                                        <td
+                                            className={
+                                                area.status === 'Overdue' ? 'status_td unsafe' : 'status_td'
+                                            }>{area.status}</td>
                                         <td>
                                             <textarea
                                                 name={`${area.area}_notas`}
@@ -477,8 +497,8 @@ const Relatorio = () => {
                             </tbody>
                         </table>
                     </React.Fragment>
-                
-            </div>
+
+                </div>
             )}
         </div>
     )

@@ -189,8 +189,27 @@ const Tabela = () => {
   const generateReport = async () => {
     const responsePlano = await fetchData('cronograma/get/startAndEndPlano');
     const responseGantt = await fetchData('cronograma/get/startAndEndGantt');
+    const responseSituacoesGantt = await fetchData('cronograma/get/ganttsESituacoes');
     const dadosPlano = responsePlano.resultadosPlano;
     const dadosGantt = responseGantt.resultadosGantt;
+    const dadosSituacoesGantt = responseSituacoesGantt.ganttPorArea;
+
+    var objSituacao = {}
+    dadosSituacoesGantt.forEach((dado) => { 
+      if(dado.itens.filter((item) => item.situacao === "em andamento").length === 0 &&
+         dado.itens.filter((item) => item.situacao === "iniciar").length === 0){
+         objSituacao = {...objSituacao, [dado.area] : "Complete"}
+      } else if (dado.itens.filter((item) => item.situacao === "em andamento").length === 0 &&
+                 dado.itens.filter((item) => item.situacao === "iniciar").length > 0){
+        objSituacao = {...objSituacao, [dado.area] : "Hold"}
+      } else if (dado.itens.filter((item) => item.situacao === "em andamento").length > 0){
+        objSituacao = {...objSituacao, [dado.area] : "Executing"}
+      } else if (dado.itens.filter((item) => item.situacao === "em andamento").length === 0 &&
+                dado.itens.filter((item) => item.situacao === "concluida").length === 0){
+        objSituacao = {...objSituacao, [dado.area] : "To Begin"}
+      }
+    })
+
     var duplas = [];
     dadosPlano.forEach((dado) => {
       const gantt = dadosGantt.find(o => o.area === dado.area);
@@ -204,12 +223,10 @@ const Tabela = () => {
       const ganttPrimeiro = dupla[1].primeiro;
       const ganttUltimo = dupla[1].ultimo;
       const hoje = new Date().toISOString();
-
-      console.log(dupla)
+      var obj = { area: area, state: objSituacao[area] }
 
       //executing
-      if (ganttUltimo.situacao === "em andamento") {
-        var obj = { area: area, state: 'Executing' }
+      if (objSituacao[area] === "Executing") {
         if (planoUltimo.termino >= hoje) {
           obj = { ...obj, status: 'On Schedule' }
         } else {
@@ -219,8 +236,7 @@ const Tabela = () => {
       }
 
       //hold
-      if ((planoUltimo.item !== ganttUltimo.item && ganttUltimo.situacao === 'concluida')) {
-        var obj = { area: area, state: 'Hold' }
+      if (objSituacao[area] === "Hold") {
         if (planoUltimo.termino >= hoje) {
           obj = { ...obj, status: 'On Schedule' }
         } else {
@@ -230,8 +246,7 @@ const Tabela = () => {
       }
 
       //complete
-      if (planoUltimo.item === ganttUltimo.item && ganttUltimo.situacao === 'concluida') {
-        var obj = { area: area, state: 'Complete' }
+      if (objSituacao[area] === "Complete") {
         if (planoUltimo.termino >= ganttUltimo.termino) {
           obj = { ...obj, status: 'On Schedule' }
         } else {
@@ -241,8 +256,7 @@ const Tabela = () => {
       }
 
       //to begin
-      if (ganttPrimeiro.inicio === null && ganttUltimo.termino === null) {
-        var obj = { area: area, state: 'To Begin' }
+      if (objSituacao[area] === "To Begin") {
         if (planoUltimo.termino >= hoje) {
           obj = { ...obj, status: 'On Schedule' }
         } else {
