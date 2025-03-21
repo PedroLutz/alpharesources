@@ -59,6 +59,7 @@ const PlanoAquisicao = () => {
     const fetchPlanos = async () => {
         try {
             const data = await fetchData('recursos/planoAquisicao/get/all');
+            const reservaDeContingencia = await fetchData('riscos/analise/get/emvs');
             data.planos.forEach((item) => {
                 item.data_esperada = jsDateToEuDate(item.data_esperada);
                 item.data_limite = jsDateToEuDate(item.data_limite);

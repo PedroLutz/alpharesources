@@ -13,6 +13,7 @@ const Resumo = () => {
     const [planosSoma_all, setPlanosSoma_all] = useState([]);
     const [linhaDoTempoEssencial, setLinhaDoTempoEssencial] = useState([]);
     const [linhaDoTempoAll, setLinhaDoTempoAll] = useState([]);
+    const [reservaContingencial, setReservaContingencial] = useState();
 
     const [loading, setLoading] = useState(true);
     const [chartHeight, setChartHeight] = useState('100px');
@@ -24,12 +25,15 @@ const Resumo = () => {
     const fetchResumos = async () => {
         try {
             const data = await fetchData('recursos/planoAquisicao/get/resumo');
+            const reservaDeContingencia = await fetchData('riscos/analise/get/emvs')
             setPlanosPorArea_Essencial(data.planosPorArea_Essencial);
             setPlanosPorArea_all(data.planosPorArea_all);
             setPlanosSoma_Essencial(data.planosSoma_Essencial[0]);
             setPlanosSoma_all(data.planosSoma_all[0]);
             setLinhaDoTempoEssencial(data.linhaDoTempoEssencial);
             setLinhaDoTempoAll(data.linhaDoTempoAll);
+            setReservaContingencial(reservaDeContingencia.valor);
+            console.log(reservaDeContingencia.valor)
         } finally {
             setLoading(false);
         }
@@ -58,6 +62,7 @@ const Resumo = () => {
     planosPorArea_all.forEach((area) => {
         planosPorArea_all_graph.push([area._id, parseFloat((area.mediaPonderada*1.1).toFixed(2) )]);
     });
+    planosPorArea_all_graph.push(['Contingency Reserve', parseFloat(reservaContingencial)])
 
     const linhaDoTempoEssencial_graph = [['Resource', 'Resource', 'Start', 'End']];
     linhaDoTempoEssencial.forEach((recurso) => {
@@ -163,7 +168,7 @@ const Resumo = () => {
 
                 <div className="centered-container" style={{ flexDirection: "row" }}>
                     <span className={custom_span}>Essential Scenario: R${parseFloat((planosSoma_Essencial.mediaPonderada *1.1)).toFixed(2) }</span>
-                    <span className={custom_span}>Ideal Scenario: R${parseFloat((planosSoma_all.mediaPonderada)*1.1).toFixed(2)}</span>
+                    <span className={custom_span}>Ideal Scenario: R${parseFloat((planosSoma_all.mediaPonderada)*1.1 + reservaContingencial).toFixed(2)}</span>
                 </div>
 
                 <div className='centered-container'>
