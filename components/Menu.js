@@ -23,12 +23,12 @@ const { setTitulo } = useContext(TituloContext);
         {/*Itens do Menu, linha 1*/}
         <div className={menuGroup}>
             {/*Item DOCS*/}
-            <span>
+            {/* <span>
                 <Link href="/pages/documents/projectcharter">
                     <img src={'/images/docs_logo.png'} alt="Planning Logo" className={logoItem}/><br/>
                     Documents
                 </Link>
-            </span>
+            </span> */}
             {/*Item WBS*/}
             <span>
                 <Link href="/pages/wbs/wbs">
