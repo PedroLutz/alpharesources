@@ -9,19 +9,16 @@ const Navbar = () => {
   const { setTitulo } = useContext(TituloContext);
 
   useEffect(() => {
-    setTitulo('WBS');
+    setTitulo('Documents');
   }, [setTitulo]);
 
   return (
     <nav className={styles.nav} style={{ color: 'white' }}>
-      <h2><Link href="/pages/wbs/wbs">Alpha Management/WBS</Link></h2>
+      <h2><Link href="/pages/wbs">Alpha Management/Documents</Link></h2>
       <img src={'/images/logo.png'} alt="Logo" style={{ width: '80px' }} />
       <ul>
         <li>
-          <Link href="/pages/wbs/wbs">WBS</Link>
-        </li>
-        <li>
-          <Link href="/pages/wbs/dictionary">Dictionary</Link>
+          <Link href="/pages/documents/projectcharter">Project Charter</Link>
         </li>
         <li>
           <Link href="/">Menu</Link>

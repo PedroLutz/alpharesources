@@ -22,6 +22,13 @@ const { setTitulo } = useContext(TituloContext);
 
         {/*Itens do Menu, linha 1*/}
         <div className={menuGroup}>
+            {/*Item DOCS*/}
+            <span>
+                <Link href="/pages/documents/projectcharter">
+                    <img src={'/images/docs_logo.png'} alt="Planning Logo" className={logoItem}/><br/>
+                    Documents
+                </Link>
+            </span>
             {/*Item WBS*/}
             <span>
                 <Link href="/pages/wbs/wbs">
@@ -37,7 +44,7 @@ const { setTitulo } = useContext(TituloContext);
                 </Link>
             </span>
             {/*Item finanças*/}
-            <span>
+            <span style={{fontSize: '0.9rem'}}>
                 <Link href="/pages/finances/table">
                     <img src={'/images/finance_logo.png'} alt="Planning Logo" className={logoItem}/>
                     Budget & Resource Management

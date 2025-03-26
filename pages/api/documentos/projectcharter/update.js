@@ -1,5 +1,5 @@
-import connectToDatabase from '../../../lib/db';
-import ProjectCharterModel from '../../../models/documentos/ProjectCharter';
+import connectToDatabase from '../../../../lib/db';
+import ProjectCharterModel from '../../../../models/documentos/ProjectCharter';
 
 const { ProjectCharter, ProjectCharterSchema } = ProjectCharterModel;
 

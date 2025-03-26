@@ -15,7 +15,7 @@ const Navbar = () => {
 
   return (
     <nav className={styles.nav} style={{ color: 'white' }}>
-      <h2><Link href="/pages/responsibilities/raci">Alpha Management/Report Generator</Link></h2>
+      <h2><Link href="/pages/report">Alpha Management/Report Generator</Link></h2>
       <img src={'/images/logo.png'} alt="Logo" />
       <ul>
         <li>

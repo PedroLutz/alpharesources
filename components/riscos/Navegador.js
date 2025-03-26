@@ -21,7 +21,7 @@ const Navbar = () => {
 
   return (
     <nav className={styles.nav} style={{ color: 'white' }}>
-      <h2><Link href="/pages/responsibilities/raci">Alpha Management/Risk Management</Link></h2>
+      <h2><Link href="/pages/risk/risks">Alpha Management/Risk Management</Link></h2>
       <img src={'/images/logo.png'} alt="Logo" />
       <ul>
       <li>
