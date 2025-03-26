@@ -4,7 +4,7 @@ import Modal from '../../Modal';
 import CadastroInputs from './CadastroInputs';
 import styles from '../../../styles/modules/tabela.module.css'
 import { handleSubmit, fetchData, handleDelete, handleUpdate, handlePseudoDelete } from '../../../functions/crud';
-import { jsDateToEuDate, euDateToIsoDate, cleanForm } from '../../../functions/general';
+import { jsDateToEuDate, euDateToIsoDate, cleanForm, euDateToJsDate } from '../../../functions/general';
 import { AuthContext } from '../../../contexts/AuthContext';
 
 const labelsTipo = {
@@ -40,8 +40,11 @@ const Tabela = () => {
   const fetchLancamentos = async () => {
     try {
       const data = await fetchData('financas/get/lancamentos');
+      var balance = 0;
       data.lancamentos.forEach((item) => {
         item.data = jsDateToEuDate(item.data);
+        if(item.tipo != "Exchange") balance = balance + item.valor;
+        item.balance = balance.toFixed(2);
       });
       const [lancamentos, lancamentosDeletados] = data.lancamentos.reduce(
         ([ativos, deletados], item) => {
@@ -54,9 +57,9 @@ const Tabela = () => {
         },
         [[], []]
       );
-
-      setLancamentos(lancamentos);
-      setDadosTabela({ object: lancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' })
+      const lancamentosReversed = lancamentos.toReversed();
+      setLancamentos(lancamentosReversed);
+      setDadosTabela({ object: lancamentosReversed, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' })
       setLancamentosDeletados(lancamentosDeletados);
 
     } finally {
@@ -139,6 +142,7 @@ const Tabela = () => {
       const isExpense = confirmItemAction.item.tipo === 'Expense';
       const valorInverso = isExpense ? novosDados.valor * -1 : novosDados.valor;
       const updatedItem = { ...confirmItemAction.item, ...novosDados, valor: valorInverso };
+      delete updatedItem.balance;
 
       const updatedLancamentos = lancamentos.map(item =>
         item._id === updatedItem._id ? { ...updatedItem, data: jsDateToEuDate(updatedItem.data) } : item
@@ -148,7 +152,6 @@ const Tabela = () => {
       setConfirmItemAction({ action: '', item: null })
       linhaVisivel === confirmItemAction.item._id ? setLinhaVisivel() : setLinhaVisivel(confirmItemAction.item._id);
       setReload(true);
-      console.log(updatedItem)
       try {
         await handleUpdate({
           route: 'financas',
@@ -255,6 +258,7 @@ const Tabela = () => {
                 <th>Origin</th>
                 <th>Destiny</th>
                 <th>Actions</th>
+                <th>Balance</th>
               </tr>
             </thead>
             <tbody>
@@ -310,6 +314,7 @@ const Tabela = () => {
                               disabled={!isAdmin}>🔄</button>
                           </td>
                         )}
+                        <td><b>R${item.balance}</b></td>
                       </tr>
                     </React.Fragment>
                   )}

@@ -8,7 +8,7 @@ export default async (req, res) => {
     await connectToDatabase();
 
     if (req.method === 'GET') {
-      const lancamentos = await Lancamento.find().sort({ data: -1 });
+      const lancamentos = await Lancamento.find().sort({ data: 1, descricao: 1 });
 
 
       res.status(200).json({ lancamentos });

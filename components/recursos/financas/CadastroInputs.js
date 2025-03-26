@@ -147,6 +147,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     </React.Fragment>
                 )}
             </td>
+            <td>-</td>
         </tr>
     )
 }
