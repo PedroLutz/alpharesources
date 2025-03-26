@@ -58,6 +58,9 @@ const Tabela = () => {
         [[], []]
       );
       const lancamentosReversed = lancamentos.toReversed();
+      lancamentosDeletados.forEach((lancamento) => {
+        lancamento.balance = "-"
+      })
       setLancamentos(lancamentosReversed);
       setDadosTabela({ object: lancamentosReversed, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' })
       setLancamentosDeletados(lancamentosDeletados);
@@ -257,8 +260,8 @@ const Tabela = () => {
                 <th>Area</th>
                 <th>Origin</th>
                 <th>Destiny</th>
-                <th>Actions</th>
                 <th>Balance</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -297,6 +300,12 @@ const Tabela = () => {
                         <td>{item.area}</td>
                         <td>{item.origem}</td>
                         <td>{item.destino}</td>
+                        <td>
+                          <a style={{color: item.tipo === 'Income' ? 'green' : 'red', fontSize: '1.2rem'}}>
+                            {item.tipo === 'Income' ? "▲" : item.tipo === 'Exchange' ? "" : '▼'}
+                          </a>
+                          <b>R${item.balance}</b>
+                        </td>
                         {!dadosTabela.isDeletados ? (
                           <td className="botoes_acoes">
                             <button onClick={() => setConfirmItemAction({ action: 'delete', item: item })}
@@ -314,7 +323,7 @@ const Tabela = () => {
                               disabled={!isAdmin}>🔄</button>
                           </td>
                         )}
-                        <td><b>R${item.balance}</b></td>
+
                       </tr>
                     </React.Fragment>
                   )}

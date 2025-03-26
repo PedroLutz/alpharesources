@@ -137,6 +137,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     onChange={(e) => handleChange(e, objSetter, obj)}
                     ref={el => (camposRef.current.destino = el)} />
             </td>
+            <td>-</td>
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
                     <button onClick={(e) => handleSubmit(e)} disabled={!isAdmin}>Add new</button>
@@ -147,7 +148,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     </React.Fragment>
                 )}
             </td>
-            <td>-</td>
+            
         </tr>
     )
 }

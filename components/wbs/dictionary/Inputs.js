@@ -13,7 +13,7 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
         criterio: null,
         verificacao: null,
         timing: null,
-        responsavel: null
+        responsavelz: null
     });
     const {isAdmin} = useContext(AuthContext)
 

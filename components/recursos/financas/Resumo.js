@@ -111,7 +111,7 @@ const Resumo = () => {
 
         const valorPlanejado = parseFloat((vp.totalValorA * 2 + vp.totalValorB) / 3).toFixed(2);
         const porcentagem = comparacao ? comparacao.porcentagem : 0;
-        const custoReal = despesa ? despesa.total : 0;
+        const custoReal = despesa ? despesa.total.toFixed(2) : 0;
         const valorAgregado = valorPlanejado * (porcentagem / 100);
 
         return {
