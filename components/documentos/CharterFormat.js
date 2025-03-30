@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
+import styles from '../../styles/modules/documentos.module.css'
 
 const CharterFormat = () => {
     return (
-        <div className="centered-container">
+        <div className={`centered containter ${styles.charterContainer}`}>
 
             {/* Project Overview */}
-            <table>
+            <table className="charterContainer">
                 <tr>
                     <th>Project Overview</th>
                 </tr>
