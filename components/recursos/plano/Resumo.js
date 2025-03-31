@@ -14,6 +14,7 @@ const Resumo = () => {
     const [linhaDoTempoEssencial, setLinhaDoTempoEssencial] = useState([]);
     const [linhaDoTempoAll, setLinhaDoTempoAll] = useState([]);
     const [reservaContingencial, setReservaContingencial] = useState();
+    const [verReserves, setVerReserves] = useState(false);
 
     const [loading, setLoading] = useState(true);
     const [chartHeight, setChartHeight] = useState('100px');
@@ -32,8 +33,7 @@ const Resumo = () => {
             setPlanosSoma_all(data.planosSoma_all[0]);
             setLinhaDoTempoEssencial(data.linhaDoTempoEssencial);
             setLinhaDoTempoAll(data.linhaDoTempoAll);
-            setReservaContingencial(reservaDeContingencia.valor);
-            console.log(reservaDeContingencia.valor)
+            setReservaContingencial(reservaDeContingencia.resultadosAgrupados);
         } finally {
             setLoading(false);
         }
@@ -55,14 +55,21 @@ const Resumo = () => {
 
     const planosPorArea_Essencial_graph = [['Area', 'Value']]
     planosPorArea_Essencial.forEach((area) => {
-        planosPorArea_Essencial_graph.push([area._id, parseFloat((area.mediaPonderada*1.1).toFixed(2) )]);
+        planosPorArea_Essencial_graph.push([area._id, parseFloat((area.mediaPonderada).toFixed(2) )]);
     });
 
     const planosPorArea_all_graph = [['Area', 'Value']];
+    const planosPorArea_reserve_graph = [['Area', 'Value']]
     planosPorArea_all.forEach((area) => {
-        planosPorArea_all_graph.push([area._id, parseFloat((area.mediaPonderada*1.1).toFixed(2) )]);
+        planosPorArea_all_graph.push([area._id, parseFloat((area.mediaPonderada).toFixed(2) )]);
+        if(reservaContingencial[area._id] != undefined){
+            planosPorArea_reserve_graph.push([area._id, parseFloat((area.mediaPonderada + reservaContingencial[area._id]).toFixed(2) )]);
+        } else {
+            planosPorArea_reserve_graph.push([area._id, parseFloat((area.mediaPonderada).toFixed(2) )]);
+        }
+        
     });
-    planosPorArea_all_graph.push(['Contingency Reserve', parseFloat(reservaContingencial)])
+    planosPorArea_reserve_graph.push(['Managerial Reserve', parseFloat((planosSoma_all.mediaPonderada*0.05).toFixed(2))])
 
     const linhaDoTempoEssencial_graph = [['Resource', 'Resource', 'Start', 'End']];
     linhaDoTempoEssencial.forEach((recurso) => {
@@ -121,6 +128,11 @@ const Resumo = () => {
 
             <div>
                 <h3>Budget</h3>
+                <div className='centered-container'>
+                    <button className='botao-bonito' style={{ width: '10rem', marginTop: '0.1rem' }} onClick={() => setVerReserves(!verReserves)}>
+                        {!verReserves ? `View reserves` : `View only resources`}
+                    </button>
+                </div>
 
                 <div style={{ display: 'flex' }} className={pie_container}>
                         <div className={pie_esquerda}>
@@ -150,7 +162,7 @@ const Resumo = () => {
                                 height={'400px'}
                                 chartType="PieChart"
                                 loader={<div>Loading graph</div>}
-                                data={planosPorArea_all_graph}
+                                data={!verReserves ? planosPorArea_all_graph : planosPorArea_reserve_graph}
                                 options={{
                                     ...estiloGraph,
                                     title: 'Ideal Scenario',
@@ -167,8 +179,13 @@ const Resumo = () => {
                     </div>
 
                 <div className="centered-container" style={{ flexDirection: "row" }}>
-                    <span className={custom_span}>Essential Scenario: R${parseFloat((planosSoma_Essencial.mediaPonderada *1.1)).toFixed(2) }</span>
-                    <span className={custom_span}>Ideal Scenario: R${parseFloat((planosSoma_all.mediaPonderada)*1.1 + reservaContingencial).toFixed(2)}</span>
+                    <span className={custom_span}>Essential Scenario: R${parseFloat((planosSoma_Essencial.mediaPonderada)).toFixed(2) }</span>
+                    {!verReserves ? (
+                        <span className={custom_span}>Ideal Scenario: R${parseFloat((planosSoma_all.mediaPonderada)).toFixed(2)}</span>
+                    ) : (
+                        <span className={custom_span}>Ideal Scenario + Reserves: R${parseFloat(planosSoma_all.mediaPonderada*1.05 + reservaContingencial.Total).toFixed(2)}</span>
+                    )}
+                    
                 </div>
 
                 <div className='centered-container'>
