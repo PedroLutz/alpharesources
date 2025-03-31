@@ -78,6 +78,18 @@ const Tabela = () => {
       responsabilidades: inputNames.map(inputName => novoSubmit["input" + getCleanName(inputName)]).join(', ')
     };
 
+    if(!updatedFormData.responsabilidades.includes("A")){
+      setExibirModal('semAprovador');
+      return;
+    }
+    if(!updatedFormData.responsabilidades.includes("R")){
+      setExibirModal('semResponsavel');
+      return;
+    }
+    if((updatedFormData.responsabilidades.match(/A/g) || []).length > 1){
+      setExibirModal('muitoAprovador');
+      return;
+    }
     handleSubmit({
       route: 'responsabilidades/raci',
       dados: updatedFormData,
@@ -215,8 +227,10 @@ const Tabela = () => {
 
   const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',
-    'valorNegativo': 'The value cannot be negative!',
-    'itemJaUsado': 'This item has already been registered!'
+    'itemJaUsado': 'This item has already been registered!',
+    'semAprovador': 'A task needs to have one person accountable!',
+    'muitoAprovador': "A task can't have more than one person accountable!",
+    'semResponsavel': "A task needs to have at least one person responsible!"
   };
 
   const handleUpdateItem = async () => {
