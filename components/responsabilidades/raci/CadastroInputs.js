@@ -7,11 +7,11 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
     const [elementosWBS, setElementosWBS] = useState([]);
     const [nomesMembros, setNomesMembros] = useState([])
     const [itensPorArea, setItensPorArea] = useState([]);
-    const [camposRef, setCamposRef] = useState(useRef({
+    const camposRef = useRef({
         area: null,
         item: null,
         responsabilidades: null,
-    }));
+    });
     const {isAdmin} = useContext(AuthContext)
 
     const fetchElementos = async () => {
@@ -53,7 +53,6 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
         const { name, value } = e.target;
         const index = emptyFields.indexOf(name);
         index > -1 && emptyFields.splice(index, 1);
-        console.log(name, value)
         setter({
             ...obj,
             [name]: value,
@@ -137,8 +136,6 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                 [`input${getCleanName(membro)}`]: ''
             }));
         });
-        console.log(inputNames)
-        console.log(obj)
     };
 
     

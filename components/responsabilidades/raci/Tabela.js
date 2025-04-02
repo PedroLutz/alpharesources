@@ -95,6 +95,12 @@ const Tabela = () => {
       dados: updatedFormData,
     });
     cleanForm(novoSubmit, setNovoSubmit, camposVazios);
+    inputNames.forEach((inputName) => {
+      setNovoSubmit((prevState) => ({
+        ...prevState,
+        ['input' + getCleanName(inputName)] : ''
+      }));
+    });
     await fetchItensRaci();
     setReload(true);
   };
