@@ -9,7 +9,8 @@ const WbsDictionarySchema = new mongoose.Schema({
     criterio: String,
     verificacao: String,
     timing: String,
-    responsavel: String
+    responsavel: String,
+    responsavel_aprovacao: String
 }, { collection: 'wbsDictionary' });
 
 const WbsDictionary = mongoose.models['WbsDictionary'] || mongoose.model('WbsDictionary', WbsDictionarySchema);

@@ -13,7 +13,8 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
         criterio: null,
         verificacao: null,
         timing: null,
-        responsavelz: null
+        responsavel: null,
+        responsavel_aprovacao: null
     });
     const {isAdmin} = useContext(AuthContext)
 
@@ -171,6 +172,15 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     placeholder='Responsible'
                     onChange={(e) => handleChange(e, objSetter, obj)}
                     ref={el => (camposRef.current.responsavel = el)} />
+            </td>
+            <td>
+                <input
+                    type="text"
+                    value={obj.responsavel_aprovacao}
+                    name='responsavel_aprovacao'
+                    placeholder='Responsible for Approval'
+                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    ref={el => (camposRef.current.responsavel_aprovacao = el)} />
             </td>
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (

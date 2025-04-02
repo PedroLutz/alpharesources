@@ -15,7 +15,8 @@ const TabelaAnalise = () => {
         criterio: '',
         verificacao: '',
         timing: '',
-        responsavel: ''
+        responsavel: '',
+        responsavel_aprovacao: ''
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
@@ -180,12 +181,12 @@ const TabelaAnalise = () => {
                                 <th>Acceptance Criteria</th>
                                 <th>Verification</th>
                                 <th>Timing</th>
-                                <th>Responsible</th>
+                                <th>Responsible for Criteria</th>
+                                <th>Responsible for Approval</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-
                             {dicionarios.map((item, index) => (
                                 <React.Fragment key={index}>
                                     {linhaVisivel === item._id ? (
@@ -216,6 +217,7 @@ const TabelaAnalise = () => {
                                             <td>{item.verificacao}</td>
                                             <td>{item.timing}</td>
                                             <td>{item.responsavel}</td>
+                                            <td>{item.responsavel_aprovacao}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(item)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
