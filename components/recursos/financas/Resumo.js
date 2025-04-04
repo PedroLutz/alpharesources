@@ -52,6 +52,7 @@ const Resumo = () => {
 
   //gerar Array do grafico de colunas de valores por mês, crescimento mensal e gasto mensal
   const ValoresPorMesGraph = [['Month', 'Revenue', 'Expense']];
+  const CashFlowMensal = [];
   const CaixaMensalGraph = [['Month', 'Value']];
   const CrescimentoDosGastosGraph = [['Month', 'Value']];
   let saldoAcumulado = 0;
@@ -76,6 +77,10 @@ const Resumo = () => {
     const formattedDate = `${dateParts[1]}/${dateParts[0]}`;
 
     ValoresPorMesGraph.push([formattedDate, receitaValor, despesaValor]);
+    CashFlowMensal.push({
+      mes: formattedDate, receita: receitaValor, despesa: despesaValor,
+      movimento: saldoMes, balanco: saldoAcumulado
+    })
     CaixaMensalGraph.push([formattedDate, saldoAcumulado]);
     CrescimentoDosGastosGraph.push([formattedDate, gastosAcumulados]);
   });
@@ -198,15 +203,56 @@ const Resumo = () => {
                 <td>{Number(item.porcentagem).toFixed(2)}%</td>
                 <td>R${Number(item.valorAgregado).toFixed(2)}</td>
                 <td>{item.custoReal == 0 ? '-'
-                : (Number(item.valorAgregado / (item.custoReal * -1)).toFixed(2)) != 0 ? 
-                Number(item.valorAgregado / (item.custoReal * -1)).toFixed(2) : '-'}</td>
+                  : (Number(item.valorAgregado / (item.custoReal * -1)).toFixed(2)) != 0 ?
+                    Number(item.valorAgregado / (item.custoReal * -1)).toFixed(2) : '-'}</td>
               </tr>
             ))}
           </tbody>
-
         </table>
+
         <p style={{ fontSize: 'small' }}>*Percentage of execution multiplied by the planned cost</p>
         <p style={{ fontSize: 'small', marginTop: '-0.8rem' }}>**Aggregated value/Real cost</p>
+      </div>
+
+      <div className='centered-container'>
+        <h3>Monthly Cash Flow</h3>
+        <table className={tabela.tabela_financas}>
+          <thead>
+            <tr>
+              <th>Month</th>
+              {CashFlowMensal.map((valores, index) => (
+                <th key={index}>{valores.mes}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>Income</th>
+              {CashFlowMensal.map((valores, index) => (
+                <td key={index}>R${valores.receita}</td>
+              ))}
+            </tr>
+            <tr>
+              <th>Expense</th>
+              {CashFlowMensal.map((valores, index) => (
+                <td key={index}>R${valores.despesa}</td>
+              ))}
+            </tr>
+            <tr>
+              <th>Net Movement</th>
+              {CashFlowMensal.map((valores, index) => (
+                <td key={index}>R${valores.movimento}</td>
+              ))}
+            </tr>
+            <tr>
+              <th>Net Balance</th>
+              {CashFlowMensal.map((valores, index) => (
+                <td key={index}>R${valores.balanco}</td>
+              ))}
+            </tr>
+          </tbody>
+
+        </table>
       </div>
 
       <div>
@@ -224,10 +270,10 @@ const Resumo = () => {
                 ...estiloGraph,
                 title: 'Revenues per area',
                 slices: ReceitasPorAreaGraph.slice(1).map((row, index) => ({
-                  color: cores[row[0]] || '#ccc', 
+                  color: cores[row[0]] || '#ccc',
                 })),
                 pieSliceTextStyle: {
-                  color: 'black', 
+                  color: 'black',
                 },
               }}
               rootProps={{ 'data-testid': '1' }}
