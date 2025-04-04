@@ -10,10 +10,12 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     const [recursosPorArea, setRecursosPorArea] = useState([]);
     const camposRef = useRef({
         recurso: null,
+        metodo_a: null,
         plano_a: null,
         valor_a: null,
         data_esperada: null,
         data_limite: null,
+        metodo_b: null,
         plano_b: null,
         valor_b: null,
         plano_real: null,
@@ -53,15 +55,17 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     const isFormVazio = (form) => {
         const camposConsiderados = {
             recurso: form.recurso,
+            metodo_a: form.metodo_a,
             plano_a: form.plano_a,
             valor_a: form.valor_a,
             data_esperada: form.data_esperada,
             data_limite: form.data_limite,
+            metodo_b: form.metodo_b,
             plano_b: form.plano_b,
             valor_b: form.valor_b,
         }
         const emptyFields = Object.entries(camposConsiderados).filter(([key, value]) => !value);
-        return [emptyFields.length > 1, emptyFields.map(([key]) => key)];
+        return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
     };
 
     const handleAreaChange = (e) => {
@@ -80,6 +84,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
             ehEssencial: dados.ehEssencial, 
             recurso: recursoSelecionado
         })
+        e.target.classList.remove('campo-vazio');
     }
 
     const handleChange = (e) => {
@@ -139,17 +144,30 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     onChange={handleRecursoChange}
                     ref={el => (camposRef.current.recurso = el)}
                 >
-                    <option value="" disabled>Resource</option>
+                    <option defaultValue value=''>Resource</option>
                     {recursosPorArea.map((item, index) => (
                         <option key={index} value={item}>{item}</option>
                     ))}
                 </select>
             </td>
             <td>
+                <select
+                    value={obj.metodo_a}
+                    name='metodo_a'
+                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    ref={el => (camposRef.current.metodo_a = el)} >
+                    <option defaultValue value=''>Acquisition method</option>
+                    <option value="Purchase">Purchase</option>
+                    <option value="Rental">Rental</option>
+                    <option value="Borrowing">Borrowing</option>
+                    <option value="Outsourcing">Outsourcing</option>
+                </select>
+            </td>
+            <td>
                 <input type='text'
                     value={obj.plano_a}
                     name='plano_a'
-                    placeholder='Plan'
+                    placeholder='Supplier'
                     onChange={handleChange}
                     ref={el => (camposRef.current.plano_a = el)} />
             </td>
@@ -179,10 +197,23 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     ref={el => (camposRef.current.data_limite = el)} />
             </td>
             <td>
+                <select
+                    value={obj.metodo_b}
+                    name='metodo_b'
+                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    ref={el => (camposRef.current.metodo_b = el)} >
+                    <option defaultValue value=''>Acquisition method</option>
+                    <option value="Purchase">Purchase</option>
+                    <option value="Rental">Rental</option>
+                    <option value="Borrowing">Borrowing</option>
+                    <option value="Outsourcing">Outsourcing</option>
+                </select>
+            </td>
+            <td>
                 <input type='text'
                     value={obj.plano_b}
                     name='plano_b'
-                    placeholder='Plan'
+                    placeholder='Supplier'
                     onChange={handleChange}
                     ref={el => (camposRef.current.plano_b = el)} />
             </td>
@@ -220,7 +251,8 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     min="0"
                     ref={el => (camposRef.current.valor_real = el)} />
             </td>
-            
+            <td>-</td>
+            <td>-</td>
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
                     <button onClick={(e) => handleSubmit(e)} disabled={!isAdmin}>Add new</button>

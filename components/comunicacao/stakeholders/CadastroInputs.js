@@ -16,7 +16,6 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         requisites: null,
         information: null,
         method: null,
-        timing: null,
         tools: null,
         responsible: null
     })
@@ -62,12 +61,14 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     };
 
     const isFormVazio = (form) => {
-        const emptyFields = Object.entries(form).filter(([key, value]) => value === null);
+        console.log(form);
+        const emptyFields = Object.entries(form).filter(([key, value]) => value === null || value === "");
         return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
     };
 
     const validaDados = () => {
         const [isEmpty, camposVazios] = isFormVazio(obj);
+        console.log(isEmpty)
         if (isEmpty) {
             camposVazios.forEach(campo => {
                 if (camposRef.current[campo]) {
@@ -125,7 +126,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     value={obj.power}
                     ref={el => (camposRef.current.power = el)}
                 >
-                    <option disabled value="">Power</option>
+                    <option defaultValue value=''>Power</option>
                     <option value={true}>High</option>
                     <option value={false}>Low</option>
                 </select>
@@ -137,7 +138,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     value={obj.interest}
                     ref={el => (camposRef.current.interest = el)}
                 >
-                    <option disabled value="">Interest</option>
+                    <option defaultValue value=''>Interest</option>
                     <option value={true}>High</option>
                     <option value={false}>Low</option>
                 </select>
@@ -196,7 +197,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     onChange={handleChange}
                     value={obj.responsible}
                     ref={el => (camposRef.current.responsible = el)}>
-                    <option disabled value="">Responsible</option>
+                    <option defaultValue value=''>Responsible</option>
                     <option value='Circunstancial'>Circunstancial</option>
                     {nomesMembros.map((membro, index) => (
                         <option key={index} value={membro.nome}>{membro.nome}</option>

@@ -3,11 +3,15 @@ import WbsModel from '../../../../models/wbs/wbs';
 import PlanoModel from '../../../../models/financeiro/Plano'
 import RaciModel from '../../../../models/responsabilidade/Raci'
 import GanttModel from '../../../../models/Gantt'
+import RecursoModel from '../../../../models/recursos/Recurso';
+import RiscoModel from '../../../../models/riscos/Risco';
 
 const { Wbs, WbsSchema } = WbsModel;
 const { Plano } = PlanoModel;
 const { Raci } = RaciModel;
 const { Gantt } = GanttModel;
+const { Recurso } = RecursoModel;
+const { Risco } = RiscoModel;
 
 export default async (req, res) => {
   try {
@@ -51,6 +55,13 @@ export default async (req, res) => {
       const updatedRaci = await Raci.updateMany(
         { area: oldWBS.area, item: oldWBS.item }, { $set: { item: updateFields.item } }
       );
+      const updatedRecurso = await Recurso.updateMany(
+        { area: oldWBS.area, item: oldWBS.item }, { $set: { item: updateFields.item } }
+      );
+      const updatedRisco = await Risco.updateMany(
+        { area: oldWBS.area, item: oldWBS.item }, { $set: { item: updateFields.item } }
+      );
+      
 
       if (!updatedWBS) {
         return res.status(404).json({ error: 'Wbs não encontrado.' });

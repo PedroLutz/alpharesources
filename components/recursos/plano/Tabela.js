@@ -12,10 +12,12 @@ const PlanoAquisicao = () => {
         area: "",
         ehEssencial: '',
         recurso: "",
+        metodo_a: "",
         plano_a: "",
         valor_a: "",
         data_esperada: "",
         data_limite: "",
+        metodo_b: "",
         plano_b: "",
         valor_b: "",
         plano_real: "",
@@ -36,7 +38,6 @@ const PlanoAquisicao = () => {
 
     const enviar = async (e) => {
         e.preventDefault();
-        console.log(novoSubmit)
         handleSubmit({
             route: 'recursos/planoAquisicao',
             dados: novoSubmit
@@ -59,11 +60,26 @@ const PlanoAquisicao = () => {
     const fetchPlanos = async () => {
         try {
             const data = await fetchData('recursos/planoAquisicao/get/all');
-            const reservaDeContingencia = await fetchData('riscos/analise/get/emvs');
             data.planos.forEach((item) => {
+                const dataEsperada = new Date(item.data_esperada);
+                const dataLimite = new Date(item.data_limite);
+                const dataReal = new Date(item.data_real);
+                if(item.data_real){
+                    item.data_diferenca = [`Expected: ${(dataReal - dataEsperada)/ (1000 * 60 * 60 * 24)} days`,
+                                            `Critical: ${(dataReal - dataLimite)/ (1000 * 60 * 60 * 24)} days`]
+                } else {
+                    item.data_diferenca = `-`
+                }
+                if(item.plano_real){
+                    item.valor_diferenca = [`Plan A: R$${Number(item.valor_real - item.valor_a).toFixed(2)}`,
+                                            `Plan B: R$${Number(item.valor_real - item.valor_b).toFixed(2)}`]
+                } else {
+                    item.valor_diferenca = `-`
+                }
                 item.data_esperada = jsDateToEuDate(item.data_esperada);
                 item.data_limite = jsDateToEuDate(item.data_limite);
                 item.data_real = jsDateToEuDate(item.data_real);
+                
               });
             setPlanos(data.planos);
         } finally {
@@ -75,7 +91,9 @@ const PlanoAquisicao = () => {
         if (confirmUpdateItem) {
             setLoading(true);
             const updatedItem = { ...confirmUpdateItem, ...novosDados };
-
+            console.log(updatedItem);
+            delete updatedItem.data_diferenca;
+            delete updatedItem.valor_diferenca;
             setConfirmUpdateItem(null)
             linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
             setReload(true);
@@ -174,22 +192,26 @@ const PlanoAquisicao = () => {
                         <thead>
                             <tr>
                                 <th rowSpan="2">Resource</th>
-                                <th colSpan="2">Plan A</th>
-                                <th colSpan="2">Milestones</th>
-                                <th colSpan="2">Plan B</th>
-                                <th colSpan="3">Results</th>
+                                <th colSpan="3">Plan A</th>
+                                <th colSpan="2">When to Acquire (Milestones)</th>
+                                <th colSpan="3">Plan B</th>
+                                <th colSpan="5">Results</th>
                                 <th rowSpan="2">Actions</th>
                             </tr>
                             <tr>
-                                <th>Plan</th>
+                                <th>How to Acquire (Method)</th>
+                                <th>Where to Acquire (Supplier)</th>
                                 <th>Value</th>
                                 <th>Expected date</th>
                                 <th>Critical date</th>
+                                <th>Method</th>
                                 <th>Plan</th>
                                 <th>Value</th>
                                 <th>Actual strategy</th>
                                 <th>Date</th>
                                 <th>Value</th>
+                                <th style={{minWidth: '8rem'}}>Date difference</th>
+                                <th style={{minWidth: '8rem'}}>Value difference</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -217,15 +239,24 @@ const PlanoAquisicao = () => {
                                             ) : (
                                                 <td>{plano.recurso}</td>
                                             )}
+                                            <td>{plano.metodo_a}</td>
                                             <td>{plano.plano_a}</td>
                                             <td>R${Number(plano.valor_a).toFixed(2)}</td>
                                             <td>{plano.data_esperada}</td>
                                             <td>{plano.data_limite}</td>
+                                            <td>{plano.metodo_b}</td>
                                             <td>{plano.plano_b}</td>
                                             <td>R${Number(plano.valor_b).toFixed(2)}</td>
                                             <td>{plano.plano_real || '-'}</td>
-                                            <td>{plano.data_real != 'NaN/NaN/NaN' ? plano.data_real : '-'}</td>
-                                            <td>R${Number(plano.valor_real).toFixed(2) || '-'}</td>
+                                            <td>{plano.data_real != 'NaN/NaN/NaN' && plano.data_real != null ? plano.data_real : '-'}</td>
+                                            <td>{plano.valor_real != null ? `R$${Number(plano.valor_real).toFixed(2)}` : '-'}</td>
+                                            <td>
+                                                {plano.data_diferenca[0]}<br/>
+                                                {plano.data_diferenca[1]}
+                                            </td>
+                                            <td>{plano.valor_diferenca[0]}<br/>
+                                                {plano.valor_diferenca[1]}
+                                            </td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(plano)}
                                                     disabled={!isAdmin}>❌</button>

@@ -43,7 +43,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     }
 
     const isFormVazio = (form) => {
-        const emptyFields = Object.entries(form).filter(([key, value]) => value === null);
+        const emptyFields = Object.entries(form).filter(([key, value]) => value === null || value === '');
         return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
     };
 
@@ -79,8 +79,9 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                         name="stakeholder"
                         onChange={handleChange}
                         value={obj.stakeholder}
+                        ref={el => (camposRef.current.stakeholder = el)}
                     >
-                        <option value="" disabled>Stakeholder</option>
+                        <option defaultValue value=''>Stakeholder</option>
                         {[...new Set(nomesStakeholders.map(item => item.name))].map((name, index) => (
                             <option key={index} value={name}>{name}</option>
                         ))};

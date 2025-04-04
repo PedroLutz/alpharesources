@@ -7,7 +7,6 @@ const RecursoSchema = new mongoose.Schema({
     item: String,
     recurso: String,
     uso: String,
-    status: String,
     ehEssencial: Boolean
 }, { collection: 'recursos' });
 

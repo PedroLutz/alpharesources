@@ -4,7 +4,7 @@ import styles from '../../../styles/modules/recursos.module.css'
 import Modal from "../../Modal";
 import Loading from "../../Loading";
 import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../functions/crud";
-import { cleanForm } from "../../../functions/general";
+import { cleanForm, euDateToJsDate, jsDateToEuDate } from "../../../functions/general";
 import { AuthContext } from "../../../contexts/AuthContext";
 
 const Tabela = () => {
@@ -13,7 +13,6 @@ const Tabela = () => {
         item: "",
         recurso: "",
         uso: "",
-        status: "",
         ehEssencial: ""
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
@@ -21,6 +20,7 @@ const Tabela = () => {
     const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
     const [recursos, setRecursos] = useState([]);
+    const [datasPlanos, setDatasPlanos] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [reload, setReload] = useState(false);
@@ -38,6 +38,15 @@ const Tabela = () => {
         setCores(cores);
       }
 
+    const fetchDatasPlanos = async () => {
+        const data = await fetchData('cronograma/get/datasPlanosPorItem');
+        data.planosPorItem.forEach((plano) => {
+            plano.inicio = jsDateToEuDate(plano.inicio)
+            plano.termino = jsDateToEuDate(plano.termino)
+        })
+        setDatasPlanos(data.planosPorItem)
+    }
+
     const enviar = async (e) => {
         e.preventDefault();
         handleSubmit({
@@ -49,6 +58,7 @@ const Tabela = () => {
     };
 
     const handleUpdateClick = (item) => {
+        console.log(item)
         setConfirmUpdateItem(item)
         setNovosDados({
             ...item
@@ -68,7 +78,6 @@ const Tabela = () => {
         if (confirmUpdateItem) {
             setLoading(true);
             const updatedItem = { ...confirmUpdateItem, ...novosDados };
-
             setConfirmUpdateItem(null)
             linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
             setReload(true);
@@ -111,6 +120,7 @@ const Tabela = () => {
         setReload(false);
         fetchRecursos();
         fetchCores();
+        fetchDatasPlanos();
     }, [reload]);
 
     const checkDados = (tipo) => {
@@ -167,13 +177,16 @@ const Tabela = () => {
                     <table className={styles.tabela_financas}>
                         <thead>
                             <tr>
+                                <th colSpan={2}>Where to Use</th>
+                                <th rowSpan={2}>Resource</th>
+                                <th rowSpan={2}>How to use</th>
+                                <th rowSpan={2}>When to use</th>
+                                <th rowSpan={2}>Essential?</th>
+                                <th rowSpan={2}>Actions</th>
+                            </tr>
+                            <tr>
                                 <th>Area</th>
                                 <th>Item</th>
-                                <th>Resource</th>
-                                <th>Use</th>
-                                <th>Acquisition method</th>
-                                <th>Essential</th>
-                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -213,7 +226,7 @@ const Tabela = () => {
                                             )}
                                             <td>{recurso.recurso}</td>
                                             <td>{recurso.uso}</td>
-                                            <td>{recurso.status}</td>
+                                            <td>{datasPlanos.find(obj => obj.area === recurso.area && obj.item === recurso.item)?.inicio || "-"}</td>
                                             <td>{recurso.ehEssencial ? 'Yes' : 'No'}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(recurso)}

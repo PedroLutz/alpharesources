@@ -18,7 +18,6 @@ const Tabela = () => {
         requisites: "",
         information: "",
         method: "",
-        timing: "",
         tools: "",
         responsible: ""
     }

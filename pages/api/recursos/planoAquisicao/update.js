@@ -18,9 +18,9 @@ export default async (req, res) => {
       const updateFields = {};
       
       for (const key in req.body) {
-        if (req.body[key]) {
+        if (req.body.hasOwnProperty(key)) {
           if (propriedadesNomes.includes(key)) {
-            updateFields[key] = req.body[key];
+            updateFields[key] = req.body[key] === '' ? null : req.body[key];
           } else {
             return res.status(400).json({ error: 'Os campos fornecidos não são compatíveis com o do modelo!' });
           }

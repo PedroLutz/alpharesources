@@ -43,7 +43,7 @@ const Tabela = () => {
       var balance = 0;
       data.lancamentos.forEach((item) => {
         item.data = jsDateToEuDate(item.data);
-        if(item.tipo != "Exchange") balance = balance + item.valor;
+        if(item.tipo != "Exchange" && !item.deletado) balance = balance + item.valor;
         item.balance = balance.toFixed(2);
       });
       const [lancamentos, lancamentosDeletados] = data.lancamentos.reduce(

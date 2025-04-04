@@ -12,7 +12,6 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         item: null,
         recurso: null,
         uso: null,
-        status: null,
         ehEssencial: null
     });
     const {isAdmin} = useContext(AuthContext)
@@ -48,8 +47,8 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     const isFirstRender = useRef(true);
 
     const isFormVazio = (form) => {
-        const emptyFields = Object.entries(form).filter(([key, value]) => !value);
-        return [emptyFields.length > 1, emptyFields.map(([key]) => key)];
+        const emptyFields = Object.entries(form).filter(([key, value]) => value === null || value === '');
+        return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
     };
 
     const handleAreaChange = (e) => {
@@ -105,7 +104,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     ref={el => (camposRef.current.area = el)}
 
                 >
-                    <option value="" disabled>Area</option>
+                    <option value="" defaultValue>Area</option>
                     {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
                         <option key={index} value={area}>{area}</option>
                     ))};
@@ -120,7 +119,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     ref={el => (camposRef.current.item = el)}
 
                 >
-                    <option value="" disabled>Item</option>
+                    <option value="" defaultValue>Item</option>
                     {itensPorArea.map((item, index) => (
                         <option key={index} value={item}>{item}</option>
                     ))}
@@ -146,18 +145,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     ref={el => (camposRef.current.uso = el)} />
             </td>
             <td>
-                <select
-                    value={obj.status}
-                    name='status'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
-                    ref={el => (camposRef.current.status = el)} >
-                    <option value="" disabled>Acquisition method</option>
-                    <option value="Purchase">Purchase</option>
-                    <option value="Rental">Rental</option>
-                    <option value="Borrowing">Borrowing</option>
-                    <option value="Outsourcing">Outsourcing</option>
-                    <option value="Already acquired">Already acquired</option>
-                </select>
+                -
             </td>
             <td>
                 <select
@@ -165,7 +153,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     name='ehEssencial'
                     onChange={(e) => handleChange(e, objSetter, obj)}
                     ref={el => (camposRef.current.ehEssencial = el)} >
-                    <option value="" disabled>-</option>
+                    <option value="" defaultValue>-</option>
                     <option value={false}>No</option>
                     <option value={true}>Yes</option>
                 </select>
