@@ -35,7 +35,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
                 termino: form.termino,
             }
         }
-        const emptyFields = Object.entries(camposConsiderados).filter(([key, value]) => !value);
+        const emptyFields = Object.entries(camposConsiderados).filter(([key, value]) => value === null || value === "");
         console.log(emptyFields)
         return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
     };
@@ -219,7 +219,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
                             value={obj.area}
                             ref={el => (camposRef.current.area = el)}
                         >
-                            <option value="" disabled>Area</option>
+                            <option value="" defaultValue>Area</option>
                             {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
                                 <option key={index} value={area}>{area}</option>
                             ))};
@@ -232,7 +232,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
                             value={obj.item}
                             ref={el => (camposRef.current.item = el)}
                         >
-                            <option value="" disabled>Item</option>
+                            <option value="" defaultValue>Item</option>
                             {itensPorArea.notDp.map((item, index) => (
                                 <option key={index} value={item}>{item}</option>
                             ))}
@@ -267,7 +267,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
                     value={obj.dp_area}
                     ref={el => (camposRef.current.dp_area = el)}
                 >
-                    <option value="">None</option>
+                    <option value="" defaultValue>None</option>
                     {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
                         <option key={index} value={area}>{area}</option>
                     ))};
@@ -280,7 +280,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
                     value={obj.dp_item}
                     ref={el => (camposRef.current.dp_item = el)}
                 >
-                    <option value="">None</option>
+                    <option value="" defaultValue>None</option>
                     {itensPorArea.dp.map((item, index) => (
                         <option key={index} value={item}>{item}</option>
                     ))}

@@ -5,6 +5,7 @@ import RaciModel from '../../../../models/responsabilidade/Raci'
 import GanttModel from '../../../../models/Gantt'
 import RecursoModel from '../../../../models/recursos/Recurso';
 import RiscoModel from '../../../../models/riscos/Risco';
+import WbsDictionaryModel from '../../../../models/wbs/wbsDictionary'
 
 const { Wbs, WbsSchema } = WbsModel;
 const { Plano } = PlanoModel;
@@ -12,6 +13,7 @@ const { Raci } = RaciModel;
 const { Gantt } = GanttModel;
 const { Recurso } = RecursoModel;
 const { Risco } = RiscoModel;
+const { WbsDictionary } = WbsDictionaryModel;
 
 export default async (req, res) => {
   try {
@@ -59,6 +61,9 @@ export default async (req, res) => {
         { area: oldWBS.area, item: oldWBS.item }, { $set: { item: updateFields.item } }
       );
       const updatedRisco = await Risco.updateMany(
+        { area: oldWBS.area, item: oldWBS.item }, { $set: { item: updateFields.item } }
+      );
+      const updatedWbsDictionary = await WbsDictionary.updateMany(
         { area: oldWBS.area, item: oldWBS.item }, { $set: { item: updateFields.item } }
       );
       

@@ -64,7 +64,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
             plano_b: form.plano_b,
             valor_b: form.valor_b,
         }
-        const emptyFields = Object.entries(camposConsiderados).filter(([key, value]) => !value);
+        const emptyFields = Object.entries(camposConsiderados).filter(([key, value]) => value === null || value === "");
         return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
     };
 
@@ -130,7 +130,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     onChange={handleAreaChange}
                     value={areaSelecionada}
                 >
-                    <option value="" disabled>Area</option>
+                    <option value="" defaultValue>Area</option>
                     {[...new Set(recursos.map(item => item.area))].map((area, index) => (
                         <option key={index} value={area}>{area}</option>
                     ))};

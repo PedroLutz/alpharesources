@@ -45,7 +45,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
     };
 
     const isFormVazio = (form) => {
-        const emptyFields = Object.entries(form).filter(([key, value]) => !value);
+        const emptyFields = Object.entries(form).filter(([key, value]) => value === null || value === "");
         return [emptyFields.length > 1, emptyFields.map(([key]) => key)];
     };
 

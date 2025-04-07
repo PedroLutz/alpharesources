@@ -86,7 +86,7 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     }
 
     const isFormVazio = (form) => {
-        const emptyFields = Object.entries(form).filter(([key, value]) => value === '');
+        const emptyFields = Object.entries(form).filter(([key, value]) => value === '' || value === null);
         return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
     };
 
@@ -121,7 +121,7 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     onChange={handleAreaChange}
                     value={areaSelecionada}
                 >
-                    <option value="" disabled>Area</option>
+                    <option value="" defaultValue>Area</option>
                     {[...new Set(riscos.map(item => item.area))].map((area, index) => (
                         <option key={index} value={area}>{area}</option>
                     ))};
@@ -136,7 +136,7 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     onChange={(e) => handleChange(e, objSetter, obj)}
                     ref={el => (camposRef.current.risco = el)}
                 >
-                    <option value="" disabled>Risk</option>
+                    <option value="" defaultValue>Risk</option>
                     {riscosPorArea.map((item, index) => (
                         <option key={index} value={item}>{item}</option>
                     ))}
@@ -149,7 +149,7 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     value={obj.estrategia}
                     ref={el => (camposRef.current.estrategia = el)}
                 >
-                    <option disabled value="">Select</option>
+                    <option defaultValue value="">Select</option>
                     {estrategias.map((item, index) => (
                         <option key={index} value={item}>{item}</option>
                     ))}

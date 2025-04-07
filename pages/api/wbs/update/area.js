@@ -1,15 +1,21 @@
 import connectToDatabase from '../../../../lib/db';
 import WbsModel from '../../../../models/wbs/wbs';
+import WbsDictionaryModel from '../../../../models/wbs/wbsDictionary'
 import PlanoModel from '../../../../models/financeiro/Plano'
 import RecursoModel from '../../../../models/recursos/Recurso'
 import RaciModel from '../../../../models/responsabilidade/Raci'
 import GanttModel from '../../../../models/Gantt'
+import LancamentoModel from '../../../../models/LancamentoFinanceiro'
+import RiscoModel from '../../../../models/riscos/Risco';
 
 const { Wbs } = WbsModel;
 const { Plano } = PlanoModel;
 const { Raci } = RaciModel;
 const { Gantt } = GanttModel;
 const { Recurso } = RecursoModel;
+const { Lancamento } = LancamentoModel;
+const { Risco } = RiscoModel;
+const { WbsDictionary } = WbsDictionaryModel;
 
 export default async (req, res) => {
   try {
@@ -25,6 +31,9 @@ export default async (req, res) => {
       const updatedRecurso = await Recurso.updateMany(
         { area: oldArea }, { $set: { area: area } }
       );
+      const updatedLancamento = await Lancamento.updateMany(
+        { area: oldArea }, { $set: { area: area } }
+      );
       const updatedGantt = await Gantt.updateMany(
         { area: oldArea }, { $set: { area: area } }
       );
@@ -32,6 +41,12 @@ export default async (req, res) => {
         { dp_area: oldArea }, { $set: { dp_area: area } }
       );
       const updatedRaci = await Raci.updateMany(
+        { area: oldArea }, { $set: { area: area } }
+      );
+      const updatedRisco = await Risco.updateMany(
+        { area: oldArea }, { $set: { area: area } }
+      );
+      const updatedWbsDictionary = await WbsDictionary.updateMany(
         { area: oldArea }, { $set: { area: area } }
       );
 

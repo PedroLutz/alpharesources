@@ -9,7 +9,7 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
         item: null,
         area: null
     });
-    const {isAdmin} = useContext(AuthContext)
+    const { isAdmin } = useContext(AuthContext)
 
     useEffect(() => {
         if (area) {
@@ -107,23 +107,27 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
         return (
             <div className={`${styles.wbsArea} ${styles.wbsAreaCadastro}`}>
                 <h3>Add new area</h3>
+
                 <input placeholder="Area"
                     value={obj.area}
                     name='area'
                     onChange={(e) => handleChange(e, objSetter, obj)}
                     ref={el => (camposRef.current.area = el)} />
+
                 <input placeholder='Item'
                     value={obj.item}
                     name='item'
                     onChange={(e) => handleChange(e, objSetter, obj)}
                     ref={el => (camposRef.current.item = el)} />
+
                 <input
                     type='color'
                     value={obj.cor}
                     name='cor'
-                    style={{width: '11.5rem', backgroundColor: 'transparent'}}
+                    style={{ width: '11.5rem', backgroundColor: 'transparent' }}
                     onChange={(e) => handleChange(e, objSetter, obj)}
                     ref={el => (camposRef.current.cor = el)} />
+
                 <button onClick={(e) => handleSubmit(e)} disabled={!isAdmin}>Add new</button>
             </div>
         )
@@ -138,7 +142,7 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
                         data-area={area}
                         onChange={(e) => handleChange(e, objSetter, obj)}
                         ref={el => (camposRef.current.item = el)} />
-                        <button onClick={(e) => handleSubmit(e)} disabled={!isAdmin}>➕</button>
+                    <button onClick={(e) => handleSubmit(e)} disabled={!isAdmin}>➕</button>
                 </div>
             </div>
         )
@@ -147,14 +151,15 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
         return (
             <React.Fragment>
                 <div className={styles.editItem}>
-                <input value={obj.item}
-                    name='item'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
-                    ref={el => (camposRef.current.item = el)} />
-                <button onClick={handleSubmit}>✔️</button>
-                <button onClick={funcao.funcao2}>✖️</button>
+                    <input value={obj.item}
+                        name='item'
+                        onChange={(e) => handleChange(e, objSetter, obj)}
+                        ref={el => (camposRef.current.item = el)} />
+
+                    <button onClick={handleSubmit}>✔️</button>
+                    <button onClick={funcao.funcao2}>✖️</button>
                 </div>
-                
+
             </React.Fragment>
         )
     }
@@ -162,14 +167,14 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
         return (
             <React.Fragment>
                 <div className={styles.editArea}>
-                <input value={obj.area}
-                    name='area'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
-                    ref={el => (camposRef.current.area = el)} />
-                <button onClick={handleSubmit}>✔️</button>
-                <button onClick={funcao.funcao2}>✖️</button>
+                    <input value={obj.area}
+                        name='area'
+                        onChange={(e) => handleChange(e, objSetter, obj)}
+                        ref={el => (camposRef.current.area = el)} />
+                    <button onClick={handleSubmit}>✔️</button>
+                    <button onClick={funcao.funcao2}>✖️</button>
                 </div>
-                
+
             </React.Fragment>
         )
     }
@@ -177,15 +182,15 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
         return (
             <React.Fragment>
                 <div className={styles.editArea}>
-                <input value={obj.cor}
-                    type='color'
-                    name='cor'
-                    onChange={handleChangeCor}
-                    ref={el => (camposRef.current.cor = el)} />
-                <button onClick={handleSubmit}>✔️</button>
-                <button onClick={funcao.funcao2}>✖️</button>
+                    <input value={obj.cor}
+                        type='color'
+                        name='cor'
+                        onChange={handleChangeCor}
+                        ref={el => (camposRef.current.cor = el)} />
+                    <button onClick={handleSubmit}>✔️</button>
+                    <button onClick={funcao.funcao2}>✖️</button>
                 </div>
-                
+
             </React.Fragment>
         )
     }

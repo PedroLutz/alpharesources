@@ -77,7 +77,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     };
 
     const isFormVazio = (form) => {
-        const emptyFields = Object.entries(form).filter(([key, value]) => value === "");
+        const emptyFields = Object.entries(form).filter(([key, value]) => value === "" || value === null);
         emptyFields.map(([key]) => console.log(key));
         return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
     };
@@ -115,7 +115,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     ref={el => (camposRef.current.area = el)}
 
                 >
-                    <option value="" disabled>Area</option>
+                    <option value="" defaultValue>Area</option>
                     {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
                         <option key={index} value={area}>{area}</option>
                     ))};
@@ -130,7 +130,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     ref={el => (camposRef.current.item = el)}
 
                 >
-                    <option value="" disabled>Item</option>
+                    <option value="" defaultValue>Item</option>
                     {itensPorArea.map((item, index) => (
                         <option key={index} value={item}>{item}</option>
                     ))}
@@ -153,7 +153,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     value={obj.classificacao}
                     ref={el => (camposRef.current.classificacao = el)}
                 >
-                    <option disabled value="">Classification</option>
+                    <option defaultValue value="">Classification</option>
                     <option value='Normative'>Normative</option>
                     <option value='Technical'>Technical</option>
                     <option value='Financial'>Financial</option>
@@ -167,7 +167,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     value={obj.ehNegativo}
                     ref={el => (camposRef.current.ehNegativo = el)}
                 >
-                    <option disabled value="">Category</option>
+                    <option defaultValue value="">Category</option>
                     <option value={true}>Threat</option>
                     <option value={false}>Opportunity</option>
                 </select>
@@ -206,11 +206,11 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     value={obj.dono}
                     placeholder='Owner'
                     ref={el => (camposRef.current.dono = el)}>
-                        <option disabled value="">Responsible</option>
-                    <option value='Circunstancial'>Circunstancial</option>
-                    {nomesMembros.map((membro, index) => (
-                        <option key={index} value={membro.nome}>{membro.nome}</option>
-                    ))}
+                        <option defaultValue value="">Responsible</option>
+                        <option value='Circunstancial'>Circunstancial</option>
+                        {nomesMembros.map((membro, index) => (
+                            <option key={index} value={membro.nome}>{membro.nome}</option>
+                        ))}
                     </select>
                 
             </td>

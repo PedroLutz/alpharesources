@@ -17,7 +17,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
     const {isAdmin} = useContext(AuthContext);
 
     const isFormVazio = (form) => {
-        const emptyFields = Object.entries(form).filter(([key, value]) => !value);
+        const emptyFields = Object.entries(form).filter(([key, value]) => value === null || value === "");
         return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
     };
 
@@ -115,11 +115,10 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                         ref={el => (camposRef.current.area = el)}
 
                     >
-                        <option value="" disabled>Area</option>
+                        <option value="" defaultValue>Area</option>
                         {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
                             <option key={index} value={area}>{area}</option>
                         ))};
-                        <option value="Travel">Travel</option>
                         <option value="Others">Others</option>
                     </select>
             </td>

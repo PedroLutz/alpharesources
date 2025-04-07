@@ -57,7 +57,7 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
     };
 
     const isFormVazio = (form) => {
-        const emptyFields = Object.entries(obj).filter(([key, value]) => !value);
+        const emptyFields = Object.entries(obj).filter(([key, value]) => value === null || value === "");
         return [emptyFields.length > 1, emptyFields.map(([key]) => key)];
     };
 
@@ -104,9 +104,8 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     onChange={handleAreaChange}
                     value={obj.area}
                     ref={el => (camposRef.current.area = el)}
-
                 >
-                    <option value="" disabled>Area</option>
+                    <option value="" defaultValue>Area</option>
                     {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
                         <option key={index} value={area}>{area}</option>
                     ))};
@@ -121,7 +120,7 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     ref={el => (camposRef.current.item = el)}
 
                 >
-                    <option value="" disabled>Item</option>
+                    <option value="" defaultValue>Item</option>
                     {itensPorArea.map((item, index) => (
                         <option key={index} value={item}>{item}</option>
                     ))}
