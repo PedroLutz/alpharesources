@@ -57,7 +57,11 @@ const Tabela = () => {
         },
         [[], []]
       );
-      const lancamentosReversed = lancamentos.toReversed();
+      // const lancamentosReversed = lancamentos.toReversed();
+      let lancamentosReversed = [];
+      for(let i = lancamentos.length; i > 0; i--){
+        lancamentosReversed.push(lancamentos[i - 1]);
+      }
       lancamentosDeletados.forEach((lancamento) => {
         lancamento.balance = "-"
       })
