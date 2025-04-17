@@ -14,7 +14,10 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
         verificacao: null,
         timing: null,
         responsavel: null,
-        responsavel_aprovacao: null
+        responsavel_aprovacao: null,
+        premissas: null,
+        restricoes: null,
+        recursos: null
     });
     const {isAdmin} = useContext(AuthContext)
 
@@ -131,10 +134,47 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                 <input type='text'
                     value={obj.descricao}
                     name='descricao'
-                    placeholder='Description + Purpose'
+                    placeholder='Description'
                     onChange={(e) => handleChange(e, objSetter, obj)}
                     min="0"
-                    ref={el => (camposRef.current.descricao = el)} />
+                    ref={el => (camposRef.current.descricao = el)} 
+                    />
+            </td>
+            <td>
+                <input type='text'
+                    value={obj.proposito}
+                    name='proposito'
+                    placeholder='Purpose'
+                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    min="0"
+                    ref={el => (camposRef.current.proposito = el)} />
+            </td>
+            <td>
+                <input type='text'
+                    value={obj.premissas}
+                    name='premissas'
+                    placeholder='Premises'
+                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    min="0"
+                    ref={el => (camposRef.current.premissas = el)} />
+            </td>
+            <td>
+                <input type='text'
+                    value={obj.restricoes}
+                    name='restricoes'
+                    placeholder='Restrictions'
+                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    min="0"
+                    ref={el => (camposRef.current.restricoes = el)} />
+            </td>
+            <td>
+                <input type='text'
+                    value={obj.recursos}
+                    name='recursos'
+                    placeholder='Expected Resources'
+                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    min="0"
+                    ref={el => (camposRef.current.recursos = el)} />
             </td>
             <td>
                 <input type='text'

@@ -16,7 +16,10 @@ const TabelaAnalise = () => {
         verificacao: '',
         timing: '',
         responsavel: '',
-        responsavel_aprovacao: ''
+        responsavel_aprovacao: '',
+        premissas: '',
+        restricoes: '',
+        recursos: ''
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
@@ -177,7 +180,11 @@ const TabelaAnalise = () => {
                             <tr>
                                 <th>Area</th>
                                 <th>Item</th>
-                                <th>Description + Purpose</th>
+                                <th>Description</th>
+                                <th>Purpose</th>
+                                <th>Premises</th>
+                                <th>Restrictions</th>
+                                <th>Expected Resources and Costs</th>
                                 <th>Acceptance Criteria</th>
                                 <th>Verification</th>
                                 <th>Timing</th>
@@ -213,6 +220,10 @@ const TabelaAnalise = () => {
                                             )}
                                             <td>{item.item}</td>
                                             <td>{item.descricao}</td>
+                                            <td>{item.proposito}</td>
+                                            <td>{item.premissas}</td>
+                                            <td>{item.restricoes}</td>
+                                            <td>{item.recursos}</td>
                                             <td>{item.criterio}</td>
                                             <td>{item.verificacao}</td>
                                             <td>{item.timing}</td>

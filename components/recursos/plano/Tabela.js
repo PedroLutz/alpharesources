@@ -204,8 +204,8 @@ const PlanoAquisicao = () => {
                                 <th>Value</th>
                                 <th>Expected date</th>
                                 <th>Critical date</th>
-                                <th>Method</th>
-                                <th>Plan</th>
+                                <th>How to Acquire (Method)</th>
+                                <th>Where to Acquire (Supplier)</th>
                                 <th>Value</th>
                                 <th>Actual strategy</th>
                                 <th>Date</th>

@@ -35,6 +35,9 @@ label {
     background-color: #ffc3f7;
 }
 
+textarea{
+    resize: none
+}
 
 .overlay {
     position: fixed;

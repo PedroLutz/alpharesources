@@ -30,7 +30,7 @@
     max-width: 10.5rem;
 }
 
-.tabelaRisco td input, .tabelaRisco td select, 
+.tabelaRisco td input, .tabelaRisco td select, .tabelaRisco td textarea, 
 .tabelaPlano td input, .tabelaPlano td select, 
 .tabelaAnalise td input, .tabelaAnalise td select{
     border-width: 0.1rem;
@@ -42,13 +42,17 @@
     outline: none;
 }
 
+.tabelaRisco td textarea{
+    height: 7rem;
+}
+
 .tabelaRisco td input:hover, .tabelaRisco td select:hover, .tabelaRisco button:hover, 
 .tabelaPlano td input:hover, .tabelaPlano td select:hover, .tabelaPlano button:hover,
 .tabelaAnalise td input:hover, .tabelaAnalise td select:hover, .tabelaAnalise button:hover{
     background-color: rgb(231, 231, 231);
 }
 
-.tabelaRisco td input, .tabelaRisco td select,
+.tabelaRisco td input, .tabelaRisco td select, .tabelaRisco td textarea,
 .tabelaPlano td input, .tabelaPlano td select{
     width: 10rem;
     font-size: small;
