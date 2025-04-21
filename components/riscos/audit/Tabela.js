@@ -157,7 +157,7 @@ const TabelaAnalise = () => {
 
             <div className={styles.tabelaRisco_container}>
                 <div className={styles.tabelaRisco_wrapper}>
-                    <table className={styles.tabelaRisco}>
+                    <table className={styles.tabelaAudit}>
                         <thead>
                             <tr>
                                 <th>Risk</th>

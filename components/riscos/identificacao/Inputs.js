@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useContext } from "react";
 import React from "react";
 import { fetchData } from "../../../functions/crud";
 import { AuthContext } from "../../../contexts/AuthContext";
+import styles from '../../../styles/modules/risco.module.css'
 
 const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     const [elementosWBS, setElementosWBS] = useState([]);
@@ -113,7 +114,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     onChange={handleAreaChange}
                     value={obj.area}
                     ref={el => (camposRef.current.area = el)}
-
+                    className={styles.risco_td_area}
                 >
                     <option value="" defaultValue>Area</option>
                     {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
@@ -128,7 +129,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     name='item'
                     onChange={(e) => handleChange(e, objSetter, obj)}
                     ref={el => (camposRef.current.item = el)}
-
+                    className={styles.risco_td_item}
                 >
                     <option value="" defaultValue>Item</option>
                     {itensPorArea.map((item, index) => (
@@ -138,12 +139,13 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                 </select>
             </td>
             <td>
-                <input
+                <textarea
                     name="risco"
                     onChange={handleChange}
                     value={obj.risco}
                     placeholder='Risk'
                     ref={el => (camposRef.current.risco = el)}
+                    className={styles.risco_td_risco}
                 />
             </td>
             <td>
@@ -152,6 +154,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     onChange={handleChange}
                     value={obj.classificacao}
                     ref={el => (camposRef.current.classificacao = el)}
+                    className={styles.risco_td_classificacao}
                 >
                     <option defaultValue value="">Classification</option>
                     <option value='Normative'>Normative</option>
@@ -166,6 +169,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     onChange={handleChange}
                     value={obj.ehNegativo}
                     ref={el => (camposRef.current.ehNegativo = el)}
+                    className={styles.risco_td_ehNegativo}
                 >
                     <option defaultValue value="">Category</option>
                     <option value={true}>Threat</option>
@@ -173,16 +177,17 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                 </select>
             </td>
             <td>
-                <input
+                <textarea
                     name="efeito"
                     onChange={handleChange}
                     value={obj.efeito}
                     placeholder='Effect'
                     ref={el => (camposRef.current.efeito = el)}
+                    className={styles.risco_td_efeito}
                 />
             </td>
             <td>
-                <input
+                <textarea
                     name="causa"
                     onChange={handleChange}
                     value={obj.causa}
@@ -191,12 +196,13 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                 />
             </td>
             <td>
-                <input
+                <textarea
                     name="gatilho"
                     onChange={handleChange}
                     value={obj.gatilho}
                     placeholder='Trigger'
                     ref={el => (camposRef.current.gatilho = el)}
+                    className={styles.risco_td_gatilho}
                 />
             </td>
             <td>
@@ -205,7 +211,8 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     onChange={handleChange}
                     value={obj.dono}
                     placeholder='Owner'
-                    ref={el => (camposRef.current.dono = el)}>
+                    ref={el => (camposRef.current.dono = el)}
+                    className={styles.risco_td_dono}>
                         <option defaultValue value="">Responsible</option>
                         <option value='Circunstancial'>Circunstancial</option>
                         {nomesMembros.map((membro, index) => (

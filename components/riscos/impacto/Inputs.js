@@ -155,7 +155,7 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                 />
             </td>
             <td>
-                <input
+                <textarea
                     type='text'
                     name="descricao"
                     onChange={handleChange}

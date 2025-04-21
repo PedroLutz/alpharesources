@@ -118,7 +118,7 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                 </select>
             </td>
             <td>
-                <input
+                <textarea
                     type='text'
                     name="resposta"
                     onChange={handleChange}
@@ -137,7 +137,7 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                 />
             </td>
             <td>
-                <input
+                <textarea
                     type='text'
                     name="descricaoImpacto"
                     onChange={handleChange}

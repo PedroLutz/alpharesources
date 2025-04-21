@@ -54,6 +54,10 @@
     width: 2rem !important;
 }
 
+.botoes_acoes button:hover {
+    font-size: 0.95rem;
+}
+
 .botao_logout {
     background-color: transparent;
     border: none;

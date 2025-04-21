@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useContext } from "react";
 import React from "react";
 import { fetchData } from "../../../functions/crud";
 import { AuthContext } from "../../../contexts/AuthContext";
+import styles from '../../../styles/modules/risco.module.css'
 
 const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     const [riscos, setRiscos] = useState([])
@@ -142,7 +143,7 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     ))}
                 </select>
             </td>
-            <td>
+            <td className={styles.plano_td_estrategia}>
                 <select
                     name="estrategia"
                     onChange={handleChange}
@@ -156,7 +157,8 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                 </select>
             </td>
             <td>
-                <input
+                <textarea
+                    
                     name="detalhamento"
                     onChange={handleChange}
                     value={obj.detalhamento}

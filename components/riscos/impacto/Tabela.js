@@ -157,7 +157,7 @@ const TabelaAnalise = () => {
 
             <div className={styles.tabelaRisco_container}>
                 <div className={styles.tabelaRisco_wrapper}>
-                    <table className={styles.tabelaRisco}>
+                    <table className={styles.tabelaImpacto}>
                         <thead>
                             <tr>
                                 <th>Risk</th>
@@ -168,7 +168,6 @@ const TabelaAnalise = () => {
                             </tr>
                         </thead>
                         <tbody>
-
                             {impactos.map((item, index) => (
                                 <React.Fragment key={index}>
                                     {linhaVisivel === item._id ? (
