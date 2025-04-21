@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react"
-import styles from '../../../styles/modules/risco.module.css'
+import styles from '../../../styles/modules/wbs.module.css'
 import CadastroInputs from "./Inputs";
 import Modal from "../../Modal";
 import Loading from "../../Loading";
@@ -173,9 +173,9 @@ const TabelaAnalise = () => {
                 }} />
             )}
 
-            <div className={styles.tabelaRisco_container}>
-                <div className={styles.tabelaRisco_wrapper}>
-                    <table className={styles.tabelaRisco}>
+            <div className={styles.tabelaDicionario_container}>
+                <div className={styles.tabelaDicionario_wrapper}>
+                    <table className={styles.tabelaDicionario}>
                         <thead>
                             <tr>
                                 <th>Area</th>
@@ -212,23 +212,23 @@ const TabelaAnalise = () => {
                                                 <React.Fragment>
                                                     {index === 0 || dicionarios[index - 1].area !== item.area ? (
                                                         <td rowSpan={calculateRowSpan(dicionarios, item.area, index)}
-                                                        >{item.area}</td>
+                                                        className={styles.td_area}>{item.area}</td>
                                                     ) : null}
                                                 </React.Fragment>
                                             ) : (
-                                                <td>{item.area}</td>
+                                                <td className={styles.td_area}>{item.area}</td>
                                             )}
-                                            <td>{item.item}</td>
-                                            <td>{item.descricao}</td>
-                                            <td>{item.proposito}</td>
-                                            <td>{item.premissas}</td>
-                                            <td>{item.restricoes}</td>
-                                            <td>{item.recursos}</td>
-                                            <td>{item.criterio}</td>
-                                            <td>{item.verificacao}</td>
-                                            <td>{item.timing}</td>
-                                            <td>{item.responsavel}</td>
-                                            <td>{item.responsavel_aprovacao}</td>
+                                            <td className={styles.td_item}>{item.item}</td>
+                                            <td className={styles.td_descricao}>{item.descricao}</td>
+                                            <td className={styles.td_proposito}>{item.proposito}</td>
+                                            <td className={styles.td_premissas}>{item.premissas}</td>
+                                            <td className={styles.td_restricoes}>{item.restricoes}</td>
+                                            <td className={styles.td_recursos}>{item.recursos}</td>
+                                            <td className={styles.td_criterio}>{item.criterio}</td>
+                                            <td className={styles.td_verificacao}>{item.verificacao}</td>
+                                            <td className={styles.td_timing}>{item.timing}</td>
+                                            <td className={styles.td_responsavel}>{item.responsavel}</td>
+                                            <td className={styles.td_responsavel_aprovacao}>{item.responsavel_aprovacao}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(item)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {

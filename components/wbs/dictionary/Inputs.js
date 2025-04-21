@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
 import { fetchData } from '../../../functions/crud';
 import { AuthContext } from '../../../contexts/AuthContext';
+import styles from '../../../styles/modules/wbs.module.css'
 
-const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
+const textareas = ({ obj, objSetter, tipo, funcao, checkDados }) => {
     const [emptyFields, setEmptyFields] = useState([]);
     const [elementosWBS, setElementosWBS] = useState([]);
     const [itensPorArea, setItensPorArea] = useState([]);
@@ -84,7 +85,7 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                 }
             });
             setEmptyFields(camposVazios);
-            checkDados('inputsVazios');
+            checkDados('textareasVazios');
             return true;
         }
     }
@@ -101,7 +102,7 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
 
     return (
         <tr className='linha-cadastro'>
-            <td>
+            <td className={styles.td_area}>
                 <select
                     name="area"
                     onChange={handleAreaChange}
@@ -115,7 +116,7 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     <option value="Others">Others</option>
                 </select>
             </td>
-            <td>
+            <td className={styles.td_item}>
                 <select
                     value={obj.item}
                     name='item'
@@ -130,8 +131,8 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     <option value="Others">Others</option>
                 </select>
             </td>
-            <td>
-                <input type='text'
+            <td className={styles.td_descricao}>
+                <textarea type='text'
                     value={obj.descricao}
                     name='descricao'
                     placeholder='Description'
@@ -140,8 +141,8 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     ref={el => (camposRef.current.descricao = el)} 
                     />
             </td>
-            <td>
-                <input type='text'
+            <td className={styles.td_proposito}>
+                <textarea type='text'
                     value={obj.proposito}
                     name='proposito'
                     placeholder='Purpose'
@@ -149,8 +150,8 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     min="0"
                     ref={el => (camposRef.current.proposito = el)} />
             </td>
-            <td>
-                <input type='text'
+            <td className={styles.td_premissas}>
+                <textarea type='text'
                     value={obj.premissas}
                     name='premissas'
                     placeholder='Premises'
@@ -158,8 +159,8 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     min="0"
                     ref={el => (camposRef.current.premissas = el)} />
             </td>
-            <td>
-                <input type='text'
+            <td className={styles.td_restricoes}>
+                <textarea type='text'
                     value={obj.restricoes}
                     name='restricoes'
                     placeholder='Restrictions'
@@ -167,8 +168,8 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     min="0"
                     ref={el => (camposRef.current.restricoes = el)} />
             </td>
-            <td>
-                <input type='text'
+            <td className={styles.td_recursos}>
+                <textarea type='text'
                     value={obj.recursos}
                     name='recursos'
                     placeholder='Expected Resources'
@@ -176,8 +177,8 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     min="0"
                     ref={el => (camposRef.current.recursos = el)} />
             </td>
-            <td>
-                <input type='text'
+            <td className={styles.td_criterio}>
+                <textarea type='text'
                     value={obj.criterio}
                     name='criterio'
                     placeholder='Acceptance criteria'
@@ -185,8 +186,8 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     min="0"
                     ref={el => (camposRef.current.criterio = el)} />
             </td>
-            <td>
-                <input
+            <td className={styles.td_verificacao}>
+                <textarea
                     type="text"
                     value={obj.verificacao}
                     name='verificacao'
@@ -194,8 +195,8 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     onChange={(e) => handleChange(e, objSetter, obj)}
                     ref={el => (camposRef.current.verificacao = el)} />
             </td>
-            <td>
-                <input
+            <td className={styles.td_timing}>
+                <textarea
                     type="text"
                     value={obj.timing}
                     name='timing'
@@ -203,8 +204,8 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     onChange={(e) => handleChange(e, objSetter, obj)}
                     ref={el => (camposRef.current.timing = el)} />
             </td>
-            <td>
-                <input
+            <td className={styles.td_responsavel}>
+                <textarea
                     type="text"
                     value={obj.responsavel}
                     name='responsavel'
@@ -212,8 +213,8 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     onChange={(e) => handleChange(e, objSetter, obj)}
                     ref={el => (camposRef.current.responsavel = el)} />
             </td>
-            <td>
-                <input
+            <td className={styles.td_responsavel_aprovacao}>
+                <textarea
                     type="text"
                     value={obj.responsavel_aprovacao}
                     name='responsavel_aprovacao'
@@ -235,4 +236,4 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
     )
 }
 
-export default Inputs;
+export default textareas;
