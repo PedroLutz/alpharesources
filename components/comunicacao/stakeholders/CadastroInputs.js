@@ -93,7 +93,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     return (
         <tr>
             <td>
-                <input
+                <textarea
                     name="name"
                     onChange={handleChange}
                     value={obj.name}
@@ -102,7 +102,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                 />
             </td>
             <td>
-                <input
+                <textarea
                     name="involvement"
                     onChange={handleChange}
                     value={obj.involvement}
@@ -111,7 +111,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                 />
             </td>
             <td>
-                <input
+                <textarea
                     name="influence"
                     onChange={handleChange}
                     value={obj.influence}
@@ -147,7 +147,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                 {generateMapping(obj.power, obj.interest)}
             </td>
             <td>
-                <input
+                <textarea
                     name="expectations"
                     onChange={handleChange}
                     value={obj.expectations}
@@ -156,7 +156,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                 />
             </td>
             <td>
-                <input
+                <textarea
                     name="requisites"
                     onChange={handleChange}
                     value={obj.requisites}
@@ -165,7 +165,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                 />
             </td>
             <td>
-                <input
+                <textarea
                     name="information"
                     onChange={handleChange}
                     value={obj.information}
@@ -174,7 +174,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                 />
             </td>
             <td>
-                <input
+                <textarea
                     name="method"
                     onChange={handleChange}
                     value={obj.method}
@@ -183,7 +183,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                 />
             </td>
             <td>
-                <input
+                <textarea
                     name="tools"
                     onChange={handleChange}
                     value={obj.tools}

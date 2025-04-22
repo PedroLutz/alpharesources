@@ -47,6 +47,7 @@
     outline: none;
     width: 9rem;
     font-size: small;
+    background-color: white;
 }
 
 .tabelaCronograma td input:hover, .tabelaCronograma td select:hover, .botaoCadastro:hover {
@@ -75,11 +76,6 @@
 .tabelaCronograma th:nth-child(8) {
     width: 2rem;
 }
-
-.botoesAcoes button{
-    width: 1.8rem;
-    border-color: transparent;
-} 
 
 .botaoCadastro {
     width: 4.7rem;

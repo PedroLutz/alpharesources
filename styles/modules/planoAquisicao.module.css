@@ -48,9 +48,10 @@
     outline: none;
     width: 9rem;
     font-size: small;
+    background-color: white;
 }
 
-.tabela_financas td input:hover, .tabela_financas td select:hover, .tabela_financas button:hover {
+.tabela_financas td input:hover, .tabela_financas td select:hover, .tabela_financas td:not(:global(.botoes_acoes)) button:hover {
     background-color: rgb(231, 231, 231);
 }
 

@@ -94,6 +94,11 @@
     color: rgb(0, 0, 0);
     margin-right: 5px;
     margin: 0px;
+    transition: 0.2s;
+}
+
+.botoesAcoes button:hover{
+    font-size: 0.8rem;
 }
 
 .textWrapper {
@@ -150,7 +155,7 @@
     width: 1.5rem;
 }
 
-.tabelaRaci td input:hover, .tabelaRaci td select:hover, .tabelaRaci button:hover {
+.tabelaRaci td input:hover, .tabelaRaci td select:hover, .tabelaRaci td:not(:global(.botoes_acoes)) button:hover {
     background-color: rgb(231, 231, 231);
 }
 
@@ -164,6 +169,7 @@
     padding: 0.2rem;
     transition: 0.2s;
     outline: none;
+    background-color: white;
 }
 
 .areaTc {

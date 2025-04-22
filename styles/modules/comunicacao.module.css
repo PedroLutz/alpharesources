@@ -27,17 +27,29 @@
     word-wrap: break-word;
 }
 
-.tabelaComunicacao td input, .tabelaComunicacao td select {
+.tabelaComunicacao td input, .tabelaComunicacao td select, .tabelaComunicacao td textarea {
     border-width: 0.1rem;
     border-style: solid;
-    border-color: rgb(0, 0, 0);
+    border-color: rgb(167, 167, 167);
     border-radius: 0.4rem;
     padding: 0.2rem;
     transition: 0.2s;
     outline: none;
+    background-color: white;
+    font-size: small;
 }
 
-.tabelaComunicacao td input:hover, .tabelaComunicacao td select:hover, .tabelaComunicacao button:hover {
+.tabelaComunicacao td textarea{
+    height: 4rem;
+}
+
+.tabelaComunicacao td select, .tabelaComunicacao td:not(:global(.botoes_acoes)) button{
+    height: 4.5rem;
+}
+
+.tabelaComunicacao td input:hover, .tabelaComunicacao td select:hover,
+.tabelaComunicacao td textarea:hover, 
+.tabelaComunicacao td:not(:global(.botoes_acoes)) button:hover {
     background-color: rgb(231, 231, 231);
 }
 

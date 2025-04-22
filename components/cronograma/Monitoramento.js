@@ -200,7 +200,8 @@ const Tabela = () => {
          dado.itens.filter((item) => item.situacao === "iniciar").length === 0){
          objSituacao = {...objSituacao, [dado.area] : "Complete"}
       } else if (dado.itens.filter((item) => item.situacao === "em andamento").length === 0 &&
-                 dado.itens.filter((item) => item.situacao === "iniciar").length > 0){
+                 dado.itens.filter((item) => item.situacao === "iniciar").length > 0 && 
+                 dado.itens.filter((item) => item.situacao === 'concluida').length > 0){
         objSituacao = {...objSituacao, [dado.area] : "Hold"}
       } else if (dado.itens.filter((item) => item.situacao === "em andamento").length > 0){
         objSituacao = {...objSituacao, [dado.area] : "Executing"}

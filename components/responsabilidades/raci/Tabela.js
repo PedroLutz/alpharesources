@@ -336,15 +336,15 @@ const Tabela = () => {
                         <td key={index} className='notLast'>{item.responsabilidades.split(', ')[tableHeaders.indexOf(membro)] || '-'}</td>
                       ))}
                       {verOpcoes && (
-                        <td>
-                          <div className="botoes_acoes lastMaior">
+                        <td className="botoes_acoes lastMaior">
+                          
                             <button type="button" 
                             onClick={() => setConfirmDeleteItem(item)}
                             disabled={!isAdmin}>❌</button>
                             <button onClick={() => {
                               linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
                             }} disabled={!isAdmin}>⚙️</button>
-                          </div>
+                          
                         </td>
                       )}
 

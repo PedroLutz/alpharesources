@@ -44,7 +44,7 @@
     padding: 0.2rem;
     transition: 0.2s;
     outline: none;
-    background-color: transparent;
+    background-color: white;
 }
 
 .tabelaRisco td input, .tabelaRisco td select{

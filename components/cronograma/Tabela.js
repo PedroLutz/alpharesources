@@ -346,7 +346,7 @@ const Tabela = () => {
                         <td>{item.dp_area || '-'}</td>
                         <td>{item.dp_item || '-'}</td>
                         <td>
-                          <div className={styles.botoesAcoes}>
+                          <div className="botoes_acoes">
                             <button onClick={() => setConfirmDeleteItem(item)}
                               disabled={!isAdmin}>❌</button>
                             <button onClick={() => {
