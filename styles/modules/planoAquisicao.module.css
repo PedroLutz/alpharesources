@@ -38,7 +38,7 @@
     width: 2rem;
 }
 
-.tabela_financas td input, .tabela_financas td select {
+.tabela_financas td input, .tabela_financas td select, .tabela_financas td textarea {
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(167, 167, 167);
@@ -51,7 +51,10 @@
     background-color: white;
 }
 
-.tabela_financas td input:hover, .tabela_financas td select:hover, .tabela_financas td:not(:global(.botoes_acoes)) button:hover {
+.tabela_financas td input:hover, 
+.tabela_financas td select:hover,
+.tabela_financas td textarea:hover,
+.tabela_financas td:not(:global(.botoes_acoes)) button:hover {
     background-color: rgb(231, 231, 231);
 }
 
@@ -97,4 +100,13 @@
     font-weight: bold;
     width: 10rem;
     height: 1.7rem;
+}
+
+.camposMaiores td input, .camposMaiores td textarea{
+    height: 3rem;
+}
+
+.camposMaiores td:not(.campo_recurso) select, 
+.camposMaiores td:not(:global(.botoes_acoes)) button{
+    height: 3.55rem;
 }

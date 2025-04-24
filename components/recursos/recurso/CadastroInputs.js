@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useContext } from "react";
 import React from "react";
 import { fetchData } from "../../../functions/crud";
 import { AuthContext } from "../../../contexts/AuthContext";
+import styles from '../../../styles/modules/recursos.module.css'
 
 const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     const [emptyFields, setEmptyFields] = useState([]);
@@ -95,14 +96,13 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     };
 
     return (
-        <tr className='linha-cadastro'>
+        <tr className={`linha-cadastro ${styles.camposMaiores}`}>
             <td>
                 <select
                     name="area"
                     onChange={handleAreaChange}
                     value={obj.area}
                     ref={el => (camposRef.current.area = el)}
-
                 >
                     <option value="" defaultValue>Area</option>
                     {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
@@ -152,6 +152,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     value={obj.ehEssencial}
                     name='ehEssencial'
                     onChange={(e) => handleChange(e, objSetter, obj)}
+                    className={styles.campo_ehEssencial}
                     ref={el => (camposRef.current.ehEssencial = el)} >
                     <option value="" defaultValue>-</option>
                     <option value={false}>No</option>

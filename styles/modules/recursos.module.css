@@ -97,3 +97,11 @@
     width: 10rem;
     height: 1.7rem;
 }
+
+.camposMaiores td input{
+    width: 15rem;
+}
+
+.camposMaiores td select:not(.campo_ehEssencial){
+    width: 10rem;
+}

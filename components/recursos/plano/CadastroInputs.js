@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useContext } from "react";
 import React from "react";
 import { fetchData } from "../../../functions/crud";
 import { AuthContext } from "../../../contexts/AuthContext";
+import styles from '../../../styles/modules/planoAquisicao.module.css'
 
 const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     const [emptyFields, setEmptyFields] = useState([]);
@@ -123,8 +124,8 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     };
 
     return (
-        <tr className='linha-cadastro'>
-            <td>
+        <tr className={`linha-cadastro ${styles.camposMaiores}`}>
+            <td className={styles.campo_recurso}>
                 <select
                     name="area"
                     onChange={handleAreaChange}
@@ -164,7 +165,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                 </select>
             </td>
             <td>
-                <input type='text'
+                <textarea type='text'
                     value={obj.plano_a}
                     name='plano_a'
                     placeholder='Supplier'
@@ -210,7 +211,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                 </select>
             </td>
             <td>
-                <input type='text'
+                <textarea type='text'
                     value={obj.plano_b}
                     name='plano_b'
                     placeholder='Supplier'
@@ -227,7 +228,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     ref={el => (camposRef.current.valor_b = el)} />
             </td>
             <td>
-                <input type='text'
+                <textarea type='text'
                     value={obj.plano_real}
                     name='plano_real'
                     placeholder='Actual strategy'
