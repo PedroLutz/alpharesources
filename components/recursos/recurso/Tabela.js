@@ -177,10 +177,10 @@ const Tabela = () => {
                     <table className={styles.tabela_financas}>
                         <thead>
                             <tr>
-                                <th colSpan={2}>Where to Use</th>
+                                <th colSpan={2}>Resource Allocation</th>
                                 <th rowSpan={2}>Resource</th>
-                                <th rowSpan={2}>How to use</th>
-                                <th rowSpan={2}>When to use</th>
+                                <th rowSpan={2}>Usage</th>
+                                <th rowSpan={2}>Utilization Forecast</th>
                                 <th rowSpan={2}>Essential?</th>
                                 <th rowSpan={2}>Actions</th>
                             </tr>

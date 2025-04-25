@@ -13,11 +13,13 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         recurso: null,
         metodo_a: null,
         plano_a: null,
+        detalhes_a: null,
         valor_a: null,
         data_esperada: null,
         data_limite: null,
         metodo_b: null,
         plano_b: null,
+        detalhes_b: null,
         valor_b: null,
         plano_real: null,
         data_real: null,
@@ -58,11 +60,13 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
             recurso: form.recurso,
             metodo_a: form.metodo_a,
             plano_a: form.plano_a,
+            detalhes_a: form.detalhes_a,
             valor_a: form.valor_a,
             data_esperada: form.data_esperada,
             data_limite: form.data_limite,
             metodo_b: form.metodo_b,
             plano_b: form.plano_b,
+            detalhes_b: form.detalhes_b,
             valor_b: form.valor_b,
         }
         const emptyFields = Object.entries(camposConsiderados).filter(([key, value]) => value === null || value === "");
@@ -173,6 +177,14 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     ref={el => (camposRef.current.plano_a = el)} />
             </td>
             <td>
+                <textarea type='text'
+                    value={obj.detalhes_a}
+                    name='detalhes_a'
+                    placeholder='Details'
+                    onChange={handleChange}
+                    ref={el => (camposRef.current.detalhes_a = el)} />
+            </td>
+            <td>
                 <input type='number'
                     value={obj.valor_a}
                     name='valor_a'
@@ -217,6 +229,14 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     placeholder='Supplier'
                     onChange={handleChange}
                     ref={el => (camposRef.current.plano_b = el)} />
+            </td>
+            <td>
+                <textarea type='text'
+                    value={obj.detalhes_b}
+                    name='detalhes_b'
+                    placeholder='Details'
+                    onChange={handleChange}
+                    ref={el => (camposRef.current.detalhes_b = el)} />
             </td>
             <td>
                 <input type='number'

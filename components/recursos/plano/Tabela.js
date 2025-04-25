@@ -14,11 +14,13 @@ const PlanoAquisicao = () => {
         recurso: "",
         metodo_a: "",
         plano_a: "",
+        detalhes_a: "",
         valor_a: "",
         data_esperada: "",
         data_limite: "",
         metodo_b: "",
         plano_b: "",
+        detalhes_b: "",
         valor_b: "",
         plano_real: "",
         data_real: "",
@@ -192,20 +194,22 @@ const PlanoAquisicao = () => {
                         <thead>
                             <tr>
                                 <th rowSpan="2">Resource</th>
-                                <th colSpan="3">Plan A</th>
-                                <th colSpan="2">When to Acquire (Milestones)</th>
-                                <th colSpan="3">Plan B</th>
+                                <th colSpan="4">Procurement Strategies (Plan A)</th>
+                                <th colSpan="2">Milestones</th>
+                                <th colSpan="4">Procurement Strategies (Plan B)</th>
                                 <th colSpan="5">Results</th>
                                 <th rowSpan="2">Actions</th>
                             </tr>
                             <tr>
-                                <th>How to Acquire (Method)</th>
+                                <th>Method</th>
                                 <th>Where to Acquire (Supplier)</th>
+                                <th>Details</th>
                                 <th>Value</th>
                                 <th>Expected date</th>
                                 <th>Critical date</th>
                                 <th>How to Acquire (Method)</th>
                                 <th>Where to Acquire (Supplier)</th>
+                                <th>Details</th>
                                 <th>Value</th>
                                 <th>Actual strategy</th>
                                 <th>Date</th>
@@ -241,11 +245,13 @@ const PlanoAquisicao = () => {
                                             )}
                                             <td>{plano.metodo_a}</td>
                                             <td>{plano.plano_a}</td>
+                                            <td>{plano.detalhes_a}</td>
                                             <td>R${Number(plano.valor_a).toFixed(2)}</td>
                                             <td>{plano.data_esperada}</td>
                                             <td>{plano.data_limite}</td>
                                             <td>{plano.metodo_b}</td>
                                             <td>{plano.plano_b}</td>
+                                            <td>{plano.detalhes_b}</td>
                                             <td>R${Number(plano.valor_b).toFixed(2)}</td>
                                             <td>{plano.plano_real || '-'}</td>
                                             <td>{plano.data_real != 'NaN/NaN/NaN' && plano.data_real != null ? plano.data_real : '-'}</td>
