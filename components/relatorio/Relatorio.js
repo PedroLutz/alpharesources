@@ -164,20 +164,21 @@ const Relatorio = () => {
         const dadosSituacoesGantt = responseSituacoesGantt.ganttPorArea;
 
         var objSituacao = {}
-        dadosSituacoesGantt.forEach((dado) => {
-            if (dado.itens.filter((item) => item.situacao === "em andamento").length === 0 &&
-                dado.itens.filter((item) => item.situacao === "iniciar").length === 0) {
-                objSituacao = { ...objSituacao, [dado.area]: "Complete" }
+        dadosSituacoesGantt.forEach((dado) => { 
+            if(dado.itens.filter((item) => item.situacao === "em andamento").length === 0 &&
+               dado.itens.filter((item) => item.situacao === "iniciar").length === 0){
+               objSituacao = {...objSituacao, [dado.area] : "Complete"}
             } else if (dado.itens.filter((item) => item.situacao === "em andamento").length === 0 &&
-                dado.itens.filter((item) => item.situacao === "iniciar").length > 0) {
-                objSituacao = { ...objSituacao, [dado.area]: "Hold" }
-            } else if (dado.itens.filter((item) => item.situacao === "em andamento").length > 0) {
-                objSituacao = { ...objSituacao, [dado.area]: "Executing" }
+                       dado.itens.filter((item) => item.situacao === "iniciar").length > 0 && 
+                       dado.itens.filter((item) => item.situacao === 'concluida').length > 0){
+              objSituacao = {...objSituacao, [dado.area] : "Hold"}
+            } else if (dado.itens.filter((item) => item.situacao === "em andamento").length > 0){
+              objSituacao = {...objSituacao, [dado.area] : "Executing"}
             } else if (dado.itens.filter((item) => item.situacao === "em andamento").length === 0 &&
-                dado.itens.filter((item) => item.situacao === "concluida").length === 0) {
-                objSituacao = { ...objSituacao, [dado.area]: "To Begin" }
+                      dado.itens.filter((item) => item.situacao === "concluida").length === 0){
+              objSituacao = {...objSituacao, [dado.area] : "To Begin"}
             }
-        })
+          })
 
         var duplas = [];
         dadosPlano.forEach((dado) => {
