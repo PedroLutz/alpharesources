@@ -1,5 +1,5 @@
 import connectToDatabase from '../../../../../lib/db';
-import CbsModel from '../../../../../models/recursos/cbs';
+import CbsModel from '../../../../../models/recursos/CbStructure';
 
 const { Cbs, CbsSchema } = CbsModel;
 
