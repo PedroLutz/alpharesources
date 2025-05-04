@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useContext } from "react";
 import styles from '../../styles/modules/wbs.module.css';
 import { AuthContext } from "../../contexts/AuthContext";
 
-const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
+const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area, isNameUsed }) => {
     const [emptyFields, setEmptyFields] = useState([]);
     const camposRef = useRef({
         cor: null,
@@ -58,6 +58,11 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area }) => {
 
     const validaDados = () => {
         const [isEmpty, camposVazios] = isFormVazio(obj);
+        const nomeUsado = isNameUsed(obj);
+        if(nomeUsado) {
+            checkDados && checkDados('nomeRepetido')
+            return true
+        };
 
         if (isEmpty) {
             camposVazios.forEach(campo => {

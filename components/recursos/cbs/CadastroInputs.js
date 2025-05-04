@@ -1,22 +1,33 @@
-import { useEffect, useState, useRef, useContext } from "react";
-import React from "react";
-import { fetchData } from "../../../functions/crud";
-import { AuthContext } from "../../../contexts/AuthContext";
-import styles from '../../../styles/modules/recursos.module.css'
+import React, { useState, useRef, useEffect, useContext } from 'react';
+import { fetchData } from '../../../functions/crud';
+import { AuthContext } from '../../../contexts/AuthContext';
+import styles from '../../../styles/modules/cbs.module.css'
 
-const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
+const CadastroInputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
     const [emptyFields, setEmptyFields] = useState([]);
     const [elementosWBS, setElementosWBS] = useState([]);
-    const [itensPorArea, setItensPorArea] = useState([]);
     const camposRef = useRef({
+        codigo: null,
         area: null,
         item: null,
-        recurso: null,
-        uso: null,
-        tipo: null,
-        ehEssencial: null
-    });
-    const {isAdmin} = useContext(AuthContext)
+        custo_ideal: null,
+        custo_essencial: null,
+        custo_real: null
+    })
+    const { isAdmin } = useContext(AuthContext);
+    const [itensPorArea, setItensPorArea] = useState([]);
+
+    const isFormVazio = (form) => {
+        const camposConsiderados = {
+            codigo: form.codigo,
+            area: form.area,
+            item: form.item,
+            custo_ideal: form.custo_ideal,
+            custo_essencial: form.custo_essencial
+        }
+        const emptyFields = Object.entries(camposConsiderados).filter(([key, value]) => value === null || value === "");
+        return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
+    };
 
     const fetchElementos = async () => {
         const data = await fetchData('wbs/get/all');
@@ -24,34 +35,11 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     };
 
     useEffect(() => {
-        fetchElementos();
-    }, []);
-
-    useEffect(() => {
         if (obj.area) {
             const itensDaArea = elementosWBS.filter(item => item.area === obj.area).map(item => item.item);
             setItensPorArea(itensDaArea);
         }
     }, [obj.area, elementosWBS]);
-
-    useEffect(() => {
-        if (isFirstRender.current) {
-            isFirstRender.current = false;
-            return;
-        }
-
-        objSetter({
-            ...obj,
-            item: ''
-        });
-    }, [obj.area]);
-
-    const isFirstRender = useRef(true);
-
-    const isFormVazio = (form) => {
-        const emptyFields = Object.entries(form).filter(([key, value]) => value === null || value === '');
-        return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
-    };
 
     const handleAreaChange = (e) => {
         const areaSelecionada = e.target.value;
@@ -61,6 +49,10 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         handleChange(e, objSetter, obj);
     };
 
+    useEffect(() => {
+        fetchElementos();
+    }, []);
+
     const handleChange = (e, setter, obj) => {
         const { name, value } = e.target;
         const index = emptyFields.indexOf(name);
@@ -69,6 +61,18 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
             ...obj,
             [name]: value,
         });
+        if(name === 'custo_ideal' || name === 'custo_real' || name === 'custo_essencial'){
+            setter({
+                ...obj,
+                [name]: value.replace(/[^0-9]/g, ''),
+            });
+        }
+        if(name === 'codigo'){
+            setter({
+                ...obj,
+                [name]: value.replace(/[^0-9.]/g, ''),
+            });
+        }
         e.target.classList.remove('campo-vazio');
     };
 
@@ -84,20 +88,26 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
             checkDados('inputsVazios');
             return true;
         }
-    };
+    }
 
     const handleSubmit = async (e) => {
         const isInvalido = validaDados();
         if (funcao.funcao1) {
             !isInvalido && funcao.funcao1();
-            return;
         } else {
             !isInvalido && funcao(e);
         }
-    };
+    }
 
     return (
-        <tr className={`linha-cadastro ${styles.camposMaiores}`}>
+        <tr className='linha-cadastro'>
+            <td className={styles.td_code}>
+                <input
+                    value={obj.codigo}
+                    name='codigo'
+                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    ref={el => (camposRef.current.descricao = el)} />
+            </td>
             <td>
                 <select
                     name="area"
@@ -118,7 +128,6 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     name='item'
                     onChange={(e) => handleChange(e, objSetter, obj)}
                     ref={el => (camposRef.current.item = el)}
-
                 >
                     <option value="" defaultValue>Item</option>
                     {itensPorArea.map((item, index) => (
@@ -127,50 +136,35 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     <option value="Others">Others</option>
                 </select>
             </td>
-            <td>
-                <input type='text'
-                    value={obj.recurso}
-                    name='recurso'
-                    placeholder='Resource'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
+            <td className={styles.td_custos}>
+                <input
+                    value={obj.custo_ideal}
+                    name='custo_ideal'
                     min="0"
-                    ref={el => (camposRef.current.recurso = el)} />
-            </td>
-            <td>
-                <input type='text'
-                    value={obj.uso}
-                    name='uso'
-                    placeholder='Use'
                     onChange={(e) => handleChange(e, objSetter, obj)}
+                    ref={el => (camposRef.current.custo_ideal = el)} />
+            </td>
+            <td className={styles.td_custos}>
+                <input
+                    value={obj.custo_essencial}
+                    name='custo_essencial'
                     min="0"
-                    ref={el => (camposRef.current.uso = el)} />
-            </td>
-            <td>
-                <select
-                    value={obj.tipo}
-                    name='tipo'
                     onChange={(e) => handleChange(e, objSetter, obj)}
-                    className={styles.campo_tipo}
-                    ref={el => (camposRef.current.tipo = el)} >
-                    <option value="" defaultValue>Type</option>
-                    <option value="Physical">Physical</option>
-                    <option value="Human">Human</option>
-                </select>
+                    ref={el => (camposRef.current.custo_essencial = el)} />
+            </td>
+            <td className={styles.td_custos}>
+                -
+            </td>
+            <td className={styles.td_custos}>
+                <input
+                    value={obj.custo_real}
+                    name='custo_real'
+                    min="0"
+                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    ref={el => (camposRef.current.custo_real = el)} />
             </td>
             <td>
                 -
-            </td>
-            <td>
-                <select
-                    value={obj.ehEssencial}
-                    name='ehEssencial'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
-                    className={styles.campo_ehEssencial}
-                    ref={el => (camposRef.current.ehEssencial = el)} >
-                    <option value="" defaultValue>-</option>
-                    <option value={false}>No</option>
-                    <option value={true}>Yes</option>
-                </select>
             </td>
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
@@ -182,6 +176,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     </React.Fragment>
                 )}
             </td>
+
         </tr>
     )
 }

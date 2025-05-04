@@ -107,7 +107,8 @@ const WBS = () => {
   };
   const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',
-    'elementoUsado': 'This WBS item is used somewhere else!'
+    'elementoUsado': 'This WBS item is used somewhere else!',
+    'nomeRepetido' : 'This name is already used in another item!'
   };
 
   const checkIfUsed = async (item) => {
@@ -143,6 +144,10 @@ const WBS = () => {
     fetchElementos();
     fetchCores();
   }, []);
+
+  const isNameUsed = (obj) => {
+    return elementos.some(objeto => objeto.item === obj.item);
+  }
 
   const handleUpdateCor = async () => {
     if(confirmUpdateItem){
@@ -265,6 +270,7 @@ const WBS = () => {
                 objSetter={setNovoSubmit}
                 funcao={enviar}
                 checkDados={checkDados}
+                isNameUsed={isNameUsed}
               />}
             {grupo.map(({ area, elementos }) => (
               <div className={styles.wbsArea} key={area} style={{ backgroundColor: cores[area] }}>
@@ -280,6 +286,7 @@ const WBS = () => {
                           funcao2: () => linhaVisivel === area ? setLinhaVisivel() : setLinhaVisivel(item._id)
                         }}
                         checkDados={checkDados}
+                        isNameUsed={isNameUsed}
                       />
                     ) : (
                       <React.Fragment>
@@ -302,6 +309,7 @@ const WBS = () => {
                           funcao2: () => linhaVisivel === `${area}Cor` ? setLinhaVisivel() : setLinhaVisivel(item._id)
                         }}
                         checkDados={checkDados}
+                        isNameUsed={isNameUsed}
                       />
                     ) : (
                       <div className={styles.areaTitle} style={{ marginBottom: '1rem' }}>
@@ -336,7 +344,8 @@ const WBS = () => {
                                     funcao1: handleUpdateItem,
                                     funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
                                   }}
-                                  checkDados={checkDados} />
+                                  checkDados={checkDados}
+                                  isNameUsed={isNameUsed} />
                               </React.Fragment>
                             ) : (
                               <React.Fragment>
@@ -361,11 +370,10 @@ const WBS = () => {
                         obj={submitEmArea}
                         objSetter={setSubmitEmArea}
                         funcao={enviarEmArea}
-                        checkDados={checkDados} />
+                        checkDados={checkDados}
+                        isNameUsed={isNameUsed} />
                     </React.Fragment>
-
                   }
-
                 </div>
               </div>
             ))}

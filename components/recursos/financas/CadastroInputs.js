@@ -48,7 +48,6 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
             return true;
         }
         const [isEmpty, camposVazios] = isFormVazio(obj);
-        console.log(obj)
         if (isEmpty) {
             camposVazios.forEach(campo => {
                 if (camposRef.current[campo]) {

@@ -13,6 +13,7 @@ const Tabela = () => {
         item: "",
         recurso: "",
         uso: "",
+        tipo: "",
         ehEssencial: ""
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
@@ -180,6 +181,7 @@ const Tabela = () => {
                                 <th colSpan={2}>Resource Allocation</th>
                                 <th rowSpan={2}>Resource</th>
                                 <th rowSpan={2}>Usage</th>
+                                <th rowSpan={2}>Type</th>
                                 <th rowSpan={2}>Utilization Forecast</th>
                                 <th rowSpan={2}>Essential?</th>
                                 <th rowSpan={2}>Actions</th>
@@ -226,6 +228,7 @@ const Tabela = () => {
                                             )}
                                             <td>{recurso.recurso}</td>
                                             <td>{recurso.uso}</td>
+                                            <td>{recurso.tipo}</td>
                                             <td>{datasPlanos.find(obj => obj.area === recurso.area && obj.item === recurso.item)?.inicio || "-"}</td>
                                             <td>{recurso.ehEssencial ? 'Yes' : 'No'}</td>
                                             <td className='botoes_acoes'>

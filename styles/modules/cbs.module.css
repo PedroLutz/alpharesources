@@ -1,4 +1,4 @@
-.tabela_financas table {
+.tabela_cbs table {
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(0, 0, 0);
@@ -7,17 +7,17 @@
     border-collapse: collapse;
 }
 
-.tabela_financas_container{
+.tabela_cbs_container{
     overflow: auto;
 }
 
-.tabela_financas_wrapper{
-    max-width: 80rem;
+.tabela_cbs_wrapper{
+    max-width: 75rem;
     max-height: 45rem;
     display:block;
 }
 
-.tabela_financas td {
+.tabela_cbs td {
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(0, 0, 0);
@@ -25,23 +25,8 @@
     font-size: small;
 }
 
-.tabela_financas th:nth-child(6){
-    width: 4rem;
-}
 
-.tabela_financas td:nth-child(7) select{
-    width: 4rem;
-}
-
-.tabela_financas td:nth-child(5) select{
-    max-width: 6rem;
-}
-
-.tabela_financas td:last-child{
-    width: 2rem;
-}
-
-.tabela_financas td input, .tabela_financas td select {
+.tabela_cbs td input, .tabela_cbs td select {
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(167, 167, 167);
@@ -54,11 +39,11 @@
     background-color: white;
 }
 
-.tabela_financas td input:hover, .tabela_financas td select:hover, .tabela_financas td:not(:global(.botoes_acoes)) button:hover {
+.tabela_cbs td input:hover, .tabela_cbs td select:hover, .tabela_cbs td:not(:global(.botoes_acoes)) button:hover {
     background-color: rgb(231, 231, 231);
 }
 
-.tabela_financas th {
+.tabela_cbs th {
     background-color: #ff8ff2;
     border-width: 0.1rem;
     font-size: 0.9rem;
@@ -67,7 +52,7 @@
     padding: 0.3rem;
 }
 
-.tabela_financas button{
+.tabela_cbs button{
     background-color: transparent;
     border-width: 0.1rem;
     border-style: solid;
@@ -108,4 +93,21 @@
 
 .camposMaiores td select:not(.campo_ehEssencial){
     width: 10rem;
+}
+
+.td_code{
+    max-width: 3rem;
+}
+
+.td_code input{
+    max-width: 2rem;
+    text-align: center;
+}
+
+.td_custos {
+    max-width: 5rem;
+}
+
+.td_custos input{
+    max-width: 4rem;
 }

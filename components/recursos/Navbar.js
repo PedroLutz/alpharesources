@@ -25,7 +25,7 @@ const Navbar = () => {
       <ul>
         <li>
           <div className={styles.dropdown}>
-            <a onMouseOver={toggleDropdown}>Finances</a>
+            <a onMouseOver={toggleDropdown}>Monitoring</a>
             {isDropdownOpen && (
               <div className={styles.dropdownContent}>
                 <Link href="/pages/finances/table">Cash flow</Link>
@@ -36,11 +36,12 @@ const Navbar = () => {
         </li>
         <li>
           <div className={styles.dropdown}>
-            <a onMouseOver={toggleDropdown}>Resources</a>
+            <a onMouseOver={toggleDropdown}>Cost & Resources</a>
             {isDropdownOpen && (
               <div className={styles.dropdownContent}>
                 <Link href="/pages/resources/identification">Resource Identification</Link>
                 <Link href="/pages/resources/acquisition_planning">Resource Acquisition</Link>
+                <Link href="/pages/resources/cbs">Cost Breakdown Structure (CBS)</Link>
                 <Link href="/pages/resources/report">Report</Link>
               </div>
             )}
