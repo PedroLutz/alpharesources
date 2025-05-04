@@ -8,28 +8,6 @@ export default async (req, res) => {
         await connectToDatabase();
 
         if (req.method === 'GET') {
-            const planosAPorArea_all = await PlanoAquisicao.aggregate([
-                {
-                    $group: {
-                        _id: "$area",
-                        total: {
-                            $sum: "$valor_a"
-                        }
-                    }
-                }
-            ]);
-
-            const planosBPorArea_all = await PlanoAquisicao.aggregate([
-                {
-                    $group: {
-                        _id: "$area",
-                        total: {
-                            $sum: "$valor_b"
-                        }
-                    }
-                }
-            ]);
-
             const planosPorArea_all = await PlanoAquisicao.aggregate([
                 {
                     $group: {
@@ -48,38 +26,6 @@ export default async (req, res) => {
                                 { $add: [{ $multiply: ["$totalA", 2] }, "$totalB"] }, // (totalA * 2) + (totalB * 1)
                                 3 // soma dos pesos (2 + 1)
                             ]
-                        }
-                    }
-                }
-            ]);
-
-            const planosAPorArea_Essencial = await PlanoAquisicao.aggregate([
-                {
-                    $match: {
-                        ehEssencial: true
-                    }
-                },
-                {
-                    $group: {
-                        _id: "$area",
-                        total: {
-                            $sum: "$valor_a"
-                        }
-                    }
-                }
-            ]);
-
-            const planosBPorArea_Essencial = await PlanoAquisicao.aggregate([
-                {
-                    $match: {
-                        ehEssencial: true
-                    }
-                },
-                {
-                    $group: {
-                        _id: "$area",
-                        total: {
-                            $sum: "$valor_b"
                         }
                     }
                 }
@@ -113,38 +59,6 @@ export default async (req, res) => {
                 }
             ]);
 
-            const planosASoma_Essencial = await PlanoAquisicao.aggregate([
-                {
-                    $match: {
-                        ehEssencial: true
-                    }
-                },
-                {
-                    $group: {
-                        _id: null,
-                        total: {
-                            $sum: "$valor_a"
-                        }
-                    }
-                }
-            ]);
-
-            const planosBSoma_Essencial = await PlanoAquisicao.aggregate([
-                {
-                    $match: {
-                        ehEssencial: true
-                    }
-                },
-                {
-                    $group: {
-                        _id: null,
-                        total: {
-                            $sum: "$valor_b"
-                        }
-                    }
-                }
-            ]);
-
             const planosSoma_Essencial = await PlanoAquisicao.aggregate([
                 {
                     $match: {
@@ -168,28 +82,6 @@ export default async (req, res) => {
                                 { $add: [{ $multiply: ["$totalA", 2] }, "$totalB"] }, // (totalA * 2) + (totalB * 1)
                                 3 // soma dos pesos (2 + 1)
                             ]
-                        }
-                    }
-                }
-            ]);
-
-            const planosASoma_all = await PlanoAquisicao.aggregate([
-                {
-                    $group: {
-                        _id: null,
-                        total: {
-                            $sum: "$valor_a"
-                        }
-                    }
-                }
-            ]);
-
-            const planosBSoma_all = await PlanoAquisicao.aggregate([
-                {
-                    $group: {
-                        _id: null,
-                        total: {
-                            $sum: "$valor_b"
                         }
                     }
                 }

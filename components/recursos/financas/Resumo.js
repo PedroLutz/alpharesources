@@ -22,6 +22,8 @@ const Resumo = () => {
   const [despesasTotais, setDespesasTotais] = useState([]);
   const [loading, setLoading] = useState(true);
   const [cores, setCores] = useState({});
+  const [curvaS, setCurvaS] = useState([]);
+  const [curvaSTabela, setCurvaSTabela] = useState([]);
 
   //gerar Array do grafico de pizza Receitas Por Area
   const ReceitasPorAreaGraph = [['Area', 'Value']];
@@ -105,8 +107,52 @@ const Resumo = () => {
       const dataValoresPlanejados = await fetchData('recursos/planoAquisicao/get/valoresPorArea');
       const valoresPlanejados = dataValoresPlanejados.valoresPorArea_all;
 
+      const dadosValoresPlanejadosMensais = await fetchData('recursos/planoAquisicao/get/valoresPorMes');
+      const valoresPlanejadosMensais = dadosValoresPlanejadosMensais.valoresPorMes;
+
       const comparacoesPorcentagem = await fetchData('cronograma/get/comparacoesPorcentagem');
       const porcentagensDeExecucao = comparacoesPorcentagem.percentageComparison;
+
+      const porcentagemExecucaoMensal_dados = await fetchData('cronograma/get/porcentagemExecucaoMensal');
+      const porcentagemExecucaoMensal = porcentagemExecucaoMensal_dados.execucaoMensal;
+
+      const totalPlanejado = valoresPlanejadosMensais.reduce(
+        (acc, cur) => acc + (2*cur.total_valor_a + cur.total_valor_b)/3 , 0
+      )
+
+      const curvaSGraph = [["Month", "Planned Cost", "Aggregated Value", "Actual Cost"]];
+      const curvaStabelaArray = [];
+
+      var gastosMensaisAcumuladosPlano = 0;
+      var gastosMensaisAcumulados = 0;
+      porcentagemExecucaoMensal.forEach(obj => {
+        const mes = obj.mes;
+        const valorPlanejado = valoresPlanejadosMensais.find((plano) => plano.mes === mes) || {total_valor_a: 0, total_valor_b: 0, mes: mes};
+        gastosMensaisAcumuladosPlano += ((2*valorPlanejado.total_valor_a + valorPlanejado.total_valor_b)/3)
+        const gastoNoMes = -1 * (despesasPorMes.find((despesa) => despesa._id === mes)?.total || 0);
+        gastosMensaisAcumulados += gastoNoMes;
+        const execucaoNoMes = obj.porcentagemExecucao;
+        const valorAgregado = execucaoNoMes*totalPlanejado/100;
+
+        curvaSGraph.push([
+          valorPlanejado.mes, 
+          parseFloat(gastosMensaisAcumuladosPlano.toFixed(2)), 
+          parseFloat(valorAgregado.toFixed(2)), 
+          parseFloat(gastosMensaisAcumulados.toFixed(2))
+        ]);
+
+        curvaStabelaArray.push({
+          mes: valorPlanejado.mes,
+          gastoMensal: parseFloat(gastoNoMes.toFixed(2)),
+          gastoMensalAcumulado: parseFloat(gastosMensaisAcumulados.toFixed(2)),
+          gastoPlanejado: parseFloat(((2*valorPlanejado.total_valor_a + valorPlanejado.total_valor_b)/3).toFixed(2)),
+          gastoPlanejadoAcumulado: parseFloat(gastosMensaisAcumuladosPlano.toFixed(2)),
+          valorAgregado: parseFloat(valorAgregado.toFixed(2))
+        })
+      })
+      
+      setCurvaS(curvaSGraph);
+      setCurvaSTabela(curvaStabelaArray);
 
       const kpis = valoresPlanejados.map(vp => {
         const area = vp._id;
@@ -216,7 +262,7 @@ const Resumo = () => {
 
       <div className='centered-container'>
         <h3>Monthly Cash Flow</h3>
-        <table className={tabela.tabela_financas}>
+        <table className={tabela.cash_flow}>
           <thead>
             <tr>
               <th>Month</th>
@@ -229,29 +275,28 @@ const Resumo = () => {
             <tr>
               <th>Income</th>
               {CashFlowMensal.map((valores, index) => (
-                <td key={index}>R${valores.receita}</td>
+                <td key={index}>R${Number(valores.receita).toFixed(2)}</td>
               ))}
             </tr>
             <tr>
               <th>Expense</th>
               {CashFlowMensal.map((valores, index) => (
-                <td key={index}>R${valores.despesa}</td>
+                <td key={index}>R${Number(valores.despesa).toFixed(2)}</td>
               ))}
             </tr>
             <tr>
               <th>Net Movement</th>
               {CashFlowMensal.map((valores, index) => (
-                <td key={index}>R${valores.movimento}</td>
+                <td key={index}>R${Number(valores.movimento).toFixed(2)}</td>
               ))}
             </tr>
             <tr>
               <th>Net Balance</th>
               {CashFlowMensal.map((valores, index) => (
-                <td key={index}>R${valores.balanco}</td>
+                <td key={index}>R${Number(valores.balanco).toFixed(2)}</td>
               ))}
             </tr>
           </tbody>
-
         </table>
       </div>
 
@@ -316,6 +361,75 @@ const Resumo = () => {
         </div>
       </div>
 
+      <div className={grafico}>
+          <h3>S Curve</h3>
+          <Chart
+            width={"90%"}
+            height={"400px"}
+            chartType="LineChart"
+            loader={<div>Loading graph</div>}
+            data={curvaS}
+            options={{
+              ...estiloGraph,
+              colors: ["red", "blue", "green"],
+              curveType: 'function',
+              series: {
+                0: { lineDashStyle: [1, 1] },
+                1: { lineDashStyle: [4, 2] },
+                2: { lineDashStyle: [8, 5] }
+              }
+            }}
+            rootProps={{ 'data-testid': '1' }}
+          />
+        </div>
+
+        <div className='centered-container'>
+        <h3>S Curve Data</h3>
+        <table className={tabela.cash_flow}>
+          <thead>
+            <tr>
+              <th>Month</th>
+              {curvaSTabela.map((valores, index) => (
+                <th key={index}>{valores.mes}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>Monthly expense</th>
+              {curvaSTabela.map((valores, index) => (
+                <td key={index}>R${Number(valores.gastoMensal).toFixed(2)}</td>
+              ))}
+            </tr>
+            <tr>
+              <th  >Accumulated monthly expense</th>
+              {curvaSTabela.map((valores, index) => (
+                <td key={index}>R${Number(valores.gastoMensalAcumulado).toFixed(2)}</td>
+              ))}
+            </tr>
+            <tr>
+              <th>Monthly planned cost</th>
+              {curvaSTabela.map((valores, index) => (
+                <td key={index}>R${Number(valores.gastoPlanejado).toFixed(2)}</td>
+              ))}
+            </tr>
+            <tr>
+              <th>Accumulated monthly planned cost</th>
+              {curvaSTabela.map((valores, index) => (
+                <td key={index}>R${Number(valores.gastoPlanejadoAcumulado).toFixed(2)}</td>
+              ))}
+            </tr>
+            <tr>
+              <th>Aggregated Value</th>
+              {curvaSTabela.map((valores, index) => (
+                <td key={index}>R${Number(valores.valorAgregado).toFixed(2)}</td>
+              ))}
+            </tr>
+          </tbody>
+
+        </table>
+      </div>
+
       <div>
         <h3>Releases per month</h3>
         <div className={grafico}>
@@ -350,6 +464,7 @@ const Resumo = () => {
                   lineWidth: 5,
                 },
               },
+              
             }}
             rootProps={{ 'data-testid': '1' }}
           />

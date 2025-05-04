@@ -1,4 +1,4 @@
-.tabela_financas table {
+.tabela_financas table, .cash_flow table {
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(0, 0, 0);
@@ -18,7 +18,7 @@
     display: inline-block;
 }
 
-.tabela_financas td {
+.tabela_financas td, .cash_flow td {
     border-width: 0.1rem;
     border-style: solid;
     width: 5rem;
@@ -55,7 +55,7 @@
     width: 7.2rem;
 }
 
-.tabela_financas th {
+.tabela_financas th, .cash_flow th {
     background-color: #ff8ff2;
     border-width: 0.1rem;
     border-style: solid;
@@ -73,4 +73,9 @@
     height: 1.6rem;
     cursor: pointer;
     transition: 0.2s;
+}
+
+.cash_flow td, .cash_flow th {
+    min-width: 8rem;
+    max-width: 8rem;
 }
