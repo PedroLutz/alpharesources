@@ -153,6 +153,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     className={styles.campo_tipo}
                     ref={el => (camposRef.current.tipo = el)} >
                     <option value="" defaultValue>Type</option>
+                    <option value="Financial">Financial</option>
                     <option value="Physical">Physical</option>
                     <option value="Human">Human</option>
                 </select>
