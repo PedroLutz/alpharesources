@@ -32,7 +32,7 @@ label {
 }
 
 .campo-vazio{
-    background-color: #ffc3f7;
+    background-color: #ffc3f7 !important;
 }
 
 textarea{

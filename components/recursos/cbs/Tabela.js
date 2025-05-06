@@ -1,32 +1,15 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import Loading from '../../Loading';
 import Modal from '../../Modal';
-import { handleSubmit, fetchData, handleDelete, handleUpdate } from '../../../functions/crud';
-import { jsDateToEuDate, euDateToIsoDate, cleanForm, euDateToJsDate } from '../../../functions/general';
-import { AuthContext } from '../../../contexts/AuthContext';
-import CadastroInputs from "./CadastroInputs";
+import { fetchData} from '../../../functions/crud';
 import styles from '../../../styles/modules/cbs.module.css'
 
 const Tabela = () => {
     const [dadosCbs, setDadosCbs] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [linhaVisivel, setLinhaVisivel] = useState({});
     const [reload, setReload] = useState(false);
-    const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
-    const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
     const [cores, setCores] = useState([]);
-    const camposVazios = {
-        codigo: "",
-        area: "",
-        item: "",
-        custo_ideal: "",
-        custo_essencial: "",
-        custo_real: ""
-    }
-    const [novoSubmit, setNovoSubmit] = useState(camposVazios);
-    const [novosDados, setNovosDados] = useState(camposVazios);
-    const { isAdmin } = useContext(AuthContext);
 
     const fetchCbs = async () => {
         try {
@@ -56,67 +39,16 @@ const Tabela = () => {
         fetchCores();
     }, [reload]);
 
-    const enviar = async (e) => {
-        e.preventDefault();
-        handleSubmit({
-            route: 'recursos/cbs',
-            dados: novoSubmit
-        });
-        cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-        setReload(true);
-    };
-
-    const handleUpdateClick = (item) => {
-        setConfirmUpdateItem(item)
-        setNovosDados({
-            ...item
-        });
-    };
-
-    const handleUpdateItem = async () => {
-        if (confirmUpdateItem) {
-            setLoading(true);
-            const updatedItem = { ...confirmUpdateItem, ...novosDados };
-            setConfirmUpdateItem(null)
-            linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            setReload(true);
-            try {
-                await handleUpdate({
-                    route: 'recursos/cbs/update?id',
-                    dados: updatedItem,
-                    item: confirmUpdateItem
-                });
-            } catch (error) {
-                setConfirmUpdateItem(confirmUpdateItem)
-                console.error("Update failed:", error);
-            }
-            setLoading(false)
-        }
-    };
-
-    const handleConfirmDelete = () => {
-        if (confirmDeleteItem) {
-            var getDeleteSuccess = false;
-            try {
-                getDeleteSuccess = handleDelete({
-                    route: 'recursos/cbs',
-                    item: confirmDeleteItem,
-                    fetchDados: fetchCbs
-                });
-            } finally {
-                setExibirModal(`deleteSuccess-${getDeleteSuccess}`)
+    const calculateRowSpan = (itens, currentArea, currentIndex, parametro) => {
+        let rowSpan = 1;
+        for (let i = currentIndex + 1; i < itens.length; i++) {
+            if (itens[i][parametro] === currentArea) {
+                rowSpan++;
+            } else {
+                break;
             }
         }
-        if (getDeleteSuccess) {
-            setExibirModal(`deleteSuccess`)
-        } else {
-            setExibirModal(`deleteFail`)
-        }
-        setConfirmDeleteItem(null);
-    };
-
-    const checkDados = (tipo) => {
-        setExibirModal(tipo); return;
+        return rowSpan;
     };
 
     const modalLabels = {
@@ -139,25 +71,11 @@ const Tabela = () => {
                 }} />
             )}
 
-            {confirmDeleteItem && (
-                <Modal objeto={{
-                    titulo: `Are you sure you want to PERMANENTLY delete the CBS plan for "${confirmDeleteItem.area} - ${confirmDeleteItem.item}"?`,
-                    alerta: true,
-                    botao1: {
-                        funcao: handleConfirmDelete, texto: 'Confirm'
-                    },
-                    botao2: {
-                        funcao: () => setConfirmDeleteItem(null), texto: 'Cancel'
-                    }
-                }} />
-            )}
-
             <div className={styles.tabela_cbs_container}>
                 <div className={styles.tabela_cbs_wrapper}>
                     <table className={styles.tabela_cbs}>
                         <thead>
                             <tr>
-                                <th className={styles.td_code}>Code</th>
                                 <th>Area</th>
                                 <th>Item</th>
                                 <th className={styles.td_custos}>Ideal cost</th>
@@ -165,55 +83,29 @@ const Tabela = () => {
                                 <th style={{fontSize: '0.7rem'}} className={styles.td_custos}>Contingency</th>
                                 <th className={styles.td_custos}>Actual cost</th>
                                 <th>Comparison</th>
-                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {dadosCbs.map((cbs, index) => (
-                                <React.Fragment key={index}>
-                                    {linhaVisivel === cbs._id ? (
-                                        <CadastroInputs tipo="update"
-                                            obj={novosDados}
-                                            objSetter={setNovosDados}
-                                            funcao={{
-                                                funcao1: () => handleUpdateItem(),
-                                                funcao2: () => { linhaVisivel === cbs._id ? setLinhaVisivel() : setLinhaVisivel(cbs._id) }
-                                            }}
-                                            checkDados={checkDados}
-                                        />
-                                    ) : (
+                                <React.Fragment key={index}> 
                                         <tr style={{backgroundColor: cores[cbs.area]}}>
-                                            <td className={styles.td_code}>{cbs.codigo}</td>
-                                            <td>{cbs.area}</td>
+                                            {index === 0 || dadosCbs[index - 1].area !== cbs.area ? (
+                                                        <td rowSpan={calculateRowSpan(dadosCbs, cbs.area, index, 'area')}
+                                                        >{cbs.area}</td>
+                                                    ) : null}
                                             <td>{cbs.item}</td>
-                                            <td className={styles.td_custos}>R${cbs.custo_ideal}</td>
-                                            <td className={styles.td_custos}>R${cbs.custo_essencial}</td>
-                                            <td className={styles.td_custos}>R${cbs.contingencia ? cbs.contingencia : 0}</td>
+                                            <td className={styles.td_custos}>R${parseFloat(cbs.custo_ideal).toFixed(2)}</td>
+                                            <td className={styles.td_custos}>R${parseFloat(cbs.custo_essencial).toFixed(2)}</td>
+                                            <td className={styles.td_custos}>R${cbs.contingencia ? parseFloat(cbs.contingencia).toFixed(2) : 0}</td>
                                             <td className={styles.td_custos}>R${cbs.custo_real}</td>
                                             <td>In relation to: <br/>
-                                                Ideal cost: R${cbs.custo_real - cbs.custo_ideal}<br/>
-                                                Essencial cost: R${cbs.custo_essencial - cbs.custo_ideal}<br/>
-                                                Ideal cost + contingency: R${cbs.custo_real + (cbs.contingencia ? cbs.contingencia : 0) - cbs.custo_ideal}<br/>
-                                            </td>
-                                            <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(cbs)}
-                                                    disabled={!isAdmin}>❌</button>
-                                                <button onClick={() => {
-                                                    setLinhaVisivel(cbs._id); handleUpdateClick(cbs);
-                                                }
-                                                }
-                                                disabled={!isAdmin}>⚙️</button>
+                                                Ideal cost: R${parseFloat(cbs.custo_real - cbs.custo_ideal).toFixed(2)}<br/>
+                                                Essencial cost: R${parseFloat(cbs.custo_essencial - cbs.custo_ideal).toFixed(2)}<br/>
+                                                Ideal cost + contingency: R${parseFloat(cbs.custo_real + (cbs.contingencia ? cbs.contingencia : 0) - cbs.custo_ideal).toFixed(2)}<br/>
                                             </td>
                                         </tr>
-                                    )}
                                 </React.Fragment>
                             ))}
-                            <CadastroInputs
-                                obj={novoSubmit}
-                                objSetter={setNovoSubmit}
-                                funcao={enviar}
-                                checkDados={checkDados}
-                            />
                         </tbody>
                     </table>
                 </div>
