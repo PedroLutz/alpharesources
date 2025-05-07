@@ -13,7 +13,8 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         impacto: null,
         acao: null,
         urgencia: null,
-        impactoFinanceiro: null
+        impactoFinanceiro: null,
+        impactoCronograma: null
     })
     const {isAdmin} = useContext(AuthContext);
 
@@ -53,14 +54,18 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         setRiscosPorArea(itensDaArea);
     };
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
+    const handleChange = (e, isNumber) => {
+        var { name, value } = e.target;
+        if(isNumber){
+            value = value.replace(/[^0-9.]/g, '');
+        }
         objSetter({
             ...obj,
             [name]: value,
         });
         e.target.classList.remove('campo-vazio');
     };
+    
 
     const isFormVazio = (form) => {
         const emptyFields = Object.entries(form).filter(([key, value]) => value === '' || value === null);
@@ -124,7 +129,7 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     style={{ marginTop: '0.3rem' }}
                     value={obj.risco}
                     name='risco'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.risco = el)}
                 >
                     <option value="" defaultValue>Risk</option>
@@ -135,9 +140,8 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
             </td>
             <td>
                 <input
-                    type='number'
                     name="ocorrencia"
-                    onChange={handleChange}
+                    onChange={(e) => handleChange(e, true)}
                     value={obj.ocorrencia}
                     min={1}
                     max={5}
@@ -146,9 +150,8 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
             </td>
             <td>
                 <input
-                    type='number'
                     name="impacto"
-                    onChange={handleChange}
+                    onChange={(e) => handleChange(e, true)}
                     value={obj.impacto}
                     min={1}
                     max={5}
@@ -157,9 +160,8 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
             </td>
             <td>
                 <input
-                    type='number'
                     name="acao"
-                    onChange={handleChange}
+                    onChange={(e) => handleChange(e, true)}
                     value={obj.acao}
                     min={1}
                     max={5}
@@ -168,9 +170,8 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
             </td>
             <td>
                 <input
-                    type='number'
                     name="urgencia"
-                    onChange={handleChange}
+                    onChange={(e) => handleChange(e, true)}
                     value={obj.urgencia}
                     min={1}
                     max={5}
@@ -180,13 +181,23 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
             <td>-</td>
             <td>
                 <input
-                    type='number'
                     name="impactoFinanceiro"
-                    onChange={handleChange}
+                    onChange={(e) => handleChange(e, true)}
                     value={obj.impactoFinanceiro}
                     min={1}
                     max={5}
                     ref={el => (camposRef.current.impactoFinanceiro = el)}
+                />
+            </td>
+            <td>-</td>
+            <td>
+                <input
+                    name="impactoCronograma"
+                    onChange={(e) => handleChange(e, true)}
+                    value={obj.impactoCronograma}
+                    min={1}
+                    max={5}
+                    ref={el => (camposRef.current.impactoCronograma = el)}
                 />
             </td>
             <td>-</td>

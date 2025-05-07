@@ -8,7 +8,8 @@ const AnaliseSchema = new mongoose.Schema({
   impacto: Number,
   acao: Number,
   urgencia: Number,
-  impactoFinanceiro: Number
+  impactoFinanceiro: Number,
+  impactoCronograma: Number
 }, { collection: 'riscoAnalise' }); 
 
 const Analise = mongoose.models['Analise'] || mongoose.model('Analise', AnaliseSchema);

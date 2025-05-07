@@ -46,15 +46,21 @@ const TabelaAnalise = () => {
     };
 
     const getRiscos = (occ, imp) => {
-        let coisos = []
+        let riscos = []
         if(analises){
             analises.forEach((analise)=> {
                 if (analise.ocorrencia === occ && analise.impacto === imp){
-                    coisos.push(analise.risco)
+                    riscos.push(analise.risco)
                 }
             })
         }
-        return coisos.join(", ");
+        return (
+            <ul>
+                {riscos.map((risco, index) => (
+                    <li key={index} style={{fontSize: '0.65rem', textAlign: 'left'}}>{risco}</li>
+                ))}
+            </ul>
+        );
     }
 
     const handleUpdateItem = async () => {
@@ -186,6 +192,8 @@ const TabelaAnalise = () => {
                                 <th style={{wordWrap: 'break-word', width: '2rem', fontSize: '0.7rem'}}>RPN</th>
                                 <th style={{wordWrap: 'break-word', width: '2rem', fontSize: '0.7rem'}}>Financial Impact</th>
                                 <th style={{wordWrap: 'break-word', width: '2rem', fontSize: '0.7rem'}}>Estimated Monetary Value</th>
+                                <th style={{wordWrap: 'break-word', width: '2rem', fontSize: '0.7rem'}}>Schedule Impact</th>
+                                <th style={{wordWrap: 'break-word', width: '2rem', fontSize: '0.7rem'}}>Estimated Time Impact</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -223,6 +231,8 @@ const TabelaAnalise = () => {
                                                 }}>{calculaRPN(item)}</td>
                                             <td>{item.impactoFinanceiro != 0 ? `R$${(Number(item.impactoFinanceiro)).toFixed(2)}` : '-'}</td>
                                             <td>{item.impactoFinanceiro != 0 ? `R$${(item.impactoFinanceiro * (item.ocorrencia/5)).toFixed(2)}`: '-'}</td>
+                                            <td>{(item.impactoCronograma != 0 && item.impactoCronograma != null) ? `${item.impactoCronograma} days` : '-'}</td>
+                                            <td>{(item.impactoCronograma != 0 && item.impactoCronograma != null) ? `${(item.impactoCronograma * (item.ocorrencia/5)).toFixed()} days`: '-'}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(item)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
