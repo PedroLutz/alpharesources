@@ -11,7 +11,6 @@ import { AuthContext } from "../../contexts/AuthContext";
 
 const Tabela = () => {
   const [cronogramas, setCronogramas] = useState([]);
-  const [deleteInfo, setDeleteInfo] = useState({ success: false, item: null });
   const [filtroAreaSelecionada, setFiltroAreaSelecionada] = useState('');
   const [filtroAreaResetarData, setFiltroAreaResetarData] = useState('');
   const [itemSelecionado, setItemSelecionado] = useState('');
@@ -40,6 +39,7 @@ const Tabela = () => {
   }
   const [novosDados, setNovosDados] = useState(camposVazios);
   const {isAdmin} = useContext(AuthContext);
+  const [paleta, setPaleta] = useState([]);
 
   const labelsSituacao = {
     iniciar: 'Starting',
@@ -151,24 +151,10 @@ const Tabela = () => {
     }
   }
 
-  const fetchCores = async () => {
-    const data = await fetchData('wbs/get/cores');
-    var cores = {};
-    data.areasECores.forEach((area) => {
-      cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
-    })
-    setCores(cores);
-  }
-
   useEffect(() => {
     setReload(false);
     fetchCronogramas();
-    fetchCores();
   }, [reload]);
-
-  const handleClick = (item) => {
-    setDeleteInfo({ success: false, item });
-  };
 
   const checkDados = (tipo) => {
     setExibirModal(tipo); return;
@@ -221,7 +207,6 @@ const Tabela = () => {
     duplas.forEach((dupla) => {
       const area = dupla[0].area;
       const planoUltimo = dupla[0].ultimo;
-      const ganttPrimeiro = dupla[1].primeiro;
       const ganttUltimo = dupla[1].ultimo;
       const hoje = new Date().toISOString();
       var obj = { area: area, state: objSituacao[area] }
@@ -272,6 +257,8 @@ const Tabela = () => {
   const fetchCronogramas = async () => {
     try {
       const data = await fetchData('cronograma/get/gantts');
+      const dataCores = await fetchData('wbs/get/cores');
+
       data.cronogramaGantts.forEach((item) => {
         item.inicio = jsDateToEuDate(item.inicio);
         item.termino = jsDateToEuDate(item.termino);
@@ -281,6 +268,27 @@ const Tabela = () => {
         if (a.area > b.area) return 1;
         return 0;
       });
+      
+      //adicionar cores na tabela
+      var cores = {};
+      dataCores.areasECores.forEach((area) => {
+            cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
+      })
+
+      //adicionar cores no grafico (apenas as cores de areas que tem alguma coisa sendo executada)
+      var paleta = [];
+      for (const [key, value] of Object.entries(cores)) {
+        if(data.cronogramaGantts.some((item) => item.area === key && item.termino !== null)){
+          paleta.push({
+            "color": value ? chroma(value).darken().saturate(3).hex() : '#000000',
+            "dark": value ? chroma(value).hex() : '#000000',
+            "light": value ? chroma(value).darken().hex() : '#000000'
+          })
+        }
+      }
+
+      setCores(cores);
+      setPaleta(paleta);
       setCronogramas(data.cronogramaGantts);
     } finally {
       generateReport();
@@ -291,37 +299,7 @@ const Tabela = () => {
 
   useEffect(() => {
     fetchCronogramas();
-    fetchCores();
   }, []);
-
-  const handleConfirmDelete = () => {
-    if (deleteInfo.item) {
-      var getDeleteSuccess = false;
-      try {
-        getDeleteSuccess = handleDelete({
-          route: 'cronograma',
-          item: deleteInfo.item,
-          fetchDados: fetchCronogramas
-        });
-      } finally {
-        setDeleteInfo({ success: getDeleteSuccess, item: null });
-      }
-    }
-  };
-
-  const generatePaleta = () => {
-
-    var paleta = [];
-    for (const [key, value] of Object.entries(cores)) {
-      paleta.push({
-        "color": value ? chroma(value).darken().saturate(3).hex() : '#000000',
-        "dark": value ? chroma(value).hex() : '#000000',
-        "light": value ? chroma(value).darken().hex() : '#000000'
-      })
-    }
-    return paleta;
-  }
-  const paleta = generatePaleta();
 
   const createGanttData = (cronogramas) => {
     const ganttData = [['Task ID', 'Task Name', 'Resource', 'Start Date', 'End Date', 'Duration', 'Percent Complete', 'Dependencies']];
@@ -444,27 +422,6 @@ const Tabela = () => {
           },
           botao2: {
             funcao: () => setConfirmResetData(false), texto: 'Cancel'
-          }
-        }} />
-      )}
-
-      {deleteInfo.item && (
-        <Modal objeto={{
-          titulo: `Are you sure you want to delete "${deleteInfo.item.area} - ${deleteInfo.item.item}"?`,
-          botao1: {
-            funcao: handleConfirmDelete, texto: 'Confirm'
-          },
-          botao2: {
-            funcao: () => setDeleteInfo({ success: false, item: null }), texto: 'Cancel'
-          }
-        }} />
-      )}
-
-      {deleteInfo.success && (
-        <Modal objeto={{
-          titulo: 'Deletion successful!',
-          botao1: {
-            funcao: () => setDeleteInfo({ success: false, item: null }), texto: 'Close'
           }
         }} />
       )}
@@ -607,7 +564,6 @@ const Tabela = () => {
                           <td>{labelsSituacao[item.situacao.toLowerCase().replace(/\s/g, '')] || '-'}</td>
                           <td>
                             <div className='botoes_acoes'>
-                              {/* <button onClick={() => handleClick(item)} disabled={!isAdmin}>❌</button> */}
                               <button onClick={() => {
                                 linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
                               }} disabled={!isAdmin}>⚙️</button>

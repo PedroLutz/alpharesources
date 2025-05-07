@@ -31,7 +31,8 @@ const Tabela = () => {
   }
   const [novosDados, setNovosDados] = useState(camposVazios);
   const [novoSubmit, setNovoSubmit] = useState(camposVazios);
-  const {isAdmin} = useContext(AuthContext);
+  const { isAdmin } = useContext(AuthContext);
+  const [paleta, setPaleta] = useState([]);
 
   const handleUpdateClick = (item) => {
     setConfirmUpdateItem(item);
@@ -45,15 +46,6 @@ const Tabela = () => {
     });
   };
 
-  const fetchCores = async () => {
-    const data = await fetchData('wbs/get/cores');
-    var cores = {};
-    data.areasECores.forEach((area) => {
-      cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
-    })
-    setCores(cores);
-  }
-
   const handleConfirmDelete = async () => {
     setConfirmDeleteItem(null);
     if (confirmDeleteItem) {
@@ -66,15 +58,15 @@ const Tabela = () => {
         });
         try {
           const response = await fetch(`/api/cronograma/deleteByName`, {
-              method: 'DELETE',
-              headers: {
-                  'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({area: confirmDeleteItem.area, item: confirmDeleteItem.item}),
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ area: confirmDeleteItem.area, item: confirmDeleteItem.item }),
           });
-      } catch (error) {
+        } catch (error) {
           console.error(`Erro ao deletar`, error);
-      }
+        }
       } finally {
         setDeleteSuccess(getDeleteSuccess);
       }
@@ -108,6 +100,8 @@ const Tabela = () => {
   const fetchCronogramas = async () => {
     try {
       const data = await fetchData('cronograma/get/planos');
+      const dataCores = await fetchData('wbs/get/cores');
+
       data.cronogramaPlanos.forEach((item) => {
         item.inicio = jsDateToEuDate(item.inicio);
         item.termino = jsDateToEuDate(item.termino);
@@ -117,6 +111,28 @@ const Tabela = () => {
         if (a.area > b.area) return 1;
         return 0;
       });
+
+      //adicionar cores na tabela
+      var cores = {};
+      dataCores.areasECores.forEach((area) => {
+        cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
+      })
+
+      //adicionar cores no grafico (apenas as cores de areas que tem alguma coisa sendo executada)
+      var paleta = [];
+      for (const [key, value] of Object.entries(cores)) {
+        if (data.cronogramaPlanos.some((item) => item.area === key && item.termino !== null)) {
+          paleta.push({
+            "color": value ? chroma(value).darken().saturate(3).hex() : '#000000',
+            "dark": value ? chroma(value).hex() : '#000000',
+            "light": value ? chroma(value).darken().hex() : '#000000'
+          })
+        }
+      }
+
+      setCores(cores);
+      setPaleta(paleta);
+
       setCronogramas(data.cronogramaPlanos);
     } finally {
       setLoading(false);
@@ -136,24 +152,9 @@ const Tabela = () => {
     'datasErradas': 'The finishing date must be after the starting date!'
   };
 
-  const generatePaleta = () => {
-
-    var paleta = [];
-    for (const [key, value] of Object.entries(cores)) {
-      paleta.push({
-        "color": value ? chroma(value).darken().saturate(3).hex() : '#000000',
-        "dark": value ? chroma(value).hex() : '#000000',
-        "light": value ? chroma(value).darken().hex() : '#000000'
-      })
-    }
-    return paleta;
-  }
-  const paleta = generatePaleta();
-
   useEffect(() => {
     setReload(false);
     fetchCronogramas();
-    fetchCores();
   }, [reload]);
 
   useEffect(() => {
@@ -172,7 +173,7 @@ const Tabela = () => {
       plano: true,
       situacao: 'concluida'
     };
-    
+
     const formDataGantt = {
       ...novoSubmit,
       plano: false,
@@ -294,76 +295,79 @@ const Tabela = () => {
         />
       )}
 
-      <div className={styles.tabelaCronograma_container}>
-        <div className={styles.tabelaCronograma_wrapper}>
-          <table style={{ marginBottom: '10px' }} className={styles.tabelaCronograma}>
-            <thead>
-              <tr>
-                <th>Area</th>
-                <th>Task</th>
-                <th>Start</th>
-                <th>End</th>
-                <th>Dependency: Area</th>
-                <th>Dependency: Item</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <CadastroInputs
-                  obj={{...novoSubmit, plano: true}}
-                  objSetter={setNovoSubmit}
-                  tipo='cadastro'
-                  funcao={enviar}
-                  checkDados={checkDados}
-                />
-              </tr>
-              {cronogramas.filter((item) => item.plano).map((item, index) => (
-                <tr key={index} style={{backgroundColor: cores[item.area]}}>
-                  <React.Fragment>
-                  {index === 0 || cronogramas[index - 1].area !== item.area ? (
+      <div className="centered-container">
+        <div className={styles.tabelaCronograma_container}>
+          <div className={styles.tabelaCronograma_wrapper}>
+            <table style={{ marginBottom: '10px' }} className={styles.tabelaCronograma}>
+              <thead>
+                <tr>
+                  <th>Area</th>
+                  <th>Task</th>
+                  <th>Start</th>
+                  <th>End</th>
+                  <th>Dependency: Area</th>
+                  <th>Dependency: Item</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <CadastroInputs
+                    obj={{ ...novoSubmit, plano: true }}
+                    objSetter={setNovoSubmit}
+                    tipo='cadastro'
+                    funcao={enviar}
+                    checkDados={checkDados}
+                  />
+                </tr>
+                {cronogramas.filter((item) => item.plano).map((item, index) => (
+                  <tr key={index} style={{ backgroundColor: cores[item.area] }}>
+                    <React.Fragment>
+                      {index === 0 || cronogramas[index - 1].area !== item.area ? (
                         <td rowSpan={calculateRowSpan(cronogramas, item.area, index)}
                         >{item.area}</td>
                       ) : null}
-                    <td>
-                      {item.item}
-                    </td>
-                    {linhaVisivel === item._id ? (
-                      <CadastroInputs
-                        tipo="update"
-                        obj={novosDados}
-                        objSetter={setNovosDados}
-                        checkDados={checkDados}
-                        funcao={{
-                          funcao1: () => handleUpdateItem(),
-                          funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
-                        }}
-                      />
-                    ) : (
-                      <React.Fragment>
-                        <td>{item.inicio}</td>
-                        <td>{item.termino}</td>
-                        <td>{item.dp_area || '-'}</td>
-                        <td>{item.dp_item || '-'}</td>
-                        <td>
-                          <div className="botoes_acoes">
-                            <button onClick={() => setConfirmDeleteItem(item)}
-                              disabled={!isAdmin}>❌</button>
-                            <button onClick={() => {
-                              linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
-                            }}
-                            disabled={!isAdmin}>⚙️</button>
-                          </div>
-                        </td>
-                      </React.Fragment>
-                    )}
-                  </React.Fragment>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      <td>
+                        {item.item}
+                      </td>
+                      {linhaVisivel === item._id ? (
+                        <CadastroInputs
+                          tipo="update"
+                          obj={novosDados}
+                          objSetter={setNovosDados}
+                          checkDados={checkDados}
+                          funcao={{
+                            funcao1: () => handleUpdateItem(),
+                            funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
+                          }}
+                        />
+                      ) : (
+                        <React.Fragment>
+                          <td>{item.inicio}</td>
+                          <td>{item.termino}</td>
+                          <td>{item.dp_area || '-'}</td>
+                          <td>{item.dp_item || '-'}</td>
+                          <td>
+                            <div className="botoes_acoes">
+                              <button onClick={() => setConfirmDeleteItem(item)}
+                                disabled={!isAdmin}>❌</button>
+                              <button onClick={() => {
+                                linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
+                              }}
+                                disabled={!isAdmin}>⚙️</button>
+                            </div>
+                          </td>
+                        </React.Fragment>
+                      )}
+                    </React.Fragment>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
+
     </div>
   );
 };
