@@ -9,7 +9,7 @@ export default async (req, res) => {
 
     if (req.method === 'GET') {
       // Buscar todas as análises
-      const emvs = await Analise.aggregate([
+      const etis = await Analise.aggregate([
         {
           $match: { impactoFinanceiro: { $gt: 0 } }
         },
@@ -25,11 +25,14 @@ export default async (req, res) => {
           $unwind: '$riscoData'
         },
         {
+            $match: { 'riscoData.ehNegativo': true }
+        },
+        {
           $addFields: {
             valorCalculado: {
               $multiply: [
                 { $divide: ['$ocorrencia', 5] },
-                '$impactoFinanceiro'
+                '$impactoCronograma'
               ]
             }
           }
@@ -37,7 +40,7 @@ export default async (req, res) => {
         {
           $group: {
             _id: '$riscoData.item',
-            totalETI: { $sum: '$valorCalculado' }
+            totalETI: { $sum: '$valorCalculado' },
           }
         },
         {
@@ -56,8 +59,8 @@ export default async (req, res) => {
       ]);
       
       const resultadosAgrupados = {};
-      for (let emv of emvs) {
-        resultadosAgrupados[emv.item] = emv.totalEMV;
+      for (let eti of etis) {
+        resultadosAgrupados[eti.item] = eti.totalETI;
       }
 
       // Retorna o resultado agrupado por área

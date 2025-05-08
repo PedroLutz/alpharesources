@@ -123,6 +123,10 @@
     height: 3.4rem;
 }
 
+.tabelaPlano td:not(:global(.botoes_acoes)) button {
+    height: 3.6rem;
+}
+
 .tabelaRisco th, 
 .tabelaPlano th, 
 .tabelaAnalise th, 

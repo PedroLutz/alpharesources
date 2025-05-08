@@ -55,7 +55,7 @@
 }
 
 .botoes_acoes button:hover {
-    font-size: 0.95rem;
+    transform: scale(1.1);
 }
 
 .botao_logout {

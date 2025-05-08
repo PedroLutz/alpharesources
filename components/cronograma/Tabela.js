@@ -8,9 +8,11 @@ import styles from '../../styles/modules/cronograma.module.css';
 import CadastroInputs from './CadastroInputs';
 import chroma from 'chroma-js';
 import { AuthContext } from "../../contexts/AuthContext";
+import { set } from 'lodash';
 
 const Tabela = () => {
   const [cronogramas, setCronogramas] = useState([]);
+  const [cronogramasCont, setCronogramasCont] = useState([]);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
   const [exibirModal, setExibirModal] = useState(null);
@@ -33,6 +35,9 @@ const Tabela = () => {
   const [novoSubmit, setNovoSubmit] = useState(camposVazios);
   const { isAdmin } = useContext(AuthContext);
   const [paleta, setPaleta] = useState([]);
+  const [etis, setEtis] = useState([]);
+  const [showContingencies, setShowContingencies] = useState(false);
+  const [tabela, setTabela] = useState([]);
 
   const handleUpdateClick = (item) => {
     setConfirmUpdateItem(item);
@@ -73,8 +78,18 @@ const Tabela = () => {
     }
   };
 
-  const createGanttData = (cronogramas) => {
+  function adicionarDias(data, dias) {
+    if (dias) {
+      const novaData = new Date(data);
+      novaData.setDate(novaData.getDate() + dias);
+      return novaData;
+    }
+    return data;
+  }
+
+  const createGanttData = () => {
     const ganttData = [['Task ID', 'Task Name', 'Resource', 'Start Date', 'End Date', 'Duration', 'Percent Complete', 'Dependencies']];
+    const ganttDataContingency = [['Task ID', 'Task Name', 'Resource', 'Start Date', 'End Date', 'Duration', 'Percent Complete', 'Dependencies']];
 
     cronogramas.forEach((item) => {
       if (item.plano) {
@@ -90,16 +105,25 @@ const Tabela = () => {
           dependencies = `${item.dp_area}_${item.dp_item}`;
         }
         ganttData.push([taskID, taskName, resource, startDate, endDate, 10, 100, dependencies]);
+        ganttDataContingency.push([taskID, taskName, resource, startDate, adicionarDias(endDate, Math.floor(etis[taskName])), 10, 100, dependencies]);
       }
     });
 
-    return ganttData;
+    return [ganttData, ganttDataContingency];
   };
-  const chartData = createGanttData(cronogramas);
+  var chartData;
+  var chartDataContingencies;
+  if (cronogramas.length > 0) {
+    [chartData, chartDataContingencies] = createGanttData();
+  } else {
+    chartData = [];
+    chartDataContingencies = [];
+  }
 
   const fetchCronogramas = async () => {
     try {
       const data = await fetchData('cronograma/get/planos');
+      const dataETIs = await fetchData('riscos/analise/get/etis_per_item');
       const dataCores = await fetchData('wbs/get/cores');
 
       data.cronogramaPlanos.forEach((item) => {
@@ -111,6 +135,15 @@ const Tabela = () => {
         if (a.area > b.area) return 1;
         return 0;
       });
+
+      const cronogramaComContingencias = data.cronogramaPlanos.map(item => ({ ...item }));;
+      cronogramaComContingencias.forEach((item) => {
+        if (dataETIs.resultadosAgrupados[item.item]) {
+          const termino = euDateToJsDate(item.termino)
+          const terminoConvertido = adicionarDias(termino, Math.floor(dataETIs.resultadosAgrupados[item.item]));
+          item.termino = jsDateToEuDate(terminoConvertido);          
+        }
+      })
 
       //adicionar cores na tabela
       var cores = {};
@@ -132,8 +165,10 @@ const Tabela = () => {
 
       setCores(cores);
       setPaleta(paleta);
-
+      setEtis(dataETIs.resultadosAgrupados);
       setCronogramas(data.cronogramaPlanos);
+      setCronogramasCont(cronogramaComContingencias);
+      setTabela(data.cronogramaPlanos);
     } finally {
       setLoading(false);
     }
@@ -276,13 +311,19 @@ const Tabela = () => {
         }} />
       )}
 
+      <button className="botao-bonito" style={{width: '11rem'}} onClick={() => 
+        {setShowContingencies(!showContingencies);
+          showContingencies ? setTabela(cronogramas) : setTabela(cronogramasCont);
+        }}
+      >{!showContingencies ? `Show contingencies` : `Hide contingencies` }</button>
+
       {chartDataLoaded && (
         <Chart
           height={chartHeight}
           width={'90%'}
           chartType="Gantt"
           loader={<div>Loading Chart</div>}
-          data={chartData}
+          data={!showContingencies ? chartData : chartDataContingencies}
           options={{
             gantt: {
               trackHeight: 30,
@@ -320,7 +361,7 @@ const Tabela = () => {
                     checkDados={checkDados}
                   />
                 </tr>
-                {cronogramas.filter((item) => item.plano).map((item, index) => (
+                {tabela.filter((item) => item.plano).map((item, index) => (
                   <tr key={index} style={{ backgroundColor: cores[item.area] }}>
                     <React.Fragment>
                       {index === 0 || cronogramas[index - 1].area !== item.area ? (
