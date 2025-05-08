@@ -81,9 +81,17 @@
 .tabelaRisco td input, .tabelaRisco td select, .tabelaRisco td textarea,
 .tabelaPlano td input, .tabelaPlano td select,
 .tabelaImpacto td input, .tabelaImpacto td select, .tabelaImpacto td textarea,
-.tabelaAudit td input, .tabelaAudit td select, .tabelaAudit td textarea{
+.tabelaAudit td select, .tabelaAudit td textarea{
     width: 10rem;
     font-size: small;
+}
+
+.tabelaAudit td:nth-child(3) input{
+    width: 6.4rem;
+}
+
+.tabelaAudit td input{
+    width: 3rem;
 }
 
 .tabelaAnalise td:first-child input, .tabelaAnalise td:first-child select{

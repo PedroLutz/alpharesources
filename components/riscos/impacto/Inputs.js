@@ -51,8 +51,11 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         setRiscosPorArea(itensDaArea);
     };
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
+    const handleChange = (e, isNumber) => {
+        var { name, value } = e.target;
+        if(isNumber){
+            value = value.replace(/[^0-9]/g, '');
+        }
         objSetter({
             ...obj,
             [name]: value,
@@ -118,7 +121,7 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     style={{ marginTop: '0.3rem' }}
                     value={obj.risco}
                     name='risco'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.risco = el)}
                 >
                     <option value="" defaultValue>Risk</option>
@@ -131,7 +134,7 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                 <select
                     value={obj.areaImpacto}
                     name='areaImpacto'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.areaImpacto = el)}
                 >
                     <option value="" defaultValue>Area of impact</option>
@@ -144,9 +147,8 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
             </td>
             <td style={{width: '3rem'}}>
                 <input
-                    type='number'
                     name="valor"
-                    onChange={handleChange}
+                    onChange={(e) => handleChange(e, true)}
                     style={{width: '3rem'}}
                     value={obj.valor}
                     min={1}
@@ -158,7 +160,7 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                 <textarea
                     type='text'
                     name="descricao"
-                    onChange={handleChange}
+                    onChange={(e) => handleChange(e, false)}
                     value={obj.descricao}
                     placeholder="Description"
                     ref={el => (camposRef.current.descricao = el)}

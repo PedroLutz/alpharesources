@@ -11,8 +11,12 @@ const TabelaAnalise = () => {
     const camposVazios = {
         risco: '',
         resposta: '',
+        impacto: '',
+        acao: '',
+        urgencia: '',
         impactoFinanceiro: '',
-        descricaoImpacto: ''
+        descricaoImpacto: '',
+        descricaoAvaliacao: ''
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
@@ -161,9 +165,13 @@ const TabelaAnalise = () => {
                         <thead>
                             <tr>
                                 <th>Risk</th>
-                                <th>Response</th>
-                                <th>Financial impact</th>
                                 <th>Impact description</th>
+                                <th style={{fontSize: '0.8rem'}}>Financial impact</th>
+                                <th>Response</th>
+                                <th>Impact</th>
+                                <th>Action</th>
+                                <th>Urgency</th>
+                                <th>Evaluation description</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -193,9 +201,13 @@ const TabelaAnalise = () => {
                                             ) : (
                                                 <td>{item.risco}</td>
                                             )}
-                                            <td>{item.resposta}</td>
-                                            <td>R${Number(item.impactoFinanceiro).toFixed(2)}</td>
                                             <td>{item.descricaoImpacto}</td>
+                                            <td>R${Number(item.impactoFinanceiro).toFixed(2)}</td>
+                                            <td>{item.resposta}</td>
+                                            <td>{item.impacto}</td>
+                                            <td>{item.acao}</td>
+                                            <td>{item.urgencia}</td>
+                                            <td>{item.descricaoAvaliacao}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(item)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {

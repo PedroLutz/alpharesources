@@ -1,5 +1,5 @@
 .containerPai {
-    border-color: rgb(133, 133, 133);
+    border-color: rgb(0, 0, 0);
     border-radius: 20px;
     border-style: solid;
     border-width: 1px;
@@ -11,7 +11,7 @@
     width: 25rem;
     word-break: normal;
     border-style: solid;
-    border-color: rgb(172, 172, 172);
+    border-color: rgb(0, 0, 0);
     border-radius: 20px;
     border-width: 1px;
     padding: 10px;
@@ -125,7 +125,7 @@
     border-width: 0.1rem;
     border-style: solid;
     font-size: 0.9rem;
-    border-color: rgb(167, 167, 167);
+    border-color: rgb(0, 0, 0);
     padding: 0.3rem;
 }
 
@@ -140,13 +140,12 @@
     border-width: 0.1rem;
     border-style: solid;
     width: 5rem;
-    border-color: rgb(167, 167, 167);
+    border-color: rgb(0, 0, 0);
     padding: 0.3rem;
     font-size: small;
 }
 
-.tabelaRaci tr:nth-child(1) td:nth-child(1) select,
-.tabelaRaci tr:nth-child(1) td:nth-child(2) select{
+.tabelaRaci tr:nth-child(1) td:nth-child(1) select{
     width: 8rem;
 }
 
@@ -157,6 +156,10 @@
 
 .tabelaRaci td input:hover, .tabelaRaci td select:hover, .tabelaRaci td:not(:global(.botoes_acoes)) button:hover {
     background-color: rgb(231, 231, 231);
+}
+
+.tabelaRaci td:nth-child(2) select {
+    width: 16rem;
 }
 
 .tabelaRaci td input, .tabelaRaci td select {
@@ -171,6 +174,8 @@
     outline: none;
     background-color: white;
 }
+
+
 
 .areaTc {
     text-align: center;

@@ -10,10 +10,14 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     const camposRef = useRef({
         risco: null,
         resposta: null,
+        impacto: null,
+        acao: null,
+        urgencia: null,
         impactoFinanceiro: null,
-        descricaoImpacto: null
+        descricaoImpacto: null,
+        descricaoAvaliacao: null
     })
-    const {isAdmin} = useContext(AuthContext)
+    const { isAdmin } = useContext(AuthContext)
 
     const fetchRiscos = async () => {
         const data = await fetchData('riscos/risco/get/riscosAreas');
@@ -51,8 +55,11 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         setRiscosPorArea(itensDaArea);
     };
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
+    const handleChange = (e, isNumber) => {
+        var { name, value } = e.target;
+        if(isNumber){
+            value = value.replace(/[^0-9]/g, '');
+        }
         objSetter({
             ...obj,
             [name]: value,
@@ -66,6 +73,20 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     };
 
     const validaDados = () => {
+        const campos = { impacto: obj.impacto, urgencia: obj.urgencia, acao: obj.acao };
+
+        for (const [key, value] of Object.entries(campos)) {
+            if (value < 0) {
+                camposRef.current[key].classList.add('campo-vazio');
+                checkDados('valorNegativo');
+                return true;
+            }
+            if (value > 5) {
+                camposRef.current[key].classList.add('campo-vazio');
+                checkDados('maiorQueCinco');
+                return true;
+            }
+        }
         const [isEmpty, camposVazios] = isFormVazio(obj);
         if (isEmpty) {
             camposVazios.forEach(campo => {
@@ -108,7 +129,7 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     style={{ marginTop: '0.3rem' }}
                     value={obj.risco}
                     name='risco'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.risco = el)}
                 >
                     <option value="" defaultValue>Risk</option>
@@ -120,18 +141,17 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
             <td>
                 <textarea
                     type='text'
-                    name="resposta"
-                    onChange={handleChange}
-                    value={obj.resposta}
-                    placeholder="Response"
-                    ref={el => (camposRef.current.resposta = el)}
+                    name="descricaoImpacto"
+                    onChange={(e) => handleChange(e, false)}
+                    value={obj.descricaoImpacto}
+                    placeholder="Impact description"
+                    ref={el => (camposRef.current.descricaoImpacto = el)}
                 />
             </td>
             <td>
                 <input
-                    type='number'
                     name="impactoFinanceiro"
-                    onChange={handleChange}
+                    onChange={(e) => handleChange(e, true)}
                     value={obj.impactoFinanceiro}
                     ref={el => (camposRef.current.impactoFinanceiro = el)}
                 />
@@ -139,11 +159,45 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
             <td>
                 <textarea
                     type='text'
-                    name="descricaoImpacto"
-                    onChange={handleChange}
-                    value={obj.descricaoImpacto}
-                    placeholder="Impact description"
-                    ref={el => (camposRef.current.descricaoImpacto = el)}
+                    name="resposta"
+                    onChange={(e) => handleChange(e, false)}
+                    value={obj.resposta}
+                    placeholder="Response"
+                    ref={el => (camposRef.current.resposta = el)}
+                />
+            </td>
+            <td>
+                <input
+                    name="impacto"
+                    onChange={(e) => handleChange(e, true)}
+                    value={obj.impacto}
+                    ref={el => (camposRef.current.impacto = el)}
+                />
+            </td>
+            <td>
+                <input
+                    name="acao"
+                    onChange={(e) => handleChange(e, true)}
+                    value={obj.acao}
+                    ref={el => (camposRef.current.acao = el)}
+                />
+            </td>
+            <td>
+                <input
+                    name="urgencia"
+                    onChange={(e) => handleChange(e, true)}
+                    value={obj.urgencia}
+                    ref={el => (camposRef.current.urgencia = el)}
+                />
+            </td>
+            <td>
+                <textarea
+                    type='text'
+                    name="descricaoAvaliacao"
+                    onChange={(e) => handleChange(e, false)}
+                    value={obj.descricaoAvaliacao}
+                    placeholder="Evaluation description"
+                    ref={el => (camposRef.current.descricaoAvaliacao = el)}
                 />
             </td>
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
