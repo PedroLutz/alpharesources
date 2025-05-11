@@ -37,11 +37,11 @@ export default async (req, res) => {
         {
           $group: {
             _id: '$riscoData.item',
-            totalETI: { $sum: '$valorCalculado' }
+            totalEMV: { $sum: '$valorCalculado' }
           }
         },
         {
-          $match: { totalETI: { $ne: 0 } } // Remove os que resultaram em 0
+          $match: { totalEMV: { $ne: 0 } } // Remove os que resultaram em 0
         },
         {
           $sort: { _id: 1 } // ordena por item
@@ -49,11 +49,13 @@ export default async (req, res) => {
         {
           $project: {
             item: '$_id',
-            totalETI: 1,
+            totalEMV: 1,
             _id: 0
           }
         }
       ]);
+
+      console.log(emvs);
       
       const resultadosAgrupados = {};
       for (let emv of emvs) {

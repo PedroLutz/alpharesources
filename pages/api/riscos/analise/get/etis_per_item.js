@@ -25,7 +25,7 @@ export default async (req, res) => {
           $unwind: '$riscoData'
         },
         {
-            $match: { 'riscoData.ehNegativo': true }
+          $match: { 'riscoData.ehNegativo': true }
         },
         {
           $addFields: {
