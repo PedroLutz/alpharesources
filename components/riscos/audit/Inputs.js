@@ -14,6 +14,7 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         acao: null,
         urgencia: null,
         impactoFinanceiro: null,
+        impactoCronograma: null,
         descricaoImpacto: null,
         descricaoAvaliacao: null
     })
@@ -154,6 +155,14 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     onChange={(e) => handleChange(e, true)}
                     value={obj.impactoFinanceiro}
                     ref={el => (camposRef.current.impactoFinanceiro = el)}
+                />
+            </td>
+            <td>
+                <input
+                    name="impactoCronograma"
+                    onChange={(e) => handleChange(e, true)}
+                    value={obj.impactoCronograma}
+                    ref={el => (camposRef.current.impactoCronograma = el)}
                 />
             </td>
             <td>

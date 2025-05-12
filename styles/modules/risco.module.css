@@ -86,8 +86,16 @@
     font-size: small;
 }
 
-.tabelaAudit td:nth-child(3) input{
-    width: 6.4rem;
+.tabelaAudit td:first-child, .tabelaAudit th:first-child{
+    width: 10rem;
+}
+
+.tabelaAudit td:nth-child(3), .tabelaAudit td:nth-child(4){
+    width: 4.5rem;
+}
+
+.tabelaAudit td:nth-child(3) input, .tabelaAudit td:nth-child(4) input{
+    width: 3.7rem;
 }
 
 .tabelaAudit td input{

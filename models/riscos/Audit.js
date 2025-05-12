@@ -9,6 +9,7 @@ const AuditSchema = new mongoose.Schema({
   acao: Number,
   urgencia: Number,
   impactoFinanceiro: Number,
+  impactoCronograma: Number,
   descricaoImpacto: String,
   descricaoAvaliacao: String
 }, { collection: 'riscoAudit' }); 

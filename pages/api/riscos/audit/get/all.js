@@ -8,7 +8,41 @@ export default async (req, res) => {
       await connectToDatabase();
   
       if (req.method === 'GET') {
-          const riscoAudits = await Audit.find().sort({risco: 1});
+          const riscoAudits = await Audit.aggregate([
+        {
+          $lookup: {
+            from: 'riscoAnalise',
+            localField: 'risco',
+            foreignField: 'risco',
+            as: 'analisesData'
+          }
+        },
+        {
+          $unwind: '$analisesData'
+        },
+        {
+          $sort: { risco: 1 } // ordena por item
+        },
+        {
+          $project: {
+            _id: 1,
+            risco: 1,
+            resposta: 1,
+            impacto: 1,
+            acao: 1,
+            urgencia: 1,
+            impactoFinanceiro: 1,
+            impactoCronograma: 1,
+            descricaoImpacto: 1,
+            descricaoAvaliacao: 1,
+            impactoPlano: '$analisesData.impacto',
+            urgenciaPlano: '$analisesData.urgencia',
+            acaoPlano: '$analisesData.acao',
+            impactoFinanceiroPlano: '$analisesData.impactoFinanceiro',
+            impactoCronogramaPlano: '$analisesData.impactoCronograma'
+          }
+        }
+      ]);
     
           res.status(200).json({ riscoAudits });
       } else {

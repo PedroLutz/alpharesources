@@ -7,6 +7,7 @@ import RaciModel from '../../../../models/responsabilidade/Raci'
 import GanttModel from '../../../../models/Gantt'
 import LancamentoModel from '../../../../models/LancamentoFinanceiro'
 import RiscoModel from '../../../../models/riscos/Risco';
+import mongoose from 'mongoose';
 
 const { Wbs } = WbsModel;
 const { Plano } = PlanoModel;
@@ -24,37 +25,59 @@ export default async (req, res) => {
     if (req.method === 'PUT') {
       const { area, oldArea } = req.body;
 
-      const updatedData = await Wbs.updateMany({ area: oldArea }, { $set: { area: area } });
-      const updatedPlano = await Plano.updateMany(
-        { area: oldArea }, { $set: { area: area } }
-      );
-      const updatedRecurso = await Recurso.updateMany(
-        { area: oldArea }, { $set: { area: area } }
-      );
-      const updatedLancamento = await Lancamento.updateMany(
-        { area: oldArea }, { $set: { area: area } }
-      );
-      const updatedGantt = await Gantt.updateMany(
-        { area: oldArea }, { $set: { area: area } }
-      );
-      const updatedGanttdp = await Gantt.updateMany(
-        { dp_area: oldArea }, { $set: { dp_area: area } }
-      );
-      const updatedRaci = await Raci.updateMany(
-        { area: oldArea }, { $set: { area: area } }
-      );
-      const updatedRisco = await Risco.updateMany(
-        { area: oldArea }, { $set: { area: area } }
-      );
-      const updatedWbsDictionary = await WbsDictionary.updateMany(
-        { area: oldArea }, { $set: { area: area } }
-      );
+      const session = await mongoose.startSession();
+      session.startTransaction();
 
-      if (!updatedData) {
-        return res.status(404).json({ error: 'Wbs não encontrado.' });
+    try{
+      const updatedData = await Wbs.updateMany({ area: oldArea }, { $set: { area: area } });  
+      if(!updatedData){
+        await session.abortTransaction();
+        return res.status(404).json({ error: 'WBS não encontrado.' });
       }
 
-      return res.status(200).json(updatedData);
+      await Plano.updateMany(
+        { area: oldArea }, { $set: { area: area } }
+      );
+      await Recurso.updateMany(
+        { area: oldArea }, { $set: { area: area } }
+      );
+      await Lancamento.updateMany(
+        { area: oldArea }, { $set: { area: area } }
+      );
+      await Gantt.updateMany(
+        { area: oldArea }, { $set: { area: area } }
+      );
+      await Gantt.updateMany(
+        { dp_area: oldArea }, { $set: { dp_area: area } }
+      );
+      await Raci.updateMany(
+        { area: oldArea }, { $set: { area: area } }
+      );
+      await Risco.updateMany(
+        { area: oldArea }, { $set: { area: area } }
+      );
+      await WbsDictionary.updateMany(
+        { area: oldArea }, { $set: { area: area } }
+      );
+
+      await session.commitTransaction();
+        session.endSession();
+
+        return res.status(200).json(updatedRecurso);
+      
+    } catch {
+      await session.abortTransaction();
+        session.endSession();
+        console.error('Erro na transação:', error);
+        return res.status(500).json({ error: 'Erro ao atualizar WBS coisas relacionadas.' });
+    }
+
+      
+      
+      
+
+      
+        
     } else {
       res.status(405).json({ error: 'Método não permitido' });
     }

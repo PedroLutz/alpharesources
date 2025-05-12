@@ -54,8 +54,6 @@ export default async (req, res) => {
           }
         }
       ]);
-
-      console.log(emvs);
       
       const resultadosAgrupados = {};
       for (let emv of emvs) {

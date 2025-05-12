@@ -26,6 +26,7 @@ export default async (req, res) => {
           }
         }
       }
+      
 
       if (Object.keys(updateFields).length === 0) {
         return res.status(400).json({ error: 'Pelo menos um campo deve ser fornecido para a atualização.' });

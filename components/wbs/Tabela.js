@@ -213,10 +213,10 @@ const WBS = () => {
           if (response.status === 200) {
             return;
           } else {
-            console.error(`Erro ao atualizar ${o.route}`);
+            console.error(`Erro ao atualizar WBS`);
           }
         } catch (error) {
-          console.error(`Erro ao atualizar ${o.route}, ${error}`);
+          console.error(`Erro ao atualizar WBS, ${error}`);
         }
       }
     }

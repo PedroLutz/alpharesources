@@ -15,6 +15,7 @@ const TabelaAnalise = () => {
         acao: '',
         urgencia: '',
         impactoFinanceiro: '',
+        impactoCronograma: '',
         descricaoImpacto: '',
         descricaoAvaliacao: ''
     }
@@ -28,7 +29,7 @@ const TabelaAnalise = () => {
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
-    const {isAdmin} = useContext(AuthContext)
+    const { isAdmin } = useContext(AuthContext)
 
     const enviar = async (e) => {
         e.preventDefault();
@@ -42,15 +43,23 @@ const TabelaAnalise = () => {
 
     const handleUpdateClick = (item) => {
         setConfirmUpdateItem(item)
-        setNovosDados({
-            ...item
-        });
+        const camposConsiderados = Object.keys(camposVazios);
+        for (const campo in camposConsiderados) {
+            setNovosDados((prevState) => ({
+                ...prevState,
+                [camposConsiderados[campo]]: item[camposConsiderados[campo]]
+            }))
+        }
+
     };
 
     const handleUpdateItem = async () => {
         if (confirmUpdateItem) {
             setLoading(true);
-            const updatedItem = { ...confirmUpdateItem, ...novosDados };
+            const updatedItem = {
+                ...novosDados,
+                _id: confirmUpdateItem._id
+            };
 
             const updatedRiscos = audits.map(item =>
                 item._id === updatedItem._id ? { ...updatedItem } : item
@@ -166,7 +175,8 @@ const TabelaAnalise = () => {
                             <tr>
                                 <th>Risk</th>
                                 <th>Impact description</th>
-                                <th style={{fontSize: '0.8rem'}}>Financial impact</th>
+                                <th style={{ fontSize: '0.8rem' }}>Financial impact</th>
+                                <th style={{ fontSize: '0.8rem' }}>Schedule impact</th>
                                 <th>Response</th>
                                 <th>Impact</th>
                                 <th>Action</th>
@@ -185,7 +195,7 @@ const TabelaAnalise = () => {
                                             objSetter={setNovosDados}
                                             funcao={{
                                                 funcao1: () => handleUpdateItem(),
-                                                funcao2: () => {linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false)}
+                                                funcao2: () => { linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false) }
                                             }}
                                             checkDados={checkDados}
                                         />
@@ -202,11 +212,27 @@ const TabelaAnalise = () => {
                                                 <td>{item.risco}</td>
                                             )}
                                             <td>{item.descricaoImpacto}</td>
-                                            <td>R${Number(item.impactoFinanceiro).toFixed(2)}</td>
+                                            <td style={{ fontSize: '0.8rem' }}>
+                                                Plan: R${Number(item.impactoFinanceiroPlano).toFixed(2)}<br />
+                                                Actual: R${Number(item.impactoFinanceiro).toFixed(2)}
+                                            </td>
+                                            <td style={{ fontSize: '0.8rem' }}>
+                                                Plan: <br />{item.impactoCronogramaPlano} days<br />
+                                                Actual: <br />{item.impactoCronograma} days
+                                            </td>
                                             <td>{item.resposta}</td>
-                                            <td>{item.impacto}</td>
-                                            <td>{item.acao}</td>
-                                            <td>{item.urgencia}</td>
+                                            <td style={{ fontSize: '0.8rem' }}>
+                                                Plan: {item.impactoPlano}<br />
+                                                Actual: {item.impacto}<br />
+                                            </td>
+                                            <td style={{ fontSize: '0.8rem' }}>
+                                                Plan: {item.acaoPlano}<br />
+                                                Actual: {item.acao}<br />
+                                            </td>
+                                            <td style={{ fontSize: '0.8rem' }}>
+                                                Plan: {item.urgenciaPlano}<br />
+                                                Actual: {item.urgencia}<br />
+                                            </td>
                                             <td>{item.descricaoAvaliacao}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(item)} disabled={!isAdmin}>❌</button>
