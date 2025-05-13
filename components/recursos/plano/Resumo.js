@@ -15,6 +15,7 @@ const Resumo = () => {
     const [linhaDoTempoAll, setLinhaDoTempoAll] = useState([]);
     const [reservaContingencial, setReservaContingencial] = useState();
     const [verReserves, setVerReserves] = useState(false);
+    const [dataInicial, setDataInicial] = useState();
 
     const [loading, setLoading] = useState(true);
     const [chartHeight, setChartHeight] = useState('100px');
@@ -27,6 +28,7 @@ const Resumo = () => {
         try {
             const data = await fetchData('recursos/planoAquisicao/get/resumo');
             const reservaDeContingencia = await fetchData('riscos/analise/get/emvs')
+            const dataMaisAntiga = await fetchData('cronograma/get/dataMaisCedo');
             setPlanosPorArea_Essencial(data.planosPorArea_Essencial);
             setPlanosPorArea_all(data.planosPorArea_all);
             setPlanosSoma_Essencial(data.planosSoma_Essencial[0]);
@@ -34,6 +36,7 @@ const Resumo = () => {
             setLinhaDoTempoEssencial(data.linhaDoTempoEssencial);
             setLinhaDoTempoAll(data.linhaDoTempoAll);
             setReservaContingencial(reservaDeContingencia.resultadosAgrupados);
+            setDataInicial(dataMaisAntiga.registroMaisAntigo.inicio);
         } finally {
             setLoading(false);
         }
@@ -73,34 +76,33 @@ const Resumo = () => {
 
     const linhaDoTempoEssencial_graph = [['Resource', 'Resource', 'Start', 'End']];
     linhaDoTempoEssencial.forEach((recurso) => {
-        const dataInicial = new Date(2024, 2, 13);
+        const dataInicio = new Date(dataInicial);
         const dataEsperada = new Date(recurso.data_esperada);
         const dataLimite = new Date(recurso.data_limite)
 
-        linhaDoTempoEssencial_graph.push([recurso._id, `Expected`, dataInicial, dataEsperada]);
+        linhaDoTempoEssencial_graph.push([recurso._id, `Expected`, dataInicio, dataEsperada]);
         linhaDoTempoEssencial_graph.push([recurso._id, `Critical`, dataEsperada, dataLimite]);
     });
 
     const linhaDoTempoAll_graph = [['Resource', 'Resource', 'Start', 'End']];
     linhaDoTempoAll.forEach((recurso) => {
-        const dataInicial = new Date(2024, 2, 13);
+        const dataInicio = new Date(dataInicial);
         const dataEsperada = new Date(recurso.data_esperada);
         const dataLimite = new Date(recurso.data_limite)
 
-        linhaDoTempoAll_graph.push([recurso._id, `Expected`, dataInicial, dataEsperada]);
+        linhaDoTempoAll_graph.push([recurso._id, `Expected`, dataInicio, dataEsperada]);
         linhaDoTempoAll_graph.push([recurso._id, `Critical`, dataEsperada, dataLimite]);
     });
 
     useEffect(() => {
         let dados = pieEssencial ? [linhaDoTempoEssencial_graph] : [linhaDoTempoAll_graph]
-        dados.forEach((dado) => {
-            if (dado.length > 1) {
-                const linhaHeight = 40;
-                const novaAltura = ((dado.length * linhaHeight) + 50) + 'px';
+        console.log(dados[0])
+            if (dados[0].length > 1) {
+                const linhaHeight = 10;
+                const novaAltura = ((dados[0].length * linhaHeight)) + 'px';
                 setChartHeight(novaAltura);
                 setChartDataLoaded(true);
             }
-        })
 
     }, [linhaDoTempoEssencial_graph, linhaDoTempoAll_graph]);
 
