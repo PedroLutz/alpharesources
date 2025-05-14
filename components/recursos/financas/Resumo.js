@@ -90,7 +90,7 @@ const Resumo = () => {
   //receber dados das financas
   const fetchResumos = async () => {
     try {
-      const data = await fetchData('financas/get/resumo');
+      const data = await fetchData('financas/financas/get/resumo');
       const { somaValores, receitasPorArea, despesasPorArea,
         receitasPorMes, despesasPorMes, maiorEMenorValor,
         receitasTotais, despesasTotais } = data;

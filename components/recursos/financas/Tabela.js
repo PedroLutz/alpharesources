@@ -39,7 +39,7 @@ const Tabela = () => {
 
   const fetchLancamentos = async () => {
     try {
-      const data = await fetchData('financas/get/lancamentos');
+      const data = await fetchData('financas/financas/get/lancamentos');
       var balance = 0;
       data.lancamentos.forEach((item) => {
         item.data = jsDateToEuDate(item.data);
@@ -86,7 +86,7 @@ const Tabela = () => {
       var getDeleteSuccess = false;
       try {
         getDeleteSuccess = handleDelete({
-          route: 'financas',
+          route: 'financas/financas',
           item: deleteInfo.item,
           fetchDados: fetchLancamentos
         });
@@ -116,7 +116,7 @@ const Tabela = () => {
       valor: valor
     };
     handleSubmit({
-      route: 'financas',
+      route: 'financas/financas',
       dados: updatedNovoSubmit
     });
     cleanForm(novoSubmit, setNovoSubmit, camposVazios);
@@ -161,7 +161,7 @@ const Tabela = () => {
       setReload(true);
       try {
         await handleUpdate({
-          route: 'financas',
+          route: 'financas/financas',
           dados: updatedItem,
           item: confirmItemAction.item
         });
@@ -188,7 +188,7 @@ const Tabela = () => {
       setConfirmItemAction({ action: '', item: null });
       setReload(true);
       await handlePseudoDelete({
-        route: 'financas',
+        route: 'financas/financas',
         item: confirmItemAction.item,
         deletar: false
       });
@@ -210,7 +210,7 @@ const Tabela = () => {
       setReload(true);
       try {
         await handlePseudoDelete({
-          route: 'financas',
+          route: 'financas/financas',
           item: confirmItemAction.item,
           deletar: true
         });
