@@ -145,7 +145,7 @@ const Tabela = () => {
                     marginBottom: '5rem',
                 }}>
                     <tbody style={{ borderColor: 'black', borderStyle: 'solid', borderWidth: '0.01rem' }}>
-                        {cronogramas.filter(item => item.inicio != null).map((item, index) => (
+                        {cronogramas.filter(item => (item.inicio != item.termino) && (item.situacao != 'iniciar')).map((item, index) => (
                             <tr key={index}
                                 style={{
                                     height: '30px',
@@ -176,7 +176,7 @@ const Tabela = () => {
                         width: '100%'
                     }}>
                         <tbody>
-                            {cronogramas.filter(item => item.inicio != null).map((item, index) => (
+                            {cronogramas.filter(item => (item.inicio != item.termino) && (item.situacao != 'iniciar')).map((item, index) => (
                                 <tr key={index}
                                     style={{ height: '30px', borderColor: 'black', borderStyle: 'solid', borderWidth: '0.1rem', borderLeftWidth: '0rem' }}>
                                     <td></td>
