@@ -16,6 +16,7 @@ const TabelaAnalise = () => {
         verificacao: '',
         timing: '',
         responsavel: '',
+        proposito: '',
         responsavel_aprovacao: '',
         premissas: '',
         restricoes: '',
@@ -32,8 +33,10 @@ const TabelaAnalise = () => {
     const [loading, setLoading] = useState(true);
     const [cores, setCores] = useState({});
     const [isUpdating, setIsUpdating] = useState(false);
-    const {isAdmin} = useContext(AuthContext)
+    const { isAdmin } = useContext(AuthContext)
 
+
+    //essa funcao chama handleSubmit() e envia os dados para cadastro
     const enviar = async (e) => {
         e.preventDefault();
         handleSubmit({
@@ -44,6 +47,7 @@ const TabelaAnalise = () => {
         setReload(true);
     };
 
+    //essa funcao recebe um item e insere seus campos como novosDados
     const handleUpdateClick = (item) => {
         setConfirmUpdateItem(item)
         setNovosDados({
@@ -51,15 +55,20 @@ const TabelaAnalise = () => {
         });
     };
 
+    //essa funcao busca as cores para cada area
     const fetchCores = async () => {
         const data = await fetchData('wbs/get/cores');
         var cores = {};
         data.areasECores.forEach((area) => {
-          cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
+            cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
         })
         setCores(cores);
-      }
+    }
 
+
+    //essa funcao chama realiza um tratamento de dados de confirmUpdateItem para garantir que
+    //os dados enviados sejam condizentes com o modelo, e depois chama handleUpdate() para
+    //cadastrar as mudancas no banco
     const handleUpdateItem = async () => {
         if (confirmUpdateItem) {
             setLoading(true);
@@ -87,6 +96,8 @@ const TabelaAnalise = () => {
         }
     };
 
+
+    //essa funcao chama handleDelete e deleta o que estiver em confirmDeleteItem
     const handleConfirmDelete = () => {
         if (confirmDeleteItem) {
             var getDeleteSuccess = false;
@@ -94,7 +105,7 @@ const TabelaAnalise = () => {
                 getDeleteSuccess = handleDelete({
                     route: 'wbsDictionary',
                     item: confirmDeleteItem,
-                    fetchDados: fetchAnalises
+                    fetchDados: fetchDicionarios
                 });
             } finally {
                 setExibirModal(`deleteSuccess-${getDeleteSuccess}`)
@@ -108,7 +119,9 @@ const TabelaAnalise = () => {
         setConfirmDeleteItem(null);
     };
 
-    const fetchAnalises = async () => {
+
+    //essa funcao busca todos os itens do dicionario
+    const fetchDicionarios = async () => {
         try {
             const data = await fetchData('wbsDictionary/get/all');
             setDicionarios(data.dicionarios);
@@ -117,12 +130,24 @@ const TabelaAnalise = () => {
         }
     };
 
+
+    //esse useEffect so executa quando reload é true
     useEffect(() => {
-        setReload(false);
-        fetchAnalises();
-        fetchCores();
+        if (reload) {
+            setReload(false);
+            fetchDicionarios();
+            fetchCores();
+        }
     }, [reload]);
 
+    //esse useEffect so executa na primeira render
+    useEffect(() => {
+        fetchDicionarios();
+        fetchCores();
+    }, []);
+
+
+    //essa funcao recebe um tipo (igual a algum dos modalLabels) e exibe um modal com o aviso
     const checkDados = (tipo) => {
         setExibirModal(tipo); return;
     };
@@ -135,6 +160,7 @@ const TabelaAnalise = () => {
         'maiorQueCinco': 'Classifications must be between 1 and 5!'
     };
 
+    //essa funcao calcula a quantidade de tds que o td de cada area deve ocupar
     const calculateRowSpan = (itens, currentArea, currentIndex) => {
         let rowSpan = 1;
         for (let i = currentIndex + 1; i < itens.length; i++) {
@@ -202,17 +228,17 @@ const TabelaAnalise = () => {
                                             objSetter={setNovosDados}
                                             funcao={{
                                                 funcao1: () => handleUpdateItem(),
-                                                funcao2: () => {linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false)}
+                                                funcao2: () => { linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false) }
                                             }}
                                             checkDados={checkDados}
                                         />
                                     ) : (
-                                        <tr style={{backgroundColor: cores[item.area]}}>
+                                        <tr style={{ backgroundColor: cores[item.area] }}>
                                             {!isUpdating || isUpdating !== item.area ? (
                                                 <React.Fragment>
                                                     {index === 0 || dicionarios[index - 1].area !== item.area ? (
                                                         <td rowSpan={calculateRowSpan(dicionarios, item.area, index)}
-                                                        className={styles.td_area}>{item.area}</td>
+                                                            className={styles.td_area}>{item.area}</td>
                                                     ) : null}
                                                 </React.Fragment>
                                             ) : (

@@ -3,7 +3,6 @@ import styles from '../../styles/modules/wbs.module.css';
 import { AuthContext } from "../../contexts/AuthContext";
 
 const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area, isNameUsed }) => {
-    const [emptyFields, setEmptyFields] = useState([]);
     const camposRef = useRef({
         cor: null,
         item: null,
@@ -11,6 +10,7 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area, isNameUse
     });
     const { isAdmin } = useContext(AuthContext)
 
+    //esse useEffect executa todo re-render
     useEffect(() => {
         if (area) {
             objSetter({
@@ -19,11 +19,15 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area, isNameUse
         }
     }, [])
 
+    //essa funcao verifica quais entradas do formulario estao vazias,
+    //retornando uma array com a quantidade de entradas vazias e uma array com as entradas vazias
     const isFormVazio = (form) => {
-        const emptyFields = Object.entries(form).filter(([key, value]) => !value);
+        const emptyFields = Object.entries(form).filter(([key, value]) => value === '' || value === null);
         return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
     };
 
+
+    //essa funcao trata as mudancas especificamente em cores
     const handleChangeCor = (e) => {
         const { name, value } = e.target;
         objSetter({
@@ -32,19 +36,19 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area, isNameUse
         })
     }
 
-    const handleChange = (e, setter, obj) => {
+    //essa funcao trata das mudancas em area e item, tratando de forma diferente se
+    //o componente foi chamado para uma area ou um item
+    const handleChange = (e) => {
         const { name, value } = e.target;
         var areaValor, key;
         if (area) { areaValor = e.target.getAttribute('data-area'); key = `novo${area}` };
-        const index = emptyFields.indexOf(name);
-        index > -1 && emptyFields.splice(index, 1);
         if (!area) {
-            setter({
+            objSetter({
                 ...obj,
                 [name]: value,
             });
         } else {
-            setter(prevState => ({
+            objSetter(prevState => ({
                 ...prevState,
                 [key]: {
                     ...prevState[key],
@@ -56,10 +60,12 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area, isNameUse
         e.target.classList.remove('campo-vazio');
     };
 
+    //essa funcao verifica os casos de invalidez, e se algum deles for verdadeiro,
+    //chama a funcao checkDados para levantar um modal avisando o problema
     const validaDados = () => {
         const [isEmpty, camposVazios] = isFormVazio(obj);
         const nomeUsado = isNameUsed(obj);
-        if(nomeUsado) {
+        if (nomeUsado) {
             checkDados && checkDados('nomeRepetido')
             return true
         };
@@ -70,7 +76,7 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area, isNameUse
                     camposRef.current[campo].classList.add('campo-vazio');
                 }
             });
-
+            console.log(camposVazios);
             checkDados && checkDados('inputsVazios');
             return true;
         }
@@ -84,6 +90,9 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area, isNameUse
     };
 
 
+    //essa funcao executa o envio, tratanto diferentemente caso seja o
+    //componente tenha sido chamado para cor ou item e area
+    //ela tambem chama validaDados() e executa apenas se os dados forem validos.
     const handleSubmit = async (e) => {
         var isInvalido = tipo === 'updateCor' ? false : validaDados();
         if (funcao.funcao1) {

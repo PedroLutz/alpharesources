@@ -3,8 +3,7 @@ import { fetchData } from '../../../functions/crud';
 import { AuthContext } from '../../../contexts/AuthContext';
 import styles from '../../../styles/modules/wbs.module.css'
 
-const textareas = ({ obj, objSetter, tipo, funcao, checkDados }) => {
-    const [emptyFields, setEmptyFields] = useState([]);
+const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
     const [elementosWBS, setElementosWBS] = useState([]);
     const [itensPorArea, setItensPorArea] = useState([]);
     const camposRef = useRef({
@@ -13,6 +12,7 @@ const textareas = ({ obj, objSetter, tipo, funcao, checkDados }) => {
         descricao: null,
         criterio: null,
         verificacao: null,
+        proposito: null,
         timing: null,
         responsavel: null,
         responsavel_aprovacao: null,
@@ -20,17 +20,22 @@ const textareas = ({ obj, objSetter, tipo, funcao, checkDados }) => {
         restricoes: null,
         recursos: null
     });
-    const {isAdmin} = useContext(AuthContext)
+    const {isAdmin} = useContext(AuthContext);
+    const isFirstRender = useRef(true);
 
+    //essa funcao busca os itens da wbs
     const fetchElementos = async () => {
         const data = await fetchData('wbs/get/all');
         setElementosWBS(data.elementos);
     };
 
+    //esse useEffect só roda na primeira render
     useEffect(() => {
         fetchElementos();
     }, []);
 
+    //esse useEffect só roda quando o elementos da WBS sao atualizados, ou quando a area do obj é alterada
+    //ele garante que a array "itensDaArea" mostre apenas os itens da area selecionada no obj
     useEffect(() => {
         if (obj.area) {
             const itensDaArea = elementosWBS.filter(item => item.area === obj.area).map(item => item.item);
@@ -38,6 +43,9 @@ const textareas = ({ obj, objSetter, tipo, funcao, checkDados }) => {
         }
     }, [obj.area, elementosWBS]);
 
+
+    //esse useEffect só rorda quando a area do obj é alterada, e garante que, quando a area é alterada,
+    //o campo 'item' tenha seu valor apagado, evitando mistura de itens com areas a qual n pertecem
     useEffect(() => {
         if (isFirstRender.current) {
             isFirstRender.current = false;
@@ -49,33 +57,41 @@ const textareas = ({ obj, objSetter, tipo, funcao, checkDados }) => {
             item: ''
         });
     }, [obj.area]);
-    
-    const isFirstRender = useRef(true);
 
+
+    //essa funcao se responsabiliza especificamente por atualizar o estado de itensDaArea cada vez que a area muda
     const handleAreaChange = (e) => {
         const areaSelecionada = e.target.value;
         const itensDaArea = elementosWBS.filter(item => item.area === areaSelecionada).map(item => item.item);
         setItensPorArea(itensDaArea);
+        objSetter({
+            ...obj,
+            area: value,
+        });
 
         handleChange(e, objSetter, obj);
     };
 
-    const isFormVazio = (form) => {
+    //essa funcao verifica quais entradas do obj estao vazias,
+    //retornando uma array com a quantidade de entradas vazias e uma array com as entradas vazias
+    const isFormVazio = () => {
         const emptyFields = Object.entries(obj).filter(([key, value]) => value === null || value === "");
         return [emptyFields.length > 1, emptyFields.map(([key]) => key)];
     };
 
-    const handleChange = (e, setter, obj) => {
+    //essa funcao atualiza o estado de qualquer campo, quando ele tem seu valor alterado no input
+    const handleChange = () => {
         const { name, value } = e.target;
-        const index = emptyFields.indexOf(name);
-        index > -1 && emptyFields.splice(index, 1);
-        setter({
+        objSetter({
             ...obj,
             [name]: value,
         });
         e.target.classList.remove('campo-vazio');
     };
 
+
+    //essa funcao verifica os casos de invalidez, e se algum deles for verdadeiro,
+    //chama a funcao checkDados para levantar um modal avisando o problema
     const validaDados = () => {
         const [isEmpty, camposVazios] = isFormVazio(obj);
         if (isEmpty) {
@@ -84,12 +100,14 @@ const textareas = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     camposRef.current[campo].classList.add('campo-vazio');
                 }
             });
-            setEmptyFields(camposVazios);
-            checkDados('textareasVazios');
+            checkDados('inputsVazios');
             return true;
         }
     }
 
+
+    //essa funcao se responsabiliza por executar o handleSubmit de acordo
+    //com o tipo de funcao recebida, executando apenas se os dados sao validos
     const handleSubmit = async (e) => {
         const isInvalido = validaDados();
         if (funcao.funcao1) {
@@ -236,4 +254,4 @@ const textareas = ({ obj, objSetter, tipo, funcao, checkDados }) => {
     )
 }
 
-export default textareas;
+export default Inputs;

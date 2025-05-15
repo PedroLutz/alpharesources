@@ -12,8 +12,6 @@ export const AuthProvider = ({ children }) => {
     setAutenticado(true);
     
     const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString('utf-8'));
-    console.log('token:', token);
-    console.log('payload:', payload);
     setIsAdmin(payload.admin);
   } else {
     setAutenticado(false);

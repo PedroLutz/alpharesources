@@ -27,8 +27,9 @@ const WBS = () => {
   const [novoSubmit, setNovoSubmit] = useState(camposVazios);
   const [submitEmArea, setSubmitEmArea] = useState(camposVazios);
   const [novosDados, setNovosDados] = useState(camposVazios);
-  const {isAdmin} = useContext(AuthContext)
+  const { isAdmin } = useContext(AuthContext)
 
+  //essa funcao chama a funcao handleSubmit(), enviando a rota e os dados antes de forcar um reload e limpar o formulario
   const enviar = async (e) => {
     e.preventDefault();
     handleSubmit({
@@ -39,6 +40,9 @@ const WBS = () => {
     cleanForm(novoSubmit, setNovoSubmit, camposVazios);
   };
 
+
+  //essa funcao chama a funcao handleSubmit(), enviando a rota e os dados antes de forcar um reload e limpar o formulario
+  //const item serve só para facilitar a legibilidade. o valor à direita refere-se simplesmente ao item a ser armazenado.
   const enviarEmArea = async (e, area) => {
     e.preventDefault();
     const item = submitEmArea[`novo${area}`]?.item;
@@ -53,29 +57,30 @@ const WBS = () => {
     cleanForm(novoSubmit, setNovoSubmit, camposVazios);
   }
 
-  const handleUpdateClick = (item) => {
-    console.log(item)
-    setConfirmUpdateItem(item);
-    if (typeof (item) === 'object') {
-      if (!item.cor) {
-        setNovosDados({
-          item: item.item,
-          area: item.area
-        });
-      } else {
-        setNovosDados({
-          cor: item.cor,
-          area: item.area
-        })
-      }
-    } else {
+
+  //essa funcao recebe um objeto obj e insere dados em novosDados de acordo com o tipo de obj
+  const handleUpdateClick = (obj) => {
+    setConfirmUpdateItem(obj);
+    if (obj.tipo === 'area') {
       setNovosDados({
-        area: item,
-        oldArea: item
+        area: obj.area,
+        oldArea: obj.area
+      })
+    } else if (obj.tipo === 'item') {
+      setNovosDados({
+        item: obj.item,
+        area: obj.area
+      });
+    } else if (obj.tipo === 'cor') {
+      setNovosDados({
+        cor: obj.cor,
+        area: obj.area
       })
     }
   };
 
+
+  //essa funcao le os elementos no banco de dados, os agrupa por area em uma array e os coloca no state elementos
   const fetchElementos = async () => {
     try {
       const data = await fetchData('wbs/get/all');
@@ -93,6 +98,7 @@ const WBS = () => {
     }
   };
 
+  //essa funcao le as cores no banco de dados, armazenando-a no state cores
   const fetchCores = async () => {
     const data = await fetchData('wbs/get/cores');
     var cores = {};
@@ -102,15 +108,22 @@ const WBS = () => {
     setCores(cores);
   }
 
+
+  //a funcao abaixo recebe um tipo de aviso, e exibe esse aviso no modal
+  //os tipos de avisos estao no obj modalLabels abaixo dela
   const checkDados = (tipo) => {
     setExibirModal(tipo); return;
   };
+
   const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',
     'elementoUsado': 'This WBS item is used somewhere else!',
-    'nomeRepetido' : 'This name is already used in another item!'
+    'nomeRepetido': 'This name is already used in another item!'
   };
 
+
+  //a funcao recebe um item e chama a rota api para pesquisar se esse item
+  //esta sendo usado em alguma outra area do sistema, retornando true ou false
   const checkIfUsed = async (item) => {
     var found;
     await fetch(`/api/wbs/get/isItemUsed?nome=${String(item.item)}`, {
@@ -124,6 +137,9 @@ const WBS = () => {
     return found;
   }
 
+
+  //a funcao chama checkIfUsed, avisando o usuario caso seja true,
+  //e deletando o item caso seja false, chamando a funcao handleDelete para isso
   const handleConfirmDelete = async () => {
     const isUsed = await checkIfUsed(confirmDeleteItem);
     if (isUsed) {
@@ -140,64 +156,76 @@ const WBS = () => {
     }
     setConfirmDeleteItem(null);
   };
+
+
+  //esse useEffect é executado apenas na primeira vez q o codigo roda
   useEffect(() => {
     fetchElementos();
     fetchCores();
   }, []);
 
+
+  //essa funcao verifica se existe algum elemento com o mesmo nome do obj q recebe
   const isNameUsed = (obj) => {
     return elementos.some(objeto => objeto.item === obj.item);
   }
 
-  const handleUpdateCor = async () => {
-    if(confirmUpdateItem){
-      setReload(true);
-        linhaVisivel === confirmUpdateItem ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem);
-        try {
-          const response = await fetch(`/api/wbs/update/cor`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(novosDados),
-          });
 
-          if (response.status === 200) {
-            return;
-          } else {
-            console.error(`Erro ao atualizar cor`);
-          }
-        } catch (error) {
-          console.error(`Erro ao atualizar cor, ${error}`);
+  //essa funcao realiza o update da cor acessando a rota API adequada
+  const handleUpdateCor = async () => {
+    if (confirmUpdateItem) {
+      setReload(true);
+      linhaVisivel === confirmUpdateItem ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem);
+      try {
+        const response = await fetch(`/api/wbs/update/cor`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(novosDados),
+        });
+
+        if (response.status === 200) {
+          return;
+        } else {
+          console.error(`Erro ao atualizar cor`);
         }
+      } catch (error) {
+        console.error(`Erro ao atualizar cor, ${error}`);
+      }
     }
   }
 
+
+  // essa funcao atualiza um item especifico (se confirmUpdateItem.tipo for "item")
+  // ou uma area inteira (se for "area"). antes de fazer de fato o update,
+  // realiza um tratamento de dados para garantir que o objeto enviado tenha
+  // apenas os campos que existem no modelo. para fazer o update, chama handleUpdate()
   const handleUpdateItem = async () => {
     if (confirmUpdateItem) {
-      if (typeof (confirmUpdateItem) == 'object') {
-          setLoading(true);
-          const updatedItem = { ...confirmUpdateItem, ...novosDados };
-          const updatedElementos = elementos.map(item =>
-            item._id === updatedItem._id ? { ...updatedItem } : item
-          );
-
-          setElementos(updatedElementos);
-          setConfirmUpdateItem(null);
-          linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-          try {
-            await handleUpdate({
-              route: 'wbs/update/item?id',
-              dados: updatedItem,
-              item: confirmUpdateItem
-            });
-          } catch (error) {
-            setElementos(elementos);
-            setConfirmUpdateItem(confirmUpdateItem);
-            console.error("Update failed:", error);
-          }
-          setReload(true);
-          setLoading(false);
+      if (confirmUpdateItem.tipo === 'item') {
+        delete confirmUpdateItem.tipo;
+        setLoading(true);
+        const updatedItem = { ...confirmUpdateItem, ...novosDados };
+        const updatedElementos = elementos.map(item =>
+          item._id === updatedItem._id ? { ...updatedItem } : item
+        );
+        setElementos(updatedElementos);
+        setConfirmUpdateItem(null);
+        linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
+        try {
+          await handleUpdate({
+            route: 'wbs/update/item?id',
+            dados: updatedItem,
+            item: confirmUpdateItem
+          });
+        } catch (error) {
+          setElementos(elementos);
+          setConfirmUpdateItem(confirmUpdateItem);
+          console.error("Update failed:", error);
+        }
+        setReload(true);
+        setLoading(false);
       } else {
         setReload(true);
         linhaVisivel === confirmUpdateItem ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem);
@@ -222,12 +250,18 @@ const WBS = () => {
     }
   };
 
+
+  //esse useEffect só executa quando reload é true.
   useEffect(() => {
-    setReload(false);
-    fetchElementos();
-    fetchCores();
+    if (reload) {
+      setReload(false);
+      fetchElementos();
+      fetchCores();
+    }
   }, [reload]);
 
+
+  //essa funcao quebra em linhas o grafico da WBS
   const renderWBS = () => {
     const areasPorLinha = 4;
     const gruposDeAreas = Object.keys(elementosPorArea).reduce((grupos, area, index) => {
@@ -252,6 +286,7 @@ const WBS = () => {
 
     return (
       <div>
+
         {gruposDeAreas.length === 0 && (
           <BlocoInputs
             tipo='cadastroArea'
@@ -261,8 +296,10 @@ const WBS = () => {
             checkDados={checkDados}
           />
         )}
+
         {gruposDeAreas.map((grupo, index) => (
           <div className={styles.wbsContainer} key={index}>
+
             {(index == 0 && verOpcoes) &&
               <BlocoInputs
                 tipo='cadastroArea'
@@ -271,9 +308,12 @@ const WBS = () => {
                 funcao={enviar}
                 checkDados={checkDados}
                 isNameUsed={isNameUsed}
-              />}
+              />
+            }
+
             {grupo.map(({ area, elementos }) => (
               <div className={styles.wbsArea} key={area} style={{ backgroundColor: cores[area] }}>
+
                 {verOpcoes ? (
                   <React.Fragment>
                     {linhaVisivel === area ? (
@@ -294,7 +334,7 @@ const WBS = () => {
                           <h3>{area}</h3>
                           <button
                             onClick={() => {
-                              handleUpdateClick(area); setLinhaVisivel(area);
+                              handleUpdateClick({ area: area, tipo: 'area' }); setLinhaVisivel(area);
                             }} disabled={!isAdmin}>⚙️</button>
                         </div>
                       </React.Fragment>
@@ -316,7 +356,7 @@ const WBS = () => {
                         Change color
                         <button
                           onClick={() => {
-                            handleUpdateClick({ area: area, cor: cores[area] ? cores[area] : '' }); setLinhaVisivel(`${area}Cor`);
+                            handleUpdateClick({ area: area, cor: cores[area] ? cores[area] : '', tipo: 'cor' }); setLinhaVisivel(`${area}Cor`);
                           }} disabled={!isAdmin}>⚙️</button>
                       </div>
                     )}
@@ -324,6 +364,7 @@ const WBS = () => {
                 ) : (
                   <h3>{area}</h3>
                 )}
+
                 <div className={styles.wbsItems}>
                   {elementos
                     .sort((a, b) => a.codigo - b.codigo)
@@ -350,7 +391,7 @@ const WBS = () => {
                             ) : (
                               <React.Fragment>
                                 {item.item}
-                                <button onClick={() => { handleUpdateClick(item); setLinhaVisivel(item); }} disabled={!isAdmin}>⚙️</button>
+                                <button onClick={() => { handleUpdateClick({ ...item, tipo: 'item' }); setLinhaVisivel(item); }} disabled={!isAdmin}>⚙️</button>
                                 <button onClick={() => setConfirmDeleteItem(item)} disabled={!isAdmin}>❌</button>
                               </React.Fragment>
                             )}
@@ -375,6 +416,7 @@ const WBS = () => {
                     </React.Fragment>
                   }
                 </div>
+
               </div>
             ))}
           </div>
