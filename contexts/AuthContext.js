@@ -7,14 +7,18 @@ export const AuthProvider = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    const adminStatus = sessionStorage.getItem("isAdmin");
-    if(adminStatus === 'true'){
-      setIsAdmin(true);
-    }
-    if(adminStatus === 'false'){
-      setIsAdmin(false);
-    }
-  }, []);
+  const token = localStorage.getItem('token');
+  if (token) {
+    setAutenticado(true);
+    
+    const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString('utf-8'));
+    console.log('token:', token);
+    console.log('payload:', payload);
+    setIsAdmin(payload.admin);
+  } else {
+    setAutenticado(false);
+  }
+}, []);
 
   return (
     <AuthContext.Provider value={{ autenticado, setAutenticado, isAdmin, setIsAdmin }}>

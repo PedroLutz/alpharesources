@@ -1,112 +1,123 @@
-import { useState, useEffect, useContext} from "react";
+import { useState, useEffect, useContext } from "react";
 import styles from '../styles/modules/login.module.css'
 import { AuthContext } from "../contexts/AuthContext";
 import Loading from "./Loading";
 
-const {modal_login, gradient_text, input_login} = styles;
+const { modal_login, gradient_text, input_login } = styles;
 
 const FormularioLogin = () => {
-    const {autenticado, setAutenticado, setIsAdmin} = useContext(AuthContext);
-    const [loading, setLoading] = useState(false);
-    const [usuario, setUsuario] = useState("");
-    const [senha, setSenha] = useState("");
-    const [alert, setAlert] = useState(null);
+  const { autenticado, setAutenticado, setIsAdmin } = useContext(AuthContext);
+  const [loading, setLoading] = useState(false);
+  const [usuario, setUsuario] = useState("");
+  const [senha, setSenha] = useState("");
+  const [alert, setAlert] = useState(null);
 
-    const queryPorNome = async () => {
-      try {
-        const response = await fetch(`/api/users/getByUser?user=${usuario}`, {
-          method: 'GET',
-        });
-  
-        if (response.status === 200) {
-          const data = await response.json();
-          if(data.usuario[0] === undefined){
-            setAlert('user');
-            return false;
-          }
-          return data.usuario[0];
-        } else {
-          console.error('Error in searching for timeline data');
+  const queryPorNome = async () => {
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        body: JSON.stringify({ usuario, senha }),
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      if (response.status === 200) {
+        const data = await response.json();
+        if (!data.achou) {
+          setAlert('user');
+          setLoading(false);
           return false;
         }
-      } catch (error) {
-        console.error('Error in searching for financal releases data', error);
+        if (!data.acertou) {
+          setAlert('senha');
+          setLoading(false);
+          return false;
+        }
+        return data.token
+      } else {
+        console.error('Error in searching for timeline data');
         return false;
       }
+    } catch (error) {
+      console.error('Error in searching for financal releases data', error);
+      return false;
+    }
+  }
+
+
+  useEffect(() => {
+    const autenticadoString = sessionStorage.getItem('tempoDeSessao');
+
+    if (autenticadoString) {
+      const autenticadoData = new Date(autenticadoString);
+      const agora = new Date();
+
+      if (autenticadoData > agora) {
+        setAutenticado(true);
+      } else {
+        setAutenticado(false);
+      }
+    } else {
+      setAutenticado(false);
     }
 
-  
-    useEffect(() => {
-      const autenticadoString = sessionStorage.getItem('tempoDeSessao');
-      
-      if (autenticadoString) {
-          const autenticadoData = new Date(autenticadoString);
-          const agora = new Date();
-
-          if (autenticadoData > agora) {
-              setAutenticado(true);
-          } else {
-              setAutenticado(false);
-          }
-      } else {
-          setAutenticado(false);
-      }
   }, []);
 
-    const validarCampos = async (userData) => {
-      if(usuario === '' || senha === '' ){
-        setAlert('campos');
-        setLoading(false);
-        return;
-      }
-      if(senha !== userData.senha){
-        setAlert('senha');
-        setLoading(false);
-        return;
-      }
+  const validarCampos = async () => {
+    if (usuario === '' || senha === '') {
+      setAlert('campos');
+      setLoading(false);
+      return false;
     }
-  
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-      setLoading(true);
-      const userData = await queryPorNome();
-      if(userData !== false){
-        setLoading(false);
-        setAlert(null);
-        await validarCampos(userData);
-        if (senha === userData.senha && usuario === userData.usuario.trim()) {
-          var d = new Date();
-          d.setMinutes(d.getMinutes() + 60);
-          sessionStorage.setItem('tempoDeSessao', d.toString());
-          sessionStorage.setItem('isAdmin', userData.admin)
-    
-          setAutenticado(true);
-          setIsAdmin(userData.admin);
-        };
-      }
-      
-      
-    };
-  
-    return (
-      <div>
-        {loading && <Loading/>}
-        
-<form onSubmit={handleSubmit}>
-        <div className="centered-container" style={{height: '100vh'}}>
+    return true;
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validarCampos()) {
+      return;
+    }
+    setLoading(true);
+    const token = await queryPorNome();
+    console.log('token:', token);
+    if (token !== false) {
+      setLoading(false);
+      setAlert(null);
+
+      localStorage.setItem('token', token);
+
+      const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString('utf-8'));
+      console.log('payload:', payload);
+
+      var d = new Date();
+      d.setMinutes(d.getMinutes() + 60);
+      sessionStorage.setItem('tempoDeSessao', d.toString());
+
+      setAutenticado(true);
+      setIsAdmin(payload.admin);
+    }
+
+
+  };
+
+  return (
+    <div>
+      {loading && <Loading />}
+
+      <form onSubmit={handleSubmit}>
+        <div className="centered-container" style={{ height: '100vh' }}>
           <div className={modal_login}>
             <div>
-              <img src={'/images/logo.png'} alt="Logo" style={{width: '150px'}}/>
-              <b className={gradient_text} style={{fontSize: '20px', marginBottom: '1rem'}}>Alpha Management</b>
+              <img src={'/images/logo.png'} alt="Logo" style={{ width: '150px' }} />
+              <b className={gradient_text} style={{ fontSize: '20px', marginBottom: '1rem' }}>Alpha Management</b>
             </div>
             <div className={input_login}>
               <div>
-                <input type="text" placeholder="Username" value={usuario} onChange={(e) => setUsuario(e.target.value)}/>
-                
+                <input type="text" placeholder="Username" value={usuario} onChange={(e) => setUsuario(e.target.value)} />
+
               </div>
               <div>
                 <input type="password" placeholder="Password" value={senha} onChange={(e) => setSenha(e.target.value)} />
-                
+
               </div>
             </div>
             <div className={input_login}>
@@ -120,9 +131,9 @@ const FormularioLogin = () => {
           </div>
         </div>
       </form>
-      </div>
-      
-    );
-  };
+    </div>
 
-  export default FormularioLogin;
+  );
+};
+
+export default FormularioLogin;
