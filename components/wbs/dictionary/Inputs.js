@@ -66,7 +66,7 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
         setItensPorArea(itensDaArea);
         objSetter({
             ...obj,
-            area: value,
+            area: areaSelecionada,
         });
     };
 
@@ -78,7 +78,7 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
     };
 
     //essa funcao atualiza o estado de qualquer campo, quando ele tem seu valor alterado no input
-    const handleChange = () => {
+    const handleChange = (e) => {
         const { name, value } = e.target;
         objSetter({
             ...obj,
