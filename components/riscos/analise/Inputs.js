@@ -57,7 +57,7 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     const handleChange = (e, isNumber) => {
         var { name, value } = e.target;
         if(isNumber){
-            value = value.replace(/[^0-9.]/g, '');
+            value = value.replace(/[^0-9]/g, '');
         }
         objSetter({
             ...obj,

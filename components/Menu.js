@@ -45,7 +45,7 @@ const { setTitulo } = useContext(TituloContext);
             </span>
             {/*Item finanças*/}
             <span style={{fontSize: '0.9rem'}}>
-                <Link href="/pages/finances/table">
+                <Link href="/pages/finances/finances/table">
                     <img src={'/images/finance_logo.png'} alt="Planning Logo" className={logoItem}/>
                     Budget & Resource Management
                 </Link>

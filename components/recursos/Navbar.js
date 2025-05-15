@@ -20,7 +20,7 @@ const Navbar = () => {
 
   return (
     <nav className={styles.nav} style={{ color: 'white' }}>
-      <h2><Link href="/pages/finances/table">Alpha Management/Budget & Resources</Link></h2>
+      <h2><Link href="/pages/finances/finances/table">Alpha Management/Budget & Resources</Link></h2>
       <img src={'/images/logo.png'} alt="Logo" />
       <ul>
         <li>
@@ -28,8 +28,9 @@ const Navbar = () => {
             <a onMouseOver={toggleDropdown}>Monitoring</a>
             {isDropdownOpen && (
               <div className={styles.dropdownContent}>
-                <Link href="/pages/finances/table">Cash flow</Link>
-                <Link href="/pages/finances/report">Report</Link>
+                <Link href="/pages/finances/finances/table">Cash flow</Link>
+                <Link href="/pages/finances/costBenefit/table">Cost-Benefit Analysis</Link>
+                <Link href="/pages/finances/finances/report">Report</Link>
               </div>
             )}
           </div>

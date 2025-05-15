@@ -1,6 +1,6 @@
 import React from 'react';
-import Resumo from '../../../components/recursos/financas/Resumo';
-import Navbar from '../../../components/recursos/Navbar';
+import Resumo from '../../../../components/recursos/financas/Resumo';
+import Navbar from '../../../../components/recursos/Navbar';
 
 
 function ResumoPage() {

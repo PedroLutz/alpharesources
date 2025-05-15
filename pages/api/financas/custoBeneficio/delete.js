@@ -1,5 +1,5 @@
-import connectToDatabase from '../../../lib/db';
-import CustoBeneficioModel from '../../../models/financas/CustoBeneficio';
+import connectToDatabase from '../../../../lib/db';
+import CustoBeneficioModel from '../../../../models/financas/CustoBeneficio';
 
 const { CustoBeneficio } = CustoBeneficioModel;
 

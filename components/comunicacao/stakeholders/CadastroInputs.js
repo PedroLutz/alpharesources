@@ -61,14 +61,12 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     };
 
     const isFormVazio = (form) => {
-        console.log(form);
         const emptyFields = Object.entries(form).filter(([key, value]) => value === null || value === "");
         return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
     };
 
     const validaDados = () => {
         const [isEmpty, camposVazios] = isFormVazio(obj);
-        console.log(isEmpty)
         if (isEmpty) {
             camposVazios.forEach(campo => {
                 if (camposRef.current[campo]) {

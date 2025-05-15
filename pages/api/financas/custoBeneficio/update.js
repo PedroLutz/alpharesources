@@ -1,5 +1,5 @@
-import connectToDatabase from '../../../lib/db';
-import CustoBeneficioModel from '../../../models/financas/CustoBeneficio';
+import connectToDatabase from '../../../../lib/db';
+import CustoBeneficioModel from '../../../../models/financas/CustoBeneficio';
 
 const { CustoBeneficio, CustoBeneficioSchema } = CustoBeneficioModel;
 
@@ -13,6 +13,8 @@ export default async (req, res) => {
       if (!id) {
         return res.status(400).json({ error: 'O ID do CustoBeneficio é obrigatório para a atualização.' });
       }
+
+      console.log(req.body);
 
       const propriedadesNomes = Object.keys(CustoBeneficioSchema.paths);
       const updateFields = {};
