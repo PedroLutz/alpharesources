@@ -68,8 +68,6 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
             ...obj,
             area: value,
         });
-
-        handleChange(e, objSetter, obj);
     };
 
     //essa funcao verifica quais entradas do obj estao vazias,
@@ -138,7 +136,7 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                 <select
                     value={obj.item}
                     name='item'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    onChange={handleChange}
                     ref={el => (camposRef.current.item = el)}
 
                 >
@@ -154,7 +152,7 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     value={obj.descricao}
                     name='descricao'
                     placeholder='Description'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    onChange={handleChange}
                     min="0"
                     ref={el => (camposRef.current.descricao = el)} 
                     />
@@ -164,7 +162,7 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     value={obj.proposito}
                     name='proposito'
                     placeholder='Purpose'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    onChange={handleChange}
                     min="0"
                     ref={el => (camposRef.current.proposito = el)} />
             </td>
@@ -173,7 +171,7 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     value={obj.premissas}
                     name='premissas'
                     placeholder='Premises'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    onChange={handleChange}
                     min="0"
                     ref={el => (camposRef.current.premissas = el)} />
             </td>
@@ -182,7 +180,7 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     value={obj.restricoes}
                     name='restricoes'
                     placeholder='Restrictions'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    onChange={handleChange}
                     min="0"
                     ref={el => (camposRef.current.restricoes = el)} />
             </td>
@@ -191,7 +189,7 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     value={obj.recursos}
                     name='recursos'
                     placeholder='Expected Resources'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    onChange={handleChange}
                     min="0"
                     ref={el => (camposRef.current.recursos = el)} />
             </td>
@@ -200,7 +198,7 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     value={obj.criterio}
                     name='criterio'
                     placeholder='Acceptance criteria'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    onChange={handleChange}
                     min="0"
                     ref={el => (camposRef.current.criterio = el)} />
             </td>
@@ -210,7 +208,7 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     value={obj.verificacao}
                     name='verificacao'
                     placeholder='Verification'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    onChange={handleChange}
                     ref={el => (camposRef.current.verificacao = el)} />
             </td>
             <td className={styles.td_timing}>
@@ -219,7 +217,7 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     value={obj.timing}
                     name='timing'
                     placeholder='Timing'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    onChange={handleChange}
                     ref={el => (camposRef.current.timing = el)} />
             </td>
             <td className={styles.td_responsavel}>
@@ -228,7 +226,7 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     value={obj.responsavel}
                     name='responsavel'
                     placeholder='Responsible'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    onChange={handleChange}
                     ref={el => (camposRef.current.responsavel = el)} />
             </td>
             <td className={styles.td_responsavel_aprovacao}>
@@ -237,7 +235,7 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     value={obj.responsavel_aprovacao}
                     name='responsavel_aprovacao'
                     placeholder='Responsible for Approval'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    onChange={handleChange}
                     ref={el => (camposRef.current.responsavel_aprovacao = el)} />
             </td>
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>

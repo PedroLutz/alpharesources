@@ -125,13 +125,13 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area, isNameUse
                 <input placeholder="Area"
                     value={obj.area}
                     name='area'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    onChange={handleChange}
                     ref={el => (camposRef.current.area = el)} />
 
                 <input placeholder='Item'
                     value={obj.item}
                     name='item'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    onChange={handleChange}
                     ref={el => (camposRef.current.item = el)} />
 
                 <input
@@ -139,7 +139,7 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area, isNameUse
                     value={obj.cor}
                     name='cor'
                     style={{ width: '11.5rem', backgroundColor: 'transparent' }}
-                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    onChange={handleChange}
                     ref={el => (camposRef.current.cor = el)} />
 
                 <button onClick={(e) => handleSubmit(e)} disabled={!isAdmin}>Add new</button>
@@ -154,7 +154,7 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area, isNameUse
                         value={obj[`novo${area}`]?.item || ''}
                         name='item'
                         data-area={area}
-                        onChange={(e) => handleChange(e, objSetter, obj)}
+                        onChange={handleChange}
                         ref={el => (camposRef.current.item = el)} />
                     <button onClick={(e) => handleSubmit(e)} disabled={!isAdmin}>➕</button>
                 </div>
@@ -167,7 +167,7 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area, isNameUse
                 <div className={styles.editItem}>
                     <input value={obj.item}
                         name='item'
-                        onChange={(e) => handleChange(e, objSetter, obj)}
+                        onChange={handleChange}
                         ref={el => (camposRef.current.item = el)} />
 
                     <button onClick={handleSubmit}>✔️</button>
@@ -183,7 +183,7 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area, isNameUse
                 <div className={styles.editArea}>
                     <input value={obj.area}
                         name='area'
-                        onChange={(e) => handleChange(e, objSetter, obj)}
+                        onChange={handleChange}
                         ref={el => (camposRef.current.area = el)} />
                     <button onClick={handleSubmit}>✔️</button>
                     <button onClick={funcao.funcao2}>✖️</button>
