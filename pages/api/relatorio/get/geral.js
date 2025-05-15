@@ -1,7 +1,7 @@
 import connectToDatabase from '../../../../lib/db';
 import GanttModel from '../../../../models/Gantt';
 import RiscoModel from '../../../../models/riscos/Risco';
-import LancamentoModel from '../../../../models/LancamentoFinanceiro';
+import LancamentoModel from '../../../../models/financas/LancamentoFinanceiro';
 
 const { Gantt } = GanttModel;
 const { Risco } = RiscoModel;

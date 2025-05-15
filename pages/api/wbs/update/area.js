@@ -1,16 +1,16 @@
 import connectToDatabase from '../../../../lib/db';
 import WbsModel from '../../../../models/wbs/wbs';
 import WbsDictionaryModel from '../../../../models/wbs/wbsDictionary'
-import PlanoModel from '../../../../models/financeiro/Plano'
+import PlanoAquisicaoModel from '../../../../models/recursos/PlanoAquisicao';
 import RecursoModel from '../../../../models/recursos/Recurso'
 import RaciModel from '../../../../models/responsabilidade/Raci'
 import GanttModel from '../../../../models/Gantt'
-import LancamentoModel from '../../../../models/LancamentoFinanceiro'
+import LancamentoModel from '../../../../models/financas/LancamentoFinanceiro'
 import RiscoModel from '../../../../models/riscos/Risco';
 import mongoose from 'mongoose';
 
 const { Wbs } = WbsModel;
-const { Plano } = PlanoModel;
+const { PlanoAquisicao } = PlanoAquisicaoModel;
 const { Raci } = RaciModel;
 const { Gantt } = GanttModel;
 const { Recurso } = RecursoModel;
@@ -35,7 +35,7 @@ export default async (req, res) => {
         return res.status(404).json({ error: 'WBS não encontrado.' });
       }
 
-      await Plano.updateMany(
+      await PlanoAquisicao.updateMany(
         { area: oldArea }, { $set: { area: area } }
       );
       await Recurso.updateMany(

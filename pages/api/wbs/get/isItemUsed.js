@@ -1,10 +1,10 @@
 import connectToDatabase from '../../../../lib/db';
-import PlanoModel from '../../../../models/financeiro/Plano';
+import PlanoAquisicaoModel from '../../../../models/recursos/PlanoAquisicao';
 import RaciModel from '../../../../models/responsabilidade/Raci'
 import GanttModel from '../../../../models/Gantt';
 
 const { Raci } = RaciModel;
-const { Plano } = PlanoModel;
+const { PlanoAquisicao } = PlanoAquisicaoModel;
 const { Gantt } = GanttModel;
 
 export default async (req, res) => {
@@ -13,7 +13,7 @@ export default async (req, res) => {
 
         if (req.method === 'POST') {
             const {area, item} = req.body;
-            const plano = await Plano.findOne({ area: area, item: item });
+            const plano = await PlanoAquisicao.findOne({ area: area, item: item });
             const elementoWBS = await Raci.findOne({ area: area, item: item });
             const gantt = await Gantt.findOne({ area: area, item: item });
 

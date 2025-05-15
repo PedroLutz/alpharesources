@@ -1,6 +1,6 @@
 import connectToDatabase from '../../../../lib/db';
 import WbsModel from '../../../../models/wbs/wbs';
-import PlanoModel from '../../../../models/financeiro/Plano'
+import PlanoAquisicaoModel from '../../../../models/recursos/PlanoAquisicao'
 import RaciModel from '../../../../models/responsabilidade/Raci'
 import GanttModel from '../../../../models/Gantt'
 import RecursoModel from '../../../../models/recursos/Recurso';
@@ -8,7 +8,7 @@ import RiscoModel from '../../../../models/riscos/Risco';
 import WbsDictionaryModel from '../../../../models/wbs/wbsDictionary'
 
 const { Wbs, WbsSchema } = WbsModel;
-const { Plano } = PlanoModel;
+const { PlanoAquisicao } = PlanoAquisicaoModel;
 const { Raci } = RaciModel;
 const { Gantt } = GanttModel;
 const { Recurso } = RecursoModel;
@@ -45,7 +45,7 @@ export default async (req, res) => {
       const oldWBS = await Wbs.findById(id);
 
       const updatedWBS = await Wbs.findByIdAndUpdate(id, updateFields, { new: true });
-      const updatedPlano = await Plano.updateMany(
+      const updatedPlanoAquisicao = await PlanoAquisicao.updateMany(
         { area: oldWBS.area, item: oldWBS.item }, { $set: { item: updateFields.item } }
       );
       const updatedGantt = await Gantt.updateMany(
