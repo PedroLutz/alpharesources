@@ -9,23 +9,22 @@ import { AuthContext } from "../../../contexts/AuthContext";
 
 const Tabela = () => {
     const camposVazios = {
-        name: "",
-        involvement: "",
-        influence: "",
-        power: "",
-        interest: "",
-        expectations: "",
-        requisites: "",
-        information: "",
-        method: "",
-        tools: "",
-        responsible: ""
+        grupo: '',
+  envolvimento: '',
+  influencia: '',
+  impacto: '',
+  poder: '',
+  interesse: '',
+  expectativas: '',
+  requisitos: '',
+  engajamento_positivo: '',
+  engajamento_negativo: ''
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
     const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
-    const [stakeholders, setStakeholders] = useState([]);
+    const [stakeholderGroups, setStakeholderGroups] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [reload, setReload] = useState(false);
@@ -35,7 +34,7 @@ const Tabela = () => {
     const enviar = async (e) => {
         e.preventDefault();
         handleSubmit({
-            route: 'stakeholders',
+            route: 'comunicacao/stakeholderGroups',
             dados: novoSubmit
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
@@ -54,21 +53,21 @@ const Tabela = () => {
             setLoading(true);
             const updatedItem = { ...confirmUpdateItem, ...novosDados };
 
-            const updatedStakeholders = stakeholders.map(item =>
+            const updatedStakeholders = stakeholderGroups.map(item =>
                 item._id === updatedItem._id ? { ...updatedItem } : item
             );
-            setStakeholders(updatedStakeholders);
+            setStakeholderGroups(updatedStakeholders);
             setConfirmUpdateItem(null)
             linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
             setReload(true);
             try {
                 await handleUpdate({
-                    route: 'stakeholders',
+                    route: 'comunicacao/stakeholderGroups/update?id',
                     dados: updatedItem,
                     item: confirmUpdateItem
                 });
             } catch (error) {
-                setStakeholders(stakeholders);
+                setStakeholderGroups(stakeholderGroups);
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
@@ -81,7 +80,7 @@ const Tabela = () => {
             var getDeleteSuccess = false;
             try {
                 getDeleteSuccess = handleDelete({
-                    route: 'stakeholders',
+                    route: 'comunicacao/stakeholderGroups',
                     item: confirmDeleteItem,
                     fetchDados: fetchStakeholders
                 });
@@ -99,8 +98,8 @@ const Tabela = () => {
 
     const fetchStakeholders = async () => {
         try {
-            const data = await fetchData('stakeholders/get/all');
-            setStakeholders(data.stakeholders);
+            const data = await fetchData('comunicacao/stakeholderGroups/get/all');
+            setStakeholderGroups(data.stakeholderGroups);
         } finally {
             setLoading(false);
         }
@@ -151,7 +150,7 @@ const Tabela = () => {
 
             {confirmDeleteItem && (
                 <Modal objeto={{
-                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.name}"?`,
+                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.grupo}"?`,
                     alerta: true,
                     botao1: {
                         funcao: handleConfirmDelete, texto: 'Confirm'
@@ -169,8 +168,7 @@ const Tabela = () => {
                             <tr>
                                 <th colSpan="6">Basic info</th>
                                 <th colSpan="2">Needs</th>
-                                <th colSpan="3">Strategy</th>
-                                <th rowSpan="2">Responsible</th>
+                                <th colSpan="2">Engagement</th>
                                 <th rowSpan="2">Actions</th>
                                 
                             </tr>
@@ -178,64 +176,45 @@ const Tabela = () => {
                                 <th>Stakeholder</th>
                                 <th>Involvement</th>
                                 <th>Potential Influence</th>
+                                <th>Potential Impact</th>
                                 <th>Power</th>
                                 <th>Interest</th>
-                                <th>Mapping</th>
                                 <th>Expectations</th>
                                 <th>Requisites</th>
-                                <th>Information communicated</th>
-                                <th>Method</th>
-                                <th>Communication tools</th>
+                                <th>Positive</th>
+                                <th>Negative</th>
                             </tr>
                         </thead>
                         <tbody>
                             
-                            {stakeholders.map((stakeholder, index) => (
+                            {stakeholderGroups.map((stakeholderGroup, index) => (
                                 <React.Fragment key={index}>
-                                    {linhaVisivel === stakeholder._id ? (
+                                    {linhaVisivel === stakeholderGroup._id ? (
                                         <CadastroInputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
                                             funcao={{
                                                 funcao1: () => handleUpdateItem(),
-                                                funcao2: () => linhaVisivel === stakeholder._id ? setLinhaVisivel() : setLinhaVisivel(stakeholder._id)
+                                                funcao2: () => linhaVisivel === stakeholderGroup._id ? setLinhaVisivel() : setLinhaVisivel(stakeholderGroup._id)
                                             }}
                                             checkDados={checkDados}
                                         />
                                     ) : (
                                         <tr>
-                                            <td>{stakeholder.name}</td>
-                                            <td>{stakeholder.involvement}</td>
-                                            <td>{stakeholder.influence}</td>
-                                            <td
-                                                style={{
-                                                    backgroundColor: stakeholder.power ? '#ffcdcd' : '#daffcd'
-                                                }}
-                                            >{stakeholder.power ? 'High' : 'Low'}</td>
-                                            <td
-                                                style={{
-                                                    backgroundColor: stakeholder.interest ? '#ffcdcd' : '#daffcd'
-                                                }}
-                                            >{stakeholder.interest ? 'High' : 'Low'}</td>
-                                            <td
-                                                style={{
-                                                    backgroundColor: (stakeholder.power && stakeholder.interest) ? '#ffcdcd' : (
-                                                        (stakeholder.power && !stakeholder.interest) ? '#cddeff' : (
-                                                            (!stakeholder.power && stakeholder.interest) ? '#daffcd' : '#ffffcd'
-                                                        )
-                                                    )
-                                                }}
-                                            >{generateMapping(stakeholder.power, stakeholder.interest)}</td>
-                                            <td>{stakeholder.expectations}</td>
-                                            <td>{stakeholder.requisites}</td>
-                                            <td>{stakeholder.information}</td>
-                                            <td>{stakeholder.method}</td>
-                                            <td>{stakeholder.tools}</td>
-                                            <td>{stakeholder.responsible}</td>
+                                            <td>{stakeholderGroup.grupo}</td>
+                                            <td>{stakeholderGroup.envolvimento}</td>
+                                            <td>{stakeholderGroup.influencia}</td>
+                                            <td>{stakeholderGroup.impacto}</td>
+                                            <td>{stakeholderGroup.poder}</td>
+                                            <td>{stakeholderGroup.interesse}</td>
+                                            <td>{stakeholderGroup.expectativas}</td>
+                                            <td>{stakeholderGroup.requisitos}</td>
+                                            <td>{stakeholderGroup.engajamento_positivo}</td>
+                                            <td>{stakeholderGroup.engajamento_negativo}</td>
                                             <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(stakeholder)} disabled={!isAdmin}>❌</button>
+                                                <button onClick={() => setConfirmDeleteItem(stakeholderGroup)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(stakeholder._id); handleUpdateClick(stakeholder)
+                                                    setLinhaVisivel(stakeholderGroup._id); handleUpdateClick(stakeholderGroup)
                                                 }
                                                 } disabled={!isAdmin}>⚙️</button>
                                             </td>

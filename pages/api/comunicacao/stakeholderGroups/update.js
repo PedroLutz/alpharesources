@@ -1,7 +1,7 @@
-import connectToDatabase from '../../../lib/db';
-import StakeholderModel from '../../../models/comunicacao/Stakeholder';
+import connectToDatabase from '../../../../lib/db';
+import StakeholderGroupModel from '../../../../models/comunicacao/StakeholderGroup';
 
-const { Stakeholder, StakeholderSchema } = StakeholderModel;
+const { StakeholderGroup, StakeholderGroupSchema } = StakeholderGroupModel;
 
 export default async (req, res) => {
   try {
@@ -11,10 +11,10 @@ export default async (req, res) => {
       const { id } = req.query;
 
       if (!id) {
-        return res.status(400).json({ error: 'O ID do Stakeholder é obrigatório para a atualização.' });
+        return res.status(400).json({ error: 'O ID do StakeholderGroup é obrigatório para a atualização.' });
       }
 
-      const propriedadesNomes = Object.keys(StakeholderSchema.paths);
+      const propriedadesNomes = Object.keys(StakeholderGroupSchema.paths);
       const updateFields = {};
       
       for (const key in req.body) {
@@ -31,10 +31,10 @@ export default async (req, res) => {
         return res.status(400).json({ error: 'Pelo menos um campo deve ser fornecido para a atualização.' });
       }
 
-      const updatedData = await Stakeholder.findByIdAndUpdate(id, updateFields, { new: true });
+      const updatedData = await StakeholderGroup.findByIdAndUpdate(id, updateFields, { new: true });
 
       if (!updatedData) {
-        return res.status(404).json({ error: 'Stakeholder não encontrado.' });
+        return res.status(404).json({ error: 'StakeholderGroup não encontrado.' });
       }
 
       return res.status(200).json(updatedData);
@@ -42,7 +42,7 @@ export default async (req, res) => {
       res.status(405).json({ error: 'Método não permitido' });
     }
   } catch (error) {
-    console.error('Erro ao atualizar o Stakeholder', error);
-    res.status(500).json({ error: 'Erro ao atualizar o Stakeholder' });
+    console.error('Erro ao atualizar o StakeholderGroup', error);
+    res.status(500).json({ error: 'Erro ao atualizar o StakeholderGroup' });
   }
 };

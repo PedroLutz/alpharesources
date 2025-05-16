@@ -29,7 +29,7 @@ const Tabela = () => {
     const enviar = async (e) => {
         e.preventDefault();
         handleSubmit({
-            route: 'infoComunicada',
+            route: 'comunicacao/infoComunicada',
             dados: novoSubmit
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
@@ -49,7 +49,7 @@ const Tabela = () => {
             const updatedItem = { _id: item._id, check: checked};
             try{
                 await handleUpdate({
-                    route: 'infoComunicada',
+                    route: 'comunicacao/infoComunicada/update?id',
                     dados: updatedItem,
                     item: item
                 })
@@ -74,7 +74,7 @@ const Tabela = () => {
             setReload(true);
             try {
                 await handleUpdate({
-                    route: 'infoComunicada',
+                    route: 'comunicacao/infoComunicada/update?id',
                     dados: updatedItem,
                     item: confirmUpdateItem
                 });
@@ -92,7 +92,7 @@ const Tabela = () => {
             var getDeleteSuccess = false;
             try {
                 getDeleteSuccess = handleDelete({
-                    route: 'infoComunicada',
+                    route: 'comunicacao/infoComunicada',
                     item: confirmDeleteItem,
                     fetchDados: fetchStakeholders
                 });
@@ -110,7 +110,7 @@ const Tabela = () => {
 
     const fetchStakeholders = async () => {
         try {
-            const data = await fetchData('infoComunicada/get/all');
+            const data = await fetchData('comunicacao/infoComunicada/get/all');
             setInfoComunicada(data.infoComunicada);
         } finally {
             setLoading(false);
@@ -175,7 +175,7 @@ const Tabela = () => {
                     <table className={styles.tabelaComunicacao}>
                         <thead>
                             <tr>
-                                <th>Stakeholder</th>
+                                <th>Stakeholder Group</th>
                                 <th>Information</th>
                                 <th>Timing</th>
                                 <th>Check</th>

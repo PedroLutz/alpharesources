@@ -1,5 +1,5 @@
-import connectToDatabase from '../../../lib/db';
-import InfoComunicadaModel from '../../../models/comunicacao/InfoComunicada';
+import connectToDatabase from '../../../../lib/db';
+import InfoComunicadaModel from '../../../../models/comunicacao/InfoComunicada';
 
 const { InfoComunicada, InfoComunicadaSchema } = InfoComunicadaModel;
 

@@ -7,17 +7,16 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     const [emptyFields, setEmptyFields] = useState([]);
     const [nomesMembros, setNomesMembros] = useState([]);
     const camposRef = useRef({
-        name: null,
-        involvement: null,
-        influence: null,
-        power: null,
-        interest: null,
-        expectations: null,
-        requisites: null,
-        information: null,
-        method: null,
-        tools: null,
-        responsible: null
+        grupo: null,
+        envolvimento: null,
+        influencia: null,
+        impacto: null,
+        poder: null,
+        interesse: null,
+        expectativas: null,
+        requisitos: null,
+        engajamento_positivo: null,
+        engajamento_negativo: null
     })
     const {isAdmin} = useContext(AuthContext);
 
@@ -92,116 +91,94 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         <tr>
             <td>
                 <textarea
-                    name="name"
+                    name="grupo"
                     onChange={handleChange}
-                    value={obj.name}
-                    placeholder="Stakeholder"
-                    ref={el => (camposRef.current.name = el)}
+                    value={obj.grupo}
+                    placeholder="Stakeholder Group"
+                    ref={el => (camposRef.current.grupo = el)}
                 />
             </td>
             <td>
                 <textarea
-                    name="involvement"
+                    name="envolvimento"
                     onChange={handleChange}
-                    value={obj.involvement}
+                    value={obj.envolvimento}
                     placeholder="Involvement"
-                    ref={el => (camposRef.current.involvement = el)}
+                    ref={el => (camposRef.current.envolvimento = el)}
                 />
             </td>
             <td>
                 <textarea
-                    name="influence"
+                    name="influencia"
                     onChange={handleChange}
-                    value={obj.influence}
+                    value={obj.influencia}
                     placeholder="Potencial Influence"
-                    ref={el => (camposRef.current.influence = el)}
+                    ref={el => (camposRef.current.influencia = el)}
                 />
             </td>
             <td>
-                <select
-                    name="power"
+                <textarea
+                    name="impacto"
                     onChange={handleChange}
-                    value={obj.power}
-                    ref={el => (camposRef.current.power = el)}
-                >
-                    <option defaultValue value=''>Power</option>
-                    <option value={true}>High</option>
-                    <option value={false}>Low</option>
-                </select>
-            </td>
-            <td>
-                <select
-                    name="interest"
-                    onChange={handleChange}
-                    value={obj.interest}
-                    ref={el => (camposRef.current.interest = el)}
-                >
-                    <option defaultValue value=''>Interest</option>
-                    <option value={true}>High</option>
-                    <option value={false}>Low</option>
-                </select>
-            </td>
-            <td>
-                {generateMapping(obj.power, obj.interest)}
+                    value={obj.impacto}
+                    placeholder="Potencial Impact"
+                    ref={el => (camposRef.current.impacto = el)}
+                />
             </td>
             <td>
                 <textarea
-                    name="expectations"
+                    name="poder"
                     onChange={handleChange}
-                    value={obj.expectations}
+                    value={obj.poder}
+                    placeholder="Power"
+                    ref={el => (camposRef.current.poder = el)}
+                />
+            </td>
+            <td>
+                <textarea
+                    name="interesse"
+                    onChange={handleChange}
+                    value={obj.interesse}
+                    placeholder="Interest"
+                    ref={el => (camposRef.current.interesse = el)}
+                />
+            </td>
+            <td>
+                <textarea
+                    name="expectativas"
+                    onChange={handleChange}
+                    value={obj.expectativas}
                     placeholder="Expectations"
-                    ref={el => (camposRef.current.expectations = el)}
+                    ref={el => (camposRef.current.expectativas = el)}
                 />
             </td>
             <td>
                 <textarea
-                    name="requisites"
+                    name="requisitos"
                     onChange={handleChange}
-                    value={obj.requisites}
+                    value={obj.requisitos}
                     placeholder="Requisites"
-                    ref={el => (camposRef.current.requisites = el)}
+                    ref={el => (camposRef.current.requisitos = el)}
                 />
             </td>
             <td>
                 <textarea
-                    name="information"
+                    name="engajamento_positivo"
                     onChange={handleChange}
-                    value={obj.information}
-                    placeholder="Information"
-                    ref={el => (camposRef.current.information = el)}
+                    value={obj.engajamento_positivo}
+                    placeholder="Positive Engagement"
+                    ref={el => (camposRef.current.engajamento_positivo = el)}
                 />
             </td>
             <td>
                 <textarea
-                    name="method"
+                    name="engajamento_negativo"
                     onChange={handleChange}
-                    value={obj.method}
-                    placeholder="Method"
-                    ref={el => (camposRef.current.method = el)}
+                    value={obj.engajamento_negativo}
+                    placeholder="Negative Engagement"
+                    ref={el => (camposRef.current.engajamento_negativo = el)}
                 />
-            </td>
-            <td>
-                <textarea
-                    name="tools"
-                    onChange={handleChange}
-                    value={obj.tools}
-                    placeholder="Tools"
-                    ref={el => (camposRef.current.tools = el)}
-                />
-            </td>
-            <td>
-                <select
-                    name="responsible"
-                    onChange={handleChange}
-                    value={obj.responsible}
-                    ref={el => (camposRef.current.responsible = el)}>
-                    <option defaultValue value=''>Responsible</option>
-                    <option value='Circunstancial'>Circunstancial</option>
-                    {nomesMembros.map((membro, index) => (
-                        <option key={index} value={membro.nome}>{membro.nome}</option>
-                    ))}
-                </select>
-            </td>
+            </td>   
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
                     <button onClick={handleSubmit} disabled={!isAdmin}>Add new</button>

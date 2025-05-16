@@ -15,8 +15,8 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     const {isAdmin} = useContext(AuthContext)
 
     const fetchStakeholders = async () => {
-        const data = await fetchData('stakeholders/get/stakeholderNames');
-        setNomesStakeholders(data.stakeholders);
+        const data = await fetchData('comunicacao/stakeholderGroups/get/stakeholderNames');
+        setNomesStakeholders(data.stakeholderGroups);
     };
 
     useEffect(() => {
@@ -82,8 +82,8 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                         ref={el => (camposRef.current.stakeholder = el)}
                     >
                         <option defaultValue value=''>Stakeholder</option>
-                        {[...new Set(nomesStakeholders.map(item => item.name))].map((name, index) => (
-                            <option key={index} value={name}>{name}</option>
+                        {[...new Set(nomesStakeholders.map(item => item.grupo))].map((grupo, index) => (
+                            <option key={index} value={grupo}>{grupo}</option>
                         ))};
                     </select>
                 </td>

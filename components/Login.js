@@ -78,7 +78,6 @@ const FormularioLogin = () => {
     }
     setLoading(true);
     const token = await queryPorNome();
-    console.log('token:', token);
     if (token !== false) {
       setLoading(false);
       setAlert(null);
@@ -86,7 +85,6 @@ const FormularioLogin = () => {
       localStorage.setItem('token', token);
 
       const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString('utf-8'));
-      console.log('payload:', payload);
 
       var d = new Date();
       d.setMinutes(d.getMinutes() + 60);
