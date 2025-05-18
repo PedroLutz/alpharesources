@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useMemo } from 'react';
 import { Chart } from 'react-google-charts';
 import Loading from '../Loading';
 import Modal from '../Modal';
@@ -47,6 +47,8 @@ const Tabela = () => {
     concluida: 'Completed',
   }
 
+  //funcao responsavel pela atualizacao rapida da tarefa, verificando se a atualizacao
+  //faz sentido com a situacao da tarefa e formatando os dados a serem atualizados de acordo com a situacao dela
   const handleAtualizarTarefa = async (situacao) => {
     if (itemSelecionado === '') {
       setExibirModal('semtarefa');
@@ -105,13 +107,15 @@ const Tabela = () => {
         item: itemParaAtualizar
       });
 
-      fetchCronogramas();
+      await fetchCronogramas();
       setReload(true);
     } catch (error) {
       console.error('Erro ao atualizar a situação do cronograma', error);
     }
   };
 
+
+  //funcao para resetar (igualar a null )as datas
   const handleResetarData = async () => {
     if (itemSelecionadoResetar === '') {
       setExibirModal('semtarefa');
@@ -144,21 +148,21 @@ const Tabela = () => {
       });
       setConfirmResetData(false)
 
-      fetchCronogramas();
+      await fetchCronogramas();
       setReload(true);
     } catch (error) {
       console.error('Erro ao atualizar a situação do cronograma', error);
     }
   }
 
+  
+  //useEffect que executa apenas quando reload é atualizado
   useEffect(() => {
-    setReload(false);
-    fetchCronogramas();
+    if(reload == true){
+      setReload(false);
+      fetchCronogramas();
+    }
   }, [reload]);
-
-  const checkDados = (tipo) => {
-    setExibirModal(tipo); return;
-  };
 
   const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',
@@ -172,6 +176,8 @@ const Tabela = () => {
     'tarefaNaoIniciada': "You can't update a task you haven't started yet!"
   };
 
+
+  //funcao que gera a tabela de estados das areas
   const generateReport = async () => {
     const responsePlano = await fetchData('cronograma/get/startAndEndPlano');
     const responseGantt = await fetchData('cronograma/get/startAndEndGantt');
@@ -254,6 +260,8 @@ const Tabela = () => {
     setReport(arrayAnalise)
   }
 
+  //funcao que busca os cronogramas e as cores, trata as datas dos cronogramas,
+  //trata as cores e cria a paleta para o grafico
   const fetchCronogramas = async () => {
     try {
       const data = await fetchData('cronograma/get/gantts');
@@ -297,11 +305,14 @@ const Tabela = () => {
 
   };
 
+  //useEffect que so executa na primeira render
   useEffect(() => {
     fetchCronogramas();
   }, []);
 
-  const createGanttData = (cronogramas) => {
+
+  //funcao que cria a array usada na geracao do grafico gantt
+  const createGanttData = () => {
     const ganttData = [['Task ID', 'Task Name', 'Resource', 'Start Date', 'End Date', 'Duration', 'Percent Complete', 'Dependencies']];
 
     cronogramas.forEach((item) => {
@@ -325,9 +336,15 @@ const Tabela = () => {
     return ganttData;
   };
 
+  //funcao que executa na primeira render e depois so quando cronogramas ou etis atualiza
+  //armazenando os dados diretamente nas constantes
+  const chartData = useMemo(() => {
+      if (cronogramas.length === 0) return [];
+      return createGanttData();
+    }, [cronogramas]);
 
-  const chartData = createGanttData(cronogramas);
-
+    
+  //useEffect que so roda quando chartData recebe um valor, e define a altura do grafico gantt
   useEffect(() => {
     if (chartData.length > 1) {
       const linhaHeight = 30;
@@ -337,6 +354,8 @@ const Tabela = () => {
     }
   }, [chartData]);
 
+
+  //funcao que recebe o item a ser atualizado e o insere em novosDados
   const handleUpdateClick = (item) => {
     setConfirmUpdateItem(item);
     setNovosDados({
@@ -349,6 +368,8 @@ const Tabela = () => {
     });
   };
 
+
+  //funcao que atualiza o item
   const handleUpdateItem = async () => {
     if (confirmUpdateItem) {
       const updatedItem = {
@@ -384,6 +405,8 @@ const Tabela = () => {
     window.location.reload();
   };
 
+
+  //funcao que calcula o rowSpan do td da area de acordo com os itens
   const calculateRowSpan = (itens, currentArea, currentIndex) => {
     let rowSpan = 1;
     for (let i = currentIndex + 1; i < itens.length; i++) {
@@ -554,7 +577,7 @@ const Tabela = () => {
                             funcao1: () => handleUpdateItem(),
                             funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
                           }}
-                          checkDados={checkDados} />
+                          setExibirModal={setExibirModal} />
                       ) : (
                         <React.Fragment>
                           <td>{item.inicio === '01/01/1970' ? '-' : item.inicio}</td>

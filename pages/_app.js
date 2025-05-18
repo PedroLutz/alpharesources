@@ -36,7 +36,7 @@ function InnerApp({ Component, pageProps}) {
   }
 
   useEffect(() => {
-    window.addEventListener("resize", handleResize)
+    window.addEventListener("resize", handleResize);
   })
 
   return (

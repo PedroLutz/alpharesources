@@ -35,15 +35,18 @@ const Tabela = () => {
   }
   const [novoSubmit, setNovoSubmit] = useState(camposVazios);
   const [novosDados, setNovosDados] = useState(camposVazios);
-  const {isAdmin} = useContext(AuthContext)
+  const { isAdmin } = useContext(AuthContext);
 
+
+  //funcao que busca os dados de lancamentos e cria as arrays lancamentos e lancamentosDeletados,
+  //alem de calcular e organizar o balance
   const fetchLancamentos = async () => {
     try {
       const data = await fetchData('financas/financas/get/lancamentos');
       var balance = 0;
       data.lancamentos.forEach((item) => {
         item.data = jsDateToEuDate(item.data);
-        if(item.tipo != "Exchange" && !item.deletado) balance = balance + item.valor;
+        if (item.tipo != "Exchange" && !item.deletado) balance = balance + item.valor;
         item.balance = balance.toFixed(2);
       });
       const [lancamentos, lancamentosDeletados] = data.lancamentos.reduce(
@@ -57,9 +60,9 @@ const Tabela = () => {
         },
         [[], []]
       );
-      // const lancamentosReversed = lancamentos.toReversed();
+
       let lancamentosReversed = [];
-      for(let i = lancamentos.length; i > 0; i--){
+      for (let i = lancamentos.length; i > 0; i--) {
         lancamentosReversed.push(lancamentos[i - 1]);
       }
       lancamentosDeletados.forEach((lancamento) => {
@@ -74,13 +77,20 @@ const Tabela = () => {
     }
   };
 
+  //useEffect que so roda quando reload eh atualizado
   useEffect(() => {
-    setReload(false);
-    fetchLancamentos();
+    if (reload == true) {
+      setReload(false);
+      fetchLancamentos();
+    }
   }, [reload]);
 
-  
+  //useEffect que so roda na primeira execucao
+  useEffect(() => {
+    fetchLancamentos();
+  }, []);
 
+  //funcao que envia o id para deletar os itens
   const handleConfirmDelete = () => {
     if (deleteInfo.item) {
       var getDeleteSuccess = false;
@@ -97,15 +107,13 @@ const Tabela = () => {
     setDeleteInfo({ success: getDeleteSuccess, item: null })
   };
 
-  const checkDados = (tipo) => {
-    setExibirModal(tipo); return;
-  };
-
   const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',
     'valorNegativo': 'The value cannot be negative!',
   };
 
+
+  //funcao que trata os dados dependendo do tipo e envia para o banco
   const enviar = async (e) => {
     e.preventDefault();
     const isExpense = novoSubmit.tipo === 'Expense';
@@ -120,9 +128,11 @@ const Tabela = () => {
       dados: updatedNovoSubmit
     });
     cleanForm(novoSubmit, setNovoSubmit, camposVazios);
+    await fetchLancamentos();
     setReload(true);
   };
 
+  //funcao que trata o item e o insere em novosDados
   const handleUpdateClick = (item) => {
     let valorCorrigido = 0;
     if (Number(item.valor) < 0) {
@@ -143,6 +153,7 @@ const Tabela = () => {
     });
   };
 
+  //funcao que trata os dados e envia para update
   const handleUpdateItem = async () => {
     if (confirmItemAction.action === 'update' && confirmItemAction.item) {
       setLoading(true);
@@ -174,6 +185,7 @@ const Tabela = () => {
     }
   };
 
+  //funcao para restaurar itens, ou atualizar apenas o estado deletado para false
   const handleRestoreItem = async () => {
     if (confirmItemAction.action === 'restore' || confirmItemAction.item) {
       const updatedItem = { ...confirmItemAction.item, deletado: false };
@@ -195,6 +207,7 @@ const Tabela = () => {
     }
   }
 
+  //funcao para pseudoDeletar itens, ou atualizar apenas o estado deletado para true
   const handlePseudoDeleteItem = async () => {
     if (confirmItemAction.action === 'delete' || confirmItemAction.item) {
       const updatedItem = { ...confirmItemAction.item, deletado: true };
@@ -223,28 +236,12 @@ const Tabela = () => {
     }
   };
 
-  const generatePDF = () => {
-    import('html2pdf.js').then((html2pdfModule) => {
-      const html2pdf = html2pdfModule.default;
-
-      const content = document.getElementById('report');
-
-      const pdfOptions = {
-        margin: 10,
-        filename: `report.pdf`,
-        image: { type: 'png', quality: 1 },
-        html2canvas: { scale: 1 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
-      };
-
-      html2pdf().from(content).set(pdfOptions).save();
-    });
-  };
-
+  //funcao para limpar a lixeira
   const limparLixeira = async () => {
     await fetch(`/api/financas/cleanBin`, {
       method: 'DELETE',
     })
+    await fetchLancamentos();
     setReload(true);
   }
 
@@ -273,7 +270,7 @@ const Tabela = () => {
                 obj={novoSubmit}
                 objSetter={setNovoSubmit}
                 funcao={enviar}
-                checkDados={checkDados}
+                setExibirModal={setExibirModal}
                 tipo='cadastro'
               />
               {dadosTabela.object.map((item, index) => (
@@ -287,7 +284,7 @@ const Tabela = () => {
                           funcao1: () => handleUpdateItem(),
                           funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
                         }}
-                        checkDados={checkDados}
+                        setExibirModal={setExibirModal}
                         tipo='update' />
                     </React.Fragment>
                   ) : (
@@ -305,7 +302,7 @@ const Tabela = () => {
                         <td>{item.origem}</td>
                         <td>{item.destino}</td>
                         <td>
-                          <a style={{color: item.tipo === 'Income' ? 'green' : 'red', fontSize: '1.2rem'}}>
+                          <a style={{ color: item.tipo === 'Income' ? 'green' : 'red', fontSize: '1.2rem' }}>
                             {item.tipo === 'Income' ? "▲" : item.tipo === 'Exchange' ? "" : '▼'}
                           </a>
                           <b>R${item.balance}</b>
@@ -317,7 +314,7 @@ const Tabela = () => {
                             <button onClick={() => {
                               linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
                             }}
-                            disabled={!isAdmin}>⚙️</button>
+                              disabled={!isAdmin}>⚙️</button>
                           </td>
                         ) : (
                           <td className="botoes_acoes">
@@ -338,18 +335,18 @@ const Tabela = () => {
         </div>
       </div>
       <div>
-      <button className="botao-padrao" style={{ width: '130px' }} onClick={() => {
-        dadosTabela.isDeletados ?
-          setDadosTabela({ object: lancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' })
-          :
-          setDadosTabela({ object: lancamentosDeletados, isDeletados: true, garbageButtonLabel: 'Exit bin 🗑️' })
-      }}>
-        {dadosTabela.garbageButtonLabel}</button>
+        <button className="botao-padrao" style={{ width: '130px' }} onClick={() => {
+          dadosTabela.isDeletados ?
+            setDadosTabela({ object: lancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' })
+            :
+            setDadosTabela({ object: lancamentosDeletados, isDeletados: true, garbageButtonLabel: 'Exit bin 🗑️' })
+        }}>
+          {dadosTabela.garbageButtonLabel}</button>
         {dadosTabela.isDeletados && (
           <button className="botao-padrao" style={{ width: '130px' }} disabled={!isAdmin} onClick={() => setLimparLixo(true)}>Clean bin ♻️</button>
         )}
       </div>
-      
+
 
       {confirmItemAction.action === 'delete' && confirmItemAction.item && (
         <Modal objeto={{

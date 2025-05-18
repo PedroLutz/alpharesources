@@ -3,8 +3,7 @@ import { fetchData } from "../../functions/crud";
 import styles from '../../styles/modules/cronograma.module.css';
 import { AuthContext } from "../../contexts/AuthContext";
 
-const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => {
-    const [emptyFields, setEmptyFields] = useState([]);
+const CadastroInputs = ({ tipo, obj, objSetter, funcao, setExibirModal, gantt }) => {
     const [elementosWBS, setElementosWBS] = useState([]);
     const [itensPorArea, setItensPorArea] = useState({ notDp: [], dp: [] });
     const camposRef = useRef({
@@ -18,8 +17,9 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
     });
     const {isAdmin} = useContext(AuthContext);
 
+
+    //funcao que verifica entre os campos considerados se algum esta vazio, e retorna a quantidade de campos e o nome de campos vazios
     const isFormVazio = (form) => {
-        console.log(obj)
         let camposConsiderados;
         if(tipo === 'update' || tipo === 'updatemonitoring'){
             camposConsiderados = {
@@ -36,14 +36,13 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
             }
         }
         const emptyFields = Object.entries(camposConsiderados).filter(([key, value]) => value === null || value === "");
-        console.log(emptyFields)
         return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
     };
 
+    
+    //funcao para inserir os dados dos inputs para o objeto
     const handleChange = (e) => {
         const { name, value } = e.target;
-        const index = emptyFields.indexOf(name);
-        index > -1 && emptyFields.splice(index, 1);
         objSetter({
             ...obj,
             [name]: value,
@@ -51,6 +50,8 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
         e.target.classList.remove('campo-vazio');
     };
 
+    
+    //funcao para verificar se o item a ser cadastrado ja n foi cadastrado, retornando true se ja foi
     const checkIfUsed = async (item) => {
         var found;
         await fetch(`/api/cronograma/checks/isUsed`, {
@@ -65,7 +66,9 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
         return found;
     }
 
-    const checkDpUsed = async (item) => {
+    
+    //funcao que verifica se o item selecionado como dependencia existe como plano
+    const checkDpIsRegistered = async (item) => {
         var found;
         await fetch(`/api/cronograma/checks/dpIsUsed`, {
             method: 'POST',
@@ -79,6 +82,8 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
         return found;
     }
 
+
+    //funcao que verifica se o item selecionado como dependencia ocorre antes do item atual
     const checkDpOkay = async (item) => {
         var found;
         if(item.inicio === '' && item.termino === ''){
@@ -96,6 +101,8 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
         return found;
     }
 
+    
+    //funcao para verificar entre diversos casos para validar os dados
     const validaDados = async () => {
         const [isEmpty, camposVazios] = isFormVazio(obj);
         var objEnviado = obj;
@@ -114,25 +121,25 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
             }
         }
         const isUsed = await checkIfUsed(objEnviado);
-        const dpIsUsed = await checkDpUsed(objEnviado);
+        const dpIsRegistered = await checkDpIsRegistered(objEnviado);
         const dpIsOkay = await checkDpOkay(objEnviado);
         const datasNotOk = obj.inicio > obj.termino;
         if (objEnviado.dp_area !== '' || objEnviado.dp_item !== '') {
-            if (!dpIsUsed) {
-                checkDados('dpNotUsed');
+            if (!dpIsRegistered) {
+                setExibirModal('dpNotRegistered');
                 return true;
             }
             if (!dpIsOkay) {
-                checkDados('dpNotOkay');
+                setExibirModal('dpNotOkay');
                 return true;
             }
         }
         if (datasNotOk) {
-            checkDados('datasErradas');
+            setExibirModal('datasErradas');
             return true;
         }
         if (isUsed) {
-            checkDados('dadosUsados');
+            setExibirModal('dadosUsados');
             return true;
         }
         if (isEmpty) {
@@ -141,16 +148,17 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
                     camposRef.current[campo].classList.add('campo-vazio');
                 }
             });
-            setEmptyFields(camposVazios);
-            checkDados('inputsVazios');
+            setExibirModal('inputsVazios');
             return true;
         }
         if (obj.dp_area && !obj.dp_item) {
-            checkDados('depFaltando')
+            setExibirModal('depFaltando')
             return true;
         }
     }
 
+
+    //funcao para atualizar os itens no select apos a selecao de uma area (seja dp ou nao)
     const handleAreaChange = (e, isDp) => {
         const areaSelecionada = e.target.value;
         const itensDaArea = elementosWBS
@@ -163,24 +171,21 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
         handleChange(e);
     };
 
+
+    //funcao para buscar os elementos da WBS para inserção nos selects
     const fetchElementos = async () => {
         const data = await fetchData('wbs/get/all');
         setElementosWBS(data.elementos);
     };
 
+
+    //useEffect que roda apenas na primeira execucao
     useEffect(() => {
         fetchElementos();
     }, []);
 
-    useEffect(() => {
-        if (obj.dp_area) {
-            const itensDaArea = elementosWBS
-                .filter(item => item.area === obj.dp_area)
-                .map(item => item.item);
-            setItensPorArea({ ...itensPorArea, dp: itensDaArea });
-        }
-    }, [obj, elementosWBS]);
-
+    //useEffect que so executa quando obj.dp_area atualiza que apaga
+    //o valor de dp_item caso dp_area for vazio
     useEffect(() => {
         if (obj.dp_area == '') {
             objSetter({
@@ -190,6 +195,9 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
         }
     }, [obj.dp_area]);
 
+
+    //useEffect que executa quando obj.area atualiza que apaga o valor
+    //selecionado em item
     useEffect(() => {
         if (tipo == 'cadastro') {
             objSetter({
@@ -199,6 +207,8 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, checkDados, gantt }) => 
         }
     }, [obj.area]);
 
+
+    //funcao que valida os dados e executa ou nao a funcao de submit
     const handleSubmit = async (e) => {
         const isInvalido = await validaDados();
         if (funcao.funcao1) {

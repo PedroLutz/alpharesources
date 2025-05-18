@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Chart } from 'react-google-charts';
 import Loading from '../Loading';
 import { fetchData } from '../../functions/crud';
@@ -15,21 +15,18 @@ const Tabela = () => {
     const [cores, setCores] = useState({});
     const [paleta, setPaleta] = useState([]);
 
-    const fetchCores = async () => {
-        const data = await fetchData('wbs/get/cores');
-        var cores = {};
-        data.areasECores.forEach((area) => {
-            cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
-        })
-        setCores(cores);
-    }
 
+    //useEffect que so executa quando acontece reload é atualizado
     useEffect(() => {
-        setReload(false);
-        fetchCronogramas();
-        fetchCores();
+        if(reload == true){
+            setReload(false);
+            fetchCronogramas();
+        }
     }, [reload]);
 
+
+    //funcao que busca os cronogramas e as cores, trata as datas dos cronogramas,
+    //trata as cores e cria a paleta para o grafico
     const fetchCronogramas = async () => {
         try {
             const data = await fetchData('cronograma/get/gantts');
@@ -73,31 +70,36 @@ const Tabela = () => {
         }
     };
 
+
+    //useEffect que roda apenas no primeiro render
     useEffect(() => {
         fetchCronogramas();
-        fetchCores();
     }, []);
 
+
+    //funcao que cria a array que sera insa inserida no grafico cantt
     const createGanttData = () => {
         const ganttData = [['Task ID', 'Task Name', 'Resource', 'Start Date', 'End Date', 'Duration', 'Percent Complete', 'Dependencies']];
         cronogramas.forEach((item) => {
             if (!item.plano) {
                 if (euDateToJsDate(item.inicio) < euDateToJsDate(item.termino)) {
-                    const cocoxixi = planosCronogramas.find(plan => plan.item === item.item && plan.area === item.area);
-                    if (cocoxixi) {
+
+                    const planoDoGantt = planosCronogramas.find(plan => plan.item === item.item && plan.area === item.area);
+                    if (planoDoGantt) {
                         var dependencies2 = '';
-                        const taskID2 = `${cocoxixi.area}_${cocoxixi.item}2`;
-                        const taskName2 = cocoxixi.item;
+                        const taskID2 = `${planoDoGantt.area}_${planoDoGantt.item}2`;
+                        const taskName2 = planoDoGantt.item;
                         const resource2 = item.area;
-                        const startDate2 = euDateToJsDate(cocoxixi.inicio);
-                        const endDate2 = euDateToJsDate(cocoxixi.termino);
-                        if (!cocoxixi.dp_area && !cocoxixi.dp_item) {
+                        const startDate2 = euDateToJsDate(planoDoGantt.inicio);
+                        const endDate2 = euDateToJsDate(planoDoGantt.termino);
+                        if (!planoDoGantt.dp_area && !planoDoGantt.dp_item) {
                             dependencies2 = null;
                         } else {
-                            dependencies2 = `${cocoxixi.dp_area}_${cocoxixi.dp_item}2`;
+                            dependencies2 = `${planoDoGantt.dp_area}_${planoDoGantt.dp_item}2`;
                         }
                         ganttData.push([taskID2, taskName2, resource2, startDate2, endDate2, 0, 100, dependencies2]);
                     }
+
                     var dependencies = '';
                     const taskID = `${item.area}_${item.item}`;
                     const taskName = item.item;
@@ -117,9 +119,15 @@ const Tabela = () => {
         return ganttData;
     };
 
+    //funcao que executa na primeira render e depois so quando cronogramas ou etis atualiza
+    //armazenando os dados diretamente nas constantes
+    const chartData = useMemo(() => {
+        if (cronogramas.length === 0) return [];
+        return createGanttData();
+    }, [cronogramas, planosCronogramas]);
 
-    const chartData = createGanttData();
 
+    //useEffect ativado quando os dados do grafico sao montados para calcular a altura do grafico
     useEffect(() => {
         if (chartData.length > 1) {
             const linhaHeight = 30;
@@ -170,7 +178,6 @@ const Tabela = () => {
 
                     {/* Tabela à esquerda do gráfico Gantt */}
                     <table style={{
-                        marginBottom: '5rem',
                         position: 'absolute',
                         zIndex: 2,
                         width: '100%'

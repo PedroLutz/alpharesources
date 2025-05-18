@@ -5,9 +5,9 @@ const Logout = () => {
     const {setAutenticado} = useContext(AuthContext);
 
     const deslogar = () => {
-        sessionStorage.setItem('tempoDeSessao', null)
         sessionStorage.setItem('isAdmin', false)
         setAutenticado(false);
+        localStorage.removeItem('token');
     }
 
     return (

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useContext } from "react";
 import styles from '../../styles/modules/wbs.module.css';
 import { AuthContext } from "../../contexts/AuthContext";
 
-const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area, isNameUsed }) => {
+const BlocoInputs = ({ tipo, obj, objSetter, funcao, setExibirModal, area, isNameUsed }) => {
     const camposRef = useRef({
         cor: null,
         item: null,
@@ -40,8 +40,8 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area, isNameUse
     //o componente foi chamado para uma area ou um item
     const handleChange = (e) => {
         const { name, value } = e.target;
-        var areaValor, key;
-        if (area) { areaValor = e.target.getAttribute('data-area'); key = `novo${area}` };
+        var key;
+        if (area) key = `novo${area}`;
         if (!area) {
             objSetter({
                 ...obj,
@@ -61,12 +61,12 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area, isNameUse
     };
 
     //essa funcao verifica os casos de invalidez, e se algum deles for verdadeiro,
-    //chama a funcao checkDados para levantar um modal avisando o problema
+    //chama a funcao setExibirModal para levantar um modal avisando o problema
     const validaDados = () => {
         const [isEmpty, camposVazios] = isFormVazio(obj);
         const nomeUsado = isNameUsed(obj);
         if (nomeUsado) {
-            checkDados && checkDados('nomeRepetido')
+            setExibirModal && setExibirModal('nomeRepetido')
             return true
         };
 
@@ -77,12 +77,12 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, checkDados, area, isNameUse
                 }
             });
             console.log(camposVazios);
-            checkDados && checkDados('inputsVazios');
+            setExibirModal && setExibirModal('inputsVazios');
             return true;
         }
 
         if (tipo === 'cadastroItem' && area && !obj[`novo${area}`]?.item) {
-            checkDados && checkDados('inputsVazios');
+            setExibirModal && setExibirModal('inputsVazios');
             return true;
         }
 

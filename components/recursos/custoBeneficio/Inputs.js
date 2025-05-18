@@ -2,7 +2,7 @@ import { useState, useRef, useContext } from "react";
 import React from "react";
 import { AuthContext } from "../../../contexts/AuthContext";
 
-const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
+const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
     const camposRef = useRef({
         identificacao: null,
         descricao: null,
@@ -16,6 +16,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     })
     const {isAdmin} = useContext(AuthContext);
 
+    //funcao que atualiza o obj. dependendo da natureza do dado, permite caracteres especificos apenas.
     const handleChange = (e, isNumber) => {
         var { name, value } = e.target;
         if(isNumber){
@@ -32,27 +33,29 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         e.target.classList.remove('campo-vazio');
     };
 
+    //funcao que retorna a quantidade de campos vazios e o nome dos campos vazios
     const isFormVazio = (form) => {
         const emptyFields = Object.entries(form).filter(([key, value]) => value === null || value === "");
         return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
     };
 
+    //funcao que verifica os dados do obj de acordo com varias especificacoes
     const validaDados = () => {
-        const campos = { impacto: obj.impacto, 
+        const camposNumericos = { impacto: obj.impacto, 
             urgencia: obj.urgencia, 
             areas_afetadas: obj.areas_afetadas, 
             escala_custo: obj.escala_custo,
             diferencial: obj.diferencial };
 
-        for (const [key, value] of Object.entries(campos)) {
+        for (const [key, value] of Object.entries(camposNumericos)) {
             if (value < 0) {
                 camposRef.current[key].classList.add('campo-vazio');
-                checkDados('valorNegativo');
+                setExibirModal('valorNegativo');
                 return true;
             }
             if (value > 5) {
                 camposRef.current[key].classList.add('campo-vazio');
-                checkDados('maiorQueCinco');
+                setExibirModal('maiorQueCinco');
                 return true;
             }
         }
@@ -63,11 +66,12 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     camposRef.current[campo].classList.add('campo-vazio');
                 }
               });
-            checkDados('inputsVazios');
+            setExibirModal('inputsVazios');
             return true;
         }
     }
 
+    //funcao que roda a funcao de envio de acordo com o tipo da funcao
     const handleSubmit = (e) => {
         const isInvalido = validaDados();
         if(funcao.funcao1){

@@ -4,8 +4,7 @@ import { fetchData } from "../../../functions/crud";
 import { AuthContext } from "../../../contexts/AuthContext";
 import styles from '../../../styles/modules/planoAquisicao.module.css'
 
-const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
-    const [emptyFields, setEmptyFields] = useState([]);
+const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
     const [areaSelecionada, setAreaSelecionada] = useState("");
     const [recursos, setRecursos] = useState([]);
     const [recursosPorArea, setRecursosPorArea] = useState([]);
@@ -25,8 +24,10 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         data_real: null,
         valor_real: null
     });
-    const {isAdmin} = useContext(AuthContext)
+    const {isAdmin} = useContext(AuthContext);
+    const isFirstRender = useRef(true);
 
+    //funcao para buscar os nome dos recursos
     const fetchRecursos = async () => {
         const data = await fetchData('recursos/recurso/get/nomesRecursos');
         setRecursos(data.recursos);
@@ -37,10 +38,13 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         setRecursosPorArea(todosOsRecursos);
     };
 
+    //useEffect que usa apenas na primeira render
     useEffect(() => {
         fetchRecursos();
     }, []);
 
+    
+    //useEffect que so roda quando areaSelecionada eh atualizado, para apagar o valor de recurso no obj
     useEffect(() => {
         if (isFirstRender.current === true) {
             isFirstRender.current = false;
@@ -53,8 +57,8 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         });
     }, [areaSelecionada]);
 
-    const isFirstRender = useRef(true);
 
+    //funcao que verifica, entre os campos considerados, quais estao vazios, e retorna o numero de campos vazios e os nomes dos campos
     const isFormVazio = (form) => {
         const camposConsiderados = {
             recurso: form.recurso,
@@ -73,6 +77,8 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
     };
 
+
+    //funcao apenas quando area eh atualizada, e atualiza os recursos do select para serem apenas os da area
     const handleAreaChange = (e) => {
         setAreaSelecionada(e.target.value);
         const areaSelect = e.target.value;
@@ -80,6 +86,8 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         setRecursosPorArea(itensDaArea);
     };
 
+
+    //funcao apenas quando recurso eh atualizado, inserindo no obj os dados de ehEssencial
     const handleRecursoChange = (e) => {
         const recursoSelecionado = e.target.value;
         const dados = recursos.filter(item => item.recurso === recursoSelecionado)[0];
@@ -92,10 +100,9 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         e.target.classList.remove('campo-vazio');
     }
 
+    //funcao geral para inserir os dados dos inputs no obj
     const handleChange = (e) => {
         const { name, value } = e.target;
-        const index = emptyFields.indexOf(name);
-        index > -1 && emptyFields.splice(index, 1);
         objSetter({
             ...obj,
             [name]: value,
@@ -103,6 +110,8 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         e.target.classList.remove('campo-vazio');
     };
 
+
+    //funcao para validar os dados do objeto
     const validaDados = () => {
         const [isEmpty, camposVazios] = isFormVazio(obj);
         if (isEmpty) {
@@ -111,12 +120,12 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     camposRef.current[campo].classList.add('campo-vazio');
                 }
             });
-            setEmptyFields(camposVazios);
-            checkDados('inputsVazios');
+            setExibirModal('inputsVazios');
             return true;
         }
     };
 
+    //funcao que chama validaDados, e se os dados estao ok, chama as funcoes de submit
     const handleSubmit = async (e) => {
         const isInvalido = validaDados();
         if (funcao.funcao1) {

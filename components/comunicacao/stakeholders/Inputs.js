@@ -5,10 +5,10 @@ import { AuthContext } from "../../../contexts/AuthContext";
 
 const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     const [emptyFields, setEmptyFields] = useState([]);
-    const [nomesMembros, setNomesMembros] = useState([]);
+    const [nomesStakeholders, setNomesStakeholders] = useState([]);
     const camposRef = useRef({
         grupo: null,
-        envolvimento: null,
+        stakeholder: null,
         influencia: null,
         impacto: null,
         poder: null,
@@ -18,45 +18,24 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         engajamento_positivo: null,
         engajamento_negativo: null
     })
-    const {isAdmin} = useContext(AuthContext);
+    const { isAdmin } = useContext(AuthContext);
 
-    const fetchMembros = async () => {
-        const data = await fetchData('responsabilidades/membros/get/nomes');
-        setNomesMembros(data.nomes);
-    };
+    const fetchStakeholders = async () => {
+        const data = await fetchData('comunicacao/stakeholderGroups/get/stakeholderGroupsNames');
+        setNomesStakeholders(data.stakeholderGroups);
+    };      
 
     useEffect(() => {
-        fetchMembros();
+        fetchStakeholders();
     }, []);
 
-    const generateMapping = (p, i) => {
-        if(p === '' || i === ''){
-            return '-';
-        }
-        if (p === "true" && i === "true") {
-            return "Close Management";
-        }
-        if (p === "false" && i === "true") {
-            return "Keep informed";
-        }
-        if (p === "true" && i === "false") {
-            return "Keep satisfied";
-        }
-        if (p === "false" && i === "false") {
-            return "Monitor";
-        }
-    }
-
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        const index = emptyFields.indexOf(name);
-        index > -1 && emptyFields.splice(index, 1);
+        var { name, value } = e.target;
         objSetter({
             ...obj,
             [name]: value,
         });
         e.target.classList.remove('campo-vazio');
-        generateMapping(obj.power, obj.interest)
     };
 
     const isFormVazio = (form) => {
@@ -71,7 +50,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                 if (camposRef.current[campo]) {
                     camposRef.current[campo].classList.add('campo-vazio');
                 }
-              });
+            });
             setEmptyFields(camposVazios);
             checkDados('inputsVazios');
             return true;
@@ -80,7 +59,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
 
     const handleSubmit = (e) => {
         const isInvalido = validaDados();
-        if(funcao.funcao1){
+        if (funcao.funcao1) {
             !isInvalido && funcao.funcao1();
         } else {
             !isInvalido && funcao(e);
@@ -90,58 +69,71 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     return (
         <tr>
             <td>
-                <textarea
+
+                <select
                     name="grupo"
                     onChange={handleChange}
                     value={obj.grupo}
-                    placeholder="Stakeholder Group"
                     ref={el => (camposRef.current.grupo = el)}
-                />
+                >
+                    <option defaultValue value=''>Stakeholder Group</option>
+                    {[...new Set(nomesStakeholders.map(item => item.grupo))].map((grupo, index) => (
+                        <option key={index} value={grupo}>{grupo}</option>
+                    ))};
+                </select>
             </td>
             <td>
                 <textarea
-                    name="envolvimento"
+                    name="stakeholder"
                     onChange={handleChange}
-                    value={obj.envolvimento}
-                    placeholder="Involvement"
-                    ref={el => (camposRef.current.envolvimento = el)}
+                    value={obj.stakeholder}
+                    placeholder="Stakeholder"
+                    ref={el => (camposRef.current.stakeholder = el)}
                 />
             </td>
             <td>
-                <textarea
-                    name="influencia"
-                    onChange={handleChange}
+                <select
                     value={obj.influencia}
-                    placeholder="Potencial Influence"
-                    ref={el => (camposRef.current.influencia = el)}
-                />
+                    name='influencia'
+                    onChange={handleChange}
+                    ref={el => (camposRef.current.influencia = el)} >
+                    <option value="" defaultValue>Influence</option>
+                    <option value={true}>High</option>
+                    <option value={false}>Low</option>
+                </select>
             </td>
             <td>
-                <textarea
-                    name="impacto"
-                    onChange={handleChange}
+                <select
                     value={obj.impacto}
-                    placeholder="Potencial Impact"
-                    ref={el => (camposRef.current.impacto = el)}
-                />
+                    name='impacto'
+                    onChange={handleChange}
+                    ref={el => (camposRef.current.impacto = el)} >
+                    <option value="" defaultValue>Impact</option>
+                    <option value={true}>High</option>
+                    <option value={false}>Low</option>
+                </select>
             </td>
             <td>
-                <textarea
-                    name="poder"
-                    onChange={handleChange}
+                <select
                     value={obj.poder}
-                    placeholder="Power"
-                    ref={el => (camposRef.current.poder = el)}
-                />
+                    name='poder'
+                    onChange={handleChange}
+                    ref={el => (camposRef.current.poder = el)} >
+                    <option value="" defaultValue>Power</option>
+                    <option value={true}>High</option>
+                    <option value={false}>Low</option>
+                </select>
             </td>
             <td>
-                <textarea
-                    name="interesse"
-                    onChange={handleChange}
+                <select
                     value={obj.interesse}
-                    placeholder="Interest"
-                    ref={el => (camposRef.current.interesse = el)}
-                />
+                    name='interesse'
+                    onChange={handleChange}
+                    ref={el => (camposRef.current.interesse = el)} >
+                    <option value="" defaultValue>Interest</option>
+                    <option value={true}>High</option>
+                    <option value={false}>Low</option>
+                </select>
             </td>
             <td>
                 <textarea
@@ -178,7 +170,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     placeholder="Negative Engagement"
                     ref={el => (camposRef.current.engajamento_negativo = el)}
                 />
-            </td>   
+            </td>
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
                     <button onClick={handleSubmit} disabled={!isAdmin}>Add new</button>

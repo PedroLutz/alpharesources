@@ -43,25 +43,6 @@ const FormularioLogin = () => {
     }
   }
 
-
-  useEffect(() => {
-    const autenticadoString = sessionStorage.getItem('tempoDeSessao');
-
-    if (autenticadoString) {
-      const autenticadoData = new Date(autenticadoString);
-      const agora = new Date();
-
-      if (autenticadoData > agora) {
-        setAutenticado(true);
-      } else {
-        setAutenticado(false);
-      }
-    } else {
-      setAutenticado(false);
-    }
-
-  }, []);
-
   const validarCampos = async () => {
     if (usuario === '' || senha === '') {
       setAlert('campos');
@@ -86,9 +67,9 @@ const FormularioLogin = () => {
 
       const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString('utf-8'));
 
-      var d = new Date();
-      d.setMinutes(d.getMinutes() + 60);
-      sessionStorage.setItem('tempoDeSessao', d.toString());
+      // var d = new Date();
+      // d.setMinutes(d.getMinutes() + 60);
+      // sessionStorage.setItem('tempoDeSessao', d.toString());
 
       setAutenticado(true);
       setIsAdmin(payload.admin);

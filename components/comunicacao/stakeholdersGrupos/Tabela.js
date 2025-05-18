@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react"
-import styles from '../../../styles/modules/custoBeneficio.module.css'
-import Inputs from "./Inputs";
+import styles from '../../../styles/modules/comunicacao.module.css'
+import CadastroInputs from "./CadastroInputs";
 import Modal from "../../Modal";
 import Loading from "../../Loading";
 import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../functions/crud";
@@ -9,42 +9,38 @@ import { AuthContext } from "../../../contexts/AuthContext";
 
 const Tabela = () => {
     const camposVazios = {
-        identificacao: "",
-        descricao: "",
-        custo: "",
-        escala_custo: "",
-        impacto: "",
-        urgencia: "",
-        diferencial: "",
-        areas_afetadas: "",
-        explicacao: ""
+        grupo: '',
+        envolvimento: '',
+        influencia: '',
+        impacto: '',
+        poder: '',
+        interesse: '',
+        expectativas: '',
+        requisitos: '',
+        engajamento_positivo: '',
+        engajamento_negativo: ''
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
     const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
-    const [custoBeneficios, setCustoBeneficios] = useState([]);
+    const [stakeholderGroups, setStakeholderGroups] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
     const { isAdmin } = useContext(AuthContext)
 
-
-    //funcao que envia os dados de novoSubmit para cadastro
     const enviar = async (e) => {
         e.preventDefault();
         handleSubmit({
-            route: 'financas/custoBeneficio',
+            route: 'comunicacao/stakeholderGroups',
             dados: novoSubmit
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-        await fetchCustoBeneficios();
         setReload(true);
     };
 
-
-    //funcao que recebe o item, o insere no estado confirmUpdateItem e como objeto de novosDados
     const handleUpdateClick = (item) => {
         setConfirmUpdateItem(item)
         setNovosDados({
@@ -52,28 +48,26 @@ const Tabela = () => {
         });
     };
 
-
-    //funcao que trata os dados e os envia para atualizacao
     const handleUpdateItem = async () => {
         if (confirmUpdateItem) {
             setLoading(true);
             const updatedItem = { ...confirmUpdateItem, ...novosDados };
 
-            const updatedCustoBeneficios = custoBeneficios.map(item =>
-                item._id === updatedItem._id ? updatedItem : item
+            const updatedStakeholders = stakeholderGroups.map(item =>
+                item._id === updatedItem._id ? { ...updatedItem } : item
             );
-            setCustoBeneficios(updatedCustoBeneficios);
+            setStakeholderGroups(updatedStakeholders);
             setConfirmUpdateItem(null)
             linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
             setReload(true);
             try {
                 await handleUpdate({
-                    route: 'financas/custoBeneficio/update?id',
+                    route: 'comunicacao/stakeholderGroups/update?id',
                     dados: updatedItem,
                     item: confirmUpdateItem
                 });
             } catch (error) {
-                setCustoBeneficios(custoBeneficios);
+                setStakeholderGroups(stakeholderGroups);
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
@@ -81,15 +75,14 @@ const Tabela = () => {
         }
     };
 
-    //funcao que envia o id para ser deletado
     const handleConfirmDelete = () => {
         if (confirmDeleteItem) {
             var getDeleteSuccess = false;
             try {
                 getDeleteSuccess = handleDelete({
-                    route: 'financas/custoBeneficio',
+                    route: 'comunicacao/stakeholderGroups',
                     item: confirmDeleteItem,
-                    fetchDados: fetchCustoBeneficios
+                    fetchDados: fetchStakeholders
                 });
             } finally {
                 setExibirModal(`deleteSuccess-${getDeleteSuccess}`)
@@ -103,43 +96,34 @@ const Tabela = () => {
         setConfirmDeleteItem(null);
     };
 
-
-    //funcao que busca os dados
-    const fetchCustoBeneficios = async () => {
+    const fetchStakeholders = async () => {
         try {
-            const data = await fetchData('financas/custoBeneficio/get/all');
-            setCustoBeneficios(data.custoBeneficios);
+            const data = await fetchData('comunicacao/stakeholderGroups/get/all');
+            setStakeholderGroups(data.stakeholderGroups);
         } finally {
             setLoading(false);
         }
     };
 
-    //useEffect que so executa quando reload eh igual true
     useEffect(() => {
-        if (reload == true) {
-            setReload(false);
-            fetchCustoBeneficios();
-        }
+        setReload(false);
+        fetchStakeholders();
     }, [reload]);
 
-    //useEffect que so executa no primeiro render
-    useEffect(() => {
-        fetchCustoBeneficios();
-    }, []);
+    const checkDados = (tipo) => {
+        setExibirModal(tipo); return;
+    };
 
     const modalLabels = {
         'inputsVazios': 'Fill out all fields before adding new data!',
         'deleteSuccess': 'Deletion Successful!',
         'deleteFail': 'Deletion Failed!',
-        'valorNegativo': 'No fields can have negative values!',
-        'maiorQueCinco': 'Classifications must be between 1 and 5!'
     };
 
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2>Cost-Benefit Analysis</h2>
-
+            <h2>Stakeholder Groups</h2>
             {exibirModal != null && (
                 <Modal objeto={{
                     titulo: modalLabels[exibirModal],
@@ -151,7 +135,7 @@ const Tabela = () => {
 
             {confirmDeleteItem && (
                 <Modal objeto={{
-                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.identificacao}"?`,
+                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.grupo}"?`,
                     alerta: true,
                     botao1: {
                         funcao: handleConfirmDelete, texto: 'Confirm'
@@ -162,64 +146,60 @@ const Tabela = () => {
                 }} />
             )}
 
-            <div className={styles.tabela_container}>
-                <div className={styles.tabela_wrapper}>
-                    <table className={styles.tabela}>
+            <div className={styles.tabelaComunicacao_container}>
+                <div className={styles.tabelaComunicacao_wrapper}>
+                    <table className={styles.tabelaComunicacao}>
                         <thead>
                             <tr>
-                                <th>Identification</th>
-                                <th>Description</th>
-                                <th>Cost</th>
-                                <th>Cost Ranking</th>
-                                <th>Impact</th>
-                                <th>Urgency</th>
-                                <th>Competitive Edge</th>
-                                <th>Affected Areas</th>
-                                <th>Benefit average</th>
-                                <th>Cost-Benefit index</th>
-                                <th>Explanation</th>
-                                <th>Actions</th>
+                                <th colSpan="6">Basic info</th>
+                                <th colSpan="2">Needs</th>
+                                <th colSpan="2">Engagement</th>
+                                <th rowSpan="2">Actions</th>
+
+                            </tr>
+                            <tr>
+                                <th>Stakeholder</th>
+                                <th>Involvement</th>
+                                <th>Potential Influence</th>
+                                <th>Potential Impact</th>
+                                <th>Power</th>
+                                <th>Interest</th>
+                                <th>Expectations</th>
+                                <th>Requisites</th>
+                                <th>Positive</th>
+                                <th>Negative</th>
                             </tr>
                         </thead>
                         <tbody>
 
-                            {custoBeneficios.map((custoBeneficio, index) => (
+                            {stakeholderGroups.map((stakeholderGroup, index) => (
                                 <React.Fragment key={index}>
-                                    {linhaVisivel === custoBeneficio._id ? (
-                                        <Inputs tipo="update"
+                                    {linhaVisivel === stakeholderGroup._id ? (
+                                        <CadastroInputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
                                             funcao={{
                                                 funcao1: () => handleUpdateItem(),
-                                                funcao2: () => linhaVisivel === custoBeneficio._id ? setLinhaVisivel() : setLinhaVisivel(custoBeneficio._id)
+                                                funcao2: () => linhaVisivel === stakeholderGroup._id ? setLinhaVisivel() : setLinhaVisivel(stakeholderGroup._id)
                                             }}
-                                            setExibirModal={setExibirModal}
+                                            checkDados={checkDados}
                                         />
                                     ) : (
                                         <tr>
-                                            <td>{custoBeneficio.identificacao}</td>
-                                            <td>{custoBeneficio.descricao}</td>
-                                            <td>R${parseFloat(custoBeneficio.custo).toFixed(2)}</td>
-                                            <td>{custoBeneficio.escala_custo}</td>
-                                            <td>{custoBeneficio.impacto}</td>
-                                            <td>{custoBeneficio.urgencia}</td>
-                                            <td>{custoBeneficio.diferencial}</td>
-                                            <td>{custoBeneficio.areas_afetadas}</td>
-                                            <td>{
-                                                parseFloat((custoBeneficio.areas_afetadas
-                                                    + custoBeneficio.impacto
-                                                    + custoBeneficio.urgencia
-                                                    + custoBeneficio.diferencial)
-                                                    / 5).toFixed(2)}</td>
-                                            <td>{
-                                                parseFloat(((custoBeneficio.areas_afetadas + custoBeneficio.impacto
-                                                    + custoBeneficio.urgencia + custoBeneficio.diferencial)
-                                                    / 5) / custoBeneficio.escala_custo).toFixed(2)}</td>
-                                            <td>{custoBeneficio.explicacao}</td>
+                                            <td>{stakeholderGroup.grupo}</td>
+                                            <td>{stakeholderGroup.envolvimento}</td>
+                                            <td>{stakeholderGroup.influencia}</td>
+                                            <td>{stakeholderGroup.impacto}</td>
+                                            <td>{stakeholderGroup.poder}</td>
+                                            <td>{stakeholderGroup.interesse}</td>
+                                            <td>{stakeholderGroup.expectativas}</td>
+                                            <td>{stakeholderGroup.requisitos}</td>
+                                            <td>{stakeholderGroup.engajamento_positivo}</td>
+                                            <td>{stakeholderGroup.engajamento_negativo}</td>
                                             <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(custoBeneficio)} disabled={!isAdmin}>❌</button>
+                                                <button onClick={() => setConfirmDeleteItem(stakeholderGroup)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(custoBeneficio._id); handleUpdateClick(custoBeneficio)
+                                                    setLinhaVisivel(stakeholderGroup._id); handleUpdateClick(stakeholderGroup)
                                                 }
                                                 } disabled={!isAdmin}>⚙️</button>
                                             </td>
@@ -227,11 +207,11 @@ const Tabela = () => {
                                     )}
                                 </React.Fragment>
                             ))}
-                            <Inputs
+                            <CadastroInputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
                                 funcao={enviar}
-                                setExibirModal={setExibirModal}
+                                checkDados={checkDados}
                             />
                         </tbody>
                     </table>

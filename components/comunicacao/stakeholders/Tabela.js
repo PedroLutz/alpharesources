@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react"
 import styles from '../../../styles/modules/comunicacao.module.css'
-import CadastroInputs from "./CadastroInputs";
+import Inputs from "./Inputs";
 import Modal from "../../Modal";
 import Loading from "../../Loading";
 import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../functions/crud";
@@ -9,32 +9,32 @@ import { AuthContext } from "../../../contexts/AuthContext";
 
 const Tabela = () => {
     const camposVazios = {
-        grupo: '',
-  envolvimento: '',
-  influencia: '',
-  impacto: '',
-  poder: '',
-  interesse: '',
-  expectativas: '',
-  requisitos: '',
-  engajamento_positivo: '',
-  engajamento_negativo: ''
+        grupo: "",
+        stakeholder: "",
+        influencia: "",
+        impacto: "",
+        poder: "",
+        interesse: "",
+        expectativas: "",
+        requisitos: "",
+        engajamento_positivo: "",
+        engajamento_negativo: ""
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
     const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
-    const [stakeholderGroups, setStakeholderGroups] = useState([]);
+    const [stakeholders, setStakeholders] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
-    const {isAdmin} = useContext(AuthContext)
+    const { isAdmin } = useContext(AuthContext)
 
     const enviar = async (e) => {
         e.preventDefault();
         handleSubmit({
-            route: 'comunicacao/stakeholderGroups',
+            route: 'comunicacao/stakeholders',
             dados: novoSubmit
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
@@ -53,21 +53,21 @@ const Tabela = () => {
             setLoading(true);
             const updatedItem = { ...confirmUpdateItem, ...novosDados };
 
-            const updatedStakeholders = stakeholderGroups.map(item =>
+            const updatedStakeholders = stakeholders.map(item =>
                 item._id === updatedItem._id ? { ...updatedItem } : item
             );
-            setStakeholderGroups(updatedStakeholders);
+            setStakeholders(updatedStakeholders);
             setConfirmUpdateItem(null)
             linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
             setReload(true);
             try {
                 await handleUpdate({
-                    route: 'comunicacao/stakeholderGroups/update?id',
+                    route: 'comunicacao/stakeholders/update?id',
                     dados: updatedItem,
                     item: confirmUpdateItem
                 });
             } catch (error) {
-                setStakeholderGroups(stakeholderGroups);
+                setStakeholders(stakeholders);
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
@@ -80,7 +80,7 @@ const Tabela = () => {
             var getDeleteSuccess = false;
             try {
                 getDeleteSuccess = handleDelete({
-                    route: 'comunicacao/stakeholderGroups',
+                    route: 'comunicacao/stakeholders',
                     item: confirmDeleteItem,
                     fetchDados: fetchStakeholders
                 });
@@ -98,8 +98,8 @@ const Tabela = () => {
 
     const fetchStakeholders = async () => {
         try {
-            const data = await fetchData('comunicacao/stakeholderGroups/get/all');
-            setStakeholderGroups(data.stakeholderGroups);
+            const data = await fetchData('comunicacao/stakeholders/get/all');
+            setStakeholders(data.stakeholders);
         } finally {
             setLoading(false);
         }
@@ -138,7 +138,7 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2>Stakeholder Groups</h2>
+            <h2>Stakeholder Identification</h2>
             {exibirModal != null && (
                 <Modal objeto={{
                     titulo: modalLabels[exibirModal],
@@ -150,7 +150,7 @@ const Tabela = () => {
 
             {confirmDeleteItem && (
                 <Modal objeto={{
-                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.grupo}"?`,
+                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.stakeholder}"?`,
                     alerta: true,
                     botao1: {
                         funcao: handleConfirmDelete, texto: 'Confirm'
@@ -163,18 +163,18 @@ const Tabela = () => {
 
             <div className={styles.tabelaComunicacao_container}>
                 <div className={styles.tabelaComunicacao_wrapper}>
-                    <table className={styles.tabelaComunicacao}>
+                    <table className={styles.tabelaStakeholders}>
                         <thead>
                             <tr>
                                 <th colSpan="6">Basic info</th>
                                 <th colSpan="2">Needs</th>
                                 <th colSpan="2">Engagement</th>
                                 <th rowSpan="2">Actions</th>
-                                
+
                             </tr>
                             <tr>
+                                <th>Stakeholder Group</th>
                                 <th>Stakeholder</th>
-                                <th>Involvement</th>
                                 <th>Potential Influence</th>
                                 <th>Potential Impact</th>
                                 <th>Power</th>
@@ -186,35 +186,35 @@ const Tabela = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            
-                            {stakeholderGroups.map((stakeholderGroup, index) => (
+
+                            {stakeholders.map((stakeholder, index) => (
                                 <React.Fragment key={index}>
-                                    {linhaVisivel === stakeholderGroup._id ? (
-                                        <CadastroInputs tipo="update"
+                                    {linhaVisivel === stakeholder._id ? (
+                                        <Inputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
                                             funcao={{
                                                 funcao1: () => handleUpdateItem(),
-                                                funcao2: () => linhaVisivel === stakeholderGroup._id ? setLinhaVisivel() : setLinhaVisivel(stakeholderGroup._id)
+                                                funcao2: () => linhaVisivel === stakeholder._id ? setLinhaVisivel() : setLinhaVisivel(stakeholder._id)
                                             }}
                                             checkDados={checkDados}
                                         />
                                     ) : (
                                         <tr>
-                                            <td>{stakeholderGroup.grupo}</td>
-                                            <td>{stakeholderGroup.envolvimento}</td>
-                                            <td>{stakeholderGroup.influencia}</td>
-                                            <td>{stakeholderGroup.impacto}</td>
-                                            <td>{stakeholderGroup.poder}</td>
-                                            <td>{stakeholderGroup.interesse}</td>
-                                            <td>{stakeholderGroup.expectativas}</td>
-                                            <td>{stakeholderGroup.requisitos}</td>
-                                            <td>{stakeholderGroup.engajamento_positivo}</td>
-                                            <td>{stakeholderGroup.engajamento_negativo}</td>
+                                            <td>{stakeholder.grupo}</td>
+                                            <td>{stakeholder.stakeholder}</td>
+                                            <td>{stakeholder.influencia ? 'High' : 'Low'}</td>
+                                            <td>{stakeholder.impacto ? 'High' : 'Low'}</td>
+                                            <td>{stakeholder.poder ? 'High' : 'Low'}</td>
+                                            <td>{stakeholder.interesse ? 'High' : 'Low'}</td>
+                                            <td>{stakeholder.expectativas}</td>
+                                            <td>{stakeholder.requisitos}</td>
+                                            <td>{stakeholder.engajamento_positivo}</td>
+                                            <td>{stakeholder.engajamento_negativo}</td>
                                             <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(stakeholderGroup)} disabled={!isAdmin}>❌</button>
+                                                <button onClick={() => setConfirmDeleteItem(stakeholder)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(stakeholderGroup._id); handleUpdateClick(stakeholderGroup)
+                                                    setLinhaVisivel(stakeholder._id); handleUpdateClick(stakeholder)
                                                 }
                                                 } disabled={!isAdmin}>⚙️</button>
                                             </td>
@@ -222,7 +222,7 @@ const Tabela = () => {
                                     )}
                                 </React.Fragment>
                             ))}
-                            <CadastroInputs
+                            <Inputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
                                 funcao={enviar}

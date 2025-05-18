@@ -4,7 +4,7 @@ import { fetchData } from "../../../functions/crud";
 import { AuthContext } from "../../../contexts/AuthContext";
 import styles from '../../../styles/modules/recursos.module.css'
 
-const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
+const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
     const [emptyFields, setEmptyFields] = useState([]);
     const [elementosWBS, setElementosWBS] = useState([]);
     const [itensPorArea, setItensPorArea] = useState([]);
@@ -16,24 +16,23 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         tipo: null,
         ehEssencial: null
     });
-    const {isAdmin} = useContext(AuthContext)
+    const {isAdmin} = useContext(AuthContext);
+    const isFirstRender = useRef(true);
 
+    //funcao que busca no banco os elementos da WBS
     const fetchElementos = async () => {
         const data = await fetchData('wbs/get/all');
         setElementosWBS(data.elementos);
     };
 
+
+    //useEffect q so roda no primeiro render
     useEffect(() => {
         fetchElementos();
     }, []);
 
-    useEffect(() => {
-        if (obj.area) {
-            const itensDaArea = elementosWBS.filter(item => item.area === obj.area).map(item => item.item);
-            setItensPorArea(itensDaArea);
-        }
-    }, [obj.area, elementosWBS]);
 
+    //useEffect que so roda quando obj.area atualiza, que reseta o valor de item
     useEffect(() => {
         if (isFirstRender.current) {
             isFirstRender.current = false;
@@ -46,13 +45,15 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         });
     }, [obj.area]);
 
-    const isFirstRender = useRef(true);
 
+    //funcao que retorna o numero de campos vazios do form e o nome dos campos
     const isFormVazio = (form) => {
         const emptyFields = Object.entries(form).filter(([key, value]) => value === null || value === '');
         return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
     };
 
+
+    //funcao que insere no array itensPorArea os itens relacionados à area relacionada
     const handleAreaChange = (e) => {
         const areaSelecionada = e.target.value;
         const itensDaArea = elementosWBS.filter(item => item.area === areaSelecionada).map(item => item.item);
@@ -61,17 +62,19 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         handleChange(e, objSetter, obj);
     };
 
-    const handleChange = (e, setter, obj) => {
-        const { name, value } = e.target;
-        const index = emptyFields.indexOf(name);
-        index > -1 && emptyFields.splice(index, 1);
-        setter({
+
+    //funcao que insere no obj oo valor dos inputs
+    const handleChange = (e) => {
+        const { name, value } = e.target
+        objSetter({
             ...obj,
             [name]: value,
         });
         e.target.classList.remove('campo-vazio');
     };
 
+
+    //funcao que valida os dados, verificando quais campos estao vazios e inserindo a classe campo-vazio para destacá-los
     const validaDados = () => {
         const [isEmpty, camposVazios] = isFormVazio(obj);
         if (isEmpty) {
@@ -81,11 +84,13 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                 }
             });
             setEmptyFields(camposVazios);
-            checkDados('inputsVazios');
+            setExibirModal('inputsVazios');
             return true;
         }
     };
 
+
+    //funcao que detecta se os dados sao validos, e se sao, utiliza a funcao de submit
     const handleSubmit = async (e) => {
         const isInvalido = validaDados();
         if (funcao.funcao1) {
@@ -116,7 +121,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                 <select
                     value={obj.item}
                     name='item'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    onChange={handleChange}
                     ref={el => (camposRef.current.item = el)}
 
                 >
@@ -132,7 +137,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     value={obj.recurso}
                     name='recurso'
                     placeholder='Resource'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    onChange={handleChange}
                     min="0"
                     ref={el => (camposRef.current.recurso = el)} />
             </td>
@@ -141,7 +146,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     value={obj.uso}
                     name='uso'
                     placeholder='Use'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    onChange={handleChange}
                     min="0"
                     ref={el => (camposRef.current.uso = el)} />
             </td>
@@ -149,7 +154,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                 <select
                     value={obj.tipo}
                     name='tipo'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    onChange={handleChange}
                     className={styles.campo_tipo}
                     ref={el => (camposRef.current.tipo = el)} >
                     <option value="" defaultValue>Type</option>
@@ -165,7 +170,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                 <select
                     value={obj.ehEssencial}
                     name='ehEssencial'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    onChange={handleChange}
                     className={styles.campo_ehEssencial}
                     ref={el => (camposRef.current.ehEssencial = el)} >
                     <option value="" defaultValue>-</option>

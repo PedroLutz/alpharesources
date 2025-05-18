@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from "react";
 import Loading from '../../Loading';
-import Modal from '../../Modal';
-import { fetchData} from '../../../functions/crud';
+import { fetchData } from '../../../functions/crud';
 import styles from '../../../styles/modules/cbs.module.css'
 
 const Tabela = () => {
     const [dadosCbs, setDadosCbs] = useState([]);
-    const [exibirModal, setExibirModal] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [reload, setReload] = useState(false);
     const [cores, setCores] = useState([]);
 
+    //funcao para puxar os dados e atribuilos ao estado dadosCBS
     const fetchCbs = async () => {
         try {
             const data = await fetchData('recursos/cbs/get/all');
@@ -24,21 +22,25 @@ const Tabela = () => {
         }
     }
 
+    //funcao para puxar as cores e criar uma array de objetos no formato {area : cor}
     const fetchCores = async () => {
-            const data = await fetchData('wbs/get/cores');
-            var cores = {};
-            data.areasECores.forEach((area) => {
-              cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
-            })
-            setCores(cores);
-          }
+        const data = await fetchData('wbs/get/cores');
+        var cores = {};
+        data.areasECores.forEach((area) => {
+            cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
+        })
+        setCores(cores);
+    }
 
+
+    //useEffect que só executa na primeira render
     useEffect(() => {
-        setReload(false);
         fetchCbs();
         fetchCores();
-    }, [reload]);
+    }, []);
 
+
+    //funcao para calcular o rowSpan do td de areas de acordo com a quantidade de itens q tem
     const calculateRowSpan = (itens, currentArea, currentIndex, parametro) => {
         let rowSpan = 1;
         for (let i = currentIndex + 1; i < itens.length; i++) {
@@ -51,25 +53,10 @@ const Tabela = () => {
         return rowSpan;
     };
 
-    const modalLabels = {
-        'inputsVazios': 'Fill out all fields before adding new data!',
-        'deleteSuccess': 'Deletion Successful!',
-        'deleteFail': 'Deletion Failed!',
-    };
-
     return (
         <div className="centered-container">
             {loading && <Loading />}
             <h2>Cost Breakdown Structure (CBS)</h2>
-
-            {exibirModal != null && (
-                <Modal objeto={{
-                    titulo: modalLabels[exibirModal],
-                    botao1: {
-                        funcao: () => setExibirModal(null), texto: 'Okay'
-                    },
-                }} />
-            )}
 
             <div className={styles.tabela_cbs_container}>
                 <div className={styles.tabela_cbs_wrapper}>
@@ -80,30 +67,30 @@ const Tabela = () => {
                                 <th>Item</th>
                                 <th className={styles.td_custos}>Ideal cost</th>
                                 <th className={styles.td_custos}>Essential cost</th>
-                                <th style={{fontSize: '0.7rem'}} className={styles.td_custos}>Contingency</th>
+                                <th style={{ fontSize: '0.7rem' }} className={styles.td_custos}>Contingency</th>
                                 <th className={styles.td_custos}>Actual cost</th>
                                 <th>Comparison</th>
                             </tr>
                         </thead>
                         <tbody>
                             {dadosCbs.map((cbs, index) => (
-                                <React.Fragment key={index}> 
-                                        <tr style={{backgroundColor: cores[cbs.area]}}>
-                                            {index === 0 || dadosCbs[index - 1].area !== cbs.area ? (
-                                                        <td rowSpan={calculateRowSpan(dadosCbs, cbs.area, index, 'area')}
-                                                        >{cbs.area}</td>
-                                                    ) : null}
-                                            <td>{cbs.item}</td>
-                                            <td className={styles.td_custos}>R${parseFloat(cbs.custo_ideal).toFixed(2)}</td>
-                                            <td className={styles.td_custos}>R${parseFloat(cbs.custo_essencial).toFixed(2)}</td>
-                                            <td className={styles.td_custos}>R${cbs.contingencia ? parseFloat(cbs.contingencia).toFixed(2) : 0}</td>
-                                            <td className={styles.td_custos}>R${cbs.custo_real}</td>
-                                            <td>In relation to: <br/>
-                                                Ideal cost: R${parseFloat(cbs.custo_real - cbs.custo_ideal).toFixed(2)}<br/>
-                                                Essencial cost: R${parseFloat(cbs.custo_essencial - cbs.custo_ideal).toFixed(2)}<br/>
-                                                Ideal cost + contingency: R${parseFloat(cbs.custo_real + (cbs.contingencia ? cbs.contingencia : 0) - cbs.custo_ideal).toFixed(2)}<br/>
-                                            </td>
-                                        </tr>
+                                <React.Fragment key={index}>
+                                    <tr style={{ backgroundColor: cores[cbs.area] }}>
+                                        {index === 0 || dadosCbs[index - 1].area !== cbs.area ? (
+                                            <td rowSpan={calculateRowSpan(dadosCbs, cbs.area, index, 'area')}
+                                            >{cbs.area}</td>
+                                        ) : null}
+                                        <td>{cbs.item}</td>
+                                        <td className={styles.td_custos}>R${parseFloat(cbs.custo_ideal).toFixed(2)}</td>
+                                        <td className={styles.td_custos}>R${parseFloat(cbs.custo_essencial).toFixed(2)}</td>
+                                        <td className={styles.td_custos}>R${cbs.contingencia ? parseFloat(cbs.contingencia).toFixed(2) : 0}</td>
+                                        <td className={styles.td_custos}>R${cbs.custo_real}</td>
+                                        <td>In relation to: <br />
+                                            Ideal cost: R${parseFloat(cbs.custo_real - cbs.custo_ideal).toFixed(2)}<br />
+                                            Essencial cost: R${parseFloat(cbs.custo_essencial - cbs.custo_ideal).toFixed(2)}<br />
+                                            Ideal cost + contingency: R${parseFloat(cbs.custo_real + (cbs.contingencia ? cbs.contingencia : 0) - cbs.custo_ideal).toFixed(2)}<br />
+                                        </td>
+                                    </tr>
                                 </React.Fragment>
                             ))}
                         </tbody>

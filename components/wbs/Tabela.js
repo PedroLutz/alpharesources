@@ -15,7 +15,6 @@ const WBS = () => {
   const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
   const [verOpcoes, setVerOpcoes] = useState(false);
   const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
-  const [actionChoice, setActionChoice] = useState(null);
   const [exibirModal, setExibirModal] = useState(null);
   const [loading, setLoading] = useState(true);
   const camposVazios = {
@@ -107,13 +106,6 @@ const WBS = () => {
     })
     setCores(cores);
   }
-
-
-  //a funcao abaixo recebe um tipo de aviso, e exibe esse aviso no modal
-  //os tipos de avisos estao no obj modalLabels abaixo dela
-  const checkDados = (tipo) => {
-    setExibirModal(tipo); return;
-  };
 
   const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',
@@ -261,7 +253,7 @@ const WBS = () => {
   }, [reload]);
 
 
-  //essa funcao quebra em linhas o grafico da WBS
+  //essa funcao quebra em linhas o grafico da WBS e o exibe
   const renderWBS = () => {
     const areasPorLinha = 4;
     const gruposDeAreas = Object.keys(elementosPorArea).reduce((grupos, area, index) => {
@@ -293,7 +285,7 @@ const WBS = () => {
             obj={novoSubmit}
             objSetter={setNovoSubmit}
             funcao={enviar}
-            checkDados={checkDados}
+            setExibirModal={setExibirModal}
           />
         )}
 
@@ -306,7 +298,7 @@ const WBS = () => {
                 obj={novoSubmit}
                 objSetter={setNovoSubmit}
                 funcao={enviar}
-                checkDados={checkDados}
+                setExibirModal={setExibirModal}
                 isNameUsed={isNameUsed}
               />
             }
@@ -325,7 +317,7 @@ const WBS = () => {
                           funcao1: handleUpdateItem,
                           funcao2: () => linhaVisivel === area ? setLinhaVisivel() : setLinhaVisivel(item._id)
                         }}
-                        checkDados={checkDados}
+                        setExibirModal={setExibirModal}
                         isNameUsed={isNameUsed}
                       />
                     ) : (
@@ -348,7 +340,7 @@ const WBS = () => {
                           funcao1: handleUpdateCor,
                           funcao2: () => linhaVisivel === `${area}Cor` ? setLinhaVisivel() : setLinhaVisivel(item._id)
                         }}
-                        checkDados={checkDados}
+                        setExibirModal={setExibirModal}
                         isNameUsed={isNameUsed}
                       />
                     ) : (
@@ -385,7 +377,7 @@ const WBS = () => {
                                     funcao1: handleUpdateItem,
                                     funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
                                   }}
-                                  checkDados={checkDados}
+                                  setExibirModal={setExibirModal}
                                   isNameUsed={isNameUsed} />
                               </React.Fragment>
                             ) : (
@@ -411,7 +403,7 @@ const WBS = () => {
                         obj={submitEmArea}
                         objSetter={setSubmitEmArea}
                         funcao={enviarEmArea}
-                        checkDados={checkDados}
+                        setExibirModal={setExibirModal}
                         isNameUsed={isNameUsed} />
                     </React.Fragment>
                   }
@@ -434,21 +426,6 @@ const WBS = () => {
         onClick={() => setVerOpcoes(!verOpcoes)}
       >Toggle Options</button>
       {renderWBS()}
-
-      {actionChoice && (
-        <Modal objeto={{
-          titulo: 'What do you wish to do?',
-          botao1: {
-            funcao: () => { handleUpdateClick(actionChoice); setActionChoice(null) }, texto: 'Update item'
-          },
-          botao2: {
-            funcao: () => { setConfirmDeleteItem(actionChoice); setActionChoice(null) }, texto: 'Delete item'
-          },
-          botao3: {
-            funcao: () => setActionChoice(null), texto: 'Cancel'
-          }
-        }} />
-      )}
 
       {confirmDeleteItem && (
         <Modal objeto={{

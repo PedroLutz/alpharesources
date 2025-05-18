@@ -3,7 +3,7 @@ import { fetchData } from '../../../functions/crud';
 import { AuthContext } from '../../../contexts/AuthContext';
 import styles from '../../../styles/modules/wbs.module.css'
 
-const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
+const Inputs = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
     const [elementosWBS, setElementosWBS] = useState([]);
     const [itensPorArea, setItensPorArea] = useState([]);
     const camposRef = useRef({
@@ -33,16 +33,6 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
     useEffect(() => {
         fetchElementos();
     }, []);
-
-    //esse useEffect só roda quando o elementos da WBS sao atualizados, ou quando a area do obj é alterada
-    //ele garante que a array "itensDaArea" mostre apenas os itens da area selecionada no obj
-    useEffect(() => {
-        if (obj.area) {
-            const itensDaArea = elementosWBS.filter(item => item.area === obj.area).map(item => item.item);
-            setItensPorArea(itensDaArea);
-        }
-    }, [obj.area, elementosWBS]);
-
 
     //esse useEffect só rorda quando a area do obj é alterada, e garante que, quando a area é alterada,
     //o campo 'item' tenha seu valor apagado, evitando mistura de itens com areas a qual n pertecem
@@ -89,7 +79,7 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
 
 
     //essa funcao verifica os casos de invalidez, e se algum deles for verdadeiro,
-    //chama a funcao checkDados para levantar um modal avisando o problema
+    //chama a funcao setExibirModal para levantar um modal avisando o problema
     const validaDados = () => {
         const [isEmpty, camposVazios] = isFormVazio(obj);
         if (isEmpty) {
@@ -98,7 +88,7 @@ const Inputs = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                     camposRef.current[campo].classList.add('campo-vazio');
                 }
             });
-            checkDados('inputsVazios');
+            setExibirModal('inputsVazios');
             return true;
         }
     }

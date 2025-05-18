@@ -30,6 +30,8 @@ const Tabela = () => {
     const [cores, setCores] = useState([]);
     const {isAdmin} = useContext(AuthContext)
 
+
+    //funcao que busca as cores e insere em um array de objetos no formato { area : cor }
     const fetchCores = async () => {
         const data = await fetchData('wbs/get/cores');
         var cores = {};
@@ -39,6 +41,7 @@ const Tabela = () => {
         setCores(cores);
       }
 
+    //funcao que busca as datas de inicio e termino dos planos
     const fetchDatasPlanos = async () => {
         const data = await fetchData('cronograma/get/datasPlanosPorItem');
         data.planosPorItem.forEach((plano) => {
@@ -48,6 +51,8 @@ const Tabela = () => {
         setDatasPlanos(data.planosPorItem)
     }
 
+
+    //funcao que envia os dados de novoSubmit para submit no banco
     const enviar = async (e) => {
         e.preventDefault();
         handleSubmit({
@@ -55,17 +60,20 @@ const Tabela = () => {
             dados: novoSubmit
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
+        await fetchRecursos();
         setReload(true);
     };
 
+
+    //funcao que recebe o item, insere em confirmUpdateItem e novosDados
     const handleUpdateClick = (item) => {
-        console.log(item)
         setConfirmUpdateItem(item)
         setNovosDados({
             ...item
         });
     };
 
+    //fuuncao que busca os recursos
     const fetchRecursos = async () => {
         try {
             const data = await fetchData('recursos/recurso/get/all');
@@ -75,6 +83,8 @@ const Tabela = () => {
         }
     };
 
+
+    //funcao que trata os dados e envia para update
     const handleUpdateItem = async () => {
         if (confirmUpdateItem) {
             setLoading(true);
@@ -92,10 +102,13 @@ const Tabela = () => {
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
-            setLoading(false)
+            setLoading(false);
+            await fetchRecursos();
         }
     };
 
+
+    //funcao que envia o id para delecao
     const handleConfirmDelete = () => {
         if (confirmDeleteItem) {
             var getDeleteSuccess = false;
@@ -117,16 +130,24 @@ const Tabela = () => {
         setConfirmDeleteItem(null);
     };
 
+
+    //useEffect que so roda quando reload atualiza
     useEffect(() => {
-        setReload(false);
+        if(reload == true){
+            setReload(false);
+            fetchRecursos();
+            fetchCores();
+            fetchDatasPlanos();
+        }
+    }, [reload]);
+
+
+    //useEffect que so roda no primeiro render
+    useEffect(() => {
         fetchRecursos();
         fetchCores();
         fetchDatasPlanos();
-    }, [reload]);
-
-    const checkDados = (tipo) => {
-        setExibirModal(tipo); return;
-    };
+    }, []);
 
     const modalLabels = {
         'inputsVazios': 'Fill out all fields before adding new data!',
@@ -134,6 +155,8 @@ const Tabela = () => {
         'deleteFail': 'Deletion Failed!',
     };
 
+
+    //funcao que calcula o rowSpan dos td de area de acordo com a quantidade de itens q ela tem
     const calculateRowSpan = (itens, currentArea, currentIndex, parametro) => {
         let rowSpan = 1;
         for (let i = currentIndex + 1; i < itens.length; i++) {
@@ -202,7 +225,7 @@ const Tabela = () => {
                                                 funcao1: () => handleUpdateItem(),
                                                 funcao2: () => { linhaVisivel === recurso._id ? setLinhaVisivel() : setLinhaVisivel(recurso._id); setIsUpdating(false) }
                                             }}
-                                            checkDados={checkDados}
+                                            setExibirModal={setExibirModal}
                                         />
                                     ) : (
                                         <tr style={{backgroundColor: cores[recurso.area]}}>
@@ -247,7 +270,7 @@ const Tabela = () => {
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
                                 funcao={enviar}
-                                checkDados={checkDados}
+                                setExibirModal={setExibirModal}
                             />
                         </tbody>
                     </table>

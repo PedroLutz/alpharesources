@@ -38,6 +38,8 @@ const PlanoAquisicao = () => {
     const [isUpdating, setIsUpdating] = useState(false);
     const {isAdmin} = useContext(AuthContext)
 
+
+    //funcao que envia os dados do novoSubmit para cadastro no banco
     const enviar = async (e) => {
         e.preventDefault();
         handleSubmit({
@@ -45,9 +47,12 @@ const PlanoAquisicao = () => {
             dados: novoSubmit
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
+        await fetchPlanos();
         setReload(true);
     };
 
+    
+    //funcao que recebe o item, insere em confirmUpdateItem e insere os dados corretamente em novosDados
     const handleUpdateClick = (item) => {
         setConfirmUpdateItem(item)
         setNovosDados({
@@ -55,10 +60,11 @@ const PlanoAquisicao = () => {
             data_esperada: euDateToIsoDate(item.data_esperada),
             data_limite: euDateToIsoDate(item.data_limite),
             data_real: euDateToIsoDate(item.data_real)
-
         });
     };
 
+
+    //dado que busca e trata os dados dos planos
     const fetchPlanos = async () => {
         try {
             const data = await fetchData('recursos/planoAquisicao/get/all');
@@ -89,6 +95,8 @@ const PlanoAquisicao = () => {
         }
     };
 
+
+    //funcao que trata e envia os dados para atualizacao no banco
     const handleUpdateItem = async () => {
         if (confirmUpdateItem) {
             setLoading(true);
@@ -109,10 +117,13 @@ const PlanoAquisicao = () => {
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
+            await fetchPlanos();
             setLoading(false)
         }
     };
 
+
+    //funcao que envia os dados do item para delecao do banco
     const handleConfirmDelete = () => {
         if (confirmDeleteItem) {
             var getDeleteSuccess = false;
@@ -134,21 +145,31 @@ const PlanoAquisicao = () => {
         setConfirmDeleteItem(null);
     };
 
+
+    //useEffect que so roda quando reload eh atualizado
     useEffect(() => {
-        setReload(false);
-        fetchPlanos();
+        if(reload == true){
+            setReload(false);
+            fetchPlanos();
+        }
     }, [reload]);
 
-    const checkDados = (tipo) => {
-        setExibirModal(tipo); return;
-    };
 
+    //useEffect que so roda no primeiro render
+    useEffect(() => {
+        fetchPlanos();
+    }, []);
+
+
+    //textos dos modais 
     const modalLabels = {
         'inputsVazios': 'Fill out all fields before adding new data!',
         'deleteSuccess': 'Deletion Successful!',
         'deleteFail': 'Deletion Failed!',
     };
 
+
+    //funcao que calcula o rowSpan dos tds de area de acordo com a quantidade de itens q a area possui
     const calculateRowSpan = (itens, currentArea, currentIndex) => {
         let rowSpan = 1;
         for (let i = currentIndex + 1; i < itens.length; i++) {
@@ -229,7 +250,7 @@ const PlanoAquisicao = () => {
                                                 funcao1: () => handleUpdateItem(),
                                                 funcao2: () => {linhaVisivel === plano._id ? setLinhaVisivel() : setLinhaVisivel(plano._id); setIsUpdating(false)}
                                             }}
-                                            checkDados={checkDados}
+                                            setExibirModal={setExibirModal}
                                         />
                                     ) : (
                                         <tr>
@@ -280,7 +301,7 @@ const PlanoAquisicao = () => {
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
                                 funcao={enviar}
-                                checkDados={checkDados}
+                                setExibirModal={setExibirModal}
                             />
                         </tbody>
                     </table>

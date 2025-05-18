@@ -1,4 +1,4 @@
-.tabelaComunicacao table {
+.tabelaComunicacao table, .tabelaStakeholders table {
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(0, 0, 0);
@@ -18,7 +18,8 @@
     display:block;
 }
 
-.tabelaComunicacao td, .tabelaComunicacao th {
+.tabelaComunicacao td, .tabelaComunicacao th,
+.tabelaStakeholders td, .tabelaStakeholders th {
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(0, 0, 0);
@@ -27,7 +28,8 @@
     word-wrap: break-word;
 }
 
-.tabelaComunicacao td input, .tabelaComunicacao td select, .tabelaComunicacao td textarea {
+.tabelaComunicacao td input, .tabelaComunicacao td select, .tabelaComunicacao td textarea,
+.tabelaStakeholders td input, .tabelaStakeholders td select, .tabelaStakeholders td textarea {
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(167, 167, 167);
@@ -36,26 +38,26 @@
     transition: 0.2s;
     outline: none;
     background-color: white;
+    width: 10rem;
     font-size: small;
 }
 
-.tabelaComunicacao td textarea{
+.tabelaComunicacao td textarea, .tabelaStakeholders td textarea{
     height: 4rem;
 }
 
-.tabelaComunicacao td select, .tabelaComunicacao td:not(:global(.botoes_acoes)) button{
+.tabelaComunicacao td select, .tabelaComunicacao td:not(:global(.botoes_acoes)) button,
+.tabelaStakeholders td select, .tabelaStakeholders td:not(:global(.botoes_acoes)) button{
     height: 4.5rem;
 }
 
 .tabelaComunicacao td input:hover, .tabelaComunicacao td select:hover,
 .tabelaComunicacao td textarea:hover, 
-.tabelaComunicacao td:not(:global(.botoes_acoes)) button:hover {
+.tabelaComunicacao td:not(:global(.botoes_acoes)) button:hover,
+.tabelaStakeholders td input:hover, .tabelaStakeholders td select:hover,
+.tabelaStakeholders td textarea:hover, 
+.tabelaStakeholders td:not(:global(.botoes_acoes)) button:hover {
     background-color: rgb(231, 231, 231);
-}
-
-.tabelaComunicacao td input, .tabelaComunicacao td select {
-    width: 10rem;
-    font-size: small;
 }
 
 .tabelaComunicacao td:nth-child(4) select,.tabelaComunicacao td:nth-child(5) select{
@@ -66,13 +68,26 @@
     width: 7rem;
 }
 
-.tabelaComunicacao th {
+.tabelaComunicacao th, .tabelaStakeholders th{
     background-color: #ff8ff2;
     border-width: 0.1rem;
     font-size: 0.9rem;
     border-style: solid;
     border-color: rgb(0, 0, 0);
     padding: 0.3rem;
+}
+
+.tabelaStakeholders td:first-child select,
+.tabelaStakeholders td:nth-child(2) textarea{
+    width: 9rem;
+}
+
+.tabelaStakeholders td:nth-child(3) select, 
+.tabelaStakeholders td:nth-child(4) select,
+.tabelaStakeholders td:nth-child(5) select,
+.tabelaStakeholders td:nth-child(6) select{
+    font-size: 0.75rem;
+    width: 4.6rem;
 }
 
 .tabelaComunicacao td {
@@ -84,7 +99,7 @@
     text-align: center;
 }
 
-.tabelaComunicacao button{
+.tabelaComunicacao button,  .tabelaStakeholders button{
     background-color: transparent;
     border-width: 0.1rem;
     border-style: solid;

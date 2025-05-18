@@ -1,5 +1,4 @@
-import React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Chart } from 'react-google-charts';
 import { sortBy } from 'lodash';
 import Loading from '../../Loading';
@@ -26,68 +25,102 @@ const Resumo = () => {
   const [curvaSTabela, setCurvaSTabela] = useState([]);
 
   //gerar Array do grafico de pizza Receitas Por Area
-  const ReceitasPorAreaGraph = [['Area', 'Value']];
-  receitasPorArea.forEach((area) => {
-    ReceitasPorAreaGraph.push([area._id, area.total]);
-  });
+  const ReceitasPorAreaGraph = useMemo(() => {
+    if (receitasPorArea.length === 0) return [['Area', 'Value']];
+    const graph = [['Area', 'Value']];
+    receitasPorArea.forEach((area) => {
+      graph.push([area._id, area.total]);
+    });
+    return graph;
+  }, [receitasPorArea]);
+
 
   //gerar Array do grafico de pizza Despesas por Area
-  const DespesasPorAreaGraph = [['Area', 'Value']];
-  despesasPorArea.forEach((area) => {
-    DespesasPorAreaGraph.push([area._id, -area.total]);
-  });
+  const DespesasPorAreaGraph = useMemo(() => {
+    if (despesasPorArea.length === 0) return [['Area', 'Value']];
+    const graph = [['Area', 'Value']];
+    despesasPorArea.forEach((area) => {
+      graph.push([area._id, -area.total]);
+    });
+    return graph;
+  }, [despesasPorArea]);
 
   //gerar Array do grafico de colunas de valores por area
-  const ValoresPorAreaGraph = [['Area', 'Revenue', 'Expense']];
-  const areasGanhos = new Set(receitasPorArea.map((receitaArea) => receitaArea._id));
-  const areasGastos = new Set(despesasPorArea.map((despesaArea) => despesaArea._id));
-  const todasAreas = Array.from(new Set([...areasGanhos, ...areasGastos]));
-  todasAreas.forEach((areaNome) => {
-    const receitaArea = receitasPorArea.find((receita) => receita._id === areaNome);
-    const receitaValor = receitaArea ? receitaArea.total : 0;
+  const ValoresPorAreaGraph = useMemo(() => {
+    if (receitasPorArea.length == 0 || despesasPorArea.length == 0) return [['Area', 'Revenue', 'Expense']]
+    const graph = [['Area', 'Revenue', 'Expense']];
+    const areasGanhos = new Set(receitasPorArea.map((receitaArea) => receitaArea._id));
+    const areasGastos = new Set(despesasPorArea.map((despesaArea) => despesaArea._id));
+    const todasAreas = Array.from(new Set([...areasGanhos, ...areasGastos]));
 
-    const despesaArea = despesasPorArea.find((despesa) => despesa._id === areaNome);
-    const despesaValor = despesaArea ? -despesaArea.total : 0;
+    todasAreas.forEach((areaNome) => {
+      const receitaArea = receitasPorArea.find((receita) => receita._id === areaNome);
+      const receitaValor = receitaArea ? receitaArea.total : 0;
 
-    ValoresPorAreaGraph.push([areaNome, receitaValor, despesaValor]);
-  });
+      const despesaArea = despesasPorArea.find((despesa) => despesa._id === areaNome);
+      const despesaValor = despesaArea ? -despesaArea.total : 0;
+
+      graph.push([areaNome, receitaValor, despesaValor]);
+    });
+
+    return graph;
+  }, [receitasPorArea, despesasPorArea])
 
   //gerar Array do grafico de colunas de valores por mês, crescimento mensal e gasto mensal
-  const ValoresPorMesGraph = [['Month', 'Revenue', 'Expense']];
-  const CashFlowMensal = [];
-  const CaixaMensalGraph = [['Month', 'Value']];
-  const CrescimentoDosGastosGraph = [['Month', 'Value']];
-  let saldoAcumulado = 0;
-  let gastosAcumulados = 0;
+  const [ValoresPorMesGraph, CashFlowMensal, CaixaMensalGraph, CrescimentoDosGastosGraph] = useMemo(() => {
+    if (receitasPorMes.length == 0 || despesasPorMes.length == 0) {
+      return [
+        [['Month', 'Revenue', 'Expense']],
+        [],
+        [['Month', 'Value']],
+        [['Month', 'Value']]
+      ]
+    }
+    const valoresGraph = [['Month', 'Revenue', 'Expense']];
+    const cashFlow = [];
+    const caixaGraph = [['Month', 'Value']];
+    const crescimentoGraph = [['Month', 'Value']];
 
-  const mesesGanhos = new Set(receitasPorMes.map((receitaMes) => receitaMes._id));
-  const mesesGastos = new Set(despesasPorMes.map((despesaMes) => despesaMes._id));
-  const todosMeses = sortBy(Array.from(new Set([...mesesGanhos, ...mesesGastos])));
-  todosMeses.forEach((mesNome) => {
-    const receitaMes = receitasPorMes.find((receita) => receita._id === mesNome);
-    const receitaValor = receitaMes ? receitaMes.total : 0;
+    let saldoAcumulado = 0;
+    let gastosAcumulados = 0;
 
-    const despesaMes = despesasPorMes.find((despesa) => despesa._id === mesNome);
-    const despesaValor = despesaMes ? -despesaMes.total : 0;
+    const mesesGanhos = new Set(receitasPorMes.map((receitaMes) => receitaMes._id));
+    const mesesGastos = new Set(despesasPorMes.map((despesaMes) => despesaMes._id));
+    const todosMeses = sortBy(Array.from(new Set([...mesesGanhos, ...mesesGastos])));
+    todosMeses.forEach((mesNome) => {
+      const receitaMes = receitasPorMes.find((receita) => receita._id === mesNome);
+      const receitaValor = receitaMes ? receitaMes.total : 0;
 
-    const saldoMes = receitaValor - despesaValor;
+      const despesaMes = despesasPorMes.find((despesa) => despesa._id === mesNome);
+      const despesaValor = despesaMes ? -despesaMes.total : 0;
 
-    saldoAcumulado += saldoMes;
-    gastosAcumulados += despesaValor;
+      const saldoMes = receitaValor - despesaValor;
 
-    const dateParts = mesNome.split('/');
-    const formattedDate = `${dateParts[1]}/${dateParts[0]}`;
+      saldoAcumulado += saldoMes;
+      gastosAcumulados += despesaValor;
 
-    ValoresPorMesGraph.push([formattedDate, receitaValor, despesaValor]);
-    CashFlowMensal.push({
-      mes: formattedDate, receita: receitaValor, despesa: despesaValor,
-      movimento: saldoMes, balanco: saldoAcumulado
-    })
-    CaixaMensalGraph.push([formattedDate, saldoAcumulado]);
-    CrescimentoDosGastosGraph.push([formattedDate, gastosAcumulados]);
-  });
+      const dateParts = mesNome.split('/');
+      const formattedDate = `${dateParts[1]}/${dateParts[0]}`;
 
-  //receber dados das financas
+      valoresGraph.push([formattedDate, receitaValor, despesaValor]);
+      cashFlow.push({
+        mes: formattedDate, receita: receitaValor, despesa: despesaValor,
+        movimento: saldoMes, balanco: saldoAcumulado
+      })
+      caixaGraph.push([formattedDate, saldoAcumulado]);
+      crescimentoGraph.push([formattedDate, gastosAcumulados]);
+    });
+
+    return [
+      valoresGraph,
+      cashFlow,
+      caixaGraph,
+      crescimentoGraph
+    ]
+
+  }, [receitasPorMes, despesasPorMes])
+
+  //receber dados das financas e criar tabelas de KPIs e CurvaS
   const fetchResumos = async () => {
     try {
       const data = await fetchData('financas/financas/get/resumo');
@@ -117,7 +150,7 @@ const Resumo = () => {
       const porcentagemExecucaoMensal = porcentagemExecucaoMensal_dados.execucaoMensal;
 
       const totalPlanejado = valoresPlanejadosMensais.reduce(
-        (acc, cur) => acc + (2*cur.total_valor_a + cur.total_valor_b)/3 , 0
+        (acc, cur) => acc + (2 * cur.total_valor_a + cur.total_valor_b) / 3, 0
       )
 
       const curvaSGraph = [["Month", "Planned Cost", "Aggregated Value", "Actual Cost"]];
@@ -127,17 +160,17 @@ const Resumo = () => {
       var gastosMensaisAcumulados = 0;
       porcentagemExecucaoMensal.forEach(obj => {
         const mes = obj.mes;
-        const valorPlanejado = valoresPlanejadosMensais.find((plano) => plano.mes === mes) || {total_valor_a: 0, total_valor_b: 0, mes: mes};
-        gastosMensaisAcumuladosPlano += ((2*valorPlanejado.total_valor_a + valorPlanejado.total_valor_b)/3)
+        const valorPlanejado = valoresPlanejadosMensais.find((plano) => plano.mes === mes) || { total_valor_a: 0, total_valor_b: 0, mes: mes };
+        gastosMensaisAcumuladosPlano += ((2 * valorPlanejado.total_valor_a + valorPlanejado.total_valor_b) / 3)
         const gastoNoMes = -1 * (despesasPorMes.find((despesa) => despesa._id === mes)?.total || 0);
         gastosMensaisAcumulados += gastoNoMes;
         const execucaoNoMes = obj.porcentagemExecucao;
-        const valorAgregado = execucaoNoMes*totalPlanejado/100;
+        const valorAgregado = execucaoNoMes * totalPlanejado / 100;
 
         curvaSGraph.push([
-          valorPlanejado.mes, 
-          parseFloat(gastosMensaisAcumuladosPlano.toFixed(2)), 
-          parseFloat(valorAgregado.toFixed(2)), 
+          valorPlanejado.mes,
+          parseFloat(gastosMensaisAcumuladosPlano.toFixed(2)),
+          parseFloat(valorAgregado.toFixed(2)),
           parseFloat(gastosMensaisAcumulados.toFixed(2))
         ]);
 
@@ -145,12 +178,12 @@ const Resumo = () => {
           mes: valorPlanejado.mes,
           gastoMensal: parseFloat(gastoNoMes.toFixed(2)),
           gastoMensalAcumulado: parseFloat(gastosMensaisAcumulados.toFixed(2)),
-          gastoPlanejado: parseFloat(((2*valorPlanejado.total_valor_a + valorPlanejado.total_valor_b)/3).toFixed(2)),
+          gastoPlanejado: parseFloat(((2 * valorPlanejado.total_valor_a + valorPlanejado.total_valor_b) / 3).toFixed(2)),
           gastoPlanejadoAcumulado: parseFloat(gastosMensaisAcumuladosPlano.toFixed(2)),
           valorAgregado: parseFloat(valorAgregado.toFixed(2))
         })
       })
-      
+
       setCurvaS(curvaSGraph);
       setCurvaSTabela(curvaStabelaArray);
 
@@ -179,6 +212,7 @@ const Resumo = () => {
     }
   };
 
+  //buscar dados de cores
   const fetchCores = async () => {
     const data = await fetchData('wbs/get/cores');
     var cores = {};
@@ -188,11 +222,15 @@ const Resumo = () => {
     setCores(cores);
   }
 
+
+  //useEffect que so executa na primeira render
   useEffect(() => {
     fetchResumos();
     fetchCores();
   }, []);
 
+
+  //definicao do estiloGraph
   const estiloGraph = {
     backgroundColor: 'transparent',
     titleTextStyle: {
@@ -362,28 +400,28 @@ const Resumo = () => {
       </div>
 
       <div className={grafico}>
-          <h3>S Curve</h3>
-          <Chart
-            width={"90%"}
-            height={"400px"}
-            chartType="LineChart"
-            loader={<div>Loading graph</div>}
-            data={curvaS}
-            options={{
-              ...estiloGraph,
-              colors: ["red", "blue", "green"],
-              curveType: 'function',
-              series: {
-                0: { lineDashStyle: [1, 1] },
-                1: { lineDashStyle: [4, 2] },
-                2: { lineDashStyle: [8, 5] }
-              }
-            }}
-            rootProps={{ 'data-testid': '1' }}
-          />
-        </div>
+        <h3>S Curve</h3>
+        <Chart
+          width={"90%"}
+          height={"400px"}
+          chartType="LineChart"
+          loader={<div>Loading graph</div>}
+          data={curvaS}
+          options={{
+            ...estiloGraph,
+            colors: ["red", "blue", "green"],
+            curveType: 'function',
+            series: {
+              0: { lineDashStyle: [1, 1] },
+              1: { lineDashStyle: [4, 2] },
+              2: { lineDashStyle: [8, 5] }
+            }
+          }}
+          rootProps={{ 'data-testid': '1' }}
+        />
+      </div>
 
-        <div className='centered-container'>
+      <div className='centered-container'>
         <h3>S Curve Data</h3>
         <table className={tabela.cash_flow}>
           <thead>
@@ -464,7 +502,7 @@ const Resumo = () => {
                   lineWidth: 5,
                 },
               },
-              
+
             }}
             rootProps={{ 'data-testid': '1' }}
           />

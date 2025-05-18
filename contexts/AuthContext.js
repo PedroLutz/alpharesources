@@ -9,8 +9,6 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      setAutenticado(true);
-
       const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString('utf-8'));
 
       const agora = Math.floor(Date.now() / 1000); // em segundos
@@ -18,7 +16,7 @@ export const AuthProvider = ({ children }) => {
         setAutenticado(true);
         setIsAdmin(payload.admin);
       } else {
-        localStorage.removeItem('token') // limpa token vencido
+        localStorage.removeItem('token'); // limpa token vencido
         setAutenticado(false);
         setIsAdmin(false);
       }

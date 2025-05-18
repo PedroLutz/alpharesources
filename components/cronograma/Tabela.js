@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useMemo } from 'react';
 import Loading from '../Loading';
 import Modal from '../Modal';
 import { Chart } from 'react-google-charts';
@@ -39,6 +39,8 @@ const Tabela = () => {
   const [showContingencies, setShowContingencies] = useState(false);
   const [tabela, setTabela] = useState([]);
 
+
+  //funcao que recebe o item a ser atualizado e insere os campos relevantes em novosDados
   const handleUpdateClick = (item) => {
     setConfirmUpdateItem(item);
     setNovosDados({
@@ -51,6 +53,8 @@ const Tabela = () => {
     });
   };
 
+
+  //funcao que deleta o item tanto no plano quanto no monitoramento
   const handleConfirmDelete = async () => {
     setConfirmDeleteItem(null);
     if (confirmDeleteItem) {
@@ -62,7 +66,7 @@ const Tabela = () => {
           fetchDados: fetchCronogramas
         });
         try {
-          const response = await fetch(`/api/cronograma/deleteByName`, {
+          await fetch(`/api/cronograma/deleteByName`, {
             method: 'DELETE',
             headers: {
               'Content-Type': 'application/json',
@@ -78,6 +82,8 @@ const Tabela = () => {
     }
   };
 
+
+  //funcao para somar dias a uma data
   function adicionarDias(data, dias) {
     if (dias) {
       const novaData = new Date(data);
@@ -87,6 +93,8 @@ const Tabela = () => {
     return data;
   }
 
+
+  //funcao para criar os dados que entram no grafico gantt, tanto o normal quanto o de contingencia
   const createGanttData = () => {
     const ganttData = [['Task ID', 'Task Name', 'Resource', 'Start Date', 'End Date', 'Duration', 'Percent Complete', 'Dependencies']];
     const ganttDataContingency = [['Task ID', 'Task Name', 'Resource', 'Start Date', 'End Date', 'Duration', 'Percent Complete', 'Dependencies']];
@@ -111,15 +119,19 @@ const Tabela = () => {
 
     return [ganttData, ganttDataContingency];
   };
-  var chartData;
-  var chartDataContingencies;
-  if (cronogramas.length > 0) {
-    [chartData, chartDataContingencies] = createGanttData();
-  } else {
-    chartData = [];
-    chartDataContingencies = [];
-  }
 
+  //funcao que executa na primeira render e depois so quando cronogramas ou etis atualiza
+  //armazenando os dados diretamente nas constantes
+
+  //useMemo ARMAZENA VALOR
+  //useEffect REALIZA FUNCOES
+  const [chartData, chartDataContingencies] = useMemo(() => {
+    if (cronogramas.length === 0) return [[], []];
+    return createGanttData();
+  }, [cronogramas, etis]);
+
+
+  //funcao para puxar os dados de cronograma, ETIs e cores, tratando-os e armazenando-os em estados
   const fetchCronogramas = async () => {
     try {
       const data = await fetchData('cronograma/get/planos');
@@ -141,7 +153,7 @@ const Tabela = () => {
         if (dataETIs.resultadosAgrupados[item.item]) {
           const termino = euDateToJsDate(item.termino)
           const terminoConvertido = adicionarDias(termino, Math.floor(dataETIs.resultadosAgrupados[item.item]));
-          item.termino = jsDateToEuDate(terminoConvertido);          
+          item.termino = jsDateToEuDate(terminoConvertido);
         }
       })
 
@@ -174,24 +186,32 @@ const Tabela = () => {
     }
   };
 
-  const checkDados = (tipo) => {
-    setExibirModal(tipo); return;
-  };
-
   const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',
     'dadosUsados': 'This item is already registered in the timelines!',
     'depFaltando': 'Please select the dependencies correctly!',
-    'dpNotUsed': "The item you've selected as predecessor is not registered!",
+    'dpNotRegistered': "The item you've selected as predecessor is not registered!",
     'dpNotOkay': "The predecessor must finish before the successor starts!",
     'datasErradas': 'The finishing date must be after the starting date!'
   };
 
+
+  //useEffect que só executa as funcoes quando reload atualiza
   useEffect(() => {
-    setReload(false);
-    fetchCronogramas();
+    if(reload == true){
+      setReload(false);
+      fetchCronogramas();
+    }
   }, [reload]);
 
+
+  //useEffect que so roda na primeira execucao
+  useEffect(() => {
+    fetchCronogramas();
+  }, []);
+
+
+  //useEffect que só executa quando chartData recebe um valor para calcular o tamanho do grafico
   useEffect(() => {
     if (chartData.length > 1) {
       const linhaHeight = 30;
@@ -201,6 +221,8 @@ const Tabela = () => {
     }
   }, [chartData]);
 
+
+  //funcao que cadastra o plano e o monitoramento, com os dados vazios
   const enviar = async (e) => {
     e.preventDefault();
     const formDataPlano = {
@@ -228,13 +250,12 @@ const Tabela = () => {
     window.location.reload();
   };
 
+  //funcao que trata os dados e atualiza o plano
   const handleUpdateItem = async () => {
     if (confirmUpdateItem) {
       const updatedItem = {
         ...confirmUpdateItem,
-        ...novosDados,
-        inicio: novosDados.inicio,
-        termino: novosDados.termino
+        ...novosDados
       };
 
       const updatedCronogramas = cronogramas.map(item =>
@@ -265,6 +286,8 @@ const Tabela = () => {
     setReload(true);
   };
 
+  
+  //funcao que calcula o rowSpan do td da area de acordo com os itens 
   const calculateRowSpan = (itens, currentArea, currentIndex) => {
     let rowSpan = 1;
     for (let i = currentIndex + 1; i < itens.length; i++) {
@@ -311,11 +334,11 @@ const Tabela = () => {
         }} />
       )}
 
-      <button className="botao-bonito" style={{width: '11rem'}} onClick={() => 
-        {setShowContingencies(!showContingencies);
-          showContingencies ? setTabela(cronogramas) : setTabela(cronogramasCont);
-        }}
-      >{!showContingencies ? `Show contingencies` : `Hide contingencies` }</button>
+      <button className="botao-bonito" style={{ width: '11rem' }} onClick={() => {
+        setShowContingencies(!showContingencies);
+        showContingencies ? setTabela(cronogramas) : setTabela(cronogramasCont);
+      }}
+      >{!showContingencies ? `Show contingencies` : `Hide contingencies`}</button>
 
       {chartDataLoaded && (
         <Chart
@@ -358,7 +381,7 @@ const Tabela = () => {
                     objSetter={setNovoSubmit}
                     tipo='cadastro'
                     funcao={enviar}
-                    checkDados={checkDados}
+                    setExibirModal={setExibirModal}
                   />
                 </tr>
                 {tabela.filter((item) => item.plano).map((item, index) => (
@@ -376,7 +399,7 @@ const Tabela = () => {
                           tipo="update"
                           obj={novosDados}
                           objSetter={setNovosDados}
-                          checkDados={checkDados}
+                          setExibirModal={setExibirModal}
                           funcao={{
                             funcao1: () => handleUpdateItem(),
                             funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
