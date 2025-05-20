@@ -30,6 +30,7 @@ const Navbar = () => {
               <div className={styles.dropdownContent}>
                 <Link href="/pages/communication/stakeholderGroups">Groups</Link>
                 <Link href="/pages/communication/stakeholders">Identification</Link>
+                <Link href="/pages/communication/engagement">Engagement</Link>
               </div>
             )}
           </div>

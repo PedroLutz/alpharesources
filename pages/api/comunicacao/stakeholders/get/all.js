@@ -8,7 +8,7 @@ export default async (req, res) => {
     await connectToDatabase();
 
     if (req.method === 'GET') {
-        const stakeholders = await Stakeholder.find();
+        const stakeholders = await Stakeholder.find().sort({ grupo: 1, stakeholder: 1 });
   
         res.status(200).json({ stakeholders });
     } else {

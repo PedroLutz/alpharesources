@@ -1,7 +1,11 @@
 import connectToDatabase from '../../../../lib/db';
 import StakeholderModel from '../../../../models/comunicacao/Stakeholder';
+import mongoose from 'mongoose';
+import EngajamentoModel from '../../../../models/comunicacao/Engajamento';
+import { update } from 'lodash';
 
 const { Stakeholder, StakeholderSchema } = StakeholderModel;
+const { Engajamento, EngajamentoSchema } = EngajamentoModel;
 
 export default async (req, res) => {
   try {
@@ -16,7 +20,7 @@ export default async (req, res) => {
 
       const propriedadesNomes = Object.keys(StakeholderSchema.paths);
       const updateFields = {};
-      
+
       for (const key in req.body) {
         if (req.body[key]) {
           if (propriedadesNomes.includes(key)) {
@@ -31,13 +35,30 @@ export default async (req, res) => {
         return res.status(400).json({ error: 'Pelo menos um campo deve ser fornecido para a atualização.' });
       }
 
-      const updatedData = await Stakeholder.findByIdAndUpdate(id, updateFields, { new: true });
+      const session = await mongoose.startSession();
+      session.startTransaction();
 
-      if (!updatedData) {
-        return res.status(404).json({ error: 'Stakeholder não encontrado.' });
+      try {
+        const updatedData = await Stakeholder.findByIdAndUpdate(id, updateFields, { new: true });
+
+        await Engajamento.updateOne(
+          {grupo: updateFields.grupo, stakeholder: updateFields.stakeholder}, 
+          {$set: {poder: updateFields.poder, interesse: updateFields.interesse}}
+        )
+
+        if (!updatedData) {
+          return res.status(404).json({ error: 'Stakeholder não encontrado.' });
+        }
+        await session.commitTransaction();
+        session.endSession();
+
+        return res.status(200).json(updatedData);
+      } catch {
+        await session.abortTransaction();
+        session.endSession();
+        console.error('Erro na transação:', error);
+        return res.status(500).json({ error: 'Erro ao atualizar Stakeholder e areas relacionadas.' });
       }
-
-      return res.status(200).json(updatedData);
     } else {
       res.status(405).json({ error: 'Método não permitido' });
     }

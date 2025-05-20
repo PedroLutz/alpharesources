@@ -14,13 +14,13 @@ export default async (req, res) => {
       const user = await User.findOne({ usuario: usuario });
 
       if(!user){
-        res.status(404).json({ achou: false });
+        res.status(200).json({ achou: false });
         return;
       }
       
       const isSenhaCorreta = await bcrypt.compare(senha, user.senha);
       if(!isSenhaCorreta){
-        res.status(401).json({ achou: true, acertou: false });
+        res.status(200).json({ achou: true, acertou: false });
       } else {
         const token = gerarToken({ id: user._id, usuario: user.usuario, admin: user.admin });
         res.status(200).json({ achou: true, acertou: true, token });

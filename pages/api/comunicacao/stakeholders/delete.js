@@ -1,7 +1,10 @@
 import connectToDatabase from '../../../../lib/db';
 import StakeholderModel from '../../../../models/comunicacao/Stakeholder';
+import EngajamentoModel from '../../../../models/comunicacao/Engajamento';
+import mongoose from 'mongoose';
 
 const { Stakeholder } = StakeholderModel;
+const { Engajamento } = EngajamentoModel;
 
 export default async (req, res) => {
   try {
@@ -12,13 +15,31 @@ export default async (req, res) => {
         return res.status(400).json({ error: 'O ID do Stakeholder não foi fornecido' });
       }
 
-      const deletedData = await Stakeholder.findByIdAndDelete(req.query.id);
+      const session = await mongoose.startSession();
+      session.startTransaction();
 
-      if (!deletedData) {
-        return res.status(404).json({ error: 'Stakeholder não encontrado' });
+      try{
+        const deletedData = await Stakeholder.findByIdAndDelete(req.query.id);
+        await Engajamento.findOneAndDelete({
+          grupo: deletedData.grupo, stakeholder: deletedData.stakeholder
+        })
+
+        if (!deletedData) {
+          return res.status(404).json({ error: 'Stakeholder não encontrado' });
+        }
+
+        await session.commitTransaction();
+        session.endSession();
+
+        res.status(200).json({ message: 'Stakeholder excluído com sucesso' });
+      } catch {
+        await session.abortTransaction();
+        session.endSession();
+        console.error('Erro na transação:', error);
+        return res.status(500).json({ error: 'Erro ao deletar Stakeholders e areas relacionadas.' });
       }
 
-      res.status(200).json({ message: 'Stakeholder excluído com sucesso' });
+      
     } else {
       res.status(405).json({ error: 'Método não permitido' });
     }

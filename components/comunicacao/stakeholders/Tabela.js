@@ -29,7 +29,8 @@ const Tabela = () => {
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
-    const { isAdmin } = useContext(AuthContext)
+    const { isAdmin } = useContext(AuthContext);
+    const [isUpdating, setIsUptading] = useState(false);
 
     const enviar = async (e) => {
         e.preventDefault();
@@ -37,6 +38,20 @@ const Tabela = () => {
             route: 'comunicacao/stakeholders',
             dados: novoSubmit
         });
+
+        const objEngajamento = {
+            grupo: novoSubmit.grupo,
+            stakeholder: novoSubmit.stakeholder,
+            poder: novoSubmit.poder,
+            interesse: novoSubmit.interesse,
+            nivel_engajamento: ''
+        }
+
+
+        handleSubmit({
+            route: 'comunicacao/engajamento',
+            dados: objEngajamento
+        })
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
         setReload(true);
     };
@@ -105,21 +120,6 @@ const Tabela = () => {
         }
     };
 
-    const generateMapping = (p, i) => {
-        if (p && i) {
-            return "Close Management"
-        }
-        if (!p && i) {
-            return "Keep informed"
-        }
-        if (p && !i) {
-            return "Keep satisfied"
-        }
-        if (!p && !p) {
-            return "Monitor"
-        }
-    }
-
     useEffect(() => {
         setReload(false);
         fetchStakeholders();
@@ -133,6 +133,18 @@ const Tabela = () => {
         'inputsVazios': 'Fill out all fields before adding new data!',
         'deleteSuccess': 'Deletion Successful!',
         'deleteFail': 'Deletion Failed!',
+    };
+
+    const calculateRowSpan = (itens, currentArea, currentIndex, parametro) => {
+        let rowSpan = 1;
+        for (let i = currentIndex + 1; i < itens.length; i++) {
+            if (itens[i][parametro] === currentArea) {
+                rowSpan++;
+            } else {
+                break;
+            }
+        }
+        return rowSpan;
     };
 
     return (
@@ -195,13 +207,22 @@ const Tabela = () => {
                                             objSetter={setNovosDados}
                                             funcao={{
                                                 funcao1: () => handleUpdateItem(),
-                                                funcao2: () => linhaVisivel === stakeholder._id ? setLinhaVisivel() : setLinhaVisivel(stakeholder._id)
+                                                funcao2: () => { linhaVisivel === stakeholder._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUptading(false); }
                                             }}
                                             checkDados={checkDados}
                                         />
                                     ) : (
                                         <tr>
-                                            <td>{stakeholder.grupo}</td>
+                                            {!isUpdating || isUpdating[0] !== stakeholder.grupo ? (
+                                                <React.Fragment>
+                                                    {index === 0 || stakeholders[index - 1].grupo !== stakeholder.grupo ? (
+                                                        <td rowSpan={calculateRowSpan(stakeholders, stakeholder.grupo, index, 'grupo')}
+                                                        >{stakeholder.grupo}</td>
+                                                    ) : null}
+                                                </React.Fragment>
+                                            ) : (
+                                                <td>{stakeholder.grupo}</td>
+                                            )}
                                             <td>{stakeholder.stakeholder}</td>
                                             <td>{stakeholder.influencia ? 'High' : 'Low'}</td>
                                             <td>{stakeholder.impacto ? 'High' : 'Low'}</td>
@@ -214,7 +235,7 @@ const Tabela = () => {
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(stakeholder)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(stakeholder._id); handleUpdateClick(stakeholder)
+                                                    setLinhaVisivel(stakeholder._id); handleUpdateClick(stakeholder); setIsUptading([stakeholder.grupo, stakeholder.stakeholder])
                                                 }
                                                 } disabled={!isAdmin}>⚙️</button>
                                             </td>

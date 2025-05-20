@@ -1,4 +1,5 @@
-.tabelaComunicacao table, .tabelaStakeholders table {
+.tabelaComunicacao table, .tabelaStakeholders table,
+.tabelaEngajamento table {
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(0, 0, 0);
@@ -18,8 +19,18 @@
     display:block;
 }
 
+#poderId, #interesseId{
+    width: 4rem;
+    font-size: 0.7rem;
+}
+
+#engId{
+    font-size: 0.8rem;
+}
+
 .tabelaComunicacao td, .tabelaComunicacao th,
-.tabelaStakeholders td, .tabelaStakeholders th {
+.tabelaStakeholders td, .tabelaStakeholders th, 
+.tabelaEngajamento td, .tabelaEngajamento th{
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(0, 0, 0);
@@ -29,7 +40,8 @@
 }
 
 .tabelaComunicacao td input, .tabelaComunicacao td select, .tabelaComunicacao td textarea,
-.tabelaStakeholders td input, .tabelaStakeholders td select, .tabelaStakeholders td textarea {
+.tabelaStakeholders td input, .tabelaStakeholders td select, .tabelaStakeholders td textarea, 
+.tabelaEngajamento td select{
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(167, 167, 167);
@@ -56,19 +68,24 @@
 .tabelaComunicacao td:not(:global(.botoes_acoes)) button:hover,
 .tabelaStakeholders td input:hover, .tabelaStakeholders td select:hover,
 .tabelaStakeholders td textarea:hover, 
-.tabelaStakeholders td:not(:global(.botoes_acoes)) button:hover {
+.tabelaStakeholders td:not(:global(.botoes_acoes)) button:hover,
+.tabelaEngajamento td select:hover {
     background-color: rgb(231, 231, 231);
 }
 
-.tabelaComunicacao td:nth-child(4) select,.tabelaComunicacao td:nth-child(5) select{
+.tabelaComunicacao td:nth-child(4) select, .tabelaComunicacao td:nth-child(5) select{
     width: 5rem;
+}
+
+.tabelaEngajamento td select {
+    width: 8rem;
 }
 
 .tabelaComunicacao td input[type='date'] {
     width: 7rem;
 }
 
-.tabelaComunicacao th, .tabelaStakeholders th{
+.tabelaComunicacao th, .tabelaStakeholders th, .tabelaEngajamento th{
     background-color: #ff8ff2;
     border-width: 0.1rem;
     font-size: 0.9rem;
@@ -90,6 +107,10 @@
     width: 4.6rem;
 }
 
+.tabelaEngajamento th{
+    width: 8rem;
+}
+
 .tabelaComunicacao td {
     width: 6rem;
     text-align: left;
@@ -99,7 +120,7 @@
     text-align: center;
 }
 
-.tabelaComunicacao button,  .tabelaStakeholders button{
+.tabelaComunicacao button,  .tabelaStakeholders button, .tabelaEngajamento button{
     background-color: transparent;
     border-width: 0.1rem;
     border-style: solid;
