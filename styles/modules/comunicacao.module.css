@@ -1,5 +1,5 @@
 .tabelaComunicacao table, .tabelaStakeholders table,
-.tabelaEngajamento table {
+.tabelaEngajamento table, .tabelaInformacao table {
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(0, 0, 0);
@@ -30,7 +30,8 @@
 
 .tabelaComunicacao td, .tabelaComunicacao th,
 .tabelaStakeholders td, .tabelaStakeholders th, 
-.tabelaEngajamento td, .tabelaEngajamento th{
+.tabelaEngajamento td, .tabelaEngajamento th,
+.tabelaInformacao td, .tabelaInformacao th{
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(0, 0, 0);
@@ -41,7 +42,8 @@
 
 .tabelaComunicacao td input, .tabelaComunicacao td select, .tabelaComunicacao td textarea,
 .tabelaStakeholders td input, .tabelaStakeholders td select, .tabelaStakeholders td textarea, 
-.tabelaEngajamento td select{
+.tabelaEngajamento td select,
+.tabelaInformacao td input, .tabelaInformacao td select, .tabelaInformacao td textarea{
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(167, 167, 167);
@@ -54,12 +56,13 @@
     font-size: small;
 }
 
-.tabelaComunicacao td textarea, .tabelaStakeholders td textarea{
+.tabelaComunicacao td textarea, .tabelaStakeholders td textarea, .tabelaInformacao td textarea{
     height: 4rem;
 }
 
 .tabelaComunicacao td select, .tabelaComunicacao td:not(:global(.botoes_acoes)) button,
-.tabelaStakeholders td select, .tabelaStakeholders td:not(:global(.botoes_acoes)) button{
+.tabelaStakeholders td select, .tabelaStakeholders td:not(:global(.botoes_acoes)) button,
+.tabelaInformacao td select, .tabelaInformacao td:not(:global(.botoes_acoes)) button{
     height: 4.5rem;
 }
 
@@ -69,7 +72,10 @@
 .tabelaStakeholders td input:hover, .tabelaStakeholders td select:hover,
 .tabelaStakeholders td textarea:hover, 
 .tabelaStakeholders td:not(:global(.botoes_acoes)) button:hover,
-.tabelaEngajamento td select:hover {
+.tabelaEngajamento td select:hover, 
+.tabelaInformacao td input:hover, .tabelaInformacao td select:hover,
+.tabelaInformacao td textarea:hover,
+.tabelaInformacao td:not(:global(.botoes_acoes)) button:hover{
     background-color: rgb(231, 231, 231);
 }
 
@@ -85,7 +91,7 @@
     width: 7rem;
 }
 
-.tabelaComunicacao th, .tabelaStakeholders th, .tabelaEngajamento th{
+.tabelaComunicacao th, .tabelaStakeholders th, .tabelaEngajamento th, .tabelaInformacao th{
     background-color: #ff8ff2;
     border-width: 0.1rem;
     font-size: 0.9rem;
@@ -120,7 +126,8 @@
     text-align: center;
 }
 
-.tabelaComunicacao button,  .tabelaStakeholders button, .tabelaEngajamento button{
+.tabelaComunicacao button, .tabelaStakeholders button, 
+.tabelaEngajamento button, .tabelaInformacao button{
     background-color: transparent;
     border-width: 0.1rem;
     border-style: solid;

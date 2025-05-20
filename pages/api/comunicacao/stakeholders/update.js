@@ -2,10 +2,11 @@ import connectToDatabase from '../../../../lib/db';
 import StakeholderModel from '../../../../models/comunicacao/Stakeholder';
 import mongoose from 'mongoose';
 import EngajamentoModel from '../../../../models/comunicacao/Engajamento';
-import { update } from 'lodash';
+import InformacaoModel from '../../../../models/comunicacao/Informacao';
 
 const { Stakeholder, StakeholderSchema } = StakeholderModel;
 const { Engajamento, EngajamentoSchema } = EngajamentoModel;
+const { Informacao, InformacaoSchema } = InformacaoModel;
 
 export default async (req, res) => {
   try {
@@ -35,6 +36,8 @@ export default async (req, res) => {
         return res.status(400).json({ error: 'Pelo menos um campo deve ser fornecido para a atualização.' });
       }
 
+      const stakeholderOriginal = await Stakeholder.findById(id);
+
       const session = await mongoose.startSession();
       session.startTransaction();
 
@@ -42,8 +45,13 @@ export default async (req, res) => {
         const updatedData = await Stakeholder.findByIdAndUpdate(id, updateFields, { new: true });
 
         await Engajamento.updateOne(
-          {grupo: updateFields.grupo, stakeholder: updateFields.stakeholder}, 
-          {$set: {poder: updateFields.poder, interesse: updateFields.interesse}}
+          {grupo: stakeholderOriginal.grupo, stakeholder: stakeholderOriginal.stakeholder}, 
+          {$set: {stakeholder: updateFields.stakeholder, poder: updateFields.poder, interesse: updateFields.interesse}}
+        )
+
+        await Informacao.updateOne(
+          {grupo: stakeholderOriginal.grupo, stakeholder: stakeholderOriginal.stakeholder}, 
+          {$set: {stakeholder: updateFields.stakeholder}}
         )
 
         if (!updatedData) {

@@ -1,5 +1,5 @@
-import connectToDatabase from '../../../lib/db'
-import Stakeholder from '../../../models/comunicacao/Stakeholder'
+import connectToDatabase from '../../lib/db'
+import Stakeholder from '../../models/comunicacao/Stakeholder'
 
 const limparCamposAntigos = async () => {
   await Stakeholder.updateMany({}, {
