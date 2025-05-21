@@ -222,7 +222,7 @@ const Tabela = () => {
                                             <td>{informacao.frequencia}</td>
                                             <td>{informacao.canal}</td>
                                             <td>{informacao.responsavel}</td>
-                                            <td>{informacao.registro}</td>
+                                            <td><Link href={informacao.registro}>{informacao.registro}</Link></td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(informacao)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {

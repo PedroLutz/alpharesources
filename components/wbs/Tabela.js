@@ -286,6 +286,7 @@ const WBS = () => {
             objSetter={setNovoSubmit}
             funcao={enviar}
             setExibirModal={setExibirModal}
+            isNameUsed={isNameUsed}
           />
         )}
 
