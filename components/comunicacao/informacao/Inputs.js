@@ -2,11 +2,13 @@ import { useEffect, useState, useRef, useContext } from "react";
 import React from "react";
 import { fetchData } from "../../../functions/crud";
 import { AuthContext } from "../../../contexts/AuthContext";
+import styles from '../../../styles/modules/comunicacao.module.css'
 
-const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
+const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
     const [gruposENomes, setGruposENomes] = useState([]);
     const [stakeholdersDoGrupo, setStakeholdersDoGrupo] = useState([]);
     const [nomesMembros, setNomesMembros] = useState([]);
+    const [verOpcaoCustom, setVerOpcaoCustom] = useState(false);
     const camposRef = useRef({
         grupo: null,
         stakeholder: null,
@@ -15,26 +17,38 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         frequencia: null,
         canal: null,
         responsavel: null,
-        registro: null
+        registro: null,
+        feedback: null,
+        acao: null
     })
     const { isAdmin } = useContext(AuthContext);
     const isFirstRender = useRef(true);
 
+    //funcao que busca os grupos e nomes dos stakeholders
     const fetchGruposENomes = async () => {
         const data = await fetchData('comunicacao/stakeholders/get/gruposENomes');
         setGruposENomes(data.gruposENomes);
     };
 
+    //funcao que busca os nomes dos membros
     const fetchMembros = async () => {
         const data = await fetchData('responsabilidades/membros/get/nomes');
         setNomesMembros(data.nomes);
     };
 
+    //useEffect que roda na primeira render, e verifica se o campo obj.frequencia tem algum valor
+    //se esse valor for diferente dos preestabelecidos e nao for vazio, inicia o componente mostrando o input de opcao customizada
     useEffect(() => {
+        const opcoesPreEstabelecidas = ["Daily", "Weekly", "Monthly", "On demand"];
+        if (obj.frequencia && !opcoesPreEstabelecidas.includes(obj.frequencia)) {
+            setVerOpcaoCustom(true);
+        }
+
         fetchGruposENomes();
         fetchMembros();
     }, []);
 
+    //useEffect que so roda quando obj.grupo atualiza, que limpa o valor de stakeholder
     useEffect(() => {
         if (isFirstRender.current) {
             isFirstRender.current = false;
@@ -47,15 +61,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         });
     }, [obj.grupo]);
 
-    useEffect(() => {
-            if (obj.grupo != '') {
-                const stakeholdersDoGrupo = gruposENomes.filter(item => item.grupo === obj.grupo).map(item => item.stakeholder);
-                setStakeholdersDoGrupo(stakeholdersDoGrupo);
-            } else {
-                setStakeholdersDoGrupo([]);
-            }
-        }, [obj.grupo, gruposENomes]);
-
+    //funcao que insere os dados no obj
     const handleChange = (e) => {
         var { name, value } = e.target;
         objSetter({
@@ -65,6 +71,22 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         e.target.classList.remove('campo-vazio');
     };
 
+    //funcao para atualizar a frequencia, mostrando o input de opcao custom caso
+    //a opcao selecionada seja a de valor customizado
+    const handleFrequenciaChange = (e) => {
+        const valorSelecionado = e.target.value;
+        if (valorSelecionado === 'custom') {
+            setVerOpcaoCustom(true);
+            e.target.value = '';
+            handleChange(e);
+        } else {
+            setVerOpcaoCustom(false);
+            handleChange(e);
+        }
+    }
+
+
+    //funcao para atualizar o grupo, inserindo em stakeholdersDoGrupo os stakeholders pertencentes ao grupo selecionado
     const handleGrupoChange = (e) => {
         const grupoSelecionado = e.target.value;
         const stakeholdersDoGrupo = gruposENomes.filter(item => item.grupo === grupoSelecionado).map(item => item.stakeholder);
@@ -73,8 +95,13 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         handleChange(e);
     };
 
+
+    //funcao que verifica entre os campos considerados quais estao vazios, retornando true se houver algum vazio e os nomes dos campos vazios 
     const isFormVazio = (form) => {
-        const emptyFields = Object.entries(form).filter(([key, value]) => value === null || value === "");
+        const camposConsiderados = { ...form };
+        delete camposConsiderados.feedback;
+        delete camposConsiderados.acao;
+        const emptyFields = Object.entries(camposConsiderados).filter(([key, value]) => value === null || value === "");
         return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
     };
 
@@ -86,7 +113,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     camposRef.current[campo].classList.add('campo-vazio');
                 }
             });
-            checkDados('inputsVazios');
+            setExibirModal('inputsVazios');
             return true;
         }
     }
@@ -147,11 +174,11 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     ref={el => (camposRef.current.metodo = el)}
                 />
             </td>
-            <td>
+            <td id={verOpcaoCustom ? styles.tdFrequencia : ''}>
                 <select
                     value={obj.frequencia}
                     name='frequencia'
-                    onChange={handleChange}
+                    onChange={handleFrequenciaChange}
                     ref={el => (camposRef.current.frequencia = el)}
                 >
                     <option value="" defaultValue>Frequency</option>
@@ -159,7 +186,16 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     <option value="Weekly">Weekly</option>
                     <option value="Monthly">Monthly</option>
                     <option value="On demand">On demand</option>
+                    <option value="custom">Other option...</option>
                 </select>
+                {verOpcaoCustom && (
+                    <input type="text"
+                        value={obj.frequencia}
+                        placeholder="New frequency"
+                        name='frequencia'
+                        onChange={handleChange} />
+                )}
+
             </td>
             <td>
                 <textarea
@@ -191,6 +227,24 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     value={obj.registro}
                     placeholder="Record"
                     ref={el => (camposRef.current.registro = el)}
+                />
+            </td>
+            <td>
+                <textarea
+                    name="feedback"
+                    onChange={handleChange}
+                    value={obj.feedback}
+                    placeholder="Feedback"
+                    ref={el => (camposRef.current.feedback = el)}
+                />
+            </td>
+            <td>
+                <textarea
+                    name="acao"
+                    onChange={handleChange}
+                    value={obj.acao}
+                    placeholder="Action Taken"
+                    ref={el => (camposRef.current.acao = el)}
                 />
             </td>
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>

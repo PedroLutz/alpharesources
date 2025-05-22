@@ -5,8 +5,8 @@ import Navbar from '../../../components/responsabilidades/Nav';
 function CadastroPage() {
   return (
     <div>
-        <Navbar/>
-      <Lista/>
+      <Navbar />
+      <Lista />
     </div>
   );
 }

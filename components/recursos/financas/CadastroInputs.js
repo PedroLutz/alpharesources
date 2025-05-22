@@ -17,7 +17,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
     const { isAdmin } = useContext(AuthContext);
 
 
-    //funcao que retorna a quantidade de campos vazios e o nome dos campos vazios
+    //funcao que retorna true se houver algum campo vazio e os nomes dos campos vazios 
     const isFormVazio = (form) => {
         const emptyFields = Object.entries(form).filter(([key, value]) => value === null || value === "");
         return [emptyFields.length > 0, emptyFields.map(([key]) => key)];

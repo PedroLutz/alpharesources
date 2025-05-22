@@ -116,11 +116,7 @@
     display: inline-block;
 }
 
-.tabelaRaci {
-    font-size: 15px;
-}
-
-.tabelaRaci th {
+.tabelaRaci th, .tabelaFuncoes th{
     background-color: #ff8ff2;
     border-width: 0.1rem;
     border-style: solid;
@@ -129,17 +125,15 @@
     padding: 0.3rem;
 }
 
-.tabelaRaci tr {
-    font-size: 14px;
+.tabelaRaci tr, .tabelaFuncoes tr {
     border-style: solid;
     border-width: 0.1rem;
     padding: 1rem;
 }
 
-.tabelaRaci td {
+.tabelaRaci td, .tabelaFuncoes td {
     border-width: 0.1rem;
     border-style: solid;
-    width: 5rem;
     border-color: rgb(0, 0, 0);
     padding: 0.3rem;
     font-size: small;
@@ -154,7 +148,8 @@
     width: 1.5rem;
 }
 
-.tabelaRaci td input:hover, .tabelaRaci td select:hover, .tabelaRaci td:not(:global(.botoes_acoes)) button:hover {
+.tabelaRaci td input:hover, .tabelaRaci td select:hover, .tabelaRaci td:not(:global(.botoes_acoes)) button:hover,
+.tabelaFuncoes td select:hover, .tabelaFuncoes td textarea:hover, .tabelaFuncoes td:not(:global(.botoes_acoes)) button:hover{
     background-color: rgb(231, 231, 231);
 }
 
@@ -162,20 +157,36 @@
     width: 16rem;
 }
 
-.tabelaRaci td input, .tabelaRaci td select {
+.tabelaRaci td input, .tabelaRaci td select,
+.tabelaFuncoes td select, .tabelaFuncoes td textarea {
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(167, 167, 167);
     border-radius: 0.4rem;
-    width: 4rem;
-    font-size: 0.75rem;
     padding: 0.2rem;
     transition: 0.2s;
     outline: none;
     background-color: white;
 }
 
+.tabelaRaci td input, .tabelaRaci td select{
+    width: 4rem;
+    font-size: 0.75rem;
+}
 
+.tabelaFuncoes td textarea{
+    height: 4rem;
+    font-size: 0.8rem;
+}
+
+.tabelaFuncoes td select{
+    height: 4.6rem;
+    font-size: 0.8rem;
+}
+
+.tabelaFuncoes td:first-child textarea{
+    width: 8rem;
+}
 
 .areaTc {
     text-align: center;
@@ -196,7 +207,7 @@
     white-space: nowrap;
 }
 
-.tabelaRaci button {
+.tabelaRaci button, .tabelaFuncoes button {
     background-color: transparent;
     border-width: 0.1rem;
     border-style: solid;
@@ -207,4 +218,8 @@
     padding: 0.1rem;
     width: 4.2rem;
     transition: 0.2s;
+}
+
+.tabelaFuncoes td:not(:global(.botoes_acoes)) button{
+    height: 4.5rem;
 }

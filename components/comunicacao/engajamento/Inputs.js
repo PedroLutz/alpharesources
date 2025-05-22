@@ -7,6 +7,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
         nivel_eng_desejado: null
     })
 
+    //funcao que insere os dados no obj
     const handleChange = (e) => {
         var { name, value } = e.target;
         objSetter({
@@ -16,11 +17,14 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
         e.target.classList.remove('campo-vazio');
     };
 
+
+    //funcao retorna true se houver algum campo vazio e os nomes dos campos vazios 
     const isFormVazio = (form) => {
         const emptyFields = Object.entries(form).filter(([key, value]) => value === null || value === "");
         return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
     };
 
+    //funcao que verifica a validez dos dados
     const validaDados = () => {
         const [isEmpty, camposVazios] = isFormVazio(obj);
         if (isEmpty) {
@@ -34,6 +38,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
         }
     }
 
+    //funcao que executa a funcao de submit caso os dados sejam validos
     const handleSubmit = () => {
         const isInvalido = validaDados();
         !isInvalido && funcao.funcao1();

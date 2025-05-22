@@ -18,7 +18,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, setExibirModal, gantt })
     const {isAdmin} = useContext(AuthContext);
 
 
-    //funcao que verifica entre os campos considerados se algum esta vazio, e retorna a quantidade de campos e o nome de campos vazios
+    //funcao que verifica entre os campos considerados quais estao vazios, retornando true se houver algum vazio e os nomes dos campos vazios 
     const isFormVazio = (form) => {
         let camposConsiderados;
         if(tipo === 'update' || tipo === 'updatemonitoring'){

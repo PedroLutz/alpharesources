@@ -6,6 +6,7 @@ import Loading from "../../Loading";
 import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../functions/crud";
 import { cleanForm } from "../../../functions/general";
 import { AuthContext } from "../../../contexts/AuthContext";
+import Link from "next/link";
 
 const Tabela = () => {
     const camposVazios = {
@@ -16,7 +17,9 @@ const Tabela = () => {
         frequencia: "",
         canal: "",
         responsavel: "",
-        registro: ""
+        registro: "",
+        feedback: "",
+        acao: ""
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
@@ -30,6 +33,7 @@ const Tabela = () => {
     const { isAdmin } = useContext(AuthContext);
     const [isUpdating, setIsUptading] = useState(false);
 
+    //funcao que envia os dados para registro no backend
     const enviar = async (e) => {
         e.preventDefault();
         handleSubmit({
@@ -40,6 +44,7 @@ const Tabela = () => {
         setReload(true);
     };
 
+    //funcao que recebe os dados, insere em confirmUpdateItem e novosDados
     const handleUpdateClick = (item) => {
         setConfirmUpdateItem(item)
         setNovosDados({
@@ -47,6 +52,7 @@ const Tabela = () => {
         });
     };
 
+    //funcao que trata os dados e envia o conteudo para o backend para update
     const handleUpdateItem = async () => {
         if (confirmUpdateItem) {
             setLoading(true);
@@ -71,11 +77,11 @@ const Tabela = () => {
                 console.error("Update failed:", error);
             }
             await fetchInformacoes();
-            setReload(true);
-            setLoading(false)
+            setLoading(false);
         }
     };
 
+    //funcao que envia os dados para atualizacao no backend
     const handleConfirmDelete = () => {
         if (confirmDeleteItem) {
             var getDeleteSuccess = false;
@@ -97,6 +103,7 @@ const Tabela = () => {
         setConfirmDeleteItem(null);
     };
 
+    //funcao que busca as informacoes no backend
     const fetchInformacoes = async () => {
         try {
             const data = await fetchData('comunicacao/informacao/get/all');
@@ -106,6 +113,7 @@ const Tabela = () => {
         }
     };
 
+    //useEffect que so roda quando reload atualiza
     useEffect(() => {
         if (reload == true) {
             setReload(false);
@@ -113,13 +121,10 @@ const Tabela = () => {
         }
     }, [reload]);
 
+    //useEffect que so roda no primeiro render
     useEffect(() => {
         fetchInformacoes();
     }, []);
-
-    const checkDados = (tipo) => {
-        setExibirModal(tipo); return;
-    };
 
     const modalLabels = {
         'inputsVazios': 'Fill out all fields before adding new data!',
@@ -127,6 +132,7 @@ const Tabela = () => {
         'deleteFail': 'Deletion Failed!',
     };
 
+    //funcao que calcula o rowSpan de grupo de acordo com a quantidade de stakeholders nele
     const calculateRowSpan = (itens, currentArea, currentIndex, parametro) => {
         let rowSpan = 1;
         for (let i = currentIndex + 1; i < itens.length; i++) {
@@ -142,7 +148,7 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2>Stakeholder Identification</h2>
+            <h2>Communicated Information</h2>
 
             {exibirModal != null && (
                 <Modal objeto={{
@@ -179,6 +185,8 @@ const Tabela = () => {
                                 <th>Channel</th>
                                 <th>Responsible</th>
                                 <th>Record</th>
+                                <th>Feedback</th>
+                                <th>Action taken</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -193,7 +201,7 @@ const Tabela = () => {
                                                 funcao1: () => handleUpdateItem(),
                                                 funcao2: () => { linhaVisivel === informacao._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUptading(false); }
                                             }}
-                                            checkDados={checkDados}
+                                            setExibirModal={setExibirModal}
                                         />
                                     ) : (
                                         <tr>
@@ -223,6 +231,8 @@ const Tabela = () => {
                                             <td>{informacao.canal}</td>
                                             <td>{informacao.responsavel}</td>
                                             <td><Link href={informacao.registro}>{informacao.registro}</Link></td>
+                                            <td>{informacao.feedback || '-'}</td>
+                                            <td>{informacao.acao || '-'}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(informacao)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
@@ -238,7 +248,7 @@ const Tabela = () => {
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
                                 funcao={enviar}
-                                checkDados={checkDados}
+                                setExibirModal={setExibirModal}
                             />
                         </tbody>
                     </table>

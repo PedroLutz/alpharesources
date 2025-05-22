@@ -46,7 +46,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
     }, [obj.area]);
 
 
-    //funcao que retorna o numero de campos vazios do form e o nome dos campos
+    //funcao que retorna true se houver algum campo vazio e os nomes dos campos vazios 
     const isFormVazio = (form) => {
         const emptyFields = Object.entries(form).filter(([key, value]) => value === null || value === '');
         return [emptyFields.length > 0, emptyFields.map(([key]) => key)];

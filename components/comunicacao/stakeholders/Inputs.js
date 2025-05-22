@@ -3,8 +3,7 @@ import React from "react";
 import { fetchData } from "../../../functions/crud";
 import { AuthContext } from "../../../contexts/AuthContext";
 
-const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
-    const [emptyFields, setEmptyFields] = useState([]);
+const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
     const [nomesStakeholders, setNomesStakeholders] = useState([]);
     const camposRef = useRef({
         grupo: null,
@@ -20,15 +19,18 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     })
     const { isAdmin } = useContext(AuthContext);
 
+    //funcao que busca os grupos de stakeholders
     const fetchStakeholders = async () => {
         const data = await fetchData('comunicacao/stakeholderGroups/get/stakeholderGroupsNames');
         setNomesStakeholders(data.stakeholderGroups);
     };      
 
+    //useEffect que só roda na primeira render
     useEffect(() => {
         fetchStakeholders();
     }, []);
 
+    //funcao que insere os dados no obj
     const handleChange = (e) => {
         var { name, value } = e.target;
         objSetter({
@@ -38,11 +40,13 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         e.target.classList.remove('campo-vazio');
     };
 
+    //funcao que retorna true se houver algum campo vazio e os nomes dos campos vazios 
     const isFormVazio = (form) => {
         const emptyFields = Object.entries(form).filter(([key, value]) => value === null || value === "");
         return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
     };
 
+    //funcao para validar os dados e inserir no modal o texto de aviso
     const validaDados = () => {
         const [isEmpty, camposVazios] = isFormVazio(obj);
         if (isEmpty) {
@@ -51,18 +55,23 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                     camposRef.current[campo].classList.add('campo-vazio');
                 }
             });
-            setEmptyFields(camposVazios);
-            checkDados('inputsVazios');
+            setExibirModal('inputsVazios');
             return true;
         }
     }
 
+    //funcao que, caso os dados sejam validos, executa a funcao de submit
     const handleSubmit = (e) => {
         const isInvalido = validaDados();
+        
+        if(isInvalido){
+            return;
+        }
+
         if (funcao.funcao1) {
-            !isInvalido && funcao.funcao1();
+            funcao.funcao1();
         } else {
-            !isInvalido && funcao(e);
+            funcao(e);
         }
     }
 

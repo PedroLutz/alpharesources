@@ -60,8 +60,7 @@ const Inputs = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
         });
     };
 
-    //essa funcao verifica quais entradas do obj estao vazias,
-    //retornando uma array com a quantidade de entradas vazias e uma array com as entradas vazias
+    //funcao que retorna true se houver algum campo vazio e os nomes dos campos vazios 
     const isFormVazio = () => {
         const emptyFields = Object.entries(obj).filter(([key, value]) => value === null || value === "");
         return [emptyFields.length > 1, emptyFields.map(([key]) => key)];

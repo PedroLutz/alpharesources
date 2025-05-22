@@ -19,8 +19,7 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, setExibirModal, area, isNam
         }
     }, [])
 
-    //essa funcao verifica quais entradas do formulario estao vazias,
-    //retornando uma array com a quantidade de entradas vazias e uma array com as entradas vazias
+    //funcao que retorna true se houver algum campo vazio e os nomes dos campos vazios 
     const isFormVazio = (form) => {
         const emptyFields = Object.entries(form).filter(([key, value]) => value === '' || value === null);
         return [emptyFields.length > 0, emptyFields.map(([key]) => key)];

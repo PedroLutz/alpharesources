@@ -32,6 +32,7 @@ const Tabela = () => {
     const { isAdmin } = useContext(AuthContext);
     const [isUpdating, setIsUptading] = useState(false);
 
+    //funcao que cadastra os stakeholders e cadastra na funcao de engajamento o stakeholder do jeito devido
     const enviar = async (e) => {
         e.preventDefault();
         handleSubmit({
@@ -56,6 +57,7 @@ const Tabela = () => {
         setReload(true);
     };
 
+    //funcao que recebe o item a ser atualizado e o insere em confirmUpdateItem e novosDados
     const handleUpdateClick = (item) => {
         setConfirmUpdateItem(item)
         setNovosDados({
@@ -63,18 +65,18 @@ const Tabela = () => {
         });
     };
 
+    //funcao que trata os dados e envia para realizacao do update
     const handleUpdateItem = async () => {
         if (confirmUpdateItem) {
             setLoading(true);
             const updatedItem = { ...confirmUpdateItem, ...novosDados };
 
             const updatedStakeholders = stakeholders.map(item =>
-                item._id === updatedItem._id ? { ...updatedItem } : item
+                item._id === updatedItem._id ? updatedItem : item
             );
             setStakeholders(updatedStakeholders);
             setConfirmUpdateItem(null)
             linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            setReload(true);
             try {
                 await handleUpdate({
                     route: 'comunicacao/stakeholders/update?id',
@@ -86,10 +88,13 @@ const Tabela = () => {
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
+            await fetchStakeholders();
+            setReload(true);
             setLoading(false)
         }
     };
 
+    //funcao que envia os dados para serem deletados
     const handleConfirmDelete = () => {
         if (confirmDeleteItem) {
             var getDeleteSuccess = false;
@@ -111,6 +116,7 @@ const Tabela = () => {
         setConfirmDeleteItem(null);
     };
 
+    //funcao que busca os stakeholders
     const fetchStakeholders = async () => {
         try {
             const data = await fetchData('comunicacao/stakeholders/get/all');
@@ -120,14 +126,18 @@ const Tabela = () => {
         }
     };
 
+    //useEffect que so roda quando reload é atualizado
     useEffect(() => {
-        setReload(false);
-        fetchStakeholders();
+        if(reload == true){
+            setReload(false);
+            fetchStakeholders();
+        }
     }, [reload]);
 
-    const checkDados = (tipo) => {
-        setExibirModal(tipo); return;
-    };
+    //useEffect que so roda no primeiro render
+    useEffect(() => {
+        fetchStakeholders();
+    }, [])
 
     const modalLabels = {
         'inputsVazios': 'Fill out all fields before adding new data!',
@@ -135,6 +145,7 @@ const Tabela = () => {
         'deleteFail': 'Deletion Failed!',
     };
 
+    //funcao que calcula o rowSpan de determinado valor de acordo com os itens agrupados nesse valor
     const calculateRowSpan = (itens, currentArea, currentIndex, parametro) => {
         let rowSpan = 1;
         for (let i = currentIndex + 1; i < itens.length; i++) {
@@ -209,7 +220,7 @@ const Tabela = () => {
                                                 funcao1: () => handleUpdateItem(),
                                                 funcao2: () => { linhaVisivel === stakeholder._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUptading(false); }
                                             }}
-                                            checkDados={checkDados}
+                                            setExibirModal={setExibirModal}
                                         />
                                     ) : (
                                         <tr>
@@ -247,7 +258,7 @@ const Tabela = () => {
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
                                 funcao={enviar}
-                                checkDados={checkDados}
+                                setExibirModal={setExibirModal}
                             />
                         </tbody>
                     </table>

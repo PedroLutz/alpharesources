@@ -10,7 +10,9 @@ const InformacaoSchema = new mongoose.Schema({
   frequencia: String,
   canal: String,
   responsavel: String,
-  registro: String
+  registro: String,
+  feedback: String,
+  acao: String
 }, { collection: 'informacoes' });
 
 const Informacao = mongoose.models['Informacao'] || mongoose.model('Informacao', InformacaoSchema);

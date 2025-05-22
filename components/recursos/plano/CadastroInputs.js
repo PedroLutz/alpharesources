@@ -58,7 +58,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
     }, [areaSelecionada]);
 
 
-    //funcao que verifica, entre os campos considerados, quais estao vazios, e retorna o numero de campos vazios e os nomes dos campos
+    //funcao que verifica entre os campos considerados quais estao vazios, retornando true se houver algum vazio e os nomes dos campos vazios
     const isFormVazio = (form) => {
         const camposConsiderados = {
             recurso: form.recurso,

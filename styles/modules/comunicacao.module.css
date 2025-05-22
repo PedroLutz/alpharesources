@@ -126,6 +126,15 @@
     text-align: center;
 }
 
+#tdFrequencia select{
+    height: 2.7rem;
+    margin-bottom: 0.2rem;
+}
+
+#tdFrequencia input{
+    width: 9.5rem;
+}
+
 .tabelaComunicacao button, .tabelaStakeholders button, 
 .tabelaEngajamento button, .tabelaInformacao button{
     background-color: transparent;
