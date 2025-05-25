@@ -14,14 +14,14 @@ const Navbar = () => {
 
   return (
     <nav className={styles.nav} style={{ color: 'white' }}>
-      <h2><Link href="/pages/wbs/wbs">Alpha Management/WBS</Link></h2>
+      <h2><Link href="/pags/wbs/wbs">Alpha Management/WBS</Link></h2>
       <img src={'/images/logo.png'} alt="Logo" style={{ width: '80px' }} />
       <ul>
         <li>
-          <Link href="/pages/wbs/wbs">WBS</Link>
+          <Link href="/pags/wbs/wbs">WBS</Link>
         </li>
         <li>
-          <Link href="/pages/wbs/dictionary">Dictionary</Link>
+          <Link href="/pags/wbs/dictionary">Dictionary</Link>
         </li>
         <li>
           <Link href="/">Menu</Link>

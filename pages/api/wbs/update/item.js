@@ -6,6 +6,7 @@ import GanttModel from '../../../../models/Gantt'
 import RecursoModel from '../../../../models/recursos/Recurso';
 import RiscoModel from '../../../../models/riscos/Risco';
 import WbsDictionaryModel from '../../../../models/wbs/wbsDictionary'
+import HabilidadeModel from '../../../../models/responsabilidade/Habilidade';
 import mongoose from 'mongoose';
 
 const { Wbs, WbsSchema } = WbsModel;
@@ -15,6 +16,7 @@ const { Gantt } = GanttModel;
 const { Recurso } = RecursoModel;
 const { Risco } = RiscoModel;
 const { WbsDictionary } = WbsDictionaryModel;
+const { Habilidade } = HabilidadeModel;
 
 export default async (req, res) => {
   try {
@@ -70,6 +72,9 @@ export default async (req, res) => {
           { area: oldWBS.area, item: oldWBS.item }, { $set: { item: updateFields.item } }
         );
         await WbsDictionary.updateMany(
+          { area: oldWBS.area, item: oldWBS.item }, { $set: { item: updateFields.item } }
+        );
+        await Habilidade.updateMany(
           { area: oldWBS.area, item: oldWBS.item }, { $set: { item: updateFields.item } }
         );
 

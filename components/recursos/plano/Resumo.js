@@ -3,17 +3,17 @@ import { Chart } from 'react-google-charts';
 import { fetchData } from '../../../functions/crud';
 import Loading from '../../Loading';
 import styles from '../../../styles/modules/resumo.module.css'
+import { parse } from "path";
 
 const { grafico, pie_direita, pie_esquerda, pie_container, h3_resumo, custom_span } = styles;
 
 const Resumo = () => {
-    const [planosPorArea_Essencial, setPlanosPorArea_Essencial] = useState([]);
-    const [planosPorArea_all, setPlanosPorArea_all] = useState([]);
     const [planosSoma_Essencial, setPlanosSoma_Essencial] = useState([]);
     const [planosSoma_all, setPlanosSoma_all] = useState([]);
     const [linhaDoTempoEssencial, setLinhaDoTempoEssencial] = useState([]);
     const [linhaDoTempoAll, setLinhaDoTempoAll] = useState([]);
     const [reservaContingencial, setReservaContingencial] = useState();
+    const [planosPorItem, setPlanosPorItem] = useState([]);
     const [verReserves, setVerReserves] = useState(false);
     const [dataInicial, setDataInicial] = useState();
 
@@ -31,11 +31,9 @@ const Resumo = () => {
             const data = await fetchData('recursos/planoAquisicao/get/resumo');
             const reservaDeContingencia = await fetchData('riscos/analise/get/emvs')
             const dataMaisAntiga = await fetchData('cronograma/get/dataMaisCedo');
-            setPlanosPorArea_Essencial(data.planosPorArea_Essencial);
-            setPlanosPorArea_all(data.planosPorArea_all);
-            setPlanosSoma_Essencial(data.planosSoma_Essencial[0]);
-            setPlanosSoma_all(data.planosSoma_all[0]);
+            const data2 = await fetchData('recursos/planoAquisicao/get/planosPorItem');
             setLinhaDoTempoEssencial(data.linhaDoTempoEssencial);
+            setPlanosPorItem(data2.planosPorItem);
             setLinhaDoTempoAll(data.linhaDoTempoAll);
             setReservaContingencial(reservaDeContingencia.resultadosAgrupados);
             setDataInicial(dataMaisAntiga.registroMaisAntigo.inicio);
@@ -60,35 +58,67 @@ const Resumo = () => {
         fetchResumos();
     }, []);
 
-    //useMemo que so ativa quando planosPorArea_Essencial for atualizado, que armazena os dados do graph de planosPorArea_Essencial_graph
+    //useMemo que so ativa quando planosPorItem for atualizado, que armazena os dados do graph de planosPorArea_Essencial_graph
     const planosPorArea_Essencial_graph = useMemo(() => {
-        const graph = [['Area', 'Value']]
-        if (planosPorArea_Essencial.length == 0) return graph;
-        planosPorArea_Essencial.forEach((area) => {
-            graph.push([area._id, parseFloat((area.mediaPonderada).toFixed(2))]);
-        });
+        const graph = [['Area', 'Value']];
+        if(planosPorItem.length == 0) return graph;
+        var obj = {};
+        var somaTotal = 0;
+        planosPorItem.forEach((item) => {
+            var somaAtual;
+            if(obj[item.area]){
+                somaAtual = obj[item.area];
+            } else {
+                somaAtual = 0;
+            }
+            somaAtual += item.custo_essencial;
+            obj = {
+                ...obj,
+                [item.area]: somaAtual
+            }
+            somaTotal += item.custo_essencial;
+        })
+        Object.keys(obj).forEach((key) => {
+            graph.push([key, parseFloat(obj[key].toFixed(2))])
+        })
+        setPlanosSoma_Essencial(somaTotal);
         return graph;
-    }, [planosPorArea_Essencial])
+    }, [planosPorItem])
 
 
-    //useMemo que so ativa quando planosPorArea_all foi atualizada, que armazena os dados dos graph dos planosPorArea_all e reserve
+    //useMemo que so ativa quando planosPorItem foi atualizada, que armazena os dados dos graph dos planosPorArea_all e reserve
     const [planosPorArea_all_graph, planosPorArea_reserve_graph] = useMemo(() => {
         const graph_all = [['Area', 'Value']];
         const graph_reserve = [['Area', 'Value']];
-        if (planosPorArea_all.length == 0) return [graph_all, graph_reserve];
-        planosPorArea_all.forEach((area) => {
-            graph_all.push([area._id, parseFloat((area.mediaPonderada).toFixed(2))]);
-            if (reservaContingencial[area._id] != undefined) {
-                graph_reserve.push([area._id, parseFloat((area.mediaPonderada + reservaContingencial[area._id]).toFixed(2))]);
+        if(planosPorItem.length == 0) return [graph_all, graph_reserve];
+        var obj = {};
+        var somaTotal = 0;
+        planosPorItem.forEach((item) => {
+            var somaAtual;
+            if(obj[item.area]){
+                somaAtual = obj[item.area];
             } else {
-                graph_reserve.push([area._id, parseFloat((area.mediaPonderada).toFixed(2))]);
+                somaAtual = 0;
             }
-
-        });
-        graph_reserve.push(['Managerial Reserve', parseFloat((planosSoma_all.mediaPonderada * 0.05).toFixed(2))]);
-
+            somaAtual += item.custo_ideal;
+            obj = {
+                ...obj,
+                [item.area]: somaAtual
+            }
+            somaTotal += item.custo_ideal;
+        })
+        Object.keys(obj).forEach((key) => {
+            graph_all.push([key, parseFloat(obj[key].toFixed(2))]);
+            if (reservaContingencial[key] != undefined) {
+                graph_reserve.push([key, parseFloat((obj[key] + reservaContingencial[key]).toFixed(2))]);
+            } else {
+                graph_reserve.push([key, parseFloat((obj[key]).toFixed(2))]);
+            }
+        })
+        graph_reserve.push(['Managerial Reserve', parseFloat((somaTotal * 0.05).toFixed(2))]);
+        setPlanosSoma_all(somaTotal);
         return [graph_all, graph_reserve];
-    }, [planosPorArea_all]);
+    }, [planosPorItem]);
 
 
     //useMemo que so ativa quando linhaDoTempoEssencial atualiza, que armazena os dados de linhaDoTempoEssencial
@@ -219,11 +249,11 @@ const Resumo = () => {
                 </div>
 
                 <div className="centered-container" style={{ flexDirection: "row" }}>
-                    <span className={custom_span}>Essential Scenario: R${parseFloat((planosSoma_Essencial.mediaPonderada)).toFixed(2)}</span>
+                    <span className={custom_span}>Essential Scenario: R${parseFloat((planosSoma_Essencial)).toFixed(2)}</span>
                     {!verReserves ? (
-                        <span className={custom_span}>Ideal Scenario: R${parseFloat((planosSoma_all.mediaPonderada)).toFixed(2)}</span>
+                        <span className={custom_span}>Ideal Scenario: R${parseFloat((planosSoma_all)).toFixed(2)}</span>
                     ) : (
-                        <span className={custom_span}>Ideal Scenario + Reserves: R${parseFloat(planosSoma_all.mediaPonderada * 1.05 + reservaContingencial.Total).toFixed(2)}</span>
+                        <span className={custom_span}>Ideal Scenario + Reserves: R${parseFloat(planosSoma_all * 1.05 + reservaContingencial.Total).toFixed(2)}</span>
                     )}
 
                 </div>

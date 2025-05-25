@@ -7,6 +7,7 @@ import RaciModel from '../../../../models/responsabilidade/Raci'
 import GanttModel from '../../../../models/Gantt'
 import LancamentoModel from '../../../../models/financas/LancamentoFinanceiro'
 import RiscoModel from '../../../../models/riscos/Risco';
+import HabilidadeModel from '../../../../models/responsabilidade/Habilidade';
 import mongoose from 'mongoose';
 
 const { Wbs } = WbsModel;
@@ -17,6 +18,7 @@ const { Recurso } = RecursoModel;
 const { Lancamento } = LancamentoModel;
 const { Risco } = RiscoModel;
 const { WbsDictionary } = WbsDictionaryModel;
+const { Habilidade } = HabilidadeModel;
 
 export default async (req, res) => {
   try {
@@ -57,6 +59,9 @@ export default async (req, res) => {
           { area: oldArea }, { $set: { area: area } }
         );
         await WbsDictionary.updateMany(
+          { area: oldArea }, { $set: { area: area } }
+        );
+        await Habilidade.updateMany(
           { area: oldArea }, { $set: { area: area } }
         );
 

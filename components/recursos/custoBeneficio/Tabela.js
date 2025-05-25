@@ -66,6 +66,7 @@ const Tabela = () => {
             setConfirmUpdateItem(null)
             linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
             setReload(true);
+            delete updatedItem.mediaBeneficios;
             try {
                 await handleUpdate({
                     route: 'financas/custoBeneficio/update?id',
@@ -108,6 +109,13 @@ const Tabela = () => {
     const fetchCustoBeneficios = async () => {
         try {
             const data = await fetchData('financas/custoBeneficio/get/all');
+            data.custoBeneficios.forEach((cb) => {
+                cb.mediaBeneficios = parseFloat((cb.areas_afetadas
+                    + cb.impacto
+                    + cb.urgencia
+                    + cb.diferencial)
+                    / 5).toFixed(2)
+            })
             setCustoBeneficios(data.custoBeneficios);
         } finally {
             setLoading(false);
@@ -134,6 +142,24 @@ const Tabela = () => {
         'valorNegativo': 'No fields can have negative values!',
         'maiorQueCinco': 'Classifications must be between 1 and 5!'
     };
+
+    const getCustosBeneficios = (cus, ben) => {
+        let custoBen = []
+        if (custoBeneficios) {
+            custoBeneficios.forEach((cb) => {
+                if (cb.escala_custo === cus && cb.mediaBeneficios > ben - 1 && cb.mediaBeneficios <= ben) {
+                    custoBen.push(cb.identificacao)
+                }
+            })
+        }
+        return (
+            <ul>
+                {custoBen.map((identificacao, index) => (
+                    <li key={index} style={{ fontSize: '0.65rem', textAlign: 'left' }}>{identificacao}</li>
+                ))}
+            </ul>
+        );
+    }
 
     return (
         <div className="centered-container">
@@ -237,6 +263,71 @@ const Tabela = () => {
                     </table>
                 </div>
             </div>
+
+            <div className={styles.tabela_container} style={{ marginTop: '3rem' }}>
+                <h2>Cost-Benefit Matrix</h2>
+                <p>Benefit average</p>
+                <div className={styles.tabela_wrapper}>
+                    <table className={styles.tabela} style={{ width: '75rem' }}>
+                        <thead>
+                            <tr>
+                                <th style={{ border: 'transparent', backgroundColor: 'transparent', width: '1rem' }}></th>
+                                <th style={{ border: 'transparent', backgroundColor: 'transparent', width: '1rem' }}></th>
+                                <th>1</th>
+                                <th>2</th>
+                                <th>3</th>
+                                <th>4</th>
+                                <th>5</th>
+                            </tr>
+                        </thead>
+                        <tbody >
+                            <tr>
+                                <td rowSpan={5} style={{ border: 'transparent', 
+                                    backgroundColor: 'transparent', width: '1rem', writingMode: "sideways-lr", margin: '0rem', fontSize: '1rem' }}>Cost ranking</td>
+                                <th>5</th>
+                                <td style={{ backgroundColor: '#a5d68f' }}>{getCustosBeneficios(5, 1) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffe990' }}>{getCustosBeneficios(5, 2) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffb486' }}>{getCustosBeneficios(5, 3) || '-'}</td>
+                                <td style={{ backgroundColor: '#ff9595' }}>{getCustosBeneficios(5, 4) || '-'}</td>
+                                <td style={{ backgroundColor: '#ff9595' }}>{getCustosBeneficios(5, 5) || '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>4</th>
+                                <td style={{ backgroundColor: '#78bf9d' }}>{getCustosBeneficios(4, 1) || '-'}</td>
+                                <td style={{ backgroundColor: '#a5d68f' }}>{getCustosBeneficios(4, 2) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffe990' }}>{getCustosBeneficios(4, 3) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffb486' }}>{getCustosBeneficios(4, 4) || '-'}</td>
+                                <td style={{ backgroundColor: '#ff9595' }}>{getCustosBeneficios(4, 5) || '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>3</th>
+                                <td style={{ backgroundColor: '#78bf9d' }}>{getCustosBeneficios(3, 1) || '-'}</td>
+                                <td style={{ backgroundColor: '#a5d68f' }}>{getCustosBeneficios(3, 2) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffe990' }}>{getCustosBeneficios(3, 3) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffb486' }}>{getCustosBeneficios(3, 4) || '-'}</td>
+                                <td style={{ backgroundColor: '#ff9595' }}>{getCustosBeneficios(3, 5) || '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>2</th>
+                                <td style={{ backgroundColor: '#78bf9d' }}>{getCustosBeneficios(2, 1) || '-'}</td>
+                                <td style={{ backgroundColor: '#a5d68f' }}>{getCustosBeneficios(2, 2) || '-'}</td>
+                                <td style={{ backgroundColor: '#a5d68f' }}>{getCustosBeneficios(2, 3) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffe990' }}>{getCustosBeneficios(2, 4) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffb486' }}>{getCustosBeneficios(2, 5) || '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>1</th>
+                                <td style={{ backgroundColor: '#78bf9d' }}>{getCustosBeneficios(1, 1) || '-'}</td>
+                                <td style={{ backgroundColor: '#78bf9d' }}>{getCustosBeneficios(1, 2) || '-'}</td>
+                                <td style={{ backgroundColor: '#a5d68f' }}>{getCustosBeneficios(1, 3) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffe990' }}>{getCustosBeneficios(1, 4) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffe990' }}>{getCustosBeneficios(1, 5) || '-'}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
     )
 };

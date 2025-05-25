@@ -2,28 +2,32 @@ import { useEffect, useState, useRef, useContext } from "react";
 import React from "react";
 import { fetchData } from "../../../functions/crud";
 import { AuthContext } from "../../../contexts/AuthContext";
-import styles from '../../../styles/modules/comunicacao.module.css'
 
 const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
-    const [gruposENomes, setGruposENomes] = useState([]);
-    const [stakeholdersDoGrupo, setStakeholdersDoGrupo] = useState([]);
     const [nomesMembros, setNomesMembros] = useState([]);
-    const [verOpcaoCustom, setVerOpcaoCustom] = useState(false);
+    const [areas, setAreas] = useState([]);
     const camposRef = useRef({
         funcao: null,
         descricao: null,
         habilidades: null,
-        responsavel: null
+        responsavel: null,
+        area: null,
+        itens: null
     })
     const { isAdmin } = useContext(AuthContext);
-    const isFirstRender = useRef(true);
 
     const fetchMembros = async () => {
         const data = await fetchData('responsabilidades/membros/get/nomes');
         setNomesMembros(data.nomes);
     };
 
+    const fetchAreas = async () => {
+        const data = await fetchData('wbs/get/areas');
+        setAreas(data.areas);
+    }
+
     useEffect(() => {
+        fetchAreas();
         fetchMembros();
     }, []);
 
@@ -104,6 +108,28 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
                         <option key={index} value={membro.nome}>{membro.nome}</option>
                     ))}
                 </select>
+            </td>
+            <td>
+                <select
+                    name="area"
+                    onChange={handleChange}
+                    value={obj.area}
+                    ref={el => (camposRef.current.area = el)}
+                >
+                    <option defaultValue value="">Field</option>
+                    {areas.map((area, index) => (
+                        <option key={index} value={area._id}>{area._id}</option>
+                    ))}
+                </select>
+            </td>
+            <td>
+                <textarea
+                    name="itens"
+                    onChange={handleChange}
+                    value={obj.itens}
+                    placeholder="WBS itens"
+                    ref={el => (camposRef.current.itens = el)}
+                />
             </td>
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (

@@ -6,32 +6,33 @@ import Loading from "../../Loading";
 import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../functions/crud";
 import { cleanForm } from "../../../functions/general";
 import { AuthContext } from "../../../contexts/AuthContext";
-import Link from "next/link";
 
 const Tabela = () => {
     const camposVazios = {
         funcao: '',
-        descricao: '',
-        habilidades: '',
-        responsavel: '',
         area: '',
-        itens: ''
+        item: '',
+        habilidade: '',
+        nivel_atual: '',
+        nivel_min: '',
+        acao: ''
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
     const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
-    const [funcoes, setFuncoes] = useState([]);
+    const [habilidades, setHabilidades] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [isUpdating, setIsUptading] = useState(false);
     const { isAdmin } = useContext(AuthContext);
 
     const enviar = async (e) => {
         e.preventDefault();
         handleSubmit({
-            route: 'responsabilidades/funcoes',
+            route: 'responsabilidades/habilidades',
             dados: novoSubmit
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
@@ -50,21 +51,21 @@ const Tabela = () => {
             setLoading(true);
             const updatedItem = { ...confirmUpdateItem, ...novosDados };
 
-            const updatedInformacoes = funcoes.map(item =>
+            const updatedInformacoes = habilidades.map(item =>
                 item._id === updatedItem._id ? updatedItem : item
             );
-            setFuncoes(updatedInformacoes);
+            setHabilidades(updatedInformacoes);
             setConfirmUpdateItem(null)
             linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            setReload(true);
+            delete updatedItem.responsavel;
             try {
                 await handleUpdate({
-                    route: 'responsabilidades/funcoes/update?id',
+                    route: 'responsabilidades/habilidades/update?id',
                     dados: updatedItem,
                     item: confirmUpdateItem
                 });
             } catch (error) {
-                setFuncoes(funcoes);
+                setHabilidades(habilidades);
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
@@ -79,7 +80,7 @@ const Tabela = () => {
             var getDeleteSuccess = false;
             try {
                 getDeleteSuccess = handleDelete({
-                    route: 'responsabilidades/funcoes',
+                    route: 'responsabilidades/habilidades',
                     item: confirmDeleteItem,
                     fetchDados: fetchInformacoes
                 });
@@ -97,8 +98,18 @@ const Tabela = () => {
 
     const fetchInformacoes = async () => {
         try {
-            const data = await fetchData('responsabilidades/funcoes/get/all');
-            setFuncoes(data.funcoes);
+            const data = await fetchData('responsabilidades/habilidades/get/all');
+            const data2 = await fetchData('responsabilidades/funcoes/get/funcoesEMembros');
+
+            data.habilidades.forEach((habilidade) => {
+                if(data2.funcoes.length > 0){
+                    habilidade.responsavel = data2.funcoes.find((funcao) => habilidade.funcao === funcao.funcao).responsavel
+                } else {
+                    habilidade.responsavel = ''
+                }
+                
+            })
+            setHabilidades(data.habilidades);
         } finally {
             setLoading(false);
         }
@@ -123,12 +134,14 @@ const Tabela = () => {
         'inputsVazios': 'Fill out all fields before adding new data!',
         'deleteSuccess': 'Deletion Successful!',
         'deleteFail': 'Deletion Failed!',
+        'valorNegativo': 'No fields can have negative values!',
+        'maiorQueCinco': 'Classifications must be between 1 and 5!'
     };
 
-    const calculateRowSpan = (itens, currentArea, currentIndex, parametro) => {
+    const calculateRowSpan = (currentArea, currentIndex, parametro) => {
         let rowSpan = 1;
-        for (let i = currentIndex + 1; i < itens.length; i++) {
-            if (itens[i][parametro] === currentArea) {
+        for (let i = currentIndex + 1; i < habilidades.length; i++) {
+            if (habilidades[i][parametro] === currentArea) {
                 rowSpan++;
             } else {
                 break;
@@ -140,7 +153,7 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2>Roles</h2>
+            <h2>Skill evaluation</h2>
 
             {exibirModal != null && (
                 <Modal objeto={{
@@ -153,7 +166,7 @@ const Tabela = () => {
 
             {confirmDeleteItem && (
                 <Modal objeto={{
-                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.funcao}"?`,
+                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.habilidade}"?`,
                     alerta: true,
                     botao1: {
                         funcao: handleConfirmDelete, texto: 'Confirm'
@@ -166,43 +179,75 @@ const Tabela = () => {
 
             <div className={styles.tabelaRaci_container}>
                 <div className={styles.tabelaRaci_wrapper}>
-                    <table className={styles.tabelaFuncoes}>
+                    <table className={styles.tabelaHabilidade}>
                         <thead>
                             <tr>
+                                <th>Area</th>
+                                <th>Item</th>
                                 <th>Role</th>
-                                <th>Description</th>
-                                <th>Required skills</th>
                                 <th>Responsible</th>
-                                <th>WBS area</th>
-                                <th>WBS itens</th>
+                                <th>Skill</th>
+                                <th style={{fontSize: '0.7rem', padding: '0.5rem'}}>Current skill level</th>
+                                <th style={{fontSize: '0.7rem', padding: '0.5rem'}}>Desired skill level</th>
+                                <th>Development action</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {funcoes.map((funcao, index) => (
+                            {habilidades.map((habilidade, index) => (
                                 <React.Fragment key={index}>
-                                    {linhaVisivel === funcao._id ? (
+                                    {linhaVisivel === habilidade._id ? (
                                         <Inputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
                                             funcao={{
                                                 funcao1: () => handleUpdateItem(),
-                                                funcao2: () => { linhaVisivel === funcao._id ? setLinhaVisivel() : setLinhaVisivel(item._id)}
+                                                funcao2: () => { linhaVisivel === habilidade._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUptading(false) }
                                             }}
                                             checkDados={checkDados}
                                         />
                                     ) : (
                                         <tr>
-                                            <td>{funcao.funcao}</td>
-                                            <td>{funcao.descricao}</td>
-                                            <td>{funcao.habilidades}</td>
-                                            <td>{funcao.responsavel}</td>
-                                            <td>{funcao.area}</td>
-                                            <td>{funcao.itens}</td>
+                                            {!isUpdating || isUpdating[0] !== habilidade.area ? (
+                                                <React.Fragment>
+                                                    {index === 0 || habilidades[index - 1].area !== habilidade.area ? (
+                                                        <td rowSpan={calculateRowSpan(habilidade.area, index, 'area')}
+                                                        >{habilidade.area}</td>
+                                                    ) : null}
+                                                </React.Fragment>
+                                            ) : (
+                                                <td>{habilidade.area}</td>
+                                            )}
+                                            {!isUpdating || isUpdating[1] !== habilidade.item ? (
+                                                <React.Fragment>
+                                                    {index === 0 || habilidades[index - 1].item !== habilidade.item ? (
+                                                        <td rowSpan={calculateRowSpan(habilidade.item, index, 'item')}
+                                                        >{habilidade.item}</td>
+                                                    ) : null}
+                                                </React.Fragment>
+                                            ) : (
+                                                <td>{habilidade.item}</td>
+                                            )}
+                                            {!isUpdating || isUpdating[2] !== habilidade.funcao ? (
+                                                <React.Fragment>
+                                                    {index === 0 || habilidades[index - 1].funcao !== habilidade.funcao ? (
+                                                        <td rowSpan={calculateRowSpan(habilidade.funcao, index, 'funcao')}
+                                                        >{habilidade.funcao}</td>
+                                                    ) : null}
+                                                </React.Fragment>
+                                            ) : (
+                                                <td>{habilidade.funcao}</td>
+                                            )}
+                                            <td>{habilidade.responsavel}</td>
+                                            <td>{habilidade.habilidade}</td>
+                                            <td>{habilidade.nivel_atual}</td>
+                                            <td>{habilidade.nivel_min}</td>
+                                            <td>{habilidade.acao}</td>
                                             <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(funcao)} disabled={!isAdmin}>❌</button>
+                                                <button onClick={() => setConfirmDeleteItem(habilidade)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(funcao._id); handleUpdateClick(funcao);
+                                                    setLinhaVisivel(habilidade._id); handleUpdateClick(habilidade); 
+                                                    setIsUptading([habilidade.area, habilidade.item, habilidade.funcao])
                                                 }
                                                 } disabled={!isAdmin}>⚙️</button>
                                             </td>

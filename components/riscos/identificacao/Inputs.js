@@ -78,8 +78,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     };
 
     const isFormVazio = (form) => {
-        const emptyFields = Object.entries(form).filter(([key, value]) => value === "" || value === null);
-        emptyFields.map(([key]) => console.log(key));
+        const emptyFields = Object.entries(form).filter(([key, value]) => value === "" || value === null);;
         return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
     };
 

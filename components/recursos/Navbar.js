@@ -20,7 +20,7 @@ const Navbar = () => {
 
   return (
     <nav className={styles.nav} style={{ color: 'white' }}>
-      <h2><Link href="/pages/finances/finances/table">Alpha Management/Budget & Resources</Link></h2>
+      <h2><Link href="/pags/finances/finances/table">Alpha Management/Budget & Resources</Link></h2>
       <img src={'/images/logo.png'} alt="Logo" />
       <ul>
         <li>
@@ -28,9 +28,9 @@ const Navbar = () => {
             <a onMouseOver={toggleDropdown}>Monitoring</a>
             {isDropdownOpen && (
               <div className={styles.dropdownContent}>
-                <Link href="/pages/finances/finances/table">Cash flow</Link>
-                <Link href="/pages/finances/costBenefit/table">Cost-Benefit Analysis</Link>
-                <Link href="/pages/finances/finances/report">Report</Link>
+                <Link href="/pags/finances/finances/table">Cash flow</Link>
+                <Link href="/pags/finances/costBenefit/table">Cost-Benefit Analysis</Link>
+                <Link href="/pags/finances/finances/report">Report</Link>
               </div>
             )}
           </div>
@@ -40,10 +40,10 @@ const Navbar = () => {
             <a onMouseOver={toggleDropdown}>Cost & Resources</a>
             {isDropdownOpen && (
               <div className={styles.dropdownContent}>
-                <Link href="/pages/resources/identification">Resource Identification</Link>
-                <Link href="/pages/resources/acquisition_planning">Resource Acquisition</Link>
-                <Link href="/pages/resources/cbs">Cost Breakdown Structure (CBS)</Link>
-                <Link href="/pages/resources/report">Report</Link>
+                <Link href="/pags/resources/identification">Resource Identification</Link>
+                <Link href="/pags/resources/acquisition_planning">Resource Acquisition</Link>
+                <Link href="/pags/resources/cbs">Cost Breakdown Structure (CBS)</Link>
+                <Link href="/pags/resources/report">Report</Link>
               </div>
             )}
           </div>

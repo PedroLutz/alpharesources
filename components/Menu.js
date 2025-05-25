@@ -31,21 +31,21 @@ const { setTitulo } = useContext(TituloContext);
             </span> */}
             {/*Item WBS*/}
             <span>
-                <Link href="/pages/wbs/wbs">
+                <Link href="/pags/wbs/wbs">
                     <img src={'/images/wbs_logo.png'} alt="Planning Logo" className={logoItem}/><br/>
                     Work Breakdown Structure
                 </Link>
             </span>
             {/*Item Cronograma*/}
             <span>
-                <Link href="/pages/timeline/monitoring">
+                <Link href="/pags/timeline/monitoring">
                     <img src={'/images/timeline_logo.png'} alt="Planning Logo" className={logoItem}/>
                     Timeline management
                 </Link>
             </span>
             {/*Item finanças*/}
             <span style={{fontSize: '0.9rem'}}>
-                <Link href="/pages/finances/finances/table">
+                <Link href="/pags/finances/finances/table">
                     <img src={'/images/finance_logo.png'} alt="Planning Logo" className={logoItem}/>
                     Budget & Resource Management
                 </Link>
@@ -56,7 +56,7 @@ const { setTitulo } = useContext(TituloContext);
         <div className={menuGroup}>
             {/*Item Responsabilidades*/}
             <span>
-                <Link href="/pages/responsibilities/raci">
+                <Link href="/pags/responsibilities/raci">
                     <div>
                         <img src={'/images/members_logo.png'} alt="Members Logo" className={logoItem}/>
                     </div>
@@ -65,21 +65,21 @@ const { setTitulo } = useContext(TituloContext);
             </span>
             {/*Item Comunicação*/}
             <span>
-                <Link href="/pages/communication/stakeholders">
+                <Link href="/pags/communication/stakeholders">
                     <img src={'/images/communication_logo.png'} alt="Planning Logo" className={logoItem}/>
                     Communication management
                 </Link>
             </span>
             {/*Item Risco*/}
             <span>
-                <Link href="/pages/risk/risks">
+                <Link href="/pags/risk/risks">
                     <img src={'/images/risk_logo.png'} alt="Planning Logo" className={logoItem}/>
                     <br/>Risk<br/>Management
                 </Link>
             </span>
             {/* Item Report */}
             <span>
-                <Link href="/pages/report">
+                <Link href="/pags/report">
                     <img src={'/images/report_logo.png'} alt="Planning Logo" className={logoItem}/>
                     Report generator
                 </Link>

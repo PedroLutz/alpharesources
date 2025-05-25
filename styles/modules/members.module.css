@@ -116,7 +116,7 @@
     display: inline-block;
 }
 
-.tabelaRaci th, .tabelaFuncoes th{
+.tabelaRaci th, .tabelaFuncoes th, .tabelaHabilidade th{
     background-color: #ff8ff2;
     border-width: 0.1rem;
     border-style: solid;
@@ -125,13 +125,13 @@
     padding: 0.3rem;
 }
 
-.tabelaRaci tr, .tabelaFuncoes tr {
+.tabelaRaci tr, .tabelaFuncoes tr, .tabelaHabilidade th {
     border-style: solid;
     border-width: 0.1rem;
     padding: 1rem;
 }
 
-.tabelaRaci td, .tabelaFuncoes td {
+.tabelaRaci td, .tabelaFuncoes td, .tabelaHabilidade td {
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(0, 0, 0);
@@ -149,7 +149,8 @@
 }
 
 .tabelaRaci td input:hover, .tabelaRaci td select:hover, .tabelaRaci td:not(:global(.botoes_acoes)) button:hover,
-.tabelaFuncoes td select:hover, .tabelaFuncoes td textarea:hover, .tabelaFuncoes td:not(:global(.botoes_acoes)) button:hover{
+.tabelaFuncoes td select:hover, .tabelaFuncoes td textarea:hover, .tabelaFuncoes td:not(:global(.botoes_acoes)) button:hover,
+.tabelaHabilidade td select:hover, .tabelaHabilidade td textarea:hover, .tabelaHabilidade td:not(:global(.botoes_acoes)) button:hover{
     background-color: rgb(231, 231, 231);
 }
 
@@ -158,7 +159,8 @@
 }
 
 .tabelaRaci td input, .tabelaRaci td select,
-.tabelaFuncoes td select, .tabelaFuncoes td textarea {
+.tabelaFuncoes td select, .tabelaFuncoes td textarea,
+.tabelaHabilidade td select, .tabelaHabilidade td textarea {
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(167, 167, 167);
@@ -188,6 +190,48 @@
     width: 8rem;
 }
 
+.tabelaFuncoes td:nth-child(5) select{
+    width: 12rem;
+}
+
+.tabelaHabilidade td textarea{
+    font-size: 0.85rem;
+    height: 2.5rem;
+}
+
+.tabelaHabilidade td select{
+    width: 10rem;
+    height: 3rem;
+}
+
+#tdNivel textarea{
+    width: 5rem;
+}
+
+
+.tabelaRaci button, .tabelaFuncoes button, .tabelaHabilidade button {
+    background-color: transparent;
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    border-radius: 0.4rem;
+    height: 1.6rem;
+    cursor: pointer;
+    padding: 0.1rem;
+    width: 4.2rem;
+    transition: 0.2s;
+}
+
+.tabelaFuncoes td:not(:global(.botoes_acoes)) button{
+    height: 4.5rem;
+}
+
+.tabelaHabilidade td:not(:global(.botoes_acoes)) button{
+    height: 3rem;
+    width: 5rem;
+}
+
+
 .areaTc {
     text-align: center;
     padding: 1rem;
@@ -205,21 +249,4 @@
     width: auto;
     overflow: hidden;
     white-space: nowrap;
-}
-
-.tabelaRaci button, .tabelaFuncoes button {
-    background-color: transparent;
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(167, 167, 167);
-    border-radius: 0.4rem;
-    height: 1.6rem;
-    cursor: pointer;
-    padding: 0.1rem;
-    width: 4.2rem;
-    transition: 0.2s;
-}
-
-.tabelaFuncoes td:not(:global(.botoes_acoes)) button{
-    height: 4.5rem;
 }

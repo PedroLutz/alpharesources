@@ -1,0 +1,89 @@
+import connectToDatabase from '../../../../../lib/db';
+import PlanoAquisicaoModel from '../../../../../models/recursos/PlanoAquisicao';
+
+const { PlanoAquisicao } = PlanoAquisicaoModel;
+
+export default async (req, res) => {
+  try {
+    await connectToDatabase();
+
+    if (req.method === 'GET') {
+      const planosPorItem = await PlanoAquisicao.aggregate([
+        {
+          $lookup: {
+            from: 'recursos', // nome da coleção no MongoDB
+            localField: 'recurso',
+            foreignField: 'recurso',
+            as: 'recursoData'
+          }
+        },
+        {
+          $unwind: '$recursoData' // transforma o array em objeto
+        },
+        {
+          $group: {
+            _id: {
+                area: '$area',
+                item: '$recursoData.item'
+            },
+            totalValorEssencialA: {
+              $sum: {
+                $cond: [{ $eq: ['$ehEssencial', true] }, '$valor_a', 0]
+              }
+            },
+            totalValorEssencialB: {
+              $sum: {
+                $cond: [{ $eq: ['$ehEssencial', true] }, '$valor_b', 0]
+              }
+            },
+            totalValorIdealA: {
+              $sum: '$valor_a'
+            },
+            totalValorIdealB: {
+              $sum: '$valor_b'
+            },
+          }
+        },
+        {
+          $project: {
+            area: '$_id.area',
+            item: '$_id.item',
+            custo_essencial: {
+              $divide: [
+                {
+                  $add: [
+                    { $multiply: ['$totalValorEssencialA', 2] },
+                    '$totalValorEssencialB'
+                  ]
+                },
+                3
+              ]
+            },
+            custo_ideal: {
+              $divide: [
+                {
+                  $add: [
+                    { $multiply: ['$totalValorIdealA', 2] },
+                    '$totalValorIdealB'
+                  ]
+                },
+                3
+              ]
+            },
+            _id: 0
+          }
+        },
+        {
+          $sort: { area: 1, item: 1 }
+        }
+      ]);
+
+      res.status(200).json({ planosPorItem });
+    } else {
+      res.status(405).json({ error: 'Método não permitido' });
+    }
+  } catch (error) {
+    console.error('Erro ao buscar os Cbss', error);
+    res.status(500).json({ error: 'Erro ao buscar os Cbss' });
+  }
+};
