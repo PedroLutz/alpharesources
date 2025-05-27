@@ -28,18 +28,18 @@ const Navbar = () => {
             <a onMouseOver={toggleDropdown}>Stakeholders</a>
             {isDropdownOpen && (
               <div className={styles.dropdownContent}>
-                <Link href="/pages/communication/stakeholderGroups">Groups</Link>
-                <Link href="/pages/communication/stakeholders">Identification</Link>
-                <Link href="/pages/communication/engagement">Engagement</Link>
+                <Link href="/pags/communication/stakeholderGroups">Groups</Link>
+                <Link href="/pags/communication/stakeholders">Identification</Link>
+                <Link href="/pags/communication/engagement">Engagement</Link>
               </div>
             )}
           </div>
         </li>
         <li>
-          <Link href="/pages/communication/information">Communicated Information</Link>
+          <Link href="/pags/communication/information">Communicated Information</Link>
         </li>
         <li>
-          <Link href="/pages/communication/monitoring">Monitoring</Link>
+          <Link href="/pags/communication/monitoring">Monitoring</Link>
         </li>
         <li>
           <Link href="/">Menu</Link>

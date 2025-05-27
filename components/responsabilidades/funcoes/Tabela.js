@@ -34,6 +34,7 @@ const Tabela = () => {
             route: 'responsabilidades/funcoes',
             dados: novoSubmit
         });
+        await fetchFuncoes();
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
         setReload(true);
     };
@@ -56,7 +57,6 @@ const Tabela = () => {
             setFuncoes(updatedInformacoes);
             setConfirmUpdateItem(null)
             linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            setReload(true);
             try {
                 await handleUpdate({
                     route: 'responsabilidades/funcoes/update?id',
@@ -68,7 +68,7 @@ const Tabela = () => {
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
-            await fetchInformacoes();
+            await fetchFuncoes();
             setReload(true);
             setLoading(false)
         }
@@ -81,7 +81,7 @@ const Tabela = () => {
                 getDeleteSuccess = handleDelete({
                     route: 'responsabilidades/funcoes',
                     item: confirmDeleteItem,
-                    fetchDados: fetchInformacoes
+                    fetchDados: fetchFuncoes
                 });
             } finally {
                 setExibirModal(`deleteSuccess-${getDeleteSuccess}`)
@@ -95,7 +95,7 @@ const Tabela = () => {
         setConfirmDeleteItem(null);
     };
 
-    const fetchInformacoes = async () => {
+    const fetchFuncoes = async () => {
         try {
             const data = await fetchData('responsabilidades/funcoes/get/all');
             setFuncoes(data.funcoes);
@@ -107,34 +107,18 @@ const Tabela = () => {
     useEffect(() => {
         if (reload == true) {
             setReload(false);
-            fetchInformacoes();
+            fetchFuncoes();
         }
     }, [reload]);
 
     useEffect(() => {
-        fetchInformacoes();
+        fetchFuncoes();
     }, []);
-
-    const checkDados = (tipo) => {
-        setExibirModal(tipo); return;
-    };
 
     const modalLabels = {
         'inputsVazios': 'Fill out all fields before adding new data!',
         'deleteSuccess': 'Deletion Successful!',
         'deleteFail': 'Deletion Failed!',
-    };
-
-    const calculateRowSpan = (itens, currentArea, currentIndex, parametro) => {
-        let rowSpan = 1;
-        for (let i = currentIndex + 1; i < itens.length; i++) {
-            if (itens[i][parametro] === currentArea) {
-                rowSpan++;
-            } else {
-                break;
-            }
-        }
-        return rowSpan;
     };
 
     return (
@@ -189,7 +173,7 @@ const Tabela = () => {
                                                 funcao1: () => handleUpdateItem(),
                                                 funcao2: () => { linhaVisivel === funcao._id ? setLinhaVisivel() : setLinhaVisivel(item._id)}
                                             }}
-                                            checkDados={checkDados}
+                                            setExibirModal={setExibirModal}
                                         />
                                     ) : (
                                         <tr>
@@ -214,7 +198,7 @@ const Tabela = () => {
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
                                 funcao={enviar}
-                                checkDados={checkDados}
+                                setExibirModal={setExibirModal}
                             />
                         </tbody>
                     </table>

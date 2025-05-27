@@ -45,7 +45,8 @@ const Tabela = () => {
             stakeholder: novoSubmit.stakeholder,
             poder: novoSubmit.poder,
             interesse: novoSubmit.interesse,
-            nivel_engajamento: ''
+            nivel_engajamento: '',
+            nivel_eng_desejado: ''
         }
 
 

@@ -45,7 +45,7 @@ const TabelaAnalise = () => {
         });
     };
 
-    const getRiscos = (occ, imp) => {
+    const getRiscosMapeados = (occ, imp) => {
         let riscos = []
         if (analises) {
             analises.forEach((analise) => {
@@ -68,13 +68,9 @@ const TabelaAnalise = () => {
             setLoading(true);
             const updatedItem = { ...confirmUpdateItem, ...novosDados };
 
-            const updatedRiscos = analises.map(item =>
-                item._id === updatedItem._id ? { ...updatedItem } : item
-            );
-            setAnalises(updatedRiscos);
             setConfirmUpdateItem(null)
             linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            setReload(true);
+            
             try {
                 await handleUpdate({
                     route: 'riscos/analise/update?id',
@@ -82,10 +78,11 @@ const TabelaAnalise = () => {
                     item: confirmUpdateItem
                 });
             } catch (error) {
-                setAnalises(riscos);
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
+            await fetchAnalises();
+            setReload(true);
             setLoading(false);
         }
     };
@@ -121,13 +118,15 @@ const TabelaAnalise = () => {
     };
 
     useEffect(() => {
-        setReload(false);
-        fetchAnalises();
+        if(reload == true){
+            setReload(false);
+            fetchAnalises();
+        }
     }, [reload]);
 
-    const checkDados = (tipo) => {
-        setExibirModal(tipo); return;
-    };
+    useEffect(() => {
+        fetchAnalises();
+    }, [])
 
     const modalLabels = {
         'inputsVazios': 'Fill out all fields before adding new data!',
@@ -209,7 +208,7 @@ const TabelaAnalise = () => {
                                                 funcao1: () => handleUpdateItem(),
                                                 funcao2: () => { linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false) }
                                             }}
-                                            checkDados={checkDados}
+                                            setExibirModal={setExibirModal}
                                         />
                                     ) : (
                                         <tr>
@@ -249,7 +248,7 @@ const TabelaAnalise = () => {
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
                                 funcao={enviar}
-                                checkDados={checkDados}
+                                setExibirModal={setExibirModal}
                             />
                         </tbody>
                     </table>
@@ -279,43 +278,43 @@ const TabelaAnalise = () => {
                                     backgroundColor: 'transparent', width: '1rem', writingMode: "sideways-lr", margin: '0rem', fontSize: '1rem'
                                 }}>Occurrence</td>
                                 <th>5</th>
-                                <td style={{ backgroundColor: '#a5d68f' }}>{getRiscos(5, 1) || '-'}</td>
-                                <td style={{ backgroundColor: '#ffe990' }}>{getRiscos(5, 2) || '-'}</td>
-                                <td style={{ backgroundColor: '#ffb486' }}>{getRiscos(5, 3) || '-'}</td>
-                                <td style={{ backgroundColor: '#ff9595' }}>{getRiscos(5, 4) || '-'}</td>
-                                <td style={{ backgroundColor: '#ff9595' }}>{getRiscos(5, 5) || '-'}</td>
+                                <td style={{ backgroundColor: '#a5d68f' }}>{getRiscosMapeados(5, 1) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffe990' }}>{getRiscosMapeados(5, 2) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffb486' }}>{getRiscosMapeados(5, 3) || '-'}</td>
+                                <td style={{ backgroundColor: '#ff9595' }}>{getRiscosMapeados(5, 4) || '-'}</td>
+                                <td style={{ backgroundColor: '#ff9595' }}>{getRiscosMapeados(5, 5) || '-'}</td>
                             </tr>
                             <tr>
                                 <th>4</th>
-                                <td style={{ backgroundColor: '#78bf9d' }}>{getRiscos(4, 1) || '-'}</td>
-                                <td style={{ backgroundColor: '#a5d68f' }}>{getRiscos(4, 2) || '-'}</td>
-                                <td style={{ backgroundColor: '#ffe990' }}>{getRiscos(4, 3) || '-'}</td>
-                                <td style={{ backgroundColor: '#ffb486' }}>{getRiscos(4, 4) || '-'}</td>
-                                <td style={{ backgroundColor: '#ff9595' }}>{getRiscos(4, 5) || '-'}</td>
+                                <td style={{ backgroundColor: '#78bf9d' }}>{getRiscosMapeados(4, 1) || '-'}</td>
+                                <td style={{ backgroundColor: '#a5d68f' }}>{getRiscosMapeados(4, 2) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffe990' }}>{getRiscosMapeados(4, 3) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffb486' }}>{getRiscosMapeados(4, 4) || '-'}</td>
+                                <td style={{ backgroundColor: '#ff9595' }}>{getRiscosMapeados(4, 5) || '-'}</td>
                             </tr>
                             <tr>
                                 <th>3</th>
-                                <td style={{ backgroundColor: '#78bf9d' }}>{getRiscos(3, 1) || '-'}</td>
-                                <td style={{ backgroundColor: '#a5d68f' }}>{getRiscos(3, 2) || '-'}</td>
-                                <td style={{ backgroundColor: '#ffe990' }}>{getRiscos(3, 3) || '-'}</td>
-                                <td style={{ backgroundColor: '#ffb486' }}>{getRiscos(3, 4) || '-'}</td>
-                                <td style={{ backgroundColor: '#ff9595' }}>{getRiscos(3, 5) || '-'}</td>
+                                <td style={{ backgroundColor: '#78bf9d' }}>{getRiscosMapeados(3, 1) || '-'}</td>
+                                <td style={{ backgroundColor: '#a5d68f' }}>{getRiscosMapeados(3, 2) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffe990' }}>{getRiscosMapeados(3, 3) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffb486' }}>{getRiscosMapeados(3, 4) || '-'}</td>
+                                <td style={{ backgroundColor: '#ff9595' }}>{getRiscosMapeados(3, 5) || '-'}</td>
                             </tr>
                             <tr>
                                 <th>2</th>
-                                <td style={{ backgroundColor: '#78bf9d' }}>{getRiscos(2, 1) || '-'}</td>
-                                <td style={{ backgroundColor: '#a5d68f' }}>{getRiscos(2, 2) || '-'}</td>
-                                <td style={{ backgroundColor: '#a5d68f' }}>{getRiscos(2, 3) || '-'}</td>
-                                <td style={{ backgroundColor: '#ffe990' }}>{getRiscos(2, 4) || '-'}</td>
-                                <td style={{ backgroundColor: '#ffb486' }}>{getRiscos(2, 5) || '-'}</td>
+                                <td style={{ backgroundColor: '#78bf9d' }}>{getRiscosMapeados(2, 1) || '-'}</td>
+                                <td style={{ backgroundColor: '#a5d68f' }}>{getRiscosMapeados(2, 2) || '-'}</td>
+                                <td style={{ backgroundColor: '#a5d68f' }}>{getRiscosMapeados(2, 3) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffe990' }}>{getRiscosMapeados(2, 4) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffb486' }}>{getRiscosMapeados(2, 5) || '-'}</td>
                             </tr>
                             <tr>
                                 <th>1</th>
-                                <td style={{ backgroundColor: '#78bf9d' }}>{getRiscos(1, 1) || '-'}</td>
-                                <td style={{ backgroundColor: '#78bf9d' }}>{getRiscos(1, 2) || '-'}</td>
-                                <td style={{ backgroundColor: '#a5d68f' }}>{getRiscos(1, 3) || '-'}</td>
-                                <td style={{ backgroundColor: '#ffe990' }}>{getRiscos(1, 4) || '-'}</td>
-                                <td style={{ backgroundColor: '#ffe990' }}>{getRiscos(1, 5) || '-'}</td>
+                                <td style={{ backgroundColor: '#78bf9d' }}>{getRiscosMapeados(1, 1) || '-'}</td>
+                                <td style={{ backgroundColor: '#78bf9d' }}>{getRiscosMapeados(1, 2) || '-'}</td>
+                                <td style={{ backgroundColor: '#a5d68f' }}>{getRiscosMapeados(1, 3) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffe990' }}>{getRiscosMapeados(1, 4) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffe990' }}>{getRiscosMapeados(1, 5) || '-'}</td>
                             </tr>
                         </tbody>
                     </table>

@@ -1,16 +1,16 @@
-import React, { useState, useRef, useEffect, useContext } from 'react';
+import React, { useState, useRef, useEffect, useContext, useMemo } from 'react';
 import { fetchData } from '../../../functions/crud';
 import { AuthContext } from '../../../contexts/AuthContext';
+import members from '../../../styles/modules/members.module.css';
 
-const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
-    const [emptyFields, setEmptyFields] = useState([]);
+const CadastroTabela = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
     const [elementosWBS, setElementosWBS] = useState([]);
     const [nomesMembros, setNomesMembros] = useState([])
     const [itensPorArea, setItensPorArea] = useState([]);
     const camposRef = useRef({
         area: null,
         item: null,
-        responsabilidades: null,
+        responsabilidades: null
     });
     const {isAdmin} = useContext(AuthContext)
 
@@ -18,13 +18,6 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
         const data = await fetchData('wbs/get/all');
         setElementosWBS(data.elementos);
     };
-
-    useEffect(() => {
-        if (obj.area) {
-            const itensDaArea = elementosWBS.filter(item => item.area === obj.area).map(item => item.item);
-            setItensPorArea(itensDaArea);
-        }
-    }, [obj.area, elementosWBS]);
 
     useEffect(() => {
         if(tipo === 'cadastro'){
@@ -41,19 +34,12 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
         const itensDaArea = elementosWBS.filter(item => item.area === areaSelecionada).map(item => item.item);
         setItensPorArea(itensDaArea);
 
-        handleChange(e, objSetter, obj);
+        handleChange(e);
     };
 
-    const isFormVazio = (form) => {
-        const emptyFields = Object.entries(form).filter(([key, value]) => value === null || value === "");
-        return [emptyFields.length > 1, emptyFields.map(([key]) => key)];
-    };
-
-    const handleChange = (e, setter, obj) => {
+    const handleChange = (e) => {
         const { name, value } = e.target;
-        const index = emptyFields.indexOf(name);
-        index > -1 && emptyFields.splice(index, 1);
-        setter({
+        objSetter({
             ...obj,
             [name]: value,
         });
@@ -61,29 +47,30 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
     };
 
     const validaDados = () => {
-        const [isEmpty, camposVazios] = isFormVazio(obj);
-        if (isEmpty) {
+        const camposVazios = Object.entries(obj)
+            .filter(([key, value]) => value === null || value === "")
+            .map(([key]) => key);
+
+        if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
                 if (camposRef.current[campo]) {
                     camposRef.current[campo].classList.add('campo-vazio');
                 }
             });
-            if(Object.keys(obj).length < inputNames.length + 3){
-                
-                setEmptyFields(camposVazios);
-                checkDados('inputsVazios');
-                return true;
-            }
+            setExibirModal('inputsVazios');
+            return true;
         }
+        return false;
     }
 
     const handleSubmit = async (e) => {
         const isInvalido = validaDados();
+        if(isInvalido == true) return;
+
         if (funcao.funcao1) {
-            !isInvalido && funcao.funcao1();
-            return;
+            funcao.funcao1();
         } else {
-            !isInvalido && funcao(e);
+            funcao(e);
         }
     };
 
@@ -92,7 +79,14 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
         setNomesMembros(data.nomes);
     };
 
-    const generateInputNames = () => {
+    const getCleanName = (str) => {
+        const removeAccents = (str) => {
+            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        };
+        return removeAccents(str.split(" ").join(""));
+    };
+
+    const inputNames = useMemo(() => {
         const firstNames = new Map();
         const fullNames = [];
         const inputNames = [];
@@ -119,37 +113,17 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
             };
         });
         return inputNames;
-    };
-
-    const getCleanName = (str) => {
-        const removeAccents = (str) => {
-            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        };
-        return removeAccents(str.split(" ").join(""));
-    };
-    const inputNames = generateInputNames();
-
-    const generateFormData = () => {
-        inputNames.forEach((membro) => {
-            objSetter(({
-                ...obj,
-                [`input${getCleanName(membro)}`]: ''
-            }));
-        });
-    };
-
-    
+    }, [nomesMembros]);
 
     useEffect(() => {
         fetchNomesMembros();
         fetchElementos();
-        generateFormData();
     }, []);
 
     return (
         <React.Fragment>
             {tipo !== 'update' && (
-                <td>
+                <td id={members.raciTdArea}>
                     <select
                         name="area"
                         onChange={handleAreaChange}
@@ -157,7 +131,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                         ref={el => (camposRef.current.area = el)}
 
                     >
-                        <option value="" disabled>Area</option>
+                        <option value="" defaultValue>Area</option>
                         {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
                             <option key={index} value={area}>{area}</option>
                         ))};
@@ -165,14 +139,14 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
                 </td>
             )}
             {tipo !== 'update' && (
-                <td>
+                <td id={members.raciTdItem}>
                     <select
                         value={obj.item}
                         name='item'
-                        onChange={(e) => handleChange(e, objSetter, obj)}
+                        onChange={handleChange}
                         ref={el => (camposRef.current.item = el)}
                     >
-                        <option value="" disabled>Item</option>
+                        <option value="" defaultValue>Item</option>
                         {itensPorArea.map((item, index) => (
                             <option key={index} value={item}>{item}</option>
                         ))}
@@ -182,16 +156,13 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, checkDados }) => {
             {inputNames.map((membro, index) => (
                 <td key={index} className="mini-input column">
                     <select
-                        type="text"
                         id={"input" + getCleanName(membro)}
                         name={"input" + getCleanName(membro)}
-                        placeholder=""
-                        onChange={(e) => handleChange(e, objSetter, obj)}
-                        defaultValue={""}
+                        onChange={handleChange}
                         value={obj["input" + getCleanName(membro)]}
-                        required
+                        ref={el => (camposRef.current["input" + getCleanName(membro)] = el)}
                     >
-                        <option value="" disabled>RACI</option>
+                        <option value="" defaultValue>RACI</option>
                         <option value="R">R</option>
                         <option value="A">A</option>
                         <option value="C">C</option>

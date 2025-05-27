@@ -154,10 +154,6 @@
     background-color: rgb(231, 231, 231);
 }
 
-.tabelaRaci td:nth-child(2) select {
-    width: 16rem;
-}
-
 .tabelaRaci td input, .tabelaRaci td select,
 .tabelaFuncoes td select, .tabelaFuncoes td textarea,
 .tabelaHabilidade td select, .tabelaHabilidade td textarea {
@@ -206,6 +202,14 @@
 
 #tdNivel textarea{
     width: 5rem;
+}
+
+#raciTdArea select{
+    width: 16rem;
+}
+
+#raciTdItem select{
+    width: 16rem;
 }
 
 

@@ -31,6 +31,7 @@ const TabelaPlanos = () => {
             route: 'riscos/resposta',
             dados: novoSubmit
         });
+        await fetchRespostas();
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
         setReload(true);
     };
@@ -47,13 +48,9 @@ const TabelaPlanos = () => {
             setLoading(true);
             const updatedItem = { ...confirmUpdateItem, ...novosDados };
 
-            const updatedRespostas = respostas.map(item =>
-                item._id === updatedItem._id ? { ...updatedItem } : item
-            );
-            setRespostas(updatedRespostas);
             setConfirmUpdateItem(null)
             linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            setReload(true);
+            
             try {
                 await handleUpdate({
                     route: 'riscos/resposta/update?id',
@@ -61,10 +58,11 @@ const TabelaPlanos = () => {
                     item: confirmUpdateItem
                 });
             } catch (error) {
-                setRespostas(respostas);
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
+            await fetchRespostas();
+            setReload(true);
             setLoading(false);
         }
     };
@@ -100,13 +98,15 @@ const TabelaPlanos = () => {
     };
 
     useEffect(() => {
-        setReload(false);
-        fetchRespostas();
+        if(reload == true){
+            setReload(false);
+            fetchRespostas();
+        }
     }, [reload]);
 
-    const checkDados = (tipo) => {
-        setExibirModal(tipo); return;
-    };
+    useEffect(() => {
+        fetchRespostas();
+    }, []);
 
     const modalLabels = {
         'inputsVazios': 'Fill out all fields before adding new data!',
@@ -168,7 +168,7 @@ const TabelaPlanos = () => {
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
                                 funcao={enviar}
-                                checkDados={checkDados}
+                                setExibirModal={setExibirModal}
                             />
                             {respostas.map((item, index) => (
                                 <React.Fragment key={index}>
@@ -180,7 +180,7 @@ const TabelaPlanos = () => {
                                                 funcao1: () => handleUpdateItem(),
                                                 funcao2: () => { linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false) }
                                             }}
-                                            checkDados={checkDados}
+                                            setExibirModal={setExibirModal}
                                         />
                                     ) : (
                                         <tr>

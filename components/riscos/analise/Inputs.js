@@ -3,7 +3,7 @@ import React from "react";
 import { fetchData } from "../../../functions/crud";
 import { AuthContext } from "../../../contexts/AuthContext";
 
-const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
+const InputPlanos = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
     const [riscos, setRiscos] = useState([])
     const [riscosPorArea, setRiscosPorArea] = useState([]);
     const [areaSelecionada, setAreaSelecionada] = useState('');
@@ -65,12 +65,6 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         });
         e.target.classList.remove('campo-vazio');
     };
-    
-
-    const isFormVazio = (form) => {
-        const emptyFields = Object.entries(form).filter(([key, value]) => value === '' || value === null);
-        return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
-    };
 
     const validaDados = () => {
         const campos = { ocorrencia: obj.ocorrencia, impacto: obj.impacto, urgencia: obj.urgencia, acao: obj.acao };
@@ -78,33 +72,41 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         for (const [key, value] of Object.entries(campos)) {
             if (value < 0) {
                 camposRef.current[key].classList.add('campo-vazio');
-                checkDados('valorNegativo');
+                setExibirModal('valorNegativo');
                 return true;
             }
             if (value > 5) {
                 camposRef.current[key].classList.add('campo-vazio');
-                checkDados('maiorQueCinco');
+                setExibirModal('maiorQueCinco');
                 return true;
             }
         }
-        const [isEmpty, camposVazios] = isFormVazio(obj);
-        if (isEmpty) {
+        
+        const camposVazios = Object.entries(obj)
+            .filter(([key, value]) => value === null || value === "")
+            .map(([key]) => key);
+
+        if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
                 if (camposRef.current[campo]) {
                     camposRef.current[campo].classList.add('campo-vazio');
                 }
             });
-            checkDados('inputsVazios');
+            setExibirModal('inputsVazios');
             return true;
         }
+
+        return false;
     }
 
     const handleSubmit = (e) => {
         const isInvalido = validaDados();
+        if(isInvalido == true) return;
+
         if (funcao.funcao1) {
-            !isInvalido && funcao.funcao1();
+            funcao.funcao1();
         } else {
-            !isInvalido && funcao(e);
+            funcao(e);
         }
     }
 

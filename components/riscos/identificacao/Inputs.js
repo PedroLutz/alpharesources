@@ -4,7 +4,7 @@ import { fetchData } from "../../../functions/crud";
 import { AuthContext } from "../../../contexts/AuthContext";
 import styles from '../../../styles/modules/risco.module.css'
 
-const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
+const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
     const [elementosWBS, setElementosWBS] = useState([]);
     const [itensPorArea, setItensPorArea] = useState([]);
     const [nomesMembros, setNomesMembros] = useState([]);
@@ -53,13 +53,6 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         fetchElementos();
     }, []);
 
-    useEffect(() => {
-        if (obj.area) {
-            const itensDaArea = elementosWBS.filter(item => item.area === obj.area).map(item => item.item);
-            setItensPorArea(itensDaArea);
-        }
-    }, [obj.area, elementosWBS]);
-
     const handleAreaChange = (e) => {
         const areaSelecionada = e.target.value;
         const itensDaArea = elementosWBS.filter(item => item.area === areaSelecionada).map(item => item.item);
@@ -77,31 +70,31 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         e.target.classList.remove('campo-vazio');
     };
 
-    const isFormVazio = (form) => {
-        const emptyFields = Object.entries(form).filter(([key, value]) => value === "" || value === null);;
-        return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
-    };
-
     const validaDados = () => {
-        const [isEmpty, camposVazios] = isFormVazio(obj);
-        console.log(camposVazios);
-        if (isEmpty) {
+        const camposVazios = Object.entries(obj)
+            .filter(([key, value]) => value === null || value === "")
+            .map(([key]) => key);
+
+        if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
                 if (camposRef.current[campo]) {
                     camposRef.current[campo].classList.add('campo-vazio');
                 }
             });
-            checkDados('inputsVazios');
+            setExibirModal('inputsVazios');
             return true;
         }
+        return false;
     }
 
     const handleSubmit = (e) => {
         const isInvalido = validaDados();
+        if(isInvalido == true) return;
+
         if (funcao.funcao1) {
-            !isInvalido && funcao.funcao1();
+            funcao.funcao1();
         } else {
-            !isInvalido && funcao(e);
+            funcao(e);
         }
     }
 

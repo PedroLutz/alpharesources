@@ -35,6 +35,7 @@ const Tabela = () => {
             route: 'responsabilidades/habilidades',
             dados: novoSubmit
         });
+        await fetchHabilidades();
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
         setReload(true);
     };
@@ -69,7 +70,7 @@ const Tabela = () => {
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
-            await fetchInformacoes();
+            await fetchHabilidades();
             setReload(true);
             setLoading(false)
         }
@@ -82,7 +83,7 @@ const Tabela = () => {
                 getDeleteSuccess = handleDelete({
                     route: 'responsabilidades/habilidades',
                     item: confirmDeleteItem,
-                    fetchDados: fetchInformacoes
+                    fetchDados: fetchHabilidades
                 });
             } finally {
                 setExibirModal(`deleteSuccess-${getDeleteSuccess}`)
@@ -96,14 +97,15 @@ const Tabela = () => {
         setConfirmDeleteItem(null);
     };
 
-    const fetchInformacoes = async () => {
+    const fetchHabilidades = async () => {
         try {
             const data = await fetchData('responsabilidades/habilidades/get/all');
             const data2 = await fetchData('responsabilidades/funcoes/get/funcoesEMembros');
 
             data.habilidades.forEach((habilidade) => {
                 if(data2.funcoes.length > 0){
-                    habilidade.responsavel = data2.funcoes.find((funcao) => habilidade.funcao === funcao.funcao).responsavel
+                    const responsavelPelaFuncao = data2.funcoes.find((funcao) => habilidade.funcao === funcao.funcao).responsavel;
+                    habilidade.responsavel = responsavelPelaFuncao;
                 } else {
                     habilidade.responsavel = ''
                 }
@@ -118,17 +120,13 @@ const Tabela = () => {
     useEffect(() => {
         if (reload == true) {
             setReload(false);
-            fetchInformacoes();
+            fetchHabilidades();
         }
     }, [reload]);
 
     useEffect(() => {
-        fetchInformacoes();
+        fetchHabilidades();
     }, []);
-
-    const checkDados = (tipo) => {
-        setExibirModal(tipo); return;
-    };
 
     const modalLabels = {
         'inputsVazios': 'Fill out all fields before adding new data!',
@@ -204,7 +202,7 @@ const Tabela = () => {
                                                 funcao1: () => handleUpdateItem(),
                                                 funcao2: () => { linhaVisivel === habilidade._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUptading(false) }
                                             }}
-                                            checkDados={checkDados}
+                                            setExibirModal={setExibirModal}
                                         />
                                     ) : (
                                         <tr>
@@ -259,7 +257,7 @@ const Tabela = () => {
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
                                 funcao={enviar}
-                                checkDados={checkDados}
+                                setExibirModal={setExibirModal}
                             />
                         </tbody>
                     </table>

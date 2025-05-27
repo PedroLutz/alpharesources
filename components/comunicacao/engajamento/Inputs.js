@@ -17,17 +17,14 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
         e.target.classList.remove('campo-vazio');
     };
 
-
-    //funcao retorna true se houver algum campo vazio e os nomes dos campos vazios 
-    const isFormVazio = (form) => {
-        const emptyFields = Object.entries(form).filter(([key, value]) => value === null || value === "");
-        return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
-    };
-
     //funcao que verifica a validez dos dados
     const validaDados = () => {
-        const [isEmpty, camposVazios] = isFormVazio(obj);
-        if (isEmpty) {
+        console.log(obj)
+        const camposVazios = Object.entries(obj)
+        .filter(([key, value]) => value === null || value === "")
+        .map(([key]) => key);
+
+        if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
                 if (camposRef.current[campo]) {
                     camposRef.current[campo].classList.add('campo-vazio');
@@ -41,7 +38,9 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
     //funcao que executa a funcao de submit caso os dados sejam validos
     const handleSubmit = () => {
         const isInvalido = validaDados();
-        !isInvalido && funcao.funcao1();
+        if(isInvalido) return;
+        
+        funcao.funcao1();
     }
 
     return (

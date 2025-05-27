@@ -23,14 +23,7 @@ const Tabela = () => {
   };
   const [novoSubmit, setNovoSubmit] = useState(camposVazios);
   const [novosDados, setNovosDados] = useState(camposVazios);
-  const {isAdmin} = useContext(AuthContext)
-
-  const handleChange = (e) => {
-    setNovosDados({
-      ...novosDados,
-      [e.target.name]: e.target.value,
-    });
-  };
+  const { isAdmin } = useContext(AuthContext)
 
   const handleUpdateClick = (item) => {
     setConfirmUpdateItem(item);
@@ -42,6 +35,7 @@ const Tabela = () => {
   };
 
   const fetchMembros = async () => {
+    setLoading(true);
     try {
       const data = await fetchData('responsabilidades/membros/get/all');
       setMembros(data.membros);
@@ -51,9 +45,15 @@ const Tabela = () => {
   };
 
   useEffect(() => {
-    setReload(false);
-    fetchMembros();
+    if(reload == true){
+      setReload(false);
+      fetchMembros();
+    }
   }, [reload]);
+
+  useEffect(() => {
+    fetchMembros();
+  }, [])
 
   const enviar = async (e) => {
     e.preventDefault();
@@ -61,12 +61,9 @@ const Tabela = () => {
       route: 'responsabilidades/membros',
       dados: novoSubmit
     });
+    await fetchMembros();
     cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     setReload(true);
-  };
-
-  const checkDados = (tipo) => {
-    setExibirModal(tipo); return;
   };
 
   const modalLabels = {
@@ -89,32 +86,10 @@ const Tabela = () => {
     setConfirmDeleteItem(null);
   };
 
-  function insertBreak(text) {
-    if (text.length > 50) {
-      let firstPart = text.substring(0, 50);
-      let lastSpaceIndex = firstPart.lastIndexOf(' ');
-      if (lastSpaceIndex !== -1) {
-        firstPart = firstPart.substring(0, lastSpaceIndex);
-      }
-      return (
-        <>
-          {firstPart}
-          <br />
-          {text.substring(firstPart.length)}
-        </>
-      );
-    }
-    return text;
-  }
-
   const handleUpdateItem = async () => {
     if (confirmUpdateItem) {
       setLoading(true);
       const updatedItem = { _id: confirmUpdateItem._id, ...novosDados };
-      const updatedMembros = membros.map(item =>
-        item._id === updatedItem._id ? { ...updatedItem } : item
-      );
-      setMembros(updatedMembros);
       linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
       setConfirmUpdateItem(null);
       try {
@@ -124,10 +99,11 @@ const Tabela = () => {
           item: confirmUpdateItem
         });
       } catch (error) {
-        setMembros(membros);
         setConfirmUpdateItem(confirmUpdateItem);
         console.error("Update failed:", error);
       }
+      await fetchMembros();
+      setReload(true);
       setLoading(false);
     }
   };
@@ -142,21 +118,21 @@ const Tabela = () => {
           obj={novoSubmit}
           objSetter={setNovoSubmit}
           funcao={enviar}
-          checkDados={checkDados}
+          setExibirModal={setExibirModal}
         />
         {membros.map((item, index) => (
           <React.Fragment key={item._id}>
             {linhaVisivel === item._id ? (
               <React.Fragment>
                 <CadastroInputs
-                obj={novosDados}
-                objSetter={setNovosDados}
-                tipo="update"
-                checkDados={checkDados}
-                funcao={{
-                  funcao1: () => handleUpdateItem(),
-                  funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
-                }}/>
+                  obj={novosDados}
+                  objSetter={setNovosDados}
+                  tipo="update"
+                  setExibirModal={setExibirModal}
+                  funcao={{
+                    funcao1: () => handleUpdateItem(),
+                    funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
+                  }} />
               </React.Fragment>
             ) : (
               <React.Fragment>

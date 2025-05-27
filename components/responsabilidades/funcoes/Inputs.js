@@ -3,7 +3,7 @@ import React from "react";
 import { fetchData } from "../../../functions/crud";
 import { AuthContext } from "../../../contexts/AuthContext";
 
-const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
+const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
     const [nomesMembros, setNomesMembros] = useState([]);
     const [areas, setAreas] = useState([]);
     const camposRef = useRef({
@@ -37,33 +37,36 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
             ...obj,
             [name]: value,
         });
+        //se o usuario digitou algo no campo, ele n esta mais vazio
         e.target.classList.remove('campo-vazio');
     };
 
-    const isFormVazio = (form) => {
-        const emptyFields = Object.entries(form).filter(([key, value]) => value === null || value === "");
-        return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
-    };
-
     const validaDados = () => {
-        const [isEmpty, camposVazios] = isFormVazio(obj);
-        if (isEmpty) {
+        const camposVazios = Object.entries(obj)
+        .filter(([key, value]) => value === null || value === "")
+        .map(([key]) => key);
+
+        if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
                 if (camposRef.current[campo]) {
                     camposRef.current[campo].classList.add('campo-vazio');
                 }
             });
-            checkDados('inputsVazios');
+            setExibirModal('inputsVazios');
             return true;
         }
+
+        return false;
     }
 
     const handleSubmit = (e) => {
         const isInvalido = validaDados();
+        if(isInvalido == true) return;
+
         if (funcao.funcao1) {
-            !isInvalido && funcao.funcao1();
+            funcao.funcao1();
         } else {
-            !isInvalido && funcao(e);
+            funcao(e);
         }
     }
 

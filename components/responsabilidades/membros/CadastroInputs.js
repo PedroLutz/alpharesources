@@ -1,52 +1,51 @@
-import React, { useEffect, useState, useRef, useContext } from "react"
+import React, { useState, useRef, useContext } from "react"
 import members from '../../../styles/modules/members.module.css';
 import { AuthContext } from "../../../contexts/AuthContext";
 
-const CadastroInputs = ({obj, objSetter, tipo, funcao, checkDados}) => {
-    const [emptyFields, setEmptyFields] = useState([]);
+const CadastroInputs = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
     const camposRef = useRef({
         nome: null,
         softskills: null,
         hardskills: null
     })
-    const {isAdmin} = useContext(AuthContext)
+    const { isAdmin } = useContext(AuthContext)
 
-    const handleChange = (e, setter, obj) => {
+    const handleChange = (e) => {
         const { name, value } = e.target;
-        const index = emptyFields.indexOf(name);
-        index > -1 && emptyFields.splice(index, 1);
-        setter({
+        objSetter({
             ...obj,
             [name]: value,
         });
         e.target.classList.remove('campo-vazio');
-        
+
     };
 
     const validaDados = () => {
-        const isFormVazio = (form) => {
-            const emptyFields = Object.entries(form).filter(([key, value]) => !value);
-            return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
-        };
-        const [isEmpty, camposVazios] = isFormVazio(obj);
-        if (isEmpty) {
+        const camposVazios = Object.entries(obj)
+            .filter(([key, value]) => value === null || value === "")
+            .map(([key]) => key);
+
+        if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
                 if (camposRef.current[campo]) {
                     camposRef.current[campo].classList.add('campo-vazio');
                 }
-              });
-            setEmptyFields(camposVazios);
-            checkDados('inputsVazios');
+            });
+            setExibirModal('inputsVazios');
             return true;
         }
+
+        return false;
     }
 
     const handleSubmit = async (e) => {
         const isInvalido = validaDados();
-        if(funcao.funcao1) {
-            !isInvalido && funcao.funcao1();
+        if(isInvalido == true) return;
+
+        if (funcao.funcao1) {
+            funcao.funcao1();
         } else {
-            !isInvalido && funcao(e);
+            funcao(e);
         }
     }
 
@@ -56,24 +55,24 @@ const CadastroInputs = ({obj, objSetter, tipo, funcao, checkDados}) => {
                 <input
                     value={obj.nome}
                     name='nome'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    onChange={handleChange}
                     ref={el => (camposRef.current.nome = el)} />
             </div>
             <div>
                 <b>Softskills: </b>
-                <input 
+                <input
                     value={obj.softskills}
                     name='softskills'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
-                    ref={el => (camposRef.current.softskills = el)}/>
+                    onChange={handleChange}
+                    ref={el => (camposRef.current.softskills = el)} />
             </div>
             <div>
                 <b>Hardskills: </b>
-                <input 
-                value={obj.hardskills}
-                name='hardskills'
-                onChange={(e) => handleChange(e, objSetter, obj)}
-                ref={el => (camposRef.current.hardskills = el)}/>
+                <input
+                    value={obj.hardskills}
+                    name='hardskills'
+                    onChange={handleChange}
+                    ref={el => (camposRef.current.hardskills = el)} />
             </div>
             <div className={tipo == 'update' ? members.botoesAcoes : undefined}>
                 {tipo !== 'update' ? (

@@ -15,7 +15,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     const {isAdmin} = useContext(AuthContext)
 
     const fetchStakeholders = async () => {
-        const data = await fetchData('comunicacao/stakeholderGroups/get/stakeholderNames');
+        const data = await fetchData('comunicacao/stakeholderGroups/get/stakeholderGroupsNames');
         setNomesStakeholders(data.stakeholderGroups);
     };
 

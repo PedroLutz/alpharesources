@@ -43,11 +43,11 @@ const TabelaRiscos = () => {
             dados: novoSubmit
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
+        await fetchRiscos();
         setReload(true);
     };
 
     const handleUpdateClick = (item) => {
-        console.log(item)
         setDadosUpdateTudo({
             oldRisco: item.risco,
             newRisco: ''
@@ -75,15 +75,10 @@ const TabelaRiscos = () => {
                 ...dadosUpdateTudo,
                 newRisco: novosDados.risco
             }
-            console.log(dadosUpdate);
 
-            const updatedRiscos = riscos.map(item =>
-                item._id === updatedItem._id ? { ...updatedItem } : item
-            );
-            setRiscos(updatedRiscos);
             setConfirmUpdateItem(null)
             linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            setReload(true);
+            
             try {
                 await handleUpdate({
                     route: 'riscos/risco/update/update?id',
@@ -114,7 +109,9 @@ const TabelaRiscos = () => {
               }
             setDadosUpdateTudo({oldRisco: '',
                 newRisco: ''});
+            await fetchRiscos();
             setLoading(false);
+            setReload(true);
         }
     };
 
@@ -140,6 +137,7 @@ const TabelaRiscos = () => {
     };
 
     const fetchRiscos = async () => {
+        setLoading(true);
         try {
             const data = await fetchData('riscos/risco/get/all');
             setRiscos(data.riscos);
@@ -149,15 +147,17 @@ const TabelaRiscos = () => {
     };
 
     useEffect(() => {
-        setReload(false);
-        fetchRiscos();
-        fetchCores();
-
+        if(reload == true){
+            setReload(false);
+            fetchRiscos();
+            fetchCores();
+        }
     }, [reload]);
 
-    const checkDados = (tipo) => {
-        setExibirModal(tipo); return;
-    };
+    useEffect(() => {
+        fetchRiscos();
+        fetchCores();
+    }, [])
 
     const modalLabels = {
         'inputsVazios': 'Fill out all fields before adding new data!',
@@ -234,7 +234,7 @@ const TabelaRiscos = () => {
                                                 funcao1: () => handleUpdateItem(),
                                                 funcao2: () => { linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUptading(false); }
                                             }}
-                                            checkDados={checkDados}
+                                            setExibirModal={setExibirModal}
                                         />
                                     ) : (
                                         <tr style={{backgroundColor: cores[item.area]}}>
@@ -280,7 +280,7 @@ const TabelaRiscos = () => {
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
                                 funcao={enviar}
-                                checkDados={checkDados}
+                                setExibirModal={setExibirModal}
                             />
                         </tbody>
                     </table>

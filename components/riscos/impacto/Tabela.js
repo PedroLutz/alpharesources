@@ -105,10 +105,6 @@ const TabelaAnalise = () => {
         fetchAnalises();
     }, [reload]);
 
-    const checkDados = (tipo) => {
-        setExibirModal(tipo); return;
-    };
-
     const modalLabels = {
         'inputsVazios': 'Fill out all fields before adding new data!',
         'deleteSuccess': 'Deletion Successful!',
@@ -178,7 +174,7 @@ const TabelaAnalise = () => {
                                                 funcao1: () => handleUpdateItem(),
                                                 funcao2: () => {linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false)}
                                             }}
-                                            checkDados={checkDados}
+                                            setExibirModal={setExibirModal}
                                         />
                                     ) : (
                                         <tr>
@@ -210,7 +206,7 @@ const TabelaAnalise = () => {
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
                                 funcao={enviar}
-                                checkDados={checkDados}
+                                setExibirModal={setExibirModal}
                             />
                         </tbody>
                     </table>

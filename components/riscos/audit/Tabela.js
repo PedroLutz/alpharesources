@@ -38,11 +38,13 @@ const TabelaAnalise = () => {
             dados: novoSubmit
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
+        await fetchAudits();
         setReload(true);
     };
 
     const handleUpdateClick = (item) => {
         setConfirmUpdateItem(item)
+        //tem campos inseridos no item que nao sao os do model, que precisam ser filtrados aqui
         const camposConsiderados = Object.keys(camposVazios);
         for (const campo in camposConsiderados) {
             setNovosDados((prevState) => ({
@@ -50,7 +52,6 @@ const TabelaAnalise = () => {
                 [camposConsiderados[campo]]: item[camposConsiderados[campo]]
             }))
         }
-
     };
 
     const handleUpdateItem = async () => {
@@ -61,13 +62,9 @@ const TabelaAnalise = () => {
                 _id: confirmUpdateItem._id
             };
 
-            const updatedRiscos = audits.map(item =>
-                item._id === updatedItem._id ? { ...updatedItem } : item
-            );
-            setAudits(updatedRiscos);
             setConfirmUpdateItem(null)
             linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            setReload(true);
+            
             try {
                 await handleUpdate({
                     route: 'riscos/audit/update?id',
@@ -75,10 +72,11 @@ const TabelaAnalise = () => {
                     item: confirmUpdateItem
                 });
             } catch (error) {
-                setAudits(riscos);
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
+            await fetchAudits();
+            setReload(true);
             setLoading(false);
         }
     };
@@ -90,7 +88,7 @@ const TabelaAnalise = () => {
                 getDeleteSuccess = handleDelete({
                     route: 'riscos/audit',
                     item: confirmDeleteItem,
-                    fetchDados: fetchAnalises
+                    fetchDados: fetchAudits
                 });
             } finally {
                 setExibirModal(`deleteSuccess-${getDeleteSuccess}`)
@@ -104,7 +102,7 @@ const TabelaAnalise = () => {
         setConfirmDeleteItem(null);
     };
 
-    const fetchAnalises = async () => {
+    const fetchAudits = async () => {
         try {
             const data = await fetchData('riscos/audit/get/all');
             setAudits(data.riscoAudits);
@@ -114,13 +112,15 @@ const TabelaAnalise = () => {
     };
 
     useEffect(() => {
-        setReload(false);
-        fetchAnalises();
+        if(reload == true){
+            setReload(false);
+            fetchAudits();
+        }
     }, [reload]);
 
-    const checkDados = (tipo) => {
-        setExibirModal(tipo); return;
-    };
+    useEffect(() => {
+        fetchAudits();
+    }, [])
 
     const modalLabels = {
         'inputsVazios': 'Fill out all fields before adding new data!',
@@ -197,7 +197,7 @@ const TabelaAnalise = () => {
                                                 funcao1: () => handleUpdateItem(),
                                                 funcao2: () => { linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false) }
                                             }}
-                                            checkDados={checkDados}
+                                            setExibirModal={setExibirModal}
                                         />
                                     ) : (
                                         <tr>
@@ -249,7 +249,7 @@ const TabelaAnalise = () => {
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
                                 funcao={enviar}
-                                checkDados={checkDados}
+                                setExibirModal={setExibirModal}
                             />
                         </tbody>
                     </table>

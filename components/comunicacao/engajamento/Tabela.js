@@ -39,14 +39,8 @@ const Tabela = () => {
             setLoading(true);
             const updatedItem = { ...confirmUpdateItem, ...novosDados };
 
-            const updatedEngajamentos = engajamentos.map(item =>
-                item._id === updatedItem._id ? updatedItem : item
-            );
-            setEngajamentos(updatedEngajamentos);
             setConfirmUpdateItem(null)
             linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            fetchStakeholders();
-            setReload(true);
             try {
                 await handleUpdate({
                     route: 'comunicacao/engajamento/update?id',
@@ -54,11 +48,12 @@ const Tabela = () => {
                     item: confirmUpdateItem
                 });
             } catch (error) {
-                setEngajamentos(engajamentos);
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
-            setLoading(false)
+            await fetchStakeholders();
+            setReload(true);
+            setLoading(false);
         }
     };
 
@@ -109,10 +104,10 @@ const Tabela = () => {
     };
 
     //funcao que calcula o rowSpan do td do grupo de acordo com a quantidade de stakeholders
-    const calculateRowSpan = (itens, currentArea, currentIndex, parametro) => {
+    const calculateRowSpan = (currentArea, currentIndex, parametro) => {
         let rowSpan = 1;
-        for (let i = currentIndex + 1; i < itens.length; i++) {
-            if (itens[i][parametro] === currentArea) {
+        for (let i = currentIndex + 1; i < engajamentos.length; i++) {
+            if (engajamentos[i][parametro] === currentArea) {
                 rowSpan++;
             } else {
                 break;
@@ -159,7 +154,7 @@ const Tabela = () => {
                                         {!isUpdating || isUpdating[0] !== engajamento.grupo ? (
                                             <React.Fragment>
                                                 {index === 0 || engajamentos[index - 1].grupo !== engajamento.grupo ? (
-                                                    <td rowSpan={calculateRowSpan(engajamentos, engajamento.grupo, index, 'grupo')}
+                                                    <td rowSpan={calculateRowSpan(engajamento.grupo, index, 'grupo')}
                                                     >{engajamento.grupo}</td>
                                                 ) : null}
                                             </React.Fragment>

@@ -4,8 +4,7 @@ import { fetchData } from "../../../functions/crud";
 import { AuthContext } from "../../../contexts/AuthContext";
 import styles from '../../../styles/modules/members.module.css'
 
-const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
-    const [nomesMembros, setNomesMembros] = useState([]);
+const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
     const [elementosWBS, setElementosWBS] = useState([]);
     const [itensPorArea, setItensPorArea] = useState([]);
     const [nomesFuncoes, setNomesFuncoes] = useState([]);
@@ -20,11 +19,6 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
     })
     const { isAdmin } = useContext(AuthContext);
 
-    const fetchMembros = async () => {
-        const data = await fetchData('responsabilidades/membros/get/nomes');
-        setNomesMembros(data.nomes);
-    };
-
     const fetchAreas = async () => {
         const data = await fetchData('wbs/get/all');
         setElementosWBS(data.elementos);
@@ -37,7 +31,6 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
 
     useEffect(() => {
         fetchAreas();
-        fetchMembros();
         fetchFuncoes();
     }, []);
 
@@ -75,44 +68,46 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, checkDados }) => {
         handleChange(e);
     };
 
-    const isFormVazio = (form) => {
-        const emptyFields = Object.entries(form).filter(([key, value]) => value === null || value === "");
-        return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
-    };
-
     const validaDados = () => {
         const campos = { nivel_atual: obj.nivel_atual, nivel_min: obj.nivel_min };
 
         for (const [key, value] of Object.entries(campos)) {
             if (value < 0) {
                 camposRef.current[key].classList.add('campo-vazio');
-                checkDados('valorNegativo');
+                setExibirModal('valorNegativo');
                 return true;
             }
             if (value > 5) {
                 camposRef.current[key].classList.add('campo-vazio');
-                checkDados('maiorQueCinco');
+                setExibirModal('maiorQueCinco');
                 return true;
             }
         }
-        const [isEmpty, camposVazios] = isFormVazio(obj);
-        if (isEmpty) {
+        const camposVazios = Object.entries(obj)
+            .filter(([key, value]) => value === null || value === "")
+            .map(([key]) => key);
+
+        if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
                 if (camposRef.current[campo]) {
                     camposRef.current[campo].classList.add('campo-vazio');
                 }
             });
-            checkDados('inputsVazios');
+            setExibirModal('inputsVazios');
             return true;
         }
+
+        return false;
     }
 
     const handleSubmit = (e) => {
         const isInvalido = validaDados();
+        if(isInvalido == true) return;
+
         if (funcao.funcao1) {
-            !isInvalido && funcao.funcao1();
+            funcao.funcao1();
         } else {
-            !isInvalido && funcao(e);
+            funcao(e);
         }
     }
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useMemo } from 'react';
 import members from '../../../styles/modules/members.module.css';
 import Loading from '../../Loading';
 import Modal from '../../Modal';
@@ -22,7 +22,6 @@ const Tabela = () => {
   const camposVazios = {
     area: "",
     item: "",
-    responsabilidades: ""
   }
   const [novoSubmit, setNovoSubmit] = useState(camposVazios);
   const [novosDados, setNovosDados] = useState(camposVazios);
@@ -31,18 +30,18 @@ const Tabela = () => {
   const handleUpdateClick = (item) => {
     setConfirmUpdateItem(item);
     const responsabilidadesArray = item.responsabilidades.split(", ");
-    setNovosDados({
+    var objTemp = {
       area: item.area,
       item: item.item
-    });
-
+    };
     inputNames.forEach((membro, index) => {
       const responsabilidade = responsabilidadesArray[index % responsabilidadesArray.length];
-      setNovosDados(prevFormData => ({
-        ...prevFormData,
+      objTemp = {
+        ...objTemp,
         [`input${getCleanName(membro)}`]: responsabilidade
-      }));
+      }
     });
+    setNovosDados(objTemp);
   };
 
   const fetchCores = async () => {
@@ -110,7 +109,7 @@ const Tabela = () => {
     setNomesMembros(data.nomes);
   };
 
-  const generateInputNames = () => {
+  const inputNames = useMemo(() => {
     const firstNames = new Map();
     const fullNames = [];
     const inputNames = [];
@@ -137,16 +136,17 @@ const Tabela = () => {
       };
     });
     return inputNames;
-  };
-  const inputNames = generateInputNames();
+  }, [nomesMembros]);
 
   const generateFormData = () => {
+    var objTemp = novoSubmit;
     inputNames.forEach((membro) => {
-      setNovoSubmit(({
-        ...novoSubmit,
+      objTemp = {
+        ...objTemp,
         [`input${getCleanName(membro)}`]: ''
-      }));
+      }
     });
+    setNovoSubmit(objTemp);
   };
 
   const getCleanName = (str) => {
@@ -157,7 +157,9 @@ const Tabela = () => {
   };
 
   useEffect(() => {
-    setReload(false);
+    if(reload == true){
+      setLoading(true);
+      setReload(false);
     try {
       fetchNomesMembros();
       fetchItensRaci();
@@ -165,8 +167,23 @@ const Tabela = () => {
     } finally {
       setLoading(false);
     }
-    generateFormData();
+    }
+    
   }, [reload]);
+
+  useEffect(() => {
+    try {
+      fetchNomesMembros();
+      fetchItensRaci();
+      fetchCores();
+    } finally {
+      setLoading(false);
+    }
+  }, [])
+
+  useEffect(() => {
+    generateFormData();
+  }, [nomesMembros])
 
   const handleConfirmDelete = () => {
     if (confirmDeleteItem) {
@@ -184,7 +201,7 @@ const Tabela = () => {
     setConfirmDeleteItem(null);
   };
 
-  const generateTableHeaders = () => {
+  const [tableHeaders, tableNames] = useMemo(() => {
     const firstNames = new Map();
     const fullNames = [];
     const headers = [];
@@ -211,9 +228,7 @@ const Tabela = () => {
       };
     });
     return [headers, fullNames];
-  };
-  const tableHeaders = generateTableHeaders()[0];
-  const tableNames = generateTableHeaders()[1];
+  }, [nomesMembros])
 
   const calculateRowSpan = (itensRaci, currentArea, currentIndex) => {
     let rowSpan = 1;
@@ -225,10 +240,6 @@ const Tabela = () => {
       }
     }
     return rowSpan;
-  };
-
-  const checkDados = (tipo) => {
-    setExibirModal(tipo); return;
   };
 
   const modalLabels = {
@@ -247,11 +258,6 @@ const Tabela = () => {
         .map(key => novosDados[key]).join(', ');
       const { area, item } = novosDados;
       const updatedItem = { _id: confirmUpdateItem._id, area, item, responsabilidades: responsabilidadesString };
-      const updatedItensRaci = itensRaci.map(item =>
-        item._id === updatedItem._id ? { ...updatedItem } : item
-      );
-
-      setItensRaci(updatedItensRaci);
       setConfirmUpdateItem(null);
       try {
         await handleUpdate({
@@ -266,9 +272,10 @@ const Tabela = () => {
       }
       setLoading(false);
     }
+    await fetchItensRaci();
+    setReload(true);
     setLinhaVisivel();
     setConfirmUpdateItem(null);
-    generateFormData();
   };
 
   return (
@@ -308,7 +315,7 @@ const Tabela = () => {
                     obj={novoSubmit}
                     objSetter={setNovoSubmit}
                     funcao={enviar}
-                    checkDados={checkDados}
+                    setExibirModal={setExibirModal}
                     tipo='cadastro' />
                 </tr>
               )}
@@ -325,9 +332,10 @@ const Tabela = () => {
                         obj={novosDados}
                         objSetter={setNovosDados}
                         funcao={{
-                          funcao1: () => handleUpdateItem(),
+                          funcao1: handleUpdateItem,
                           funcao2: () => linhaVisivel === item._id ? setLinhaVisivel(null) : setLinhaVisivel(item._id)
                         }}
+                        setExibirModal={setExibirModal}
                         tipo='update' />
                     </React.Fragment>
                   ) : (
