@@ -15,7 +15,6 @@ const Tabela = () => {
         habilidades: '',
         responsavel: '',
         area: '',
-        itens: ''
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
@@ -148,8 +147,8 @@ const Tabela = () => {
                 }} />
             )}
 
-            <div className={styles.tabelaRaci_container}>
-                <div className={styles.tabelaRaci_wrapper}>
+            <div className={styles.tabelaRaci_container} style={{width: '67rem'}}>
+                <div className={styles.tabelaRaci_wrapper} >
                     <table className={styles.tabelaFuncoes}>
                         <thead>
                             <tr>
@@ -158,7 +157,6 @@ const Tabela = () => {
                                 <th>Required skills</th>
                                 <th>Responsible</th>
                                 <th>WBS area</th>
-                                <th>WBS itens</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -182,7 +180,6 @@ const Tabela = () => {
                                             <td>{funcao.habilidades}</td>
                                             <td>{funcao.responsavel}</td>
                                             <td>{funcao.area}</td>
-                                            <td>{funcao.itens}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(funcao)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {

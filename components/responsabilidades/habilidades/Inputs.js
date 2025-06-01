@@ -37,8 +37,6 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
         e.target.classList.remove('campo-vazio');
     };
 
-    const isFirstRender = useRef(true);
-
     const validaDados = () => {
         const campos = { nivel_atual: obj.nivel_atual, nivel_min: obj.nivel_min };
 

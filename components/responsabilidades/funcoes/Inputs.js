@@ -12,7 +12,6 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
         habilidades: null,
         responsavel: null,
         area: null,
-        itens: null
     })
     const { isAdmin } = useContext(AuthContext);
 
@@ -113,25 +112,12 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                 </select>
             </td>
             <td>
-                <select
+                <textarea
                     name="area"
                     onChange={handleChange}
                     value={obj.area}
+                    placeholder="Areas"
                     ref={el => (camposRef.current.area = el)}
-                >
-                    <option defaultValue value="">Field</option>
-                    {areas.map((area, index) => (
-                        <option key={index} value={area._id}>{area._id}</option>
-                    ))}
-                </select>
-            </td>
-            <td>
-                <textarea
-                    name="itens"
-                    onChange={handleChange}
-                    value={obj.itens}
-                    placeholder="WBS itens"
-                    ref={el => (camposRef.current.itens = el)}
                 />
             </td>
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>

@@ -7,8 +7,7 @@ const FuncaoSchema = new mongoose.Schema({
   descricao: String,
   habilidades: String,
   responsavel: String,
-  area: String,
-  itens: String
+  area: String
 }, { collection: 'funcoes' });
  
 const Funcao = mongoose.models['Funcao'] || mongoose.model('Funcao', FuncaoSchema);

@@ -1,32 +1,22 @@
 import connectToDatabase from '../../lib/db'
-import Stakeholder from '../../models/comunicacao/Stakeholder'
+import FuncaoModel from '../../models/responsabilidade/Funcao'
+
+const {Funcao} = FuncaoModel;
 
 const limparCamposAntigos = async () => {
-  await Stakeholder.updateMany({}, {
+  await Funcao.updateMany({}, {
     $unset: {
-      information: "",
-      method: "",
-      tools: "",
-      responsible: ""
+      itens: ''
     },
-    $rename: {
-      name: 'grupo',
-      involvement: 'envolvimento',
-      influence: 'influencia',
-      power: 'poder',
-      interest: 'interesse',
-      expectations: 'expectativas',
-      requisites: 'requisitos'
-    }
   })
 }
 
 const renomearColecao = async () => {
   const db = await connectToDatabase()
   const collections = await db.connection.db.listCollections().toArray()
-  const existe = collections.some(col => col.name === 'stakeholders')
-  if (!existe) throw new Error('coleção "stakeholders" não encontrada')
-  await db.connection.db.renameCollection('stakeholders', 'stakeholderGroups')
+  const existe = collections.some(col => col.name === 'funcao')
+  if (!existe) throw new Error('coleção "funcao" não encontrada')
+  await db.connection.db.renameCollection('funcao', 'stakeholderGroups')
 }
 
 export default async function handler(req, res) {
@@ -37,7 +27,7 @@ export default async function handler(req, res) {
   try {
     await connectToDatabase()
     await limparCamposAntigos()
-    await renomearColecao()
+    // await renomearColecao()
     res.status(200).json({ msg: 'migração feita com sucesso' })
   } catch (err) {
     console.error('erro na migração:', err)
