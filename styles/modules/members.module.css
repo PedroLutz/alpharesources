@@ -172,6 +172,11 @@
     font-size: 0.75rem;
 }
 
+.tabelaFuncoes td:nth-child(2), .tabelaFuncoes td:nth-child(3), .tabelaFuncoes td:nth-child(6){
+    font-size: 0.75rem;
+    text-align: left;
+}
+
 .tabelaFuncoes td textarea{
     height: 4rem;
     font-size: 0.8rem;
@@ -193,6 +198,7 @@
 .tabelaHabilidade td textarea{
     font-size: 0.85rem;
     height: 2.5rem;
+    width: 10rem;
 }
 
 .tabelaHabilidade td select{

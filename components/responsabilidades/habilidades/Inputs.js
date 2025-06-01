@@ -5,13 +5,10 @@ import { AuthContext } from "../../../contexts/AuthContext";
 import styles from '../../../styles/modules/members.module.css'
 
 const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
-    const [elementosWBS, setElementosWBS] = useState([]);
-    const [itensPorArea, setItensPorArea] = useState([]);
     const [nomesFuncoes, setNomesFuncoes] = useState([]);
     const camposRef = useRef({
         funcao: null,
         area: null,
-        item: null,
         habilidade: null,
         nivel_atual: null,
         nivel_min: null,
@@ -19,18 +16,12 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
     })
     const { isAdmin } = useContext(AuthContext);
 
-    const fetchAreas = async () => {
-        const data = await fetchData('wbs/get/all');
-        setElementosWBS(data.elementos);
-    }
-
     const fetchFuncoes = async () => {
         const data = await fetchData('responsabilidades/funcoes/get/nomes');
         setNomesFuncoes(data.funcoes);
     }
 
     useEffect(() => {
-        fetchAreas();
         fetchFuncoes();
     }, []);
 
@@ -46,27 +37,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
         e.target.classList.remove('campo-vazio');
     };
 
-    useEffect(() => {
-        if (isFirstRender.current) {
-            isFirstRender.current = false;
-            return;
-        }
-
-        objSetter({
-            ...obj,
-            item: ''
-        });
-    }, [obj.area]);
-
     const isFirstRender = useRef(true);
-
-    const handleAreaChange = (e) => {
-        const areaSelecionada = e.target.value;
-        const itensDaArea = elementosWBS.filter(item => item.area === areaSelecionada).map(item => item.item);
-        setItensPorArea(itensDaArea);
-
-        handleChange(e);
-    };
 
     const validaDados = () => {
         const campos = { nivel_atual: obj.nivel_atual, nivel_min: obj.nivel_min };
@@ -88,6 +59,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
             .map(([key]) => key);
 
         if (camposVazios.length > 0) {
+            console.log(camposVazios)
             camposVazios.forEach(campo => {
                 if (camposRef.current[campo]) {
                     camposRef.current[campo].classList.add('campo-vazio');
@@ -114,32 +86,13 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
     return (
         <tr>
             <td>
-                <select
+                <textarea
                     name="area"
-                    onChange={handleAreaChange}
-                    value={obj.area}
-                    ref={el => (camposRef.current.area = el)}
-                >
-                    <option value="" defaultValue>Area</option>
-                    {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
-                        <option key={index} value={area}>{area}</option>
-                    ))};
-                    <option value="Others">Others</option>
-                </select>
-            </td>
-            <td>
-                <select
-                    value={obj.item}
-                    name='item'
                     onChange={(e) => handleChange(e, false)}
-                    ref={el => (camposRef.current.item = el)}
-                >
-                    <option value="" defaultValue>Item</option>
-                    {itensPorArea.map((item, index) => (
-                        <option key={index} value={item}>{item}</option>
-                    ))}
-                    <option value="Others">Others</option>
-                </select>
+                    value={obj.area}
+                    placeholder="Areas"
+                    ref={el => (camposRef.current.area = el)}
+                />
             </td>
             <td>
                 <select

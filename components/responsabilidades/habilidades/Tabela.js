@@ -11,7 +11,6 @@ const Tabela = () => {
     const camposVazios = {
         funcao: '',
         area: '',
-        item: '',
         habilidade: '',
         nivel_atual: '',
         nivel_min: '',
@@ -181,7 +180,6 @@ const Tabela = () => {
                         <thead>
                             <tr>
                                 <th>Area</th>
-                                <th>Item</th>
                                 <th>Role</th>
                                 <th>Responsible</th>
                                 <th>Skill</th>
@@ -216,17 +214,7 @@ const Tabela = () => {
                                             ) : (
                                                 <td>{habilidade.area}</td>
                                             )}
-                                            {!isUpdating || isUpdating[1] !== habilidade.item ? (
-                                                <React.Fragment>
-                                                    {index === 0 || habilidades[index - 1].item !== habilidade.item ? (
-                                                        <td rowSpan={calculateRowSpan(habilidade.item, index, 'item')}
-                                                        >{habilidade.item}</td>
-                                                    ) : null}
-                                                </React.Fragment>
-                                            ) : (
-                                                <td>{habilidade.item}</td>
-                                            )}
-                                            {!isUpdating || isUpdating[2] !== habilidade.funcao ? (
+                                            {!isUpdating || isUpdating[1] !== habilidade.funcao ? (
                                                 <React.Fragment>
                                                     {index === 0 || habilidades[index - 1].funcao !== habilidade.funcao ? (
                                                         <td rowSpan={calculateRowSpan(habilidade.funcao, index, 'funcao')}
@@ -245,7 +233,7 @@ const Tabela = () => {
                                                 <button onClick={() => setConfirmDeleteItem(habilidade)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
                                                     setLinhaVisivel(habilidade._id); handleUpdateClick(habilidade); 
-                                                    setIsUptading([habilidade.area, habilidade.item, habilidade.funcao])
+                                                    setIsUptading([habilidade.area, habilidade.funcao])
                                                 }
                                                 } disabled={!isAdmin}>⚙️</button>
                                             </td>

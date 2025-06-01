@@ -5,7 +5,6 @@ delete mongoose.connection.models['Habilidade'];
 const HabilidadeSchema = new mongoose.Schema({
   funcao: String,
   area: String,
-  item: String,
   habilidade: String,
   nivel_atual: Number,
   nivel_min: Number,
