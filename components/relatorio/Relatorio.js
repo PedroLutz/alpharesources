@@ -259,14 +259,15 @@ const Relatorio = () => {
                 div.innerText = textarea.value
                 div.style.whiteSpace = 'pre-wrap'
                 div.style.wordBreak = 'break-word'
-                div.style.border = '1px solid #ccc'
-                div.style.borderRadius = '0.5rem'
-                div.style.padding = '8px'
+                div.style.border = 'none'
                 div.style.minHeight = '50px'
+                div.style.paddingLeft = '2px'
+                div.style.paddingRight = '2px'
                 div.style.fontFamily = 'inherit'
+                div.style.textAlign = 'left'
                 div.style.fontSize = 'inherit'
                 div.style.width = `${textarea.offsetWidth}px`
-                div.style.height = `${textarea.offsetHeight}px`
+                div.style.height = `${textarea.offsetHeight + 20}px`
 
                 textarea.style.display = 'none'
                 textarea.parentNode.insertBefore(div, textarea.nextSibling)
