@@ -30,6 +30,15 @@ function euDateToIsoDate (dateString) {
     }
     return null;
 }
+//'yyyy-MM-dd' format to 'dd/MM/yyyy' format
+function isoDateToEuDate (dateString) {
+    if(dateString != 'NaN/NaN/NaN' && dateString != null){
+        
+        const parts = dateString.split('-');
+        return `${parts[2]}/${parts[1]}/${parts[0]}`
+    }
+    return null;
+}
 //'dd/MM/yyyy' format to js Date
 function euDateToJsDate(dateString) {
     if(dateString != null){
@@ -45,4 +54,4 @@ function isoDateToJsDate(dateString) {
     return new Date(+dateParts[0], dateParts[1] - 1, dateParts[2])
 }
 
-export { cleanForm , jsDateToEuDate, euDateToIsoDate , euDateToJsDate, isoDateToJsDate };
+export { cleanForm , jsDateToEuDate, euDateToIsoDate , euDateToJsDate, isoDateToJsDate, isoDateToEuDate };

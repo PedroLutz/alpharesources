@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { fetchData } from "../../functions/crud";
+import { isoDateToEuDate } from "../../functions/general";
 import styles from '../../styles/modules/relatorio.module.css'
 // import { handleExport } from "../../functions/exportHtml";
 import Loading from "../Loading";
@@ -271,6 +272,46 @@ const Relatorio = () => {
                 textarea.parentNode.insertBefore(div, textarea.nextSibling)
             })
 
+            document.querySelectorAll('select').forEach((select) => {
+                const div = document.createElement('div')
+                div.innerText = select.value
+                div.style.whiteSpace = 'pre-wrap'
+                div.style.wordBreak = 'break-word'
+                div.style.border = 'none'
+                div.style.fontFamily = 'inherit'
+                div.style.fontSize = 'inherit'
+                div.style.color = 'black'
+                div.style.height = `20px`
+                div.style.textAlign = 'center'
+                div.style.lineHeight = '20px'
+
+                select.style.display = 'none'
+                select.parentNode.insertBefore(div, select.nextSibling)
+            })
+
+            const inputManager = document.getElementById("manager");
+            const inputDateCompletion = document.getElementById("dateCompletion");
+            const inputs = [inputManager, inputDateCompletion]
+            inputs.forEach(input => {
+                const div = document.createElement('div')
+                div.innerText = input.value
+                if(input.id == 'dateCompletion'){
+                    div.innerText = isoDateToEuDate(input.value)
+                }
+                div.style.whiteSpace = 'pre-wrap'
+                div.style.wordBreak = 'break-word'
+                div.style.border = 'none'
+                div.style.fontFamily = 'inherit'
+                div.style.fontSize = 'inherit'
+                div.style.color = 'black'
+                div.style.height = `25px`
+                div.style.textAlign = 'left'
+                div.style.lineHeight = '25px'
+                input.style.display = 'none'
+                input.parentNode.insertBefore(div, input.nextSibling)
+            })
+            
+
             const opt = {
                 margin: 1,
                 filename: `relatorio-${monthYear.month}-${monthYear.year}.pdf`,
@@ -352,6 +393,7 @@ const Relatorio = () => {
                                         <tr>
                                             <td>Projected Date of Completion</td>
                                             <td><input type="date"
+                                                id='dateCompletion'
                                                 name='data'
                                                 value={information.data}
                                                 onChange={(e) => handleChange(e, information, setInformation)} /></td>
@@ -359,6 +401,7 @@ const Relatorio = () => {
                                         <tr>
                                             <td>Project Manager</td>
                                             <td><input name='manager'
+                                                id='manager'
                                                 value={information.manager}
                                                 onChange={(e) => handleChange(e, information, setInformation)} /></td>
                                         </tr>
@@ -421,7 +464,7 @@ const Relatorio = () => {
                                     <tr>
                                         <td className='status_td'>
                                             <select name='scopeStatus'
-                                                style={{ textAlign: 'center', padding: '0.2rem' }}
+                                                style={{ textAlign: 'center' }} 
                                                 value={kpyAnalysisStatus.scopeStatus}
                                                 onChange={(e) => handleChange(e, kpyAnalysisStatus, setKpiAnalysisStatus)}>
                                                 <option value='Safe'>Safe</option>
@@ -431,7 +474,7 @@ const Relatorio = () => {
                                         </td>
                                         <td className="status_td">
                                             <select name='scheduleStatus'
-                                                style={{ textAlign: 'center', padding: '0.2rem' }}
+                                                style={{ textAlign: 'center'}}
                                                 value={kpyAnalysisStatus.scheduleStatus}
                                                 onChange={(e) => handleChange(e, kpyAnalysisStatus, setKpiAnalysisStatus)}>
                                                 <option value='Safe'>Safe</option>
@@ -441,7 +484,7 @@ const Relatorio = () => {
                                         </td>
                                         <td className="status_td">
                                             <select name='costStatus'
-                                                style={{ textAlign: 'center', padding: '0.2rem' }}
+                                                style={{ textAlign: 'center' }}
                                                 value={kpyAnalysisStatus.costStatus}
                                                 onChange={(e) => handleChange(e, kpyAnalysisStatus, setKpiAnalysisStatus)}>
                                                 <option value='Safe'>Safe</option>
@@ -451,7 +494,7 @@ const Relatorio = () => {
                                         </td>
                                         <td className="status_td">
                                             <select name='riskStatus'
-                                                style={{ textAlign: 'center', padding: '0.2rem' }}
+                                                style={{ textAlign: 'center' }}
                                                 value={kpyAnalysisStatus.riskStatus}
                                                 onChange={(e) => handleChange(e, kpyAnalysisStatus, setKpiAnalysisStatus)}>
                                                 <option value='Safe'>Safe</option>
@@ -461,7 +504,7 @@ const Relatorio = () => {
                                         </td>
                                         <td className="status_td">
                                             <select name='qualityStatus'
-                                                style={{ textAlign: 'center', padding: '0.2rem'}}
+                                                style={{ textAlign: 'center'}}
                                                 value={kpyAnalysisStatus.qualityStatus}
                                                 onChange={(e) => handleChange(e, kpyAnalysisStatus, setKpiAnalysisStatus)}>
                                                 <option value='Safe'>Safe</option>
