@@ -8,6 +8,7 @@ import GanttModel from '../../../../models/Gantt'
 import LancamentoModel from '../../../../models/financas/LancamentoFinanceiro'
 import RiscoModel from '../../../../models/riscos/Risco';
 import HabilidadeModel from '../../../../models/responsabilidade/Habilidade';
+import MudancaModel from '../../../../models/monitoramento/Mudanca';
 import mongoose from 'mongoose';
 
 const { Wbs } = WbsModel;
@@ -19,6 +20,7 @@ const { Lancamento } = LancamentoModel;
 const { Risco } = RiscoModel;
 const { WbsDictionary } = WbsDictionaryModel;
 const { Habilidade } = HabilidadeModel;
+const { Mudanca } = MudancaModel;
 
 export default async (req, res) => {
   try {
@@ -62,6 +64,9 @@ export default async (req, res) => {
           { area: oldArea }, { $set: { area: area } }
         );
         await Habilidade.updateMany(
+          { area: oldArea }, { $set: { area: area } }
+        );
+        await Mudanca.updateMany(
           { area: oldArea }, { $set: { area: area } }
         );
 

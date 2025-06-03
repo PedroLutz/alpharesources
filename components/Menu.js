@@ -80,8 +80,8 @@ const { setTitulo } = useContext(TituloContext);
             {/* Item Report */}
             <span>
                 <Link href="/pags/report">
-                    <img src={'/images/report_logo.png'} alt="Planning Logo" className={logoItem}/>
-                    Report generator
+                    <img src={'/images/monitoring_logo.png'} alt="Planning Logo" className={logoItem}/>
+                    Monitoring
                 </Link>
             </span>
         </div>

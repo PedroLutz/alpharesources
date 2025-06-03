@@ -25,6 +25,9 @@ const Navbar = () => {
           <Link href="/pags/monitoring/changelog">Change Log</Link>
         </li>
         <li>
+          <Link href="/pags/monitoring/lessons">Lessons learned</Link>
+        </li>
+        <li>
           <Link href="/">Menu</Link>
         </li>
         <Logout/>

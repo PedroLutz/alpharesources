@@ -8,7 +8,7 @@
     display:block;
 }
 
-.tabela_mudancas table {
+.tabela_mudancas table, .tabela_licoes table {
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(0, 0, 0);
@@ -17,7 +17,7 @@
     border-collapse: collapse;
 }
 
-.tabela_mudancas td {
+.tabela_mudancas td, .tabela_licoes td {
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(0, 0, 0);
@@ -25,7 +25,7 @@
     font-size: small;
 }
 
-.tabela_mudancas th {
+.tabela_mudancas th, .tabela_licoes th {
     background-color: #ff8ff2;
     border-width: 0.1rem;
     font-size: 0.9rem;
@@ -34,7 +34,8 @@
     padding: 0.3rem;
 }
 
-.tabela_mudancas td input, .tabela_mudancas td select, .tabela_mudancas td textarea {
+.tabela_mudancas td input, .tabela_mudancas td select, .tabela_mudancas td textarea,
+.tabela_licoes td input, .tabela_licoes td select, .tabela_licoes td textarea {
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(167, 167, 167);
@@ -50,19 +51,25 @@
 .tabela_mudancas td input:hover, 
 .tabela_mudancas td select:hover,
 .tabela_mudancas td textarea:hover, 
-.tabela_mudancas td:not(:global(.botoes_acoes)) button:hover {
+.tabela_mudancas td:not(:global(.botoes_acoes)) button:hover,
+.tabela_licoes td input:hover, 
+.tabela_licoes td select:hover,
+.tabela_licoes td textarea:hover, 
+.tabela_licoes td:not(:global(.botoes_acoes)) button:hover {
     background-color: rgb(231, 231, 231);
 }
 
-.tabela_mudancas td input, .tabela_mudancas td textarea{
+.tabela_mudancas td input, .tabela_mudancas td textarea,
+.tabela_licoes td input, .tabela_licoes td textarea{
     height: 3rem;
 }
 
-.tabela_mudancas td select, .tabela_mudancas td:not(:global(.botoes_acoes)) button{
+.tabela_mudancas td select, .tabela_mudancas td:not(:global(.botoes_acoes)) button,
+.tabela_licoes td select, .tabela_licoes td:not(:global(.botoes_acoes)) button{
     height: 3.5rem;
 }
 
-.tabela_mudancas button{
+.tabela_mudancas button, .tabela_licoes button{
     background-color: transparent;
     border-width: 0.1rem;
     border-style: solid;
