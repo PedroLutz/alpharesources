@@ -225,12 +225,19 @@ const Tabela = () => {
                                             ) : (
                                                 <td>{informacao.stakeholder}</td>
                                             )}
-                                            <td>{informacao.informacao}</td>
+                                            <td id={styles.infoTdInfo}>{informacao.informacao}</td>
                                             <td>{informacao.metodo}</td>
                                             <td>{informacao.frequencia}</td>
                                             <td>{informacao.canal}</td>
                                             <td>{informacao.responsavel}</td>
-                                            <td><Link href={informacao.registro}>{informacao.registro}</Link></td>
+                                            <td>
+                                                {informacao.registro ? (
+                                                    <Link href={informacao.registro}>{informacao.registro}</Link>
+                                                ) : (
+                                                    '-'
+                                                )}
+                                                
+                                            </td>
                                             <td>{informacao.feedback || '-'}</td>
                                             <td>{informacao.acao || '-'}</td>
                                             <td className='botoes_acoes'>

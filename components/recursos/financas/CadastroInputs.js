@@ -55,17 +55,21 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
             setExibirModal('valorNegativo')
             return true;
         }
-        const [isEmpty, camposVazios] = isFormVazio(obj);
-        if (isEmpty) {
+        const camposVazios = Object.entries(obj)
+        .filter(([key, value]) => value === null || value === "")
+        .map(([key]) => key);
+
+        if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
                 if (camposRef.current[campo]) {
                     camposRef.current[campo].classList.add('campo-vazio');
                 }
             });
-            setEmptyFields(camposVazios);
             setExibirModal('inputsVazios');
             return true;
         }
+
+        return false;
     }
 
     //funcao que chama as funcoes de submit de acordo com o tipo de funcao, e apenas se os dados forem validos

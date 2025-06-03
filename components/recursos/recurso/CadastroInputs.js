@@ -46,13 +46,6 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
     }, [obj.area]);
 
 
-    //funcao que retorna true se houver algum campo vazio e os nomes dos campos vazios 
-    const isFormVazio = (form) => {
-        const emptyFields = Object.entries(form).filter(([key, value]) => value === null || value === '');
-        return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
-    };
-
-
     //funcao que insere no array itensPorArea os itens relacionados à area relacionada
     const handleAreaChange = (e) => {
         const areaSelecionada = e.target.value;
@@ -73,31 +66,34 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
         e.target.classList.remove('campo-vazio');
     };
 
-
     //funcao que valida os dados, verificando quais campos estao vazios e inserindo a classe campo-vazio para destacá-los
     const validaDados = () => {
-        const [isEmpty, camposVazios] = isFormVazio(obj);
-        if (isEmpty) {
+        const camposVazios = Object.entries(obj)
+        .filter(([key, value]) => value === null || value === "")
+        .map(([key]) => key);
+
+        if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
                 if (camposRef.current[campo]) {
                     camposRef.current[campo].classList.add('campo-vazio');
                 }
             });
-            setEmptyFields(camposVazios);
             setExibirModal('inputsVazios');
             return true;
         }
+
+        return false;
     };
 
 
     //funcao que detecta se os dados sao validos, e se sao, utiliza a funcao de submit
     const handleSubmit = async (e) => {
         const isInvalido = validaDados();
+        if(isInvalido) return;
         if (funcao.funcao1) {
-            !isInvalido && funcao.funcao1();
-            return;
+            funcao.funcao1();
         } else {
-            !isInvalido && funcao(e);
+            funcao(e);
         }
     };
 

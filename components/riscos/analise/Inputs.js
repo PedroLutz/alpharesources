@@ -101,7 +101,7 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
 
     const handleSubmit = (e) => {
         const isInvalido = validaDados();
-        if(isInvalido == true) return;
+        if(isInvalido) return;
 
         if (funcao.funcao1) {
             funcao.funcao1();

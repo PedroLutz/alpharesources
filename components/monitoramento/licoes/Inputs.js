@@ -44,10 +44,11 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
     //funcao que roda a funcao de envio de acordo com o tipo da funcao
     const handleSubmit = (e) => {
         const isInvalido = validaDados();
+        if(isInvalido) return;
         if (funcao.funcao1) {
-            !isInvalido && funcao.funcao1();
+            funcao.funcao1();
         } else {
-            !isInvalido && funcao(e);
+            funcao(e);
         }
     }
 

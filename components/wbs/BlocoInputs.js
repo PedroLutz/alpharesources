@@ -19,13 +19,6 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, setExibirModal, area, isNam
         }
     }, [])
 
-    //funcao que retorna true se houver algum campo vazio e os nomes dos campos vazios 
-    const isFormVazio = (form) => {
-        const emptyFields = Object.entries(form).filter(([key, value]) => value === '' || value === null);
-        return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
-    };
-
-
     //essa funcao trata as mudancas especificamente em cores
     const handleChangeCor = (e) => {
         const { name, value } = e.target;
@@ -62,21 +55,23 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, setExibirModal, area, isNam
     //essa funcao verifica os casos de invalidez, e se algum deles for verdadeiro,
     //chama a funcao setExibirModal para levantar um modal avisando o problema
     const validaDados = () => {
-        const [isEmpty, camposVazios] = isFormVazio(obj);
         const nomeUsado = isNameUsed(obj);
         if (nomeUsado) {
             setExibirModal && setExibirModal('nomeRepetido')
             return true
         };
 
-        if (isEmpty) {
+        const camposVazios = Object.entries(obj)
+            .filter(([key, value]) => value === null || value === "")
+            .map(([key]) => key);
+
+        if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
                 if (camposRef.current[campo]) {
                     camposRef.current[campo].classList.add('campo-vazio');
                 }
             });
-            console.log(camposVazios);
-            setExibirModal && setExibirModal('inputsVazios');
+            setExibirModal('inputsVazios');
             return true;
         }
 
@@ -93,25 +88,24 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, setExibirModal, area, isNam
     //componente tenha sido chamado para cor ou item e area
     //ela tambem chama validaDados() e executa apenas se os dados forem validos.
     const handleSubmit = async (e) => {
-        var isInvalido = tipo === 'updateCor' ? false : validaDados();
+        const isInvalido = tipo === 'updateCor' ? false : validaDados();
+        if (isInvalido) return;
         if (funcao.funcao1) {
-            !isInvalido && funcao.funcao1();
+            funcao.funcao1();
         } else {
-            if (!isInvalido) {
-                if (area) {
-                    await funcao(e, area);
-                    var key;
-                    key = `novo${area}`;
-                    objSetter(prevState => ({
-                        ...prevState,
-                        [key]: {
-                            ...prevState[key],
-                            item: ''
-                        }
-                    }));
-                } else {
-                    funcao(e);
-                }
+            if (area) {
+                await funcao(e, area);
+                var key;
+                key = `novo${area}`;
+                objSetter(prevState => ({
+                    ...prevState,
+                    [key]: {
+                        ...prevState[key],
+                        item: ''
+                    }
+                }));
+            } else {
+                funcao(e);
             }
         }
     }

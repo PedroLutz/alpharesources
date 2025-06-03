@@ -16,29 +16,6 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, setExibirModal, gantt })
         situacao: null,
     });
     const {isAdmin} = useContext(AuthContext);
-
-
-    //funcao que verifica entre os campos considerados quais estao vazios, retornando true se houver algum vazio e os nomes dos campos vazios 
-    const isFormVazio = (form) => {
-        let camposConsiderados;
-        if(tipo === 'update' || tipo === 'updatemonitoring'){
-            camposConsiderados = {
-                inicio: form.inicio,
-                termino: form.termino,
-                situacao: form.situacao
-            }
-        } else if (tipo === 'cadastro'){
-            camposConsiderados = {
-                area: form.area,
-                item: form.item,
-                inicio: form.inicio,
-                termino: form.termino,
-            }
-        }
-        const emptyFields = Object.entries(camposConsiderados).filter(([key, value]) => value === null || value === "");
-        return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
-    };
-
     
     //funcao para inserir os dados dos inputs para o objeto
     const handleChange = (e) => {
@@ -100,11 +77,9 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, setExibirModal, gantt })
             .then(response => response.json()).then(data => { found = data.found });
         return found;
     }
-
     
     //funcao para verificar entre diversos casos para validar os dados
     const validaDados = async () => {
-        const [isEmpty, camposVazios] = isFormVazio(obj);
         var objEnviado = obj;
         if(obj.dp_area == undefined && obj.dp_item == undefined){
             objEnviado = {
@@ -142,7 +117,28 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, setExibirModal, gantt })
             setExibirModal('dadosUsados');
             return true;
         }
-        if (isEmpty) {
+
+        let camposConsiderados;
+        if(tipo === 'update' || tipo === 'updatemonitoring'){
+            camposConsiderados = {
+                inicio: obj.inicio,
+                termino: obj.termino,
+                situacao: obj.situacao
+            }
+        } else if (tipo === 'cadastro'){
+            camposConsiderados = {
+                area: obj.area,
+                item: obj.item,
+                inicio: obj.inicio,
+                termino: obj.termino,
+            }
+        }
+
+        const camposVazios = Object.entries(camposConsiderados)
+        .filter(([key, value]) => value === null || value === "")
+        .map(([key]) => key);
+
+        if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
                 if (camposRef.current[campo]) {
                     camposRef.current[campo].classList.add('campo-vazio');
@@ -211,10 +207,11 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcao, setExibirModal, gantt })
     //funcao que valida os dados e executa ou nao a funcao de submit
     const handleSubmit = async (e) => {
         const isInvalido = await validaDados();
+        if(isInvalido) return;
         if (funcao.funcao1) {
-            !isInvalido && funcao.funcao1();
+            funcao.funcao1();
         } else {
-            !isInvalido && funcao(e);
+            funcao(e);
         }
     };
 

@@ -19,6 +19,11 @@
     display:block;
 }
 
+#infoTdInfo, #infoTdInfo textarea {
+    text-align: left;
+    min-width: 25rem;
+}
+
 #poderId, #interesseId{
     width: 4rem;
     font-size: 0.7rem;

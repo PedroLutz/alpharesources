@@ -19,7 +19,6 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
 
     //funcao que verifica a validez dos dados
     const validaDados = () => {
-        console.log(obj)
         const camposVazios = Object.entries(obj)
         .filter(([key, value]) => value === null || value === "")
         .map(([key]) => key);

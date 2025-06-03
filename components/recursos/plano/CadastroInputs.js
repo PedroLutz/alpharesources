@@ -57,27 +57,6 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
         });
     }, [areaSelecionada]);
 
-
-    //funcao que verifica entre os campos considerados quais estao vazios, retornando true se houver algum vazio e os nomes dos campos vazios
-    const isFormVazio = (form) => {
-        const camposConsiderados = {
-            recurso: form.recurso,
-            metodo_a: form.metodo_a,
-            plano_a: form.plano_a,
-            detalhes_a: form.detalhes_a,
-            valor_a: form.valor_a,
-            data_esperada: form.data_esperada,
-            data_limite: form.data_limite,
-            metodo_b: form.metodo_b,
-            plano_b: form.plano_b,
-            detalhes_b: form.detalhes_b,
-            valor_b: form.valor_b,
-        }
-        const emptyFields = Object.entries(camposConsiderados).filter(([key, value]) => value === null || value === "");
-        return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
-    };
-
-
     //funcao apenas quando area eh atualizada, e atualiza os recursos do select para serem apenas os da area
     const handleAreaChange = (e) => {
         setAreaSelecionada(e.target.value);
@@ -110,11 +89,17 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
         e.target.classList.remove('campo-vazio');
     };
 
-
     //funcao para validar os dados do objeto
     const validaDados = () => {
-        const [isEmpty, camposVazios] = isFormVazio(obj);
-        if (isEmpty) {
+        const camposConsiderados = { ...obj };
+        delete camposConsiderados.plano_real;
+        delete camposConsiderados.valor_real;
+        delete camposConsiderados.data_real;
+        const camposVazios = Object.entries(camposConsiderados)
+        .filter(([key, value]) => value === null || value === "")
+        .map(([key]) => key);
+
+        if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
                 if (camposRef.current[campo]) {
                     camposRef.current[campo].classList.add('campo-vazio');
@@ -123,16 +108,18 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
             setExibirModal('inputsVazios');
             return true;
         }
+
+        return false;
     };
 
     //funcao que chama validaDados, e se os dados estao ok, chama as funcoes de submit
     const handleSubmit = async (e) => {
         const isInvalido = validaDados();
+        if(isInvalido) return;
         if (funcao.funcao1) {
-            !isInvalido && funcao.funcao1();
-            return;
+            funcao.funcao1();
         } else {
-            !isInvalido && funcao(e);
+            funcao(e);
         }
     };
 

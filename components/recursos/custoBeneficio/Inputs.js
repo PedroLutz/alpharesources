@@ -32,13 +32,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
         });
         e.target.classList.remove('campo-vazio');
     };
-
-    //funcao retorna true se houver algum campo vazio e os nomes dos campos vazios 
-    const isFormVazio = (form) => {
-        const emptyFields = Object.entries(form).filter(([key, value]) => value === null || value === "");
-        return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
-    };
-
+    
     //funcao que verifica os dados do obj de acordo com varias especificacoes
     const validaDados = () => {
         const camposNumericos = { impacto: obj.impacto, 
@@ -59,25 +53,31 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                 return true;
             }
         }
-        const [isEmpty, camposVazios] = isFormVazio(obj);
-        if (isEmpty) {
+        const camposVazios = Object.entries(obj)
+        .filter(([key, value]) => value === null || value === "")
+        .map(([key]) => key);
+
+        if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
                 if (camposRef.current[campo]) {
                     camposRef.current[campo].classList.add('campo-vazio');
                 }
-              });
+            });
             setExibirModal('inputsVazios');
             return true;
         }
+
+        return false;
     }
 
     //funcao que roda a funcao de envio de acordo com o tipo da funcao
     const handleSubmit = (e) => {
         const isInvalido = validaDados();
+        if(isInvalido) return;
         if(funcao.funcao1){
-            !isInvalido && funcao.funcao1();
+            funcao.funcao1();
         } else {
-            !isInvalido && funcao(e);
+            funcao(e);
         }
     }
 

@@ -96,18 +96,16 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
     };
 
 
-    //funcao que verifica entre os campos considerados quais estao vazios, retornando true se houver algum vazio e os nomes dos campos vazios 
-    const isFormVazio = (form) => {
-        const camposConsiderados = { ...form };
+    const validaDados = () => {
+        const camposConsiderados = { ...obj };
         delete camposConsiderados.feedback;
         delete camposConsiderados.acao;
-        const emptyFields = Object.entries(camposConsiderados).filter(([key, value]) => value === null || value === "");
-        return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
-    };
+        delete camposConsiderados.registro;
+        const camposVazios = Object.entries(camposConsiderados)
+        .filter(([key, value]) => value === null || value === "")
+        .map(([key]) => key);
 
-    const validaDados = () => {
-        const [isEmpty, camposVazios] = isFormVazio(obj);
-        if (isEmpty) {
+        if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
                 if (camposRef.current[campo]) {
                     camposRef.current[campo].classList.add('campo-vazio');
@@ -116,14 +114,17 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
             setExibirModal('inputsVazios');
             return true;
         }
+
+        return false;
     }
 
     const handleSubmit = (e) => {
         const isInvalido = validaDados();
+        if(isInvalido) return;
         if (funcao.funcao1) {
-            !isInvalido && funcao.funcao1();
+            funcao.funcao1();
         } else {
-            !isInvalido && funcao(e);
+            funcao(e);
         }
     }
 
@@ -156,7 +157,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     ))}
                 </select>
             </td>
-            <td>
+            <td id={styles.infoTdInfo}>
                 <textarea
                     name="informacao"
                     onChange={handleChange}

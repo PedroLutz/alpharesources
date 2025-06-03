@@ -58,12 +58,7 @@ const Inputs = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
             ...obj,
             area: areaSelecionada,
         });
-    };
-
-    //funcao que retorna true se houver algum campo vazio e os nomes dos campos vazios 
-    const isFormVazio = () => {
-        const emptyFields = Object.entries(obj).filter(([key, value]) => value === null || value === "");
-        return [emptyFields.length > 1, emptyFields.map(([key]) => key)];
+        e.target.classList.remove('campo-vazio');
     };
 
     //essa funcao atualiza o estado de qualquer campo, quando ele tem seu valor alterado no input
@@ -76,12 +71,14 @@ const Inputs = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
         e.target.classList.remove('campo-vazio');
     };
 
-
     //essa funcao verifica os casos de invalidez, e se algum deles for verdadeiro,
     //chama a funcao setExibirModal para levantar um modal avisando o problema
     const validaDados = () => {
-        const [isEmpty, camposVazios] = isFormVazio(obj);
-        if (isEmpty) {
+        const camposVazios = Object.entries(obj)
+        .filter(([key, value]) => value === null || value === "")
+        .map(([key]) => key);
+
+        if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
                 if (camposRef.current[campo]) {
                     camposRef.current[campo].classList.add('campo-vazio');
@@ -90,6 +87,8 @@ const Inputs = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
             setExibirModal('inputsVazios');
             return true;
         }
+
+        return false;
     }
 
 
@@ -97,11 +96,11 @@ const Inputs = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
     //com o tipo de funcao recebida, executando apenas se os dados sao validos
     const handleSubmit = async (e) => {
         const isInvalido = validaDados();
+        if(isInvalido) return;
         if (funcao.funcao1) {
-            !isInvalido && funcao.funcao1();
-            return;
+            funcao.funcao1();
         } else {
-            !isInvalido && funcao(e);
+            funcao(e);
         }
     };
 
