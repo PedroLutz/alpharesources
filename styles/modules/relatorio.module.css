@@ -30,7 +30,7 @@
     
 }
 
-.tableInformation, .tableProgress, .tableStatus, .tableDetails{
+.tableInformation, .tableProgress, .tableStatus, .tableDetails, .tableResources{
     border-color: black;
     border-style: solid;
     border-width: 0.1rem;
@@ -41,11 +41,11 @@
     width: 60%
 }
 
-.tableProgress, .tableStatus, .tableDetails {
+.tableProgress, .tableStatus, .tableDetails, .tableResources {
     width: 100%
 }
 
-.tableInformation th, .tableProgress th, .tableStatus thead tr:first-child, .tableDetails thead tr:first-child {
+.tableInformation th, .tableProgress th, .tableResources thead tr:first-child, .tableStatus thead tr:first-child, .tableDetails thead tr:first-child {
     background-color: #ff00e3;
     border-color: black;
     font-weight: bolder;
@@ -54,7 +54,7 @@
     color: white;
 }
 
-.tableStatus thead tr:last-child th, .tableDetails thead tr:last-child th {
+.tableStatus thead tr:last-child th, .tableDetails thead tr:last-child th, .tableResources thead tr:last-child th {
     border-color: black;
     font-weight: bold;
     border-style: solid;
@@ -72,7 +72,7 @@
     text-align: left;
 }
 
-.tableInformation td, .tableProgress td, .tableStatus td, .tableDetails td {
+.tableInformation td, .tableProgress td, .tableStatus td, .tableDetails td, .tableResources td {
     border-color: black;
     border-style: solid;
     border-width: 0.1rem;
@@ -83,6 +83,12 @@
 
 .tableStatus td, .tableDetails td{
     text-align: center;
+}
+
+.tableResources td{
+    align-items: center;
+    text-align: center;
+    padding: 0.1rem;
 }
 
 .tableDetails td:nth-child(1){
@@ -96,12 +102,13 @@
 .tableInformation td, .tableInformation td input,
 .tableProgress td, .tableProgress td textarea,
 .tableStatus td, .tableStatus td textarea, .tableStatus td select,
+.tableResources td textarea, .tableResources td textarea, 
 .tableDetails td, .tableDetails input{
     font-size: small;
 }
 
 .tableInformation td input, .tableProgress td textarea, 
-.tableStatus td textarea, .tableStatus td select,
+.tableStatus td textarea, .tableStatus td select, .tableResources td textarea,
 .tableDetails td textarea{
     width: 12rem;
     border-width: 0.1rem;
@@ -113,6 +120,17 @@
     outline: none;
     font-size: small;
     margin: 0.3rem;
+}
+
+.tableResources td:first-child{
+    max-width: 13rem;
+    width: 13rem;
+    min-width: 13rem;
+}
+
+.tableResources td textarea{
+    min-width: 21.4rem;
+    height: 2.5rem;
 }
 
 .tableStatus td select{

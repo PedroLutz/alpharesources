@@ -265,7 +265,7 @@ const Relatorio = () => {
                 div.style.paddingRight = '2px'
                 div.style.fontFamily = 'inherit'
                 div.style.textAlign = 'left'
-                div.style.fontSize = 'inherit'
+                div.style.fontSize = 'small'
                 div.style.width = `${textarea.offsetWidth}px`
                 div.style.height = `${textarea.offsetHeight + 20}px`
 
@@ -551,6 +551,28 @@ const Relatorio = () => {
                                             />
                                         </td>
                                     </tr>
+                                </tbody>
+                            </table>
+
+                            <table className={`tableResources ${styles.tableResources}`} style={{ marginTop: '2rem' }}>
+                                <thead>
+                                    <tr>
+                                        <th colSpan={3}>RESOURCE USAGE</th>
+                                    </tr>
+                                    <tr>
+                                        <th>Finished task</th>
+                                        <th>Planned resources</th>
+                                        <th>Used resources</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {tarefasConcluidas.split(', ').map((tarefa, index) => (
+                                        <tr key={index}>
+                                            <td style={{textAlign: 'left', fontSize: 'small', padding: '0.3rem'}}>{tarefa}</td>
+                                            <td><textarea style={{textAlign: 'left', fontSize: 'small', padding: '0.3rem'}}/></td>
+                                            <td><textarea style={{textAlign: 'left', fontSize: 'small', padding: '0.3rem'}}/></td>
+                                        </tr>
+                                    ))}
                                 </tbody>
                             </table>
 
