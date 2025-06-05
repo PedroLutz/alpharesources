@@ -29,11 +29,10 @@ const Tabela = () => {
 
     const enviar = async (e) => {
         e.preventDefault();
-        handleSubmit({
+        await handleSubmit({
             route: 'responsabilidades/funcoes',
             dados: novoSubmit
         });
-        await fetchFuncoes();
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
         setReload(true);
     };
@@ -67,17 +66,16 @@ const Tabela = () => {
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
-            await fetchFuncoes();
             setReload(true);
             setLoading(false)
         }
     };
 
-    const handleConfirmDelete = () => {
+    const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
             var getDeleteSuccess = false;
             try {
-                getDeleteSuccess = handleDelete({
+                getDeleteSuccess = await handleDelete({
                     route: 'responsabilidades/funcoes',
                     item: confirmDeleteItem,
                     fetchDados: fetchFuncoes

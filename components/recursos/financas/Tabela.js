@@ -91,11 +91,11 @@ const Tabela = () => {
   }, []);
 
   //funcao que envia o id para deletar os itens
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (deleteInfo.item) {
       var getDeleteSuccess = false;
       try {
-        getDeleteSuccess = handleDelete({
+        getDeleteSuccess = await handleDelete({
           route: 'financas/financas',
           item: deleteInfo.item,
           fetchDados: fetchLancamentos
@@ -123,12 +123,11 @@ const Tabela = () => {
       deletado: false,
       valor: valor
     };
-    handleSubmit({
+    await handleSubmit({
       route: 'financas/financas',
       dados: updatedNovoSubmit
     });
     cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-    await fetchLancamentos();
     setReload(true);
   };
 
@@ -169,7 +168,6 @@ const Tabela = () => {
       setDadosTabela({ object: updatedLancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' });
       setConfirmItemAction({ action: '', item: null })
       linhaVisivel === confirmItemAction.item._id ? setLinhaVisivel() : setLinhaVisivel(confirmItemAction.item._id);
-      setReload(true);
       try {
         await handleUpdate({
           route: 'financas/financas/update?id',
@@ -181,6 +179,7 @@ const Tabela = () => {
         setConfirmItemAction({ action: 'update', item: confirmItemAction.item })
         console.error("Update failed:", error);
       }
+      setReload(true);
       setLoading(false);
     }
   };
@@ -197,13 +196,13 @@ const Tabela = () => {
       setLancamentos(lancamentos);
       setLancamentosDeletados(lancamentosDeletados);
       setDadosTabela({ object: lancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' });
-      setConfirmItemAction({ action: '', item: null });
-      setReload(true);
+      setConfirmItemAction({ action: '', item: null });  
       await handlePseudoDelete({
         route: 'financas/financas',
         item: confirmItemAction.item,
         deletar: false
       });
+      setReload(true);
     }
   }
 
@@ -220,7 +219,6 @@ const Tabela = () => {
       setLancamentosDeletados(lancamentosDeletados);
       setDadosTabela({ object: lancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' });
       setConfirmItemAction({ action: '', item: null })
-      setReload(true);
       try {
         await handlePseudoDelete({
           route: 'financas/financas',
@@ -233,6 +231,7 @@ const Tabela = () => {
         setConfirmItemAction({ action: 'update', item: confirmItemAction.item })
         console.error("Delete failed:", error);
       }
+      setReload(true);
     }
   };
 

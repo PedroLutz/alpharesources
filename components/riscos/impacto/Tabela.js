@@ -28,7 +28,7 @@ const TabelaAnalise = () => {
 
     const enviar = async (e) => {
         e.preventDefault();
-        handleSubmit({
+        await handleSubmit({
             route: 'riscos/impacto',
             dados: novoSubmit
         });
@@ -54,7 +54,6 @@ const TabelaAnalise = () => {
             setImpactos(updatedRiscos);
             setConfirmUpdateItem(null)
             linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            setReload(true);
             try {
                 await handleUpdate({
                     route: 'riscos/impacto/update?id',
@@ -66,15 +65,16 @@ const TabelaAnalise = () => {
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
+            setReload(true);
             setLoading(false);
         }
     };
 
-    const handleConfirmDelete = () => {
+    const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
             var getDeleteSuccess = false;
             try {
-                getDeleteSuccess = handleDelete({
+                getDeleteSuccess = await handleDelete({
                     route: 'riscos/impacto',
                     item: confirmDeleteItem,
                     fetchDados: fetchAnalises

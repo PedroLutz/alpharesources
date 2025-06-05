@@ -30,11 +30,10 @@ const Tabela = () => {
 
     const enviar = async (e) => {
         e.preventDefault();
-        handleSubmit({
+        await handleSubmit({
             route: 'responsabilidades/habilidades',
             dados: novoSubmit
         });
-        await fetchHabilidades();
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
         setReload(true);
     };
@@ -69,17 +68,16 @@ const Tabela = () => {
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
-            await fetchHabilidades();
             setReload(true);
             setLoading(false)
         }
     };
 
-    const handleConfirmDelete = () => {
+    const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
             var getDeleteSuccess = false;
             try {
-                getDeleteSuccess = handleDelete({
+                getDeleteSuccess = await handleDelete({
                     route: 'responsabilidades/habilidades',
                     item: confirmDeleteItem,
                     fetchDados: fetchHabilidades

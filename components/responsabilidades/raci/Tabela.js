@@ -89,7 +89,7 @@ const Tabela = () => {
       setExibirModal('muitoAprovador');
       return;
     }
-    handleSubmit({
+    await handleSubmit({
       route: 'responsabilidades/raci',
       dados: updatedFormData,
     });
@@ -100,7 +100,6 @@ const Tabela = () => {
         ['input' + getCleanName(inputName)] : ''
       }));
     });
-    await fetchItensRaci();
     setReload(true);
   };
 
@@ -185,11 +184,11 @@ const Tabela = () => {
     generateFormData();
   }, [nomesMembros])
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (confirmDeleteItem) {
       var getDeleteSuccess = false;
       try {
-        getDeleteSuccess = handleDelete({
+        getDeleteSuccess = await handleDelete({
           route: 'responsabilidades/raci',
           item: confirmDeleteItem,
           fetchDados: fetchItensRaci
@@ -272,7 +271,6 @@ const Tabela = () => {
       }
       setLoading(false);
     }
-    await fetchItensRaci();
     setReload(true);
     setLinhaVisivel();
     setConfirmUpdateItem(null);

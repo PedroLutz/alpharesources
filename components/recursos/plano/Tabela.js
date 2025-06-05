@@ -42,12 +42,11 @@ const PlanoAquisicao = () => {
     //funcao que envia os dados do novoSubmit para cadastro no banco
     const enviar = async (e) => {
         e.preventDefault();
-        handleSubmit({
+        await handleSubmit({
             route: 'recursos/planoAquisicao',
             dados: novoSubmit
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-        await fetchPlanos();
         setReload(true);
     };
 
@@ -106,7 +105,6 @@ const PlanoAquisicao = () => {
             delete updatedItem.valor_diferenca;
             setConfirmUpdateItem(null)
             linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            setReload(true);
             try {
                 await handleUpdate({
                     route: 'recursos/planoAquisicao/update?id',
@@ -117,18 +115,18 @@ const PlanoAquisicao = () => {
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
-            await fetchPlanos();
+            setReload(true);
             setLoading(false)
         }
     };
 
 
     //funcao que envia os dados do item para delecao do banco
-    const handleConfirmDelete = () => {
+    const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
             var getDeleteSuccess = false;
             try {
-                getDeleteSuccess = handleDelete({
+                getDeleteSuccess = await handleDelete({
                     route: 'recursos/planoAquisicao',
                     item: confirmDeleteItem,
                     fetchDados: fetchPlanos
@@ -143,6 +141,7 @@ const PlanoAquisicao = () => {
             setExibirModal(`deleteFail`)
         }
         setConfirmDeleteItem(null);
+        setReload(true);
     };
 
 

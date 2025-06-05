@@ -30,7 +30,7 @@ const TabelaAnalise = () => {
 
     const enviar = async (e) => {
         e.preventDefault();
-        handleSubmit({
+        await handleSubmit({
             route: 'riscos/analise',
             dados: novoSubmit
         });
@@ -81,17 +81,16 @@ const TabelaAnalise = () => {
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
-            await fetchAnalises();
             setReload(true);
             setLoading(false);
         }
     };
 
-    const handleConfirmDelete = () => {
+    const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
             var getDeleteSuccess = false;
             try {
-                getDeleteSuccess = handleDelete({
+                getDeleteSuccess = await handleDelete({
                     route: 'riscos/analise',
                     item: confirmDeleteItem,
                     fetchDados: fetchAnalises

@@ -38,12 +38,11 @@ const TabelaRiscos = () => {
 
     const enviar = async (e) => {
         e.preventDefault();
-        handleSubmit({
+        await handleSubmit({
             route: 'riscos/risco',
             dados: novoSubmit
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-        await fetchRiscos();
         setReload(true);
     };
 
@@ -109,17 +108,16 @@ const TabelaRiscos = () => {
               }
             setDadosUpdateTudo({oldRisco: '',
                 newRisco: ''});
-            await fetchRiscos();
             setLoading(false);
             setReload(true);
         }
     };
 
-    const handleConfirmDelete = () => {
+    const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
             var getDeleteSuccess = false;
             try {
-                getDeleteSuccess = handleDelete({
+                getDeleteSuccess = await handleDelete({
                     route: 'riscos/risco',
                     item: confirmDeleteItem,
                     fetchDados: fetchRiscos

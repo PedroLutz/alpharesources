@@ -445,6 +445,14 @@ const Relatorio = () => {
                                         <td><textarea value={issues}
                                             onChange={(e) => { setIssues(e.target.value) }} /></td>
                                     </tr>
+                                    <tr>
+                                        <td>Changes</td>
+                                        <td><textarea/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Lessons learned</td>
+                                        <td><textarea/></td>
+                                    </tr>
                                 </tbody>
                             </table>
 

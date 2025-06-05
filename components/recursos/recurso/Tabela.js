@@ -55,12 +55,11 @@ const Tabela = () => {
     //funcao que envia os dados de novoSubmit para submit no banco
     const enviar = async (e) => {
         e.preventDefault();
-        handleSubmit({
+        await handleSubmit({
             route: 'recursos/recurso',
             dados: novoSubmit
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-        await fetchRecursos();
         setReload(true);
     };
 
@@ -91,7 +90,6 @@ const Tabela = () => {
             const updatedItem = { ...confirmUpdateItem, ...novosDados };
             setConfirmUpdateItem(null)
             linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            setReload(true);
             try {
                 await handleUpdate({
                     route: 'recursos/recurso/update?id',
@@ -102,18 +100,18 @@ const Tabela = () => {
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
+            setReload(true);
             setLoading(false);
-            await fetchRecursos();
         }
     };
 
 
     //funcao que envia o id para delecao
-    const handleConfirmDelete = () => {
+    const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
             var getDeleteSuccess = false;
             try {
-                getDeleteSuccess = handleDelete({
+                getDeleteSuccess = await handleDelete({
                     route: 'recursos/recurso',
                     item: confirmDeleteItem,
                     fetchDados: fetchRecursos

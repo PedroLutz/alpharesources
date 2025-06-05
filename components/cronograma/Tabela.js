@@ -60,7 +60,7 @@ const Tabela = () => {
     if (confirmDeleteItem) {
       var getDeleteSuccess = false;
       try {
-        getDeleteSuccess = handleDelete({
+        getDeleteSuccess = await handleDelete({
           route: 'cronograma',
           item: confirmDeleteItem,
           fetchDados: fetchCronogramas
@@ -80,6 +80,7 @@ const Tabela = () => {
         setDeleteSuccess(getDeleteSuccess);
       }
     }
+    setReload(true);
   };
 
 
@@ -238,11 +239,11 @@ const Tabela = () => {
       termino: null,
       situacao: 'iniciar'
     };
-    handleSubmit({
+    await handleSubmit({
       route: 'cronograma',
       dados: formDataPlano,
     });
-    handleSubmit({
+    await handleSubmit({
       route: 'cronograma',
       dados: formDataGantt,
     });

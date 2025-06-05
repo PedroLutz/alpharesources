@@ -30,12 +30,11 @@ const Tabela = () => {
     //funcao que envia os dados de novoSubmit para cadastro
     const enviar = async (e) => {
         e.preventDefault();
-        handleSubmit({
+        await handleSubmit({
             route: 'monitoramento/licoes',
             dados: novoSubmit
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-        await fetchLicoes();
         setReload(true);
     };
 
@@ -62,7 +61,6 @@ const Tabela = () => {
             setLicoes(updatedLicoes);
             setConfirmUpdateItem(null)
             linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            setReload(true);
             delete updatedItem.mediaBeneficios;
             try {
                 await handleUpdate({
@@ -75,16 +73,17 @@ const Tabela = () => {
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
-            setLoading(false)
+            setLoading(false);
+            setReload(true);
         }
     };
 
     //funcao que envia o id para ser deletado
-    const handleConfirmDelete = () => {
+    const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
             var getDeleteSuccess = false;
             try {
-                getDeleteSuccess = handleDelete({
+                getDeleteSuccess = await handleDelete({
                     route: 'monitoramento/licoes',
                     item: confirmDeleteItem,
                     fetchDados: fetchLicoes

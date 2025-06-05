@@ -35,7 +35,7 @@ const Tabela = () => {
     //funcao que cadastra os stakeholders e cadastra na funcao de engajamento o stakeholder do jeito devido
     const enviar = async (e) => {
         e.preventDefault();
-        handleSubmit({
+        await handleSubmit({
             route: 'comunicacao/stakeholders',
             dados: novoSubmit
         });
@@ -50,7 +50,7 @@ const Tabela = () => {
         }
 
 
-        handleSubmit({
+        await handleSubmit({
             route: 'comunicacao/engajamento',
             dados: objEngajamento
         })
@@ -89,18 +89,17 @@ const Tabela = () => {
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
-            await fetchStakeholders();
             setReload(true);
             setLoading(false)
         }
     };
 
     //funcao que envia os dados para serem deletados
-    const handleConfirmDelete = () => {
+    const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
             var getDeleteSuccess = false;
             try {
-                getDeleteSuccess = handleDelete({
+                getDeleteSuccess = await handleDelete({
                     route: 'comunicacao/stakeholders',
                     item: confirmDeleteItem,
                     fetchDados: fetchStakeholders
@@ -115,6 +114,7 @@ const Tabela = () => {
             setExibirModal(`deleteFail`)
         }
         setConfirmDeleteItem(null);
+        setReload(true);
     };
 
     //funcao que busca os stakeholders

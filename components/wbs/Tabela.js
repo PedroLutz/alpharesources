@@ -31,7 +31,7 @@ const WBS = () => {
   //essa funcao chama a funcao handleSubmit(), enviando a rota e os dados antes de forcar um reload e limpar o formulario
   const enviar = async (e) => {
     e.preventDefault();
-    handleSubmit({
+    await handleSubmit({
       route: 'wbs',
       dados: novoSubmit,
     });
@@ -45,7 +45,7 @@ const WBS = () => {
   const enviarEmArea = async (e, area) => {
     e.preventDefault();
     const item = submitEmArea[`novo${area}`]?.item;
-    handleSubmit({
+    await handleSubmit({
       route: 'wbs',
       dados: {
         area: area,
@@ -140,7 +140,7 @@ const WBS = () => {
       return;
     }
     if (confirmDeleteItem) {
-      handleDelete({
+      await handleDelete({
         route: 'wbs',
         item: confirmDeleteItem,
         fetchDados: fetchElementos

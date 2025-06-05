@@ -36,7 +36,7 @@ const Tabela = () => {
     //funcao que envia os dados para registro no backend
     const enviar = async (e) => {
         e.preventDefault();
-        handleSubmit({
+        await handleSubmit({
             route: 'comunicacao/informacao',
             dados: novoSubmit
         });
@@ -64,7 +64,6 @@ const Tabela = () => {
             setInformacoes(updatedInformacoes);
             setConfirmUpdateItem(null)
             linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            setReload(true);
             try {
                 await handleUpdate({
                     route: 'comunicacao/informacao/update?id',
@@ -76,17 +75,17 @@ const Tabela = () => {
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
-            await fetchInformacoes();
+            setReload(true);
             setLoading(false);
         }
     };
 
     //funcao que envia os dados para atualizacao no backend
-    const handleConfirmDelete = () => {
+    const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
             var getDeleteSuccess = false;
             try {
-                getDeleteSuccess = handleDelete({
+                getDeleteSuccess = await handleDelete({
                     route: 'comunicacao/informacao',
                     item: confirmDeleteItem,
                     fetchDados: fetchInformacoes
@@ -101,6 +100,7 @@ const Tabela = () => {
             setExibirModal(`deleteFail`)
         }
         setConfirmDeleteItem(null);
+        setReload(true);
     };
 
     //funcao que busca as informacoes no backend

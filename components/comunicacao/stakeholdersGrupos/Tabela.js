@@ -32,12 +32,12 @@ const Tabela = () => {
 
     const enviar = async (e) => {
         e.preventDefault();
-        handleSubmit({
+        await handleSubmit({
             route: 'comunicacao/stakeholderGroups',
             dados: novoSubmit
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-        await fetchStakeholders();
+        setReload(true);
     };
 
     const handleUpdateClick = (item) => {
@@ -70,16 +70,16 @@ const Tabela = () => {
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
-            await fetchStakeholders();
+            setReload(true);
             setLoading(false);
         }
     };
 
-    const handleConfirmDelete = () => {
+    const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
             var getDeleteSuccess = false;
             try {
-                getDeleteSuccess = handleDelete({
+                getDeleteSuccess = await handleDelete({
                     route: 'comunicacao/stakeholderGroups',
                     item: confirmDeleteItem,
                     fetchDados: fetchStakeholders
@@ -94,6 +94,7 @@ const Tabela = () => {
             setExibirModal(`deleteFail`)
         }
         setConfirmDeleteItem(null);
+        setReload(true);
     };
 
     const fetchStakeholders = async () => {

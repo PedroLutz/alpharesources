@@ -27,11 +27,10 @@ const TabelaPlanos = () => {
 
     const enviar = async (e) => {
         e.preventDefault();
-        handleSubmit({
+        await handleSubmit({
             route: 'riscos/resposta',
             dados: novoSubmit
         });
-        await fetchRespostas();
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
         setReload(true);
     };
@@ -61,17 +60,16 @@ const TabelaPlanos = () => {
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
-            await fetchRespostas();
             setReload(true);
             setLoading(false);
         }
     };
 
-    const handleConfirmDelete = () => {
+    const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
             var getDeleteSuccess = false;
             try {
-                getDeleteSuccess = handleDelete({
+                getDeleteSuccess = await handleDelete({
                     route: 'riscos/resposta',
                     item: confirmDeleteItem,
                     fetchDados: fetchRespostas

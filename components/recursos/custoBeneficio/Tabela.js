@@ -34,12 +34,11 @@ const Tabela = () => {
     //funcao que envia os dados de novoSubmit para cadastro
     const enviar = async (e) => {
         e.preventDefault();
-        handleSubmit({
+        await handleSubmit({
             route: 'financas/custoBeneficio',
             dados: novoSubmit
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-        await fetchCustoBeneficios();
         setReload(true);
     };
 
@@ -65,7 +64,6 @@ const Tabela = () => {
             setCustoBeneficios(updatedCustoBeneficios);
             setConfirmUpdateItem(null)
             linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            setReload(true);
             delete updatedItem.mediaBeneficios;
             try {
                 await handleUpdate({
@@ -78,16 +76,17 @@ const Tabela = () => {
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
+            setReload(true);
             setLoading(false)
         }
     };
 
     //funcao que envia o id para ser deletado
-    const handleConfirmDelete = () => {
+    const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
             var getDeleteSuccess = false;
             try {
-                getDeleteSuccess = handleDelete({
+                getDeleteSuccess = await handleDelete({
                     route: 'financas/custoBeneficio',
                     item: confirmDeleteItem,
                     fetchDados: fetchCustoBeneficios

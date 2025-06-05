@@ -39,7 +39,7 @@ const TabelaAnalise = () => {
     //essa funcao chama handleSubmit() e envia os dados para cadastro
     const enviar = async (e) => {
         e.preventDefault();
-        handleSubmit({
+        await handleSubmit({
             route: 'wbsDictionary',
             dados: novoSubmit
         });
@@ -80,7 +80,6 @@ const TabelaAnalise = () => {
             setDicionarios(updatedRiscos);
             setConfirmUpdateItem(null)
             linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            setReload(true);
             try {
                 await handleUpdate({
                     route: 'wbsDictionary/update?id',
@@ -93,16 +92,17 @@ const TabelaAnalise = () => {
                 console.error("Update failed:", error);
             }
             setLoading(false);
+            setReload(true);
         }
     };
 
 
     //essa funcao chama handleDelete e deleta o que estiver em confirmDeleteItem
-    const handleConfirmDelete = () => {
+    const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
             var getDeleteSuccess = false;
             try {
-                getDeleteSuccess = handleDelete({
+                getDeleteSuccess = await handleDelete({
                     route: 'wbsDictionary',
                     item: confirmDeleteItem,
                     fetchDados: fetchDicionarios
@@ -117,6 +117,7 @@ const TabelaAnalise = () => {
             setExibirModal(`deleteFail`)
         }
         setConfirmDeleteItem(null);
+        setReload(true);
     };
 
 

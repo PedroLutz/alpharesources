@@ -33,12 +33,11 @@ const TabelaAnalise = () => {
 
     const enviar = async (e) => {
         e.preventDefault();
-        handleSubmit({
+        await handleSubmit({
             route: 'riscos/audit',
             dados: novoSubmit
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-        await fetchAudits();
         setReload(true);
     };
 
@@ -75,17 +74,16 @@ const TabelaAnalise = () => {
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
-            await fetchAudits();
             setReload(true);
             setLoading(false);
         }
     };
 
-    const handleConfirmDelete = () => {
+    const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
             var getDeleteSuccess = false;
             try {
-                getDeleteSuccess = handleDelete({
+                getDeleteSuccess = await handleDelete({
                     route: 'riscos/audit',
                     item: confirmDeleteItem,
                     fetchDados: fetchAudits
