@@ -41,10 +41,10 @@ const TabelaAnalise = () => {
         e.preventDefault();
         await handleSubmit({
             route: 'wbsDictionary',
-            dados: novoSubmit
+            dados: novoSubmit,
+            fetchDados: fetchDicionarios
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-        setReload(true);
     };
 
     //essa funcao recebe um item e insere seus campos como novosDados
@@ -84,7 +84,8 @@ const TabelaAnalise = () => {
                 await handleUpdate({
                     route: 'wbsDictionary/update?id',
                     dados: updatedItem,
-                    item: confirmUpdateItem
+                    item: confirmUpdateItem,
+                    fetchDados: fetchDicionarios
                 });
             } catch (error) {
                 setDicionarios(dicionarios);
@@ -92,7 +93,6 @@ const TabelaAnalise = () => {
                 console.error("Update failed:", error);
             }
             setLoading(false);
-            setReload(true);
         }
     };
 

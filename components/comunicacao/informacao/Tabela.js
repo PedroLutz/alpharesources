@@ -38,10 +38,10 @@ const Tabela = () => {
         e.preventDefault();
         await handleSubmit({
             route: 'comunicacao/informacao',
-            dados: novoSubmit
+            dados: novoSubmit,
+            fetchDados: fetchInformacoes
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-        setReload(true);
     };
 
     //funcao que recebe os dados, insere em confirmUpdateItem e novosDados
@@ -68,14 +68,14 @@ const Tabela = () => {
                 await handleUpdate({
                     route: 'comunicacao/informacao/update?id',
                     dados: updatedItem,
-                    item: confirmUpdateItem
+                    item: confirmUpdateItem,
+                    fetchDados: fetchInformacoes
                 });
             } catch (error) {
                 setInformacoes(informacoes);
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
-            setReload(true);
             setLoading(false);
         }
     };
@@ -100,7 +100,6 @@ const Tabela = () => {
             setExibirModal(`deleteFail`)
         }
         setConfirmDeleteItem(null);
-        setReload(true);
     };
 
     //funcao que busca as informacoes no backend

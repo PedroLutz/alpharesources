@@ -92,6 +92,7 @@ const Tabela = () => {
     await handleSubmit({
       route: 'responsabilidades/raci',
       dados: updatedFormData,
+      fetchDados: fetchItensRaci
     });
     cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     inputNames.forEach((inputName) => {
@@ -100,7 +101,6 @@ const Tabela = () => {
         ['input' + getCleanName(inputName)] : ''
       }));
     });
-    setReload(true);
   };
 
   const fetchNomesMembros = async () => {
@@ -262,7 +262,8 @@ const Tabela = () => {
         await handleUpdate({
           route: 'responsabilidades/raci/update?id',
           dados: updatedItem,
-          item: confirmUpdateItem
+          item: confirmUpdateItem,
+          fetchDados: fetchItensRaci
         });
       } catch (error) {
         setItensRaci(itensRaci);
@@ -271,7 +272,6 @@ const Tabela = () => {
       }
       setLoading(false);
     }
-    setReload(true);
     setLinhaVisivel();
     setConfirmUpdateItem(null);
   };

@@ -31,10 +31,10 @@ const Tabela = () => {
         e.preventDefault();
         await handleSubmit({
             route: 'responsabilidades/funcoes',
-            dados: novoSubmit
+            dados: novoSubmit,
+            fetchDados: fetchFuncoes
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-        setReload(true);
     };
 
     const handleUpdateClick = (item) => {
@@ -59,14 +59,14 @@ const Tabela = () => {
                 await handleUpdate({
                     route: 'responsabilidades/funcoes/update?id',
                     dados: updatedItem,
-                    item: confirmUpdateItem
+                    item: confirmUpdateItem,
+                    fetchDados: fetchFuncoes
                 });
             } catch (error) {
                 setFuncoes(funcoes);
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
-            setReload(true);
             setLoading(false)
         }
     };

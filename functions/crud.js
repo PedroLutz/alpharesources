@@ -19,7 +19,7 @@ const handleSubmit = async (o) => {
         });
 
         if (response.ok) {
-            if(o.registroSucesso) o.registroSucesso(true);
+            if (o.fetchDados) await o.fetchDados();
             return true;
         } else {
             console.error(`Erro ao registrar ${o.route}`);
@@ -49,8 +49,8 @@ const handleDelete = async (o) => {
             method: 'DELETE',
         });
 
-        const data = await response.json();
-        if (o.fetchDados) o.fetchDados();
+        await response.json();
+        if (o.fetchDados) await o.fetchDados();
         return true;
     } catch (error) {
         console.error(`Erro ao excluir ${o.route}`, error);
@@ -116,6 +116,7 @@ const handleUpdate = async (o) => {
         });
 
         if (response.status === 200) {
+            if (o.fetchDados) await o.fetchDados();
             return;
         } else {
             console.error(`Erro ao atualizar ${o.route}`);
@@ -146,6 +147,7 @@ const handlePseudoDelete = async (o) => {
         });
 
         if (response.status === 200) {
+            if (o.fetchDados) await o.fetchDados();
             return;
         } else {
             console.error(`Erro ao pseudodeletar ${o.route}`);

@@ -36,10 +36,10 @@ const Tabela = () => {
         e.preventDefault();
         await handleSubmit({
             route: 'financas/custoBeneficio',
-            dados: novoSubmit
+            dados: novoSubmit,
+            fetchDados: fetchCustoBeneficios
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-        setReload(true);
     };
 
 
@@ -69,14 +69,14 @@ const Tabela = () => {
                 await handleUpdate({
                     route: 'financas/custoBeneficio/update?id',
                     dados: updatedItem,
-                    item: confirmUpdateItem
+                    item: confirmUpdateItem,
+                    fetchDados: fetchCustoBeneficios
                 });
             } catch (error) {
                 setCustoBeneficios(custoBeneficios);
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
-            setReload(true);
             setLoading(false)
         }
     };

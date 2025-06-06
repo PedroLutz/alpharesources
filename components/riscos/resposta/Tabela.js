@@ -29,10 +29,10 @@ const TabelaPlanos = () => {
         e.preventDefault();
         await handleSubmit({
             route: 'riscos/resposta',
-            dados: novoSubmit
+            dados: novoSubmit,
+            fetchDados: fetchRespostas
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-        setReload(true);
     };
 
     const handleUpdateClick = (item) => {
@@ -54,7 +54,8 @@ const TabelaPlanos = () => {
                 await handleUpdate({
                     route: 'riscos/resposta/update?id',
                     dados: updatedItem,
-                    item: confirmUpdateItem
+                    item: confirmUpdateItem,
+                    fetchDados: fetchRespostas
                 });
             } catch (error) {
                 setConfirmUpdateItem(confirmUpdateItem)

@@ -47,7 +47,6 @@ function euDateToJsDate(dateString) {
     }
     return null;
 }
-
 //'yyyy-MM-dd' format to js Date
 function isoDateToJsDate(dateString) {
     var dateParts = dateString.split("-");

@@ -125,10 +125,10 @@ const Tabela = () => {
     };
     await handleSubmit({
       route: 'financas/financas',
-      dados: updatedNovoSubmit
+      dados: updatedNovoSubmit,
+      fetchDados: fetchLancamentos
     });
     cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-    setReload(true);
   };
 
   //funcao que trata o item e o insere em novosDados
@@ -172,14 +172,14 @@ const Tabela = () => {
         await handleUpdate({
           route: 'financas/financas/update?id',
           dados: updatedItem,
-          item: confirmItemAction.item
+          item: confirmItemAction.item,
+          fetchDados: fetchLancamentos
         });
       } catch (error) {
         setLancamentos(lancamentos);
         setConfirmItemAction({ action: 'update', item: confirmItemAction.item })
         console.error("Update failed:", error);
       }
-      setReload(true);
       setLoading(false);
     }
   };
@@ -200,9 +200,9 @@ const Tabela = () => {
       await handlePseudoDelete({
         route: 'financas/financas',
         item: confirmItemAction.item,
-        deletar: false
+        deletar: false,
+        fetchDados: fetchLancamentos
       });
-      setReload(true);
     }
   }
 
@@ -223,7 +223,8 @@ const Tabela = () => {
         await handlePseudoDelete({
           route: 'financas/financas',
           item: confirmItemAction.item,
-          deletar: true
+          deletar: true,
+          fetchDados: fetchLancamentos
         });
       } catch (error) {
         setLancamentos(lancamentos);
@@ -231,7 +232,6 @@ const Tabela = () => {
         setConfirmItemAction({ action: 'update', item: confirmItemAction.item })
         console.error("Delete failed:", error);
       }
-      setReload(true);
     }
   };
 

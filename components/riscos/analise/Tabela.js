@@ -32,10 +32,10 @@ const TabelaAnalise = () => {
         e.preventDefault();
         await handleSubmit({
             route: 'riscos/analise',
-            dados: novoSubmit
+            dados: novoSubmit,
+            fetchDados: fetchAnalises
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-        setReload(true);
     };
 
     const handleUpdateClick = (item) => {
@@ -75,7 +75,8 @@ const TabelaAnalise = () => {
                 await handleUpdate({
                     route: 'riscos/analise/update?id',
                     dados: updatedItem,
-                    item: confirmUpdateItem
+                    item: confirmUpdateItem,
+                    fetchDados: fetchAnalises
                 });
             } catch (error) {
                 setConfirmUpdateItem(confirmUpdateItem)

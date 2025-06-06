@@ -104,11 +104,9 @@ const Tabela = () => {
       await handleUpdate({
         route: 'cronograma',
         dados: updatedItem,
-        item: itemParaAtualizar
+        item: itemParaAtualizar,
+        fetchDados: fetchCronogramas
       });
-
-      await fetchCronogramas();
-      setReload(true);
     } catch (error) {
       console.error('Erro ao atualizar a situação do cronograma', error);
     }

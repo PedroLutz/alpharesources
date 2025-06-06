@@ -32,7 +32,8 @@ const Tabela = () => {
         e.preventDefault();
         await handleSubmit({
             route: 'responsabilidades/habilidades',
-            dados: novoSubmit
+            dados: novoSubmit,
+            fetchDados: fetchHabilidades
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
         setReload(true);
@@ -61,14 +62,14 @@ const Tabela = () => {
                 await handleUpdate({
                     route: 'responsabilidades/habilidades/update?id',
                     dados: updatedItem,
-                    item: confirmUpdateItem
+                    item: confirmUpdateItem,
+                    fetchDados: fetchHabilidades
                 });
             } catch (error) {
                 setHabilidades(habilidades);
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
-            setReload(true);
             setLoading(false)
         }
     };

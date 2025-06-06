@@ -59,10 +59,10 @@ const Tabela = () => {
     e.preventDefault();
     await handleSubmit({
       route: 'responsabilidades/membros',
-      dados: novoSubmit
+      dados: novoSubmit,
+      fetchDados: fetchMembros
     });
     cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-    setReload(true);
   };
 
   const modalLabels = {
@@ -95,13 +95,13 @@ const Tabela = () => {
         await handleUpdate({
           route: 'responsabilidades/membros/update?id',
           dados: updatedItem,
-          item: confirmUpdateItem
+          item: confirmUpdateItem,
+          fetchDados: fetchMembros
         });
       } catch (error) {
         setConfirmUpdateItem(confirmUpdateItem);
         console.error("Update failed:", error);
       }
-      setReload(true);
       setLoading(false);
     }
   };

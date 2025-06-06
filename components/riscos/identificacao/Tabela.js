@@ -40,10 +40,10 @@ const TabelaRiscos = () => {
         e.preventDefault();
         await handleSubmit({
             route: 'riscos/risco',
-            dados: novoSubmit
+            dados: novoSubmit,
+            fetchDados: fetchRiscos
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-        setReload(true);
     };
 
     const handleUpdateClick = (item) => {
@@ -82,7 +82,8 @@ const TabelaRiscos = () => {
                 await handleUpdate({
                     route: 'riscos/risco/update/update?id',
                     dados: updatedItem,
-                    item: confirmUpdateItem
+                    item: confirmUpdateItem,
+                    fetchDados: fetchRiscos
                 });
             } catch (error) {
                 setRiscos(riscos);
@@ -109,7 +110,6 @@ const TabelaRiscos = () => {
             setDadosUpdateTudo({oldRisco: '',
                 newRisco: ''});
             setLoading(false);
-            setReload(true);
         }
     };
 

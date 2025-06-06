@@ -80,7 +80,6 @@ const Tabela = () => {
         setDeleteSuccess(getDeleteSuccess);
       }
     }
-    setReload(true);
   };
 
 

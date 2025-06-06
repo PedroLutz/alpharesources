@@ -35,10 +35,10 @@ const Tabela = () => {
         e.preventDefault();
         await handleSubmit({
             route: 'monitoramento/mudancas',
-            dados: novoSubmit
+            dados: novoSubmit,
+            fetchDados: fetchMudancas
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-        setReload(true);
     };
 
 
@@ -69,14 +69,14 @@ const Tabela = () => {
                 await handleUpdate({
                     route: 'monitoramento/mudancas/update?id',
                     dados: updatedItem,
-                    item: confirmUpdateItem
+                    item: confirmUpdateItem,
+                    fetchDados: fetchMudancas
                 });
             } catch (error) {
                 setMudancas(mudancas);
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
-            setReload(true);
             setLoading(false);
         }
     };

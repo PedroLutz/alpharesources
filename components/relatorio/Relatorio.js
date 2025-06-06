@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { fetchData } from "../../functions/crud";
 import { isoDateToEuDate } from "../../functions/general";
 import styles from '../../styles/modules/relatorio.module.css'
-// import { handleExport } from "../../functions/exportHtml";
 import Loading from "../Loading";
 
 const Relatorio = () => {

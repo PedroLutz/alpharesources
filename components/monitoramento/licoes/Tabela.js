@@ -32,10 +32,10 @@ const Tabela = () => {
         e.preventDefault();
         await handleSubmit({
             route: 'monitoramento/licoes',
-            dados: novoSubmit
+            dados: novoSubmit,
+            fetchDados: fetchLicoes
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-        setReload(true);
     };
 
 
@@ -66,7 +66,8 @@ const Tabela = () => {
                 await handleUpdate({
                     route: 'monitoramento/licoes/update?id',
                     dados: updatedItem,
-                    item: confirmUpdateItem
+                    item: confirmUpdateItem,
+                    fetchDados: fetchLicoes
                 });
             } catch (error) {
                 setLicoes(licoes);
@@ -74,7 +75,6 @@ const Tabela = () => {
                 console.error("Update failed:", error);
             }
             setLoading(false);
-            setReload(true);
         }
     };
 

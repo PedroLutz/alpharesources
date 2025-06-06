@@ -57,7 +57,7 @@ const Tabela = () => {
         e.preventDefault();
         await handleSubmit({
             route: 'recursos/recurso',
-            dados: novoSubmit
+            dados: novoSubmit,
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
         setReload(true);

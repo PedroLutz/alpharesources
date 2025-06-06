@@ -44,10 +44,10 @@ const PlanoAquisicao = () => {
         e.preventDefault();
         await handleSubmit({
             route: 'recursos/planoAquisicao',
-            dados: novoSubmit
+            dados: novoSubmit,
+            fetchDados: fetchPlanos
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-        setReload(true);
     };
 
     
@@ -109,13 +109,13 @@ const PlanoAquisicao = () => {
                 await handleUpdate({
                     route: 'recursos/planoAquisicao/update?id',
                     dados: updatedItem,
-                    item: confirmUpdateItem
+                    item: confirmUpdateItem,
+                    fetchDados: fetchPlanos
                 });
             } catch (error) {
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
-            setReload(true);
             setLoading(false)
         }
     };
@@ -141,7 +141,6 @@ const PlanoAquisicao = () => {
             setExibirModal(`deleteFail`)
         }
         setConfirmDeleteItem(null);
-        setReload(true);
     };
 
 

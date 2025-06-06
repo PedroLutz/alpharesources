@@ -37,7 +37,8 @@ const Tabela = () => {
         e.preventDefault();
         await handleSubmit({
             route: 'comunicacao/stakeholders',
-            dados: novoSubmit
+            dados: novoSubmit,
+            fetchDados: fetchStakeholders
         });
 
         const objEngajamento = {
@@ -55,7 +56,6 @@ const Tabela = () => {
             dados: objEngajamento
         })
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-        setReload(true);
     };
 
     //funcao que recebe o item a ser atualizado e o insere em confirmUpdateItem e novosDados
@@ -82,14 +82,14 @@ const Tabela = () => {
                 await handleUpdate({
                     route: 'comunicacao/stakeholders/update?id',
                     dados: updatedItem,
-                    item: confirmUpdateItem
+                    item: confirmUpdateItem,
+                    fetchDados: fetchStakeholders
                 });
             } catch (error) {
                 setStakeholders(stakeholders);
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
-            setReload(true);
             setLoading(false)
         }
     };
@@ -114,7 +114,6 @@ const Tabela = () => {
             setExibirModal(`deleteFail`)
         }
         setConfirmDeleteItem(null);
-        setReload(true);
     };
 
     //funcao que busca os stakeholders

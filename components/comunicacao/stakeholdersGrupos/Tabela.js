@@ -34,10 +34,10 @@ const Tabela = () => {
         e.preventDefault();
         await handleSubmit({
             route: 'comunicacao/stakeholderGroups',
-            dados: novoSubmit
+            dados: novoSubmit,
+            fetchDados: fetchStakeholders
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-        setReload(true);
     };
 
     const handleUpdateClick = (item) => {
@@ -63,14 +63,14 @@ const Tabela = () => {
                 await handleUpdate({
                     route: 'comunicacao/stakeholderGroups/update?id',
                     dados: updatedItem,
-                    item: confirmUpdateItem
+                    item: confirmUpdateItem,
+                    fetchDados: fetchStakeholders
                 });
             } catch (error) {
                 setStakeholderGroups(stakeholderGroups);
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
-            setReload(true);
             setLoading(false);
         }
     };
@@ -94,7 +94,6 @@ const Tabela = () => {
             setExibirModal(`deleteFail`)
         }
         setConfirmDeleteItem(null);
-        setReload(true);
     };
 
     const fetchStakeholders = async () => {

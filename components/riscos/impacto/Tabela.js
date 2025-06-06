@@ -30,10 +30,10 @@ const TabelaAnalise = () => {
         e.preventDefault();
         await handleSubmit({
             route: 'riscos/impacto',
-            dados: novoSubmit
+            dados: novoSubmit,
+            fetchDados: fetchAnalises
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-        setReload(true);
     };
 
     const handleUpdateClick = (item) => {
@@ -58,14 +58,14 @@ const TabelaAnalise = () => {
                 await handleUpdate({
                     route: 'riscos/impacto/update?id',
                     dados: updatedItem,
-                    item: confirmUpdateItem
+                    item: confirmUpdateItem,
+                    fetchDados: fetchAnalises
                 });
             } catch (error) {
                 setImpactos(riscos);
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
-            setReload(true);
             setLoading(false);
         }
     };

@@ -45,14 +45,13 @@ const Tabela = () => {
                 await handleUpdate({
                     route: 'comunicacao/engajamento/update?id',
                     dados: updatedItem,
-                    item: confirmUpdateItem
+                    item: confirmUpdateItem, 
+                    fetchDados: fetchStakeholders
                 });
             } catch (error) {
                 setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
-            await fetchStakeholders();
-            setReload(true);
             setLoading(false);
         }
     };
