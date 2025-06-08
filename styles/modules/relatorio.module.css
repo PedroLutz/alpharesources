@@ -65,7 +65,7 @@
     text-align: center;
 }
 
-.tableInformation tr td:first-child, .tableProgress tr td:first-child {
+.tableInformation tr td:first-child, .tableProgress tr td:not(#notPink):first-child {
     background-color: #ffccf9;
     font-weight: bold;
     width: 10rem;

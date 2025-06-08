@@ -249,83 +249,83 @@ const Relatorio = () => {
     }
 
     const generatePDF = async () => {
-            const html2pdf = (await import('html2pdf.js')).default;
-            const element = document.querySelector('.report');
-            if (!element) return;
+        const html2pdf = (await import('html2pdf.js')).default;
+        const element = document.querySelector('.report');
+        if (!element) return;
 
-            document.querySelectorAll('textarea').forEach((textarea) => {
-                const div = document.createElement('div')
-                div.innerText = textarea.value
-                div.style.whiteSpace = 'pre-wrap'
-                div.style.wordBreak = 'break-word'
-                div.style.border = 'none'
-                div.style.minHeight = '50px'
-                div.style.paddingLeft = '2px'
-                div.style.paddingRight = '2px'
-                div.style.fontFamily = 'inherit'
-                div.style.textAlign = 'left'
-                div.style.fontSize = 'small'
-                div.style.width = `${textarea.offsetWidth}px`
-                div.style.height = `${textarea.offsetHeight + 20}px`
+        document.querySelectorAll('textarea').forEach((textarea) => {
+            const div = document.createElement('div')
+            div.innerText = textarea.value
+            div.style.whiteSpace = 'pre-wrap'
+            div.style.wordBreak = 'break-word'
+            div.style.border = 'none'
+            div.style.minHeight = '50px'
+            div.style.paddingLeft = '2px'
+            div.style.paddingRight = '2px'
+            div.style.fontFamily = 'inherit'
+            div.style.textAlign = 'left'
+            div.style.fontSize = 'small'
+            div.style.width = `${textarea.offsetWidth}px`
+            div.style.height = `${textarea.offsetHeight + 20}px`
 
-                textarea.style.display = 'none'
-                textarea.parentNode.insertBefore(div, textarea.nextSibling)
-            })
+            textarea.style.display = 'none'
+            textarea.parentNode.insertBefore(div, textarea.nextSibling)
+        })
 
-            document.querySelectorAll('select').forEach((select) => {
-                const div = document.createElement('div')
-                div.innerText = select.value
-                div.style.whiteSpace = 'pre-wrap'
-                div.style.wordBreak = 'break-word'
-                div.style.border = 'none'
-                div.style.fontFamily = 'inherit'
-                div.style.fontSize = 'inherit'
-                div.style.color = 'black'
-                div.style.height = `20px`
-                div.style.textAlign = 'center'
-                div.style.lineHeight = '20px'
+        document.querySelectorAll('select').forEach((select) => {
+            const div = document.createElement('div')
+            div.innerText = select.value
+            div.style.whiteSpace = 'pre-wrap'
+            div.style.wordBreak = 'break-word'
+            div.style.border = 'none'
+            div.style.fontFamily = 'inherit'
+            div.style.fontSize = 'inherit'
+            div.style.color = 'black'
+            div.style.height = `20px`
+            div.style.textAlign = 'center'
+            div.style.lineHeight = '20px'
 
-                select.style.display = 'none'
-                select.parentNode.insertBefore(div, select.nextSibling)
-            })
+            select.style.display = 'none'
+            select.parentNode.insertBefore(div, select.nextSibling)
+        })
 
-            const inputManager = document.getElementById("manager");
-            const inputDateCompletion = document.getElementById("dateCompletion");
-            const inputs = [inputManager, inputDateCompletion]
-            inputs.forEach(input => {
-                const div = document.createElement('div')
-                div.innerText = input.value
-                if(input.id == 'dateCompletion'){
-                    div.innerText = isoDateToEuDate(input.value)
-                }
-                div.style.whiteSpace = 'pre-wrap'
-                div.style.wordBreak = 'break-word'
-                div.style.border = 'none'
-                div.style.fontFamily = 'inherit'
-                div.style.fontSize = 'inherit'
-                div.style.color = 'black'
-                div.style.height = `25px`
-                div.style.textAlign = 'left'
-                div.style.lineHeight = '25px'
-                input.style.display = 'none'
-                input.parentNode.insertBefore(div, input.nextSibling)
-            })
-            
+        const inputManager = document.getElementById("manager");
+        const inputDateCompletion = document.getElementById("dateCompletion");
+        const inputs = [inputManager, inputDateCompletion]
+        inputs.forEach(input => {
+            const div = document.createElement('div')
+            div.innerText = input.value
+            if (input.id == 'dateCompletion') {
+                div.innerText = isoDateToEuDate(input.value)
+            }
+            div.style.whiteSpace = 'pre-wrap'
+            div.style.wordBreak = 'break-word'
+            div.style.border = 'none'
+            div.style.fontFamily = 'inherit'
+            div.style.fontSize = 'inherit'
+            div.style.color = 'black'
+            div.style.height = `25px`
+            div.style.textAlign = 'left'
+            div.style.lineHeight = '25px'
+            input.style.display = 'none'
+            input.parentNode.insertBefore(div, input.nextSibling)
+        })
 
-            const opt = {
-                margin: 1,
-                filename: `relatorio-${monthYear.month}-${monthYear.year}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: {
-                    unit: 'px',
-                    format: [element.offsetWidth, element.offsetHeight + 5],
-                    orientation: 'portrait'
-                }
-            };
 
-            await html2pdf().set(opt).from(element).save();
-            window.location.reload();
+        const opt = {
+            margin: 1,
+            filename: `relatorio-${monthYear.month}-${monthYear.year}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: {
+                unit: 'px',
+                format: [element.offsetWidth, element.offsetHeight + 5],
+                orientation: 'portrait'
+            }
+        };
+
+        await html2pdf().set(opt).from(element).save();
+        window.location.reload();
     }
 
     useEffect(() => {
@@ -410,12 +410,12 @@ const Relatorio = () => {
                                 <div style={{ width: '90%', textAlign: 'center' }}>
                                     <img src={'/images/logo.png'} alt="Logo" style={{ width: '200px', margin: '-10px' }} />
                                 </div>
-
                             </div>
+
                             <table style={{ marginTop: '2rem' }} className={`tableProgress ${styles.tableProgress}`}>
                                 <thead>
                                     <tr>
-                                        <th colSpan={2}>PROJECT PROGRESS (TASK ANALYSIS)</th>
+                                        <th colSpan={2}>TASK ANALYSIS</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -432,10 +432,6 @@ const Relatorio = () => {
                                         <td>{tarefasConcluidas || '-'}</td>
                                     </tr>
                                     <tr>
-                                        <td>Tasks planned for next month</td>
-                                        <td>{tarefasPlanejadas || '-'}</td>
-                                    </tr>
-                                    <tr>
                                         <td>Risks</td>
                                         <td>{riscos || '-'}</td>
                                     </tr>
@@ -444,21 +440,38 @@ const Relatorio = () => {
                                         <td><textarea value={issues}
                                             onChange={(e) => { setIssues(e.target.value) }} /></td>
                                     </tr>
-                                    <tr>
-                                        <td>Changes</td>
-                                        <td><textarea/></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Lessons learned</td>
-                                        <td><textarea/></td>
-                                    </tr>
                                 </tbody>
                             </table>
+
+                            {tarefasConcluidas && (
+                                <table className={`tableResources ${styles.tableResources}`} style={{ marginTop: '2rem' }}>
+                                    <thead>
+                                        <tr>
+                                            <th colSpan={3}>WORK COMPLETED VERSUS RESOURCES USED</th>
+                                        </tr>
+                                        <tr>
+                                            <th>Finished task</th>
+                                            <th>Planned resources</th>
+                                            <th>Used resources</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {tarefasConcluidas.split(', ').map((tarefa, index) => (
+                                            <tr key={index}>
+                                                <td style={{ textAlign: 'left', fontSize: 'small', padding: '0.3rem' }}>{tarefa}</td>
+                                                <td><textarea style={{ textAlign: 'left', fontSize: 'small', padding: '0.3rem' }} /></td>
+                                                <td><textarea style={{ textAlign: 'left', fontSize: 'small', padding: '0.3rem' }} /></td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            )}
+
 
                             <table className={`tableStatus ${styles.tableStatus}`} style={{ marginTop: '2rem' }}>
                                 <thead>
                                     <tr>
-                                        <th colSpan={5}>PROJECT STATUS (KPI ANALYSIS)</th>
+                                        <th colSpan={5}>KPI ANALYSIS</th>
                                     </tr>
                                     <tr>
                                         <th>Scope</th>
@@ -472,7 +485,7 @@ const Relatorio = () => {
                                     <tr>
                                         <td className='status_td'>
                                             <select name='scopeStatus'
-                                                style={{ textAlign: 'center' }} 
+                                                style={{ textAlign: 'center' }}
                                                 value={kpyAnalysisStatus.scopeStatus}
                                                 onChange={(e) => handleChange(e, kpyAnalysisStatus, setKpiAnalysisStatus)}>
                                                 <option value='Safe'>Safe</option>
@@ -482,7 +495,7 @@ const Relatorio = () => {
                                         </td>
                                         <td className="status_td">
                                             <select name='scheduleStatus'
-                                                style={{ textAlign: 'center'}}
+                                                style={{ textAlign: 'center' }}
                                                 value={kpyAnalysisStatus.scheduleStatus}
                                                 onChange={(e) => handleChange(e, kpyAnalysisStatus, setKpiAnalysisStatus)}>
                                                 <option value='Safe'>Safe</option>
@@ -512,7 +525,7 @@ const Relatorio = () => {
                                         </td>
                                         <td className="status_td">
                                             <select name='qualityStatus'
-                                                style={{ textAlign: 'center'}}
+                                                style={{ textAlign: 'center' }}
                                                 value={kpyAnalysisStatus.qualityStatus}
                                                 onChange={(e) => handleChange(e, kpyAnalysisStatus, setKpiAnalysisStatus)}>
                                                 <option value='Safe'>Safe</option>
@@ -561,32 +574,10 @@ const Relatorio = () => {
                                 </tbody>
                             </table>
 
-                            <table className={`tableResources ${styles.tableResources}`} style={{ marginTop: '2rem' }}>
-                                <thead>
-                                    <tr>
-                                        <th colSpan={3}>RESOURCE USAGE</th>
-                                    </tr>
-                                    <tr>
-                                        <th>Finished task</th>
-                                        <th>Planned resources</th>
-                                        <th>Used resources</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {tarefasConcluidas.split(', ').map((tarefa, index) => (
-                                        <tr key={index}>
-                                            <td style={{textAlign: 'left', fontSize: 'small', padding: '0.3rem'}}>{tarefa}</td>
-                                            <td><textarea style={{textAlign: 'left', fontSize: 'small', padding: '0.3rem'}}/></td>
-                                            <td><textarea style={{textAlign: 'left', fontSize: 'small', padding: '0.3rem'}}/></td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-
                             <table className={`tableDetails ${styles.tableDetails}`} style={{ marginTop: '2rem' }}>
                                 <thead>
                                     <tr>
-                                        <th colSpan={4}>PROJECT DETAILS (AREA ANALYSIS)</th>
+                                        <th colSpan={4}>AREA ANALYSIS (PLANNED VERSUS ACTUAL PROGRESS)</th>
                                     </tr>
                                     <tr>
                                         <th>Area</th>
@@ -620,6 +611,45 @@ const Relatorio = () => {
                                             </td>
                                         </tr>
                                     ))}
+                                </tbody>
+                            </table>
+
+                            {tarefasPlanejadas && (
+                                <table style={{ marginTop: '2rem' }} className={`tableProgress ${styles.tableProgress}`}>
+                                    <thead>
+                                        <tr>
+                                            <th colSpan={2}>PREDICTIONS OF FUTURE PROJECT PERFORMANCE</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Tasks planned for next month</td>
+                                            <td>{tarefasPlanejadas || '-'}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Comments</td>
+                                            <td><textarea /></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            )}
+
+
+                            <table style={{ marginTop: '2rem' }} className={`tableProgress ${styles.tableProgress}`}>
+                                <thead>
+                                    <tr>
+                                        <th colSpan={2}>PROJECT CHANGES</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Changes</td>
+                                        <td><textarea /></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Lessons learned</td>
+                                        <td><textarea /></td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </React.Fragment>

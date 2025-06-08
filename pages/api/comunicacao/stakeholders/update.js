@@ -49,7 +49,7 @@ export default async (req, res) => {
           {$set: {stakeholder: updateFields.stakeholder, poder: updateFields.poder, interesse: updateFields.interesse}}
         )
 
-        await Informacao.updateOne(
+        await Informacao.updateMany(
           {grupo: stakeholderOriginal.grupo, stakeholder: stakeholderOriginal.stakeholder}, 
           {$set: {stakeholder: updateFields.stakeholder}}
         )

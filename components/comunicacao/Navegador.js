@@ -39,9 +39,6 @@ const Navbar = () => {
           <Link href="/pags/communication/information">Communicated Information</Link>
         </li>
         <li>
-          <Link href="/pags/communication/monitoring">Monitoring</Link>
-        </li>
-        <li>
           <Link href="/">Menu</Link>
         </li>
         <Logout/>
