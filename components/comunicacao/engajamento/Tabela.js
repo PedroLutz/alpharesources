@@ -113,11 +113,11 @@ const Tabela = () => {
                                 <tr>
                                     <th>Stakeholder Group</th>
                                     <th>Stakeholder</th>
-                                    <th id={styles.poderId}>Power</th>
-                                    <th id={styles.interesseId}>Interest</th>
+                                    <th id={styles.eng_poderId}>Power</th>
+                                    <th id={styles.eng_interesseId}>Interest</th>
                                     <th>Mapping</th>
-                                    <th id={styles.engId}>Current Engagement Level</th>
-                                    <th id={styles.engId}>Expected Engagement Level</th>
+                                    <th id={styles.eng_engajamentoId}>Current Engagement Level</th>
+                                    <th id={styles.eng_engajamentoId}>Expected Engagement Level</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>

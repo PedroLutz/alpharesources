@@ -175,7 +175,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.metodo = el)}
                 />
             </td>
-            <td id={verOpcaoCustom ? styles.tdFrequencia : ''}>
+            <td id={verOpcaoCustom ? styles.infoTdFrequencia : ''}>
                 <select
                     value={obj.frequencia}
                     name='frequencia'
