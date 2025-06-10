@@ -20,7 +20,6 @@ const Tabela = () => {
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
-    const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
     const [mudancas, setMudancas] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
@@ -44,7 +43,6 @@ const Tabela = () => {
 
     //funcao que recebe o item, o insere no estado confirmUpdateItem e como objeto de novosDados
     const handleUpdateClick = (item) => {
-        setConfirmUpdateItem(item)
         setNovosDados({
             ...item,
             data: euDateToIsoDate(item.data),
@@ -54,31 +52,20 @@ const Tabela = () => {
 
     //funcao que trata os dados e os envia para atualizacao
     const handleUpdateItem = async () => {
-        if (confirmUpdateItem) {
-            setLoading(true);
-            const updatedItem = { ...confirmUpdateItem, ...novosDados };
-
-            const updatedCustoBeneficios = mudancas.map(item =>
-                item._id === updatedItem._id ? updatedItem : item
-            );
-            setMudancas(updatedCustoBeneficios);
-            setConfirmUpdateItem(null)
-            linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            delete updatedItem.mediaBeneficios;
-            try {
-                await handleUpdate({
-                    route: 'monitoramento/mudancas/update?id',
-                    dados: updatedItem,
-                    item: confirmUpdateItem,
-                    fetchDados: fetchMudancas
-                });
-            } catch (error) {
-                setMudancas(mudancas);
-                setConfirmUpdateItem(confirmUpdateItem)
-                console.error("Update failed:", error);
-            }
-            setLoading(false);
+        setLoading(true);
+        delete novosDados.mediaBeneficios;
+        try {
+            await handleUpdate({
+                route: 'monitoramento/mudancas/update?id',
+                dados: novosDados,
+                fetchDados: fetchMudancas
+            });
+        } catch (error) {
+            console.error("Update failed:", error);
         }
+        setLinhaVisivel();
+        setLoading(false);
+        setNovosDados(camposVazios);
     };
 
     //funcao que envia o id para ser deletado

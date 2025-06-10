@@ -16,7 +16,6 @@ const TabelaAnalise = () => {
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
-    const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
     const [impactos, setImpactos] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
@@ -24,7 +23,7 @@ const TabelaAnalise = () => {
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
-    const {isAdmin} = useContext(AuthContext);
+    const { isAdmin } = useContext(AuthContext);
 
     const enviar = async (e) => {
         e.preventDefault();
@@ -36,38 +35,20 @@ const TabelaAnalise = () => {
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     };
 
-    const handleUpdateClick = (item) => {
-        setConfirmUpdateItem(item)
-        setNovosDados({
-            ...item
-        });
-    };
-
     const handleUpdateItem = async () => {
-        if (confirmUpdateItem) {
-            setLoading(true);
-            const updatedItem = { ...confirmUpdateItem, ...novosDados };
-
-            const updatedRiscos = impactos.map(item =>
-                item._id === updatedItem._id ? { ...updatedItem } : item
-            );
-            setImpactos(updatedRiscos);
-            setConfirmUpdateItem(null)
-            linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            try {
-                await handleUpdate({
-                    route: 'riscos/impacto/update?id',
-                    dados: updatedItem,
-                    item: confirmUpdateItem,
-                    fetchDados: fetchAnalises
-                });
-            } catch (error) {
-                setImpactos(riscos);
-                setConfirmUpdateItem(confirmUpdateItem)
-                console.error("Update failed:", error);
-            }
-            setLoading(false);
+        setLoading(true);
+        try {
+            await handleUpdate({
+                route: 'riscos/impacto/update?id',
+                dados: novosDados,
+                fetchDados: fetchAnalises
+            });
+        } catch (error) {
+            console.error("Update failed:", error);
         }
+        setLoading(false);
+        setNovosDados(camposVazios);
+        setLinhaVisivel();
     };
 
     const handleConfirmDelete = async () => {
@@ -158,7 +139,7 @@ const TabelaAnalise = () => {
                             <tr>
                                 <th>Risk</th>
                                 <th>Area of impact</th>
-                                <th style={{fontSize: '0.7rem', width: '3rem'}}>Score</th>
+                                <th style={{ fontSize: '0.7rem', width: '3rem' }}>Score</th>
                                 <th>Description</th>
                                 <th>Actions</th>
                             </tr>
@@ -172,7 +153,7 @@ const TabelaAnalise = () => {
                                             objSetter={setNovosDados}
                                             funcao={{
                                                 funcao1: () => handleUpdateItem(),
-                                                funcao2: () => {linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false)}
+                                                funcao2: () => { linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false) }
                                             }}
                                             setExibirModal={setExibirModal}
                                         />
@@ -189,12 +170,12 @@ const TabelaAnalise = () => {
                                                 <td>{item.risco}</td>
                                             )}
                                             <td>{item.areaImpacto}</td>
-                                            <td style={{width: '3rem', textAlign: 'center'}}>{item.valor}</td>
-                                            <td style={{fontSize: '0.7rem'}}>{item.descricao}</td>
+                                            <td style={{ width: '3rem', textAlign: 'center' }}>{item.valor}</td>
+                                            <td style={{ fontSize: '0.7rem' }}>{item.descricao}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(item)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(item._id); handleUpdateClick(item); setIsUpdating(item.risco)
+                                                    setLinhaVisivel(item._id); setNovosDados(item); setIsUpdating(item.risco)
                                                 }
                                                 } disabled={!isAdmin}>⚙️</button>
                                             </td>

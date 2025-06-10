@@ -22,7 +22,6 @@ const Tabela = () => {
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
-    const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
     const [stakeholders, setStakeholders] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
@@ -34,6 +33,11 @@ const Tabela = () => {
 
     //funcao que cadastra os stakeholders e cadastra na funcao de engajamento o stakeholder do jeito devido
     const enviar = async (e) => {
+        if (stakeholders.find((stakeholder) => stakeholder.grupo == novoSubmit.grupo
+            && stakeholder.stakeholder == novoSubmit.stakeholder) != undefined) {
+            setExibirModal('stakeholderRepetido');
+            return;
+        }
         e.preventDefault();
         await handleSubmit({
             route: 'comunicacao/stakeholders',
@@ -58,40 +62,21 @@ const Tabela = () => {
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     };
 
-    //funcao que recebe o item a ser atualizado e o insere em confirmUpdateItem e novosDados
-    const handleUpdateClick = (item) => {
-        setConfirmUpdateItem(item)
-        setNovosDados({
-            ...item
-        });
-    };
-
     //funcao que trata os dados e envia para realizacao do update
     const handleUpdateItem = async () => {
-        if (confirmUpdateItem) {
-            setLoading(true);
-            const updatedItem = { ...confirmUpdateItem, ...novosDados };
-
-            const updatedStakeholders = stakeholders.map(item =>
-                item._id === updatedItem._id ? updatedItem : item
-            );
-            setStakeholders(updatedStakeholders);
-            setConfirmUpdateItem(null)
-            linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            try {
-                await handleUpdate({
-                    route: 'comunicacao/stakeholders/update?id',
-                    dados: updatedItem,
-                    item: confirmUpdateItem,
-                    fetchDados: fetchStakeholders
-                });
-            } catch (error) {
-                setStakeholders(stakeholders);
-                setConfirmUpdateItem(confirmUpdateItem)
-                console.error("Update failed:", error);
-            }
-            setLoading(false)
+        setLoading(true);
+        try {
+            await handleUpdate({
+                route: 'comunicacao/stakeholders/update?id',
+                dados: novosDados,
+                fetchDados: fetchStakeholders
+            });
+        } catch (error) {
+            console.error("Update failed:", error);
         }
+        setLinhaVisivel();
+        setLoading(false)
+        setNovosDados(camposVazios);
     };
 
     //funcao que envia os dados para serem deletados
@@ -128,7 +113,7 @@ const Tabela = () => {
 
     //useEffect que so roda quando reload é atualizado
     useEffect(() => {
-        if(reload == true){
+        if (reload == true) {
             setReload(false);
             fetchStakeholders();
         }
@@ -143,6 +128,7 @@ const Tabela = () => {
         'inputsVazios': 'Fill out all fields before adding new data!',
         'deleteSuccess': 'Deletion Successful!',
         'deleteFail': 'Deletion Failed!',
+        'stakeholderRepetido': 'This stakeholder is already registered!'
     };
 
     //funcao que calcula o rowSpan de determinado valor de acordo com os itens agrupados nesse valor
@@ -246,7 +232,7 @@ const Tabela = () => {
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(stakeholder)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(stakeholder._id); handleUpdateClick(stakeholder); setIsUptading([stakeholder.grupo, stakeholder.stakeholder])
+                                                    setLinhaVisivel(stakeholder._id); setNovosDados(stakeholder); setIsUptading([stakeholder.grupo, stakeholder.stakeholder])
                                                 }
                                                 } disabled={!isAdmin}>⚙️</button>
                                             </td>

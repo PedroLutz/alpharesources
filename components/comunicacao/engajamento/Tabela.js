@@ -16,44 +16,28 @@ const Tabela = () => {
         nivel_eng_desejado: ""
     }
     const [novosDados, setNovosDados] = useState(camposVazios);
-    const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
     const [engajamentos, setEngajamentos] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
     const [linhaVisivel, setLinhaVisivel] = useState();
-    const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
     const { isAdmin } = useContext(AuthContext);
     const [isUpdating, setIsUptading] = useState(false);
 
-    //funcao que recebe o item, insere em confirmUpdateItem e em novosDados
-    const handleUpdateClick = (item) => {
-        setConfirmUpdateItem(item)
-        setNovosDados({
-            ...item
-        });
-    };
-
     //funcao que trata e envia o objeto de atualizacao para o backend
     const handleUpdateItem = async () => {
-        if (confirmUpdateItem) {
-            setLoading(true);
-            const updatedItem = { ...confirmUpdateItem, ...novosDados };
-
-            setConfirmUpdateItem(null)
-            linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            try {
-                await handleUpdate({
-                    route: 'comunicacao/engajamento/update?id',
-                    dados: updatedItem,
-                    item: confirmUpdateItem, 
-                    fetchDados: fetchStakeholders
-                });
-            } catch (error) {
-                setConfirmUpdateItem(confirmUpdateItem)
-                console.error("Update failed:", error);
-            }
-            setLoading(false);
+        setLoading(true);
+        try {
+            await handleUpdate({
+                route: 'comunicacao/engajamento/update?id',
+                dados: novosDados,
+                fetchDados: fetchStakeholders
+            });
+        } catch (error) {
+            console.error("Update failed:", error);
         }
+        setLinhaVisivel();
+        setLoading(false);
+        setNovosDados(camposVazios);
     };
 
     //funcao que busca stakeholders
@@ -81,15 +65,6 @@ const Tabela = () => {
             return "Monitor"
         }
     }
-
-    //useEffect que só roda quando reload atualiza
-    useEffect(() => {
-        if(reload == true){
-            setReload(false);
-            fetchStakeholders();
-        }
-    }, [reload]);
-
 
     //useEffect que só roda no primeiro render
     useEffect(() => {
@@ -180,7 +155,9 @@ const Tabela = () => {
                                                 <td>{engajamento.nivel_eng_desejado}</td>
                                                 <td className='botoes_acoes'>
                                                     <button onClick={() => {
-                                                        setLinhaVisivel(engajamento._id); handleUpdateClick(engajamento); setIsUptading([engajamento.grupo, engajamento.stakeholder])
+                                                        setLinhaVisivel(engajamento._id);
+                                                        setNovosDados(engajamento);
+                                                        setIsUptading([engajamento.grupo, engajamento.stakeholder])
                                                     }
                                                     } disabled={!isAdmin}>⚙️</button>
                                                 </td>

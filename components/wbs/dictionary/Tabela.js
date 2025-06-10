@@ -24,7 +24,6 @@ const TabelaAnalise = () => {
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
-    const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
     const [dicionarios, setDicionarios] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
@@ -47,14 +46,6 @@ const TabelaAnalise = () => {
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     };
 
-    //essa funcao recebe um item e insere seus campos como novosDados
-    const handleUpdateClick = (item) => {
-        setConfirmUpdateItem(item)
-        setNovosDados({
-            ...item
-        });
-    };
-
     //essa funcao busca as cores para cada area
     const fetchCores = async () => {
         const data = await fetchData('wbs/get/cores');
@@ -70,30 +61,19 @@ const TabelaAnalise = () => {
     //os dados enviados sejam condizentes com o modelo, e depois chama handleUpdate() para
     //cadastrar as mudancas no banco
     const handleUpdateItem = async () => {
-        if (confirmUpdateItem) {
-            setLoading(true);
-            const updatedItem = { ...confirmUpdateItem, ...novosDados };
-
-            const updatedRiscos = dicionarios.map(item =>
-                item._id === updatedItem._id ? { ...updatedItem } : item
-            );
-            setDicionarios(updatedRiscos);
-            setConfirmUpdateItem(null)
-            linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            try {
-                await handleUpdate({
-                    route: 'wbsDictionary/update?id',
-                    dados: updatedItem,
-                    item: confirmUpdateItem,
-                    fetchDados: fetchDicionarios
-                });
-            } catch (error) {
-                setDicionarios(dicionarios);
-                setConfirmUpdateItem(confirmUpdateItem)
-                console.error("Update failed:", error);
-            }
-            setLoading(false);
+        setLoading(true);
+        try {
+            await handleUpdate({
+                route: 'wbsDictionary/update?id',
+                dados: novosDados,
+                fetchDados: fetchDicionarios
+            });
+        } catch (error) {
+            console.error("Update failed:", error);
         }
+        setLoading(false);
+        setNovosDados(camposVazios);
+        setLinhaVisivel();
     };
 
 
@@ -253,7 +233,7 @@ const TabelaAnalise = () => {
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(item)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(item._id); handleUpdateClick(item); setIsUpdating(item.area)
+                                                    setLinhaVisivel(item._id); setNovosDados(item); setIsUpdating(item.area)
                                                 }
                                                 } disabled={!isAdmin}>⚙️</button>
                                             </td>

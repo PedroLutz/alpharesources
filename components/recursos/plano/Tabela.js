@@ -1,11 +1,11 @@
-import React, { useEffect, useState, useContext} from "react"
+import React, { useEffect, useState, useContext } from "react"
 import CadastroInputs from "./CadastroInputs";
 import styles from '../../../styles/modules/planoAquisicao.module.css'
 import Modal from "../../Modal";
 import Loading from "../../Loading";
 import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../functions/crud";
 import { cleanForm, jsDateToEuDate, euDateToIsoDate } from "../../../functions/general";
-import { AuthContext } from "../../../contexts/AuthContext"; 
+import { AuthContext } from "../../../contexts/AuthContext";
 
 const PlanoAquisicao = () => {
     const camposVazios = {
@@ -28,7 +28,6 @@ const PlanoAquisicao = () => {
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
-    const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
     const [planos, setPlanos] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
@@ -36,7 +35,7 @@ const PlanoAquisicao = () => {
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
-    const {isAdmin} = useContext(AuthContext)
+    const { isAdmin } = useContext(AuthContext)
 
 
     //funcao que envia os dados do novoSubmit para cadastro no banco
@@ -50,10 +49,9 @@ const PlanoAquisicao = () => {
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     };
 
-    
+
     //funcao que recebe o item, insere em confirmUpdateItem e insere os dados corretamente em novosDados
     const handleUpdateClick = (item) => {
-        setConfirmUpdateItem(item)
         setNovosDados({
             ...item,
             data_esperada: euDateToIsoDate(item.data_esperada),
@@ -71,23 +69,23 @@ const PlanoAquisicao = () => {
                 const dataEsperada = new Date(item.data_esperada);
                 const dataLimite = new Date(item.data_limite);
                 const dataReal = new Date(item.data_real);
-                if(item.data_real){
-                    item.data_diferenca = [`Expected: ${(dataReal - dataEsperada)/ (1000 * 60 * 60 * 24)} days`,
-                                            `Critical: ${(dataReal - dataLimite)/ (1000 * 60 * 60 * 24)} days`]
+                if (item.data_real) {
+                    item.data_diferenca = [`Expected: ${(dataReal - dataEsperada) / (1000 * 60 * 60 * 24)} days`,
+                    `Critical: ${(dataReal - dataLimite) / (1000 * 60 * 60 * 24)} days`]
                 } else {
                     item.data_diferenca = `-`
                 }
-                if(item.plano_real){
+                if (item.plano_real) {
                     item.valor_diferenca = [`Plan A: R$${Number(item.valor_real - item.valor_a).toFixed(2)}`,
-                                            `Plan B: R$${Number(item.valor_real - item.valor_b).toFixed(2)}`]
+                    `Plan B: R$${Number(item.valor_real - item.valor_b).toFixed(2)}`]
                 } else {
                     item.valor_diferenca = `-`
                 }
                 item.data_esperada = jsDateToEuDate(item.data_esperada);
                 item.data_limite = jsDateToEuDate(item.data_limite);
                 item.data_real = jsDateToEuDate(item.data_real);
-                
-              });
+
+            });
             setPlanos(data.planos);
         } finally {
             setLoading(false);
@@ -97,27 +95,21 @@ const PlanoAquisicao = () => {
 
     //funcao que trata e envia os dados para atualizacao no banco
     const handleUpdateItem = async () => {
-        if (confirmUpdateItem) {
-            setLoading(true);
-            const updatedItem = { ...confirmUpdateItem, ...novosDados };
-            console.log(updatedItem);
-            delete updatedItem.data_diferenca;
-            delete updatedItem.valor_diferenca;
-            setConfirmUpdateItem(null)
-            linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            try {
-                await handleUpdate({
-                    route: 'recursos/planoAquisicao/update?id',
-                    dados: updatedItem,
-                    item: confirmUpdateItem,
-                    fetchDados: fetchPlanos
-                });
-            } catch (error) {
-                setConfirmUpdateItem(confirmUpdateItem)
-                console.error("Update failed:", error);
-            }
-            setLoading(false)
+        setLoading(true);
+        delete novosDados.data_diferenca;
+        delete novosDados.valor_diferenca;
+        try {
+            await handleUpdate({
+                route: 'recursos/planoAquisicao/update?id',
+                dados: novosDados,
+                fetchDados: fetchPlanos
+            });
+        } catch (error) {
+            console.error("Update failed:", error);
         }
+        setLoading(false)
+        setLinhaVisivel();
+        setNovosDados(camposVazios);
     };
 
 
@@ -146,7 +138,7 @@ const PlanoAquisicao = () => {
 
     //useEffect que so roda quando reload eh atualizado
     useEffect(() => {
-        if(reload == true){
+        if (reload == true) {
             setReload(false);
             fetchPlanos();
         }
@@ -171,14 +163,14 @@ const PlanoAquisicao = () => {
     const calculateRowSpan = (itens, currentArea, currentIndex) => {
         let rowSpan = 1;
         for (let i = currentIndex + 1; i < itens.length; i++) {
-          if (itens[i].recurso === currentArea) {
-            rowSpan++;
-          } else {
-            break;
-          }
+            if (itens[i].recurso === currentArea) {
+                rowSpan++;
+            } else {
+                break;
+            }
         }
         return rowSpan;
-      };
+    };
 
     return (
         <div className="centered-container">
@@ -233,8 +225,8 @@ const PlanoAquisicao = () => {
                                 <th>Actual strategy</th>
                                 <th>Date</th>
                                 <th>Value</th>
-                                <th style={{minWidth: '8rem'}}>Date difference</th>
-                                <th style={{minWidth: '8rem'}}>Value difference</th>
+                                <th style={{ minWidth: '8rem' }}>Date difference</th>
+                                <th style={{ minWidth: '8rem' }}>Value difference</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -246,7 +238,7 @@ const PlanoAquisicao = () => {
                                             objSetter={setNovosDados}
                                             funcao={{
                                                 funcao1: () => handleUpdateItem(),
-                                                funcao2: () => {linhaVisivel === plano._id ? setLinhaVisivel() : setLinhaVisivel(plano._id); setIsUpdating(false)}
+                                                funcao2: () => { linhaVisivel === plano._id ? setLinhaVisivel() : setLinhaVisivel(plano._id); setIsUpdating(false) }
                                             }}
                                             setExibirModal={setExibirModal}
                                         />
@@ -276,10 +268,10 @@ const PlanoAquisicao = () => {
                                             <td>{plano.data_real != 'NaN/NaN/NaN' && plano.data_real != null ? plano.data_real : '-'}</td>
                                             <td>{plano.valor_real != null ? `R$${Number(plano.valor_real).toFixed(2)}` : '-'}</td>
                                             <td>
-                                                {plano.data_diferenca[0]}<br/>
+                                                {plano.data_diferenca[0]}<br />
                                                 {plano.data_diferenca[1]}
                                             </td>
-                                            <td>{plano.valor_diferenca[0]}<br/>
+                                            <td>{plano.valor_diferenca[0]}<br />
                                                 {plano.valor_diferenca[1]}
                                             </td>
                                             <td className='botoes_acoes'>
@@ -289,7 +281,7 @@ const PlanoAquisicao = () => {
                                                     setLinhaVisivel(plano._id); handleUpdateClick(plano); setIsUpdating(plano.recurso)
                                                 }
                                                 }
-                                                disabled={!isAdmin}>⚙️</button>
+                                                    disabled={!isAdmin}>⚙️</button>
                                             </td>
                                         </tr>
                                     )}

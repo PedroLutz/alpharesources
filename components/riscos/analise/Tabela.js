@@ -18,7 +18,6 @@ const TabelaAnalise = () => {
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
-    const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
     const [analises, setAnalises] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
@@ -36,13 +35,6 @@ const TabelaAnalise = () => {
             fetchDados: fetchAnalises
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-    };
-
-    const handleUpdateClick = (item) => {
-        setConfirmUpdateItem(item)
-        setNovosDados({
-            ...item
-        });
     };
 
     const getRiscosMapeados = (occ, imp) => {
@@ -64,27 +56,19 @@ const TabelaAnalise = () => {
     }
 
     const handleUpdateItem = async () => {
-        if (confirmUpdateItem) {
-            setLoading(true);
-            const updatedItem = { ...confirmUpdateItem, ...novosDados };
-
-            setConfirmUpdateItem(null)
-            linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            
+            setLoading(true);      
             try {
                 await handleUpdate({
                     route: 'riscos/analise/update?id',
-                    dados: updatedItem,
-                    item: confirmUpdateItem,
+                    dados: novosDados,
                     fetchDados: fetchAnalises
                 });
             } catch (error) {
-                setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
-            setReload(true);
             setLoading(false);
-        }
+            setNovosDados(camposVazios);
+            setLinhaVisivel();
     };
 
     const handleConfirmDelete = async () => {
@@ -236,7 +220,7 @@ const TabelaAnalise = () => {
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(item)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(item._id); handleUpdateClick(item); setIsUpdating(item.risco)
+                                                    setLinhaVisivel(item._id); setNovosDados(item); setIsUpdating(item.risco)
                                                 }
                                                 } disabled={!isAdmin}>⚙️</button>
                                             </td>

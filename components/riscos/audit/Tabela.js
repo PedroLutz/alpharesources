@@ -21,7 +21,6 @@ const TabelaAnalise = () => {
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
-    const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
     const [audits, setAudits] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
@@ -41,42 +40,27 @@ const TabelaAnalise = () => {
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     };
 
-    const handleUpdateClick = (item) => {
-        setConfirmUpdateItem(item)
-        //tem campos inseridos no item que nao sao os do model, que precisam ser filtrados aqui
-        const camposConsiderados = Object.keys(camposVazios);
-        for (const campo in camposConsiderados) {
-            setNovosDados((prevState) => ({
-                ...prevState,
-                [camposConsiderados[campo]]: item[camposConsiderados[campo]]
-            }))
-        }
-    };
-
     const handleUpdateItem = async () => {
-        if (confirmUpdateItem) {
-            setLoading(true);
-            const updatedItem = {
-                ...novosDados,
-                _id: confirmUpdateItem._id
-            };
-
-            setConfirmUpdateItem(null)
-            linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            
-            try {
-                await handleUpdate({
-                    route: 'riscos/audit/update?id',
-                    dados: updatedItem,
-                    item: confirmUpdateItem,
-                    fetchDados: fetchAudits
-                });
-            } catch (error) {
-                setConfirmUpdateItem(confirmUpdateItem)
-                console.error("Update failed:", error);
+        setLoading(true);
+        var updatedItem = {_id: novosDados._id};
+        for(const key in camposVazios){
+            updatedItem = {
+                ...updatedItem,
+                [key]: novosDados[key]
             }
-            setLoading(false);
         }
+        try {
+            await handleUpdate({
+                route: 'riscos/audit/update?id',
+                dados: updatedItem,
+                fetchDados: fetchAudits
+            });
+        } catch (error) {
+            console.error("Update failed:", error);
+        }
+        setLoading(false);
+        setNovosDados(camposVazios);
+        setLinhaVisivel();
     };
 
     const handleConfirmDelete = async () => {
@@ -110,7 +94,7 @@ const TabelaAnalise = () => {
     };
 
     useEffect(() => {
-        if(reload == true){
+        if (reload == true) {
             setReload(false);
             fetchAudits();
         }
@@ -235,7 +219,7 @@ const TabelaAnalise = () => {
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(item)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(item._id); handleUpdateClick(item); setIsUpdating(item.risco)
+                                                    setLinhaVisivel(item._id); setNovosDados(item); setIsUpdating(item.risco)
                                                 }
                                                 } disabled={!isAdmin}>⚙️</button>
                                             </td>

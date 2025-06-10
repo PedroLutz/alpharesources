@@ -18,7 +18,6 @@ const Tabela = () => {
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
-    const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
     const [habilidades, setHabilidades] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
@@ -39,39 +38,21 @@ const Tabela = () => {
         setReload(true);
     };
 
-    const handleUpdateClick = (item) => {
-        setConfirmUpdateItem(item)
-        setNovosDados({
-            ...item
-        });
-    };
-
     const handleUpdateItem = async () => {
-        if (confirmUpdateItem) {
-            setLoading(true);
-            const updatedItem = { ...confirmUpdateItem, ...novosDados };
-
-            const updatedInformacoes = habilidades.map(item =>
-                item._id === updatedItem._id ? updatedItem : item
-            );
-            setHabilidades(updatedInformacoes);
-            setConfirmUpdateItem(null)
-            linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            delete updatedItem.responsavel;
-            try {
-                await handleUpdate({
-                    route: 'responsabilidades/habilidades/update?id',
-                    dados: updatedItem,
-                    item: confirmUpdateItem,
-                    fetchDados: fetchHabilidades
-                });
-            } catch (error) {
-                setHabilidades(habilidades);
-                setConfirmUpdateItem(confirmUpdateItem)
-                console.error("Update failed:", error);
-            }
-            setLoading(false)
+        setLoading(true);
+        delete novosDados.responsavel;
+        try {
+            await handleUpdate({
+                route: 'responsabilidades/habilidades/update?id',
+                dados: novosDados,
+                fetchDados: fetchHabilidades
+            });
+        } catch (error) {
+            console.error("Update failed:", error);
         }
+        setLoading(false);
+        setLinhaVisivel();
+        setNovosDados(camposVazios);
     };
 
     const handleConfirmDelete = async () => {
@@ -101,13 +82,13 @@ const Tabela = () => {
             const data2 = await fetchData('responsabilidades/funcoes/get/funcoesEMembros');
 
             data.habilidades.forEach((habilidade) => {
-                if(data2.funcoes.length > 0){
+                if (data2.funcoes.length > 0) {
                     const responsavelPelaFuncao = data2.funcoes.find((funcao) => habilidade.funcao === funcao.funcao).responsavel;
                     habilidade.responsavel = responsavelPelaFuncao;
                 } else {
                     habilidade.responsavel = ''
                 }
-                
+
             })
             setHabilidades(data.habilidades);
         } finally {
@@ -182,8 +163,8 @@ const Tabela = () => {
                                 <th>Role</th>
                                 <th>Responsible</th>
                                 <th>Skill</th>
-                                <th style={{fontSize: '0.7rem', padding: '0.5rem'}}>Current skill level</th>
-                                <th style={{fontSize: '0.7rem', padding: '0.5rem'}}>Desired skill level</th>
+                                <th style={{ fontSize: '0.7rem', padding: '0.5rem' }}>Current skill level</th>
+                                <th style={{ fontSize: '0.7rem', padding: '0.5rem' }}>Desired skill level</th>
                                 <th>Development action</th>
                                 <th>Actions</th>
                             </tr>
@@ -231,7 +212,7 @@ const Tabela = () => {
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(habilidade)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(habilidade._id); handleUpdateClick(habilidade); 
+                                                    setLinhaVisivel(habilidade._id); setNovosDados(habilidade);
                                                     setIsUptading([habilidade.area, habilidade.funcao])
                                                 }
                                                 } disabled={!isAdmin}>⚙️</button>

@@ -32,6 +32,10 @@ const Tabela = () => {
 
     const enviar = async (e) => {
         e.preventDefault();
+        if (stakeholderGroups.find(grupo => grupo.grupo == novoSubmit.grupo) != undefined) {
+            setExibirModal('grupoRepetido');
+            return;
+        }
         await handleSubmit({
             route: 'comunicacao/stakeholderGroups',
             dados: novoSubmit,
@@ -40,39 +44,20 @@ const Tabela = () => {
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     };
 
-    const handleUpdateClick = (item) => {
-        setConfirmUpdateItem(item)
-        setNovosDados({
-            ...item
-        });
-    };
-
     const handleUpdateItem = async () => {
-        if (confirmUpdateItem) {
-            setLoading(true);
-            const updatedItem = { ...confirmUpdateItem, ...novosDados };
-
-            const updatedStakeholders = stakeholderGroups.map(item =>
-                item._id === updatedItem._id ? updatedItem : item
-            );
-            setStakeholderGroups(updatedStakeholders);
-            setConfirmUpdateItem(null)
-            linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            
-            try {
-                await handleUpdate({
-                    route: 'comunicacao/stakeholderGroups/update?id',
-                    dados: updatedItem,
-                    item: confirmUpdateItem,
-                    fetchDados: fetchStakeholders
-                });
-            } catch (error) {
-                setStakeholderGroups(stakeholderGroups);
-                setConfirmUpdateItem(confirmUpdateItem)
-                console.error("Update failed:", error);
-            }
-            setLoading(false);
+        setLoading(true);
+        try {
+            await handleUpdate({
+                route: 'comunicacao/stakeholderGroups/update?id',
+                dados: novosDados,
+                fetchDados: fetchStakeholders
+            });
+        } catch (error) {
+            console.error("Update failed:", error);
         }
+        setLinhaVisivel();
+        setLoading(false);
+        setNovosDados(camposVazios);
     };
 
     const handleConfirmDelete = async () => {
@@ -113,6 +98,7 @@ const Tabela = () => {
         'inputsVazios': 'Fill out all fields before adding new data!',
         'deleteSuccess': 'Deletion Successful!',
         'deleteFail': 'Deletion Failed!',
+        'grupoRepetido': 'This group is already registered!'
     };
 
     return (
@@ -194,7 +180,7 @@ const Tabela = () => {
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(stakeholderGroup)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(stakeholderGroup._id); handleUpdateClick(stakeholderGroup)
+                                                    setLinhaVisivel(stakeholderGroup._id); setNovosDados(stakeholderGroup)
                                                 }
                                                 } disabled={!isAdmin}>⚙️</button>
                                             </td>

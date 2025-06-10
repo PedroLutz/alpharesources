@@ -15,7 +15,6 @@ const Tabela = () => {
   const [filtroAreaResetarData, setFiltroAreaResetarData] = useState('');
   const [itemSelecionado, setItemSelecionado] = useState('');
   const [itemSelecionadoResetar, setItemSelecionadoResetar] = useState('');
-  const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
   const [confirmResetData, setConfirmResetData] = useState(false);
   const [report, setReport] = useState([])
   const [exibirModal, setExibirModal] = useState(null);
@@ -83,19 +82,22 @@ const Tabela = () => {
         toLocaleString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' })
         .split(',')[0];
 
-      var updatedItem;
+      var updatedItem = {_id: itemParaAtualizar._id};
 
       if (situacao === 'em andamento') {
         updatedItem = {
+          ...updatedItem,
           inicio: formattedDate,
           situacao: situacao
         };
       } else if (situacao === 'check') {
         updatedItem = {
+          ...updatedItem,
           termino: formattedDate,
         };
       } else if (situacao === 'concluida') {
         updatedItem = {
+          ...updatedItem,
           termino: formattedDate,
           situacao: situacao
         };
@@ -104,7 +106,6 @@ const Tabela = () => {
       await handleUpdate({
         route: 'cronograma',
         dados: updatedItem,
-        item: itemParaAtualizar,
         fetchDados: fetchCronogramas
       });
     } catch (error) {
@@ -134,6 +135,7 @@ const Tabela = () => {
       }
 
       var updatedItem = {
+        _id: itemParaAtualizar._id,
         inicio: null,
         termino: null,
         situacao: 'iniciar'
@@ -142,12 +144,9 @@ const Tabela = () => {
       await handleUpdate({
         route: 'cronograma',
         dados: updatedItem,
-        item: itemParaAtualizar
+        fetchDados: fetchCronogramas
       });
       setConfirmResetData(false)
-
-      await fetchCronogramas();
-      setReload(true);
     } catch (error) {
       console.error('Erro ao atualizar a situação do cronograma', error);
     }
@@ -355,8 +354,8 @@ const Tabela = () => {
 
   //funcao que recebe o item a ser atualizado e o insere em novosDados
   const handleUpdateClick = (item) => {
-    setConfirmUpdateItem(item);
     setNovosDados({
+      _id: item._id,
       plano: false,
       inicio: euDateToIsoDate(item.inicio),
       termino: euDateToIsoDate(item.termino),
@@ -369,35 +368,17 @@ const Tabela = () => {
 
   //funcao que atualiza o item
   const handleUpdateItem = async () => {
-    if (confirmUpdateItem) {
-      const updatedItem = {
-        ...confirmUpdateItem,
-        ...novosDados,
-      };
-
-      const updatedCronogramas = cronogramas.map(item =>
-        item._id === updatedItem._id ? {
-          ...updatedItem,
-          inicio: jsDateToEuDate(updatedItem.inicio),
-          termino: jsDateToEuDate(updatedItem.termino)
-        } : item
-      );
-      setCronogramas(updatedCronogramas);
-      setConfirmUpdateItem(null);
-
+    if (novosDados) {
       try {
         await handleUpdate({
           route: 'cronograma',
-          dados: updatedItem,
-          item: confirmUpdateItem
+          dados: novosDados,
+          fetchDados: fetchCronogramas
         });
       } catch (error) {
-        setCronogramas(cronogramas);
-        setConfirmUpdateItem(confirmUpdateItem);
         console.error("Update failed:", error);
       }
     }
-    setConfirmUpdateItem(null);
     cleanForm(novosDados, setNovosDados, camposVazios);
     setLinhaVisivel();
     window.location.reload();
@@ -409,7 +390,7 @@ const Tabela = () => {
     let rowSpan = 1;
     for (let i = currentIndex + 1; i < itens.length; i++) {
       if (itens[i].area === currentArea) {
-        rowSpan++;
+        rowSpan++;  
       } else {
         break;
       }

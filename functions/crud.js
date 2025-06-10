@@ -85,11 +85,6 @@ const fetchData = async (route) => {
 
 
 const handleUpdate = async (o) => {
-    if (!o.item) {
-        console.error(`Requisição de update feita sem um item!`);
-        return;
-    }
-
     if (!o.route) {
         console.error(`Requisição de update feita sem uma rota!`);
         return;
@@ -102,9 +97,9 @@ const handleUpdate = async (o) => {
 
     var route;
     if(o.route.includes('/')){
-        route = `/api/${o.route}=${String(o.item._id)}`;
+        route = `/api/${o.route}=${String(o.dados._id)}`;
     } else {
-        route = `/api/${o.route}/update?id=${String(o.item._id)}`
+        route = `/api/${o.route}/update?id=${String(o.dados._id)}`
     }
     try {
         const response = await fetch(route, {

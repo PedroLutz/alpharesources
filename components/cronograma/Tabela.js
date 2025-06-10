@@ -16,7 +16,6 @@ const Tabela = () => {
   const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
   const [exibirModal, setExibirModal] = useState(null);
-  const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
   const [chartHeight, setChartHeight] = useState('100px');
   const [chartDataLoaded, setChartDataLoaded] = useState(false);
   const [linhaVisivel, setLinhaVisivel] = useState({});
@@ -42,8 +41,8 @@ const Tabela = () => {
 
   //funcao que recebe o item a ser atualizado e insere os campos relevantes em novosDados
   const handleUpdateClick = (item) => {
-    setConfirmUpdateItem(item);
     setNovosDados({
+      _id: item._id,
       plano: true,
       inicio: euDateToIsoDate(item.inicio),
       termino: euDateToIsoDate(item.termino),
@@ -252,38 +251,19 @@ const Tabela = () => {
 
   //funcao que trata os dados e atualiza o plano
   const handleUpdateItem = async () => {
-    if (confirmUpdateItem) {
-      const updatedItem = {
-        ...confirmUpdateItem,
-        ...novosDados
-      };
-
-      const updatedCronogramas = cronogramas.map(item =>
-        item._id === updatedItem._id ? {
-          ...updatedItem,
-          inicio: jsDateToEuDate(updatedItem.inicio),
-          termino: jsDateToEuDate(updatedItem.termino)
-        } : item
-      );
-      setCronogramas(updatedCronogramas);
-      setConfirmUpdateItem(null);
-
+    if (novosDados) {
       try {
         await handleUpdate({
           route: 'cronograma',
-          dados: updatedItem,
-          item: confirmUpdateItem
+          dados: novosDados,
+          fetchDados: fetchCronogramas
         });
       } catch (error) {
-        setCronogramas(cronogramas);
-        setConfirmUpdateItem(confirmUpdateItem);
         console.error("Update failed:", error);
       }
     }
-    setConfirmUpdateItem(null);
     cleanForm(novosDados, setNovosDados, camposVazios);
     setLinhaVisivel();
-    setReload(true);
   };
 
   

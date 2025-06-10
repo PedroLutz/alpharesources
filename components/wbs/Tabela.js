@@ -198,29 +198,16 @@ const WBS = () => {
       if (confirmUpdateItem.tipo === 'item') {
         delete confirmUpdateItem.tipo;
         setLoading(true);
-        const updatedItem = { ...confirmUpdateItem, ...novosDados };
-        const updatedElementos = elementos.map(item =>
-          item._id === updatedItem._id ? { ...updatedItem } : item
-        );
-        setElementos(updatedElementos);
-        setConfirmUpdateItem(null);
-        linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
         try {
           await handleUpdate({
             route: 'wbs/update/item?id',
             dados: updatedItem,
-            item: confirmUpdateItem
           });
         } catch (error) {
-          setElementos(elementos);
-          setConfirmUpdateItem(confirmUpdateItem);
           console.error("Update failed:", error);
         }
         setReload(true);
-        setLoading(false);
       } else {
-        setReload(true);
-        linhaVisivel === confirmUpdateItem ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem);
         try {
           const response = await fetch(`/api/wbs/update/area`, {
             method: 'PUT',
@@ -240,6 +227,10 @@ const WBS = () => {
         }
       }
     }
+    setReload(true);
+    setLoading(false);
+    setNovosDados(camposVazios);
+    setLinhaVisivel();
   };
 
 

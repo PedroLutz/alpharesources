@@ -9,7 +9,7 @@ import { AuthContext } from "../../../contexts/AuthContext";
 
 const Tabela = () => {
     const camposVazios = {
-        data: '', 
+        data: '',
         tipo: '',
         situacao: '',
         aprendizado: '',
@@ -17,7 +17,6 @@ const Tabela = () => {
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
-    const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
     const [licoes, setLicoes] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
@@ -41,7 +40,6 @@ const Tabela = () => {
 
     //funcao que recebe o item, o insere no estado confirmUpdateItem e como objeto de novosDados
     const handleUpdateClick = (item) => {
-        setConfirmUpdateItem(item)
         setNovosDados({
             ...item,
             data: euDateToIsoDate(item.data),
@@ -51,31 +49,20 @@ const Tabela = () => {
 
     //funcao que trata os dados e os envia para atualizacao
     const handleUpdateItem = async () => {
-        if (confirmUpdateItem) {
-            setLoading(true);
-            const updatedItem = { ...confirmUpdateItem, ...novosDados };
-
-            const updatedLicoes = licoes.map(item =>
-                item._id === updatedItem._id ? updatedItem : item
-            );
-            setLicoes(updatedLicoes);
-            setConfirmUpdateItem(null)
-            linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            delete updatedItem.mediaBeneficios;
-            try {
-                await handleUpdate({
-                    route: 'monitoramento/licoes/update?id',
-                    dados: updatedItem,
-                    item: confirmUpdateItem,
-                    fetchDados: fetchLicoes
-                });
-            } catch (error) {
-                setLicoes(licoes);
-                setConfirmUpdateItem(confirmUpdateItem)
-                console.error("Update failed:", error);
-            }
-            setLoading(false);
+        setLoading(true);
+        delete novosDados.mediaBeneficios;
+        try {
+            await handleUpdate({
+                route: 'monitoramento/licoes/update?id',
+                dados: novosDados,
+                fetchDados: fetchLicoes
+            });
+        } catch (error) {
+            console.error("Update failed:", error);
         }
+        setLinhaVisivel();
+        setLoading(false);
+        setNovosDados(camposVazios);
     };
 
     //funcao que envia o id para ser deletado

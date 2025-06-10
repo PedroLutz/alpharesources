@@ -12,7 +12,6 @@ const Tabela = () => {
   const [nomesMembros, setNomesMembros] = useState([]);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
-  const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
   const [verOpcoes, setVerOpcoes] = useState(false);
   const [loading, setLoading] = useState(true);
   const [exibirModal, setExibirModal] = useState(null);
@@ -25,12 +24,12 @@ const Tabela = () => {
   }
   const [novoSubmit, setNovoSubmit] = useState(camposVazios);
   const [novosDados, setNovosDados] = useState(camposVazios);
-  const {isAdmin} = useContext(AuthContext);
+  const { isAdmin } = useContext(AuthContext);
 
   const handleUpdateClick = (item) => {
-    setConfirmUpdateItem(item);
     const responsabilidadesArray = item.responsabilidades.split(", ");
     var objTemp = {
+      _id: item._id,
       area: item.area,
       item: item.item
     };
@@ -77,15 +76,15 @@ const Tabela = () => {
       responsabilidades: inputNames.map(inputName => novoSubmit["input" + getCleanName(inputName)]).join(', ')
     };
 
-    if(!updatedFormData.responsabilidades.includes("A")){
+    if (!updatedFormData.responsabilidades.includes("A")) {
       setExibirModal('semAprovador');
       return;
     }
-    if(!updatedFormData.responsabilidades.includes("R")){
+    if (!updatedFormData.responsabilidades.includes("R")) {
       setExibirModal('semResponsavel');
       return;
     }
-    if((updatedFormData.responsabilidades.match(/A/g) || []).length > 1){
+    if ((updatedFormData.responsabilidades.match(/A/g) || []).length > 1) {
       setExibirModal('muitoAprovador');
       return;
     }
@@ -98,7 +97,7 @@ const Tabela = () => {
     inputNames.forEach((inputName) => {
       setNovoSubmit((prevState) => ({
         ...prevState,
-        ['input' + getCleanName(inputName)] : ''
+        ['input' + getCleanName(inputName)]: ''
       }));
     });
   };
@@ -156,18 +155,18 @@ const Tabela = () => {
   };
 
   useEffect(() => {
-    if(reload == true){
+    if (reload == true) {
       setLoading(true);
       setReload(false);
-    try {
-      fetchNomesMembros();
-      fetchItensRaci();
-      fetchCores();
-    } finally {
-      setLoading(false);
+      try {
+        fetchNomesMembros();
+        fetchItensRaci();
+        fetchCores();
+      } finally {
+        setLoading(false);
+      }
     }
-    }
-    
+
   }, [reload]);
 
   useEffect(() => {
@@ -250,30 +249,24 @@ const Tabela = () => {
   };
 
   const handleUpdateItem = async () => {
-    if (confirmUpdateItem) {
-      setLoading(true);
-      const responsabilidadesString = Object.keys(novosDados)
-        .filter(key => key.startsWith('input'))
-        .map(key => novosDados[key]).join(', ');
-      const { area, item } = novosDados;
-      const updatedItem = { _id: confirmUpdateItem._id, area, item, responsabilidades: responsabilidadesString };
-      setConfirmUpdateItem(null);
-      try {
-        await handleUpdate({
-          route: 'responsabilidades/raci/update?id',
-          dados: updatedItem,
-          item: confirmUpdateItem,
-          fetchDados: fetchItensRaci
-        });
-      } catch (error) {
-        setItensRaci(itensRaci);
-        setConfirmUpdateItem(confirmUpdateItem);
-        console.error("Update failed:", error);
-      }
-      setLoading(false);
+    setLoading(true);
+    const responsabilidadesString = Object.keys(novosDados)
+      .filter(key => key.startsWith('input'))
+      .map(key => novosDados[key]).join(', ');
+    const { area, item } = novosDados;
+    const updatedItem = { _id: novosDados._id, area, item, responsabilidades: responsabilidadesString };
+    try {
+      await handleUpdate({
+        route: 'responsabilidades/raci/update?id',
+        dados: updatedItem,
+        fetchDados: fetchItensRaci
+      });
+    } catch (error) {
+      console.error("Update failed:", error);
     }
+    setLoading(false);
     setLinhaVisivel();
-    setConfirmUpdateItem(null);
+    setNovosDados(camposVazios);
   };
 
   return (
@@ -318,7 +311,7 @@ const Tabela = () => {
                 </tr>
               )}
               {itensRaci.map((item, index) => (
-                <tr key={index} style={{backgroundColor: cores[item.area]}}>
+                <tr key={index} style={{ backgroundColor: cores[item.area] }}>
                   {index === 0 || itensRaci[index - 1].area !== item.area ? (
                     <td rowSpan={calculateRowSpan(itensRaci, item.area, index)}
                       className={members.areaTc}>{item.area}</td>
@@ -343,14 +336,14 @@ const Tabela = () => {
                       ))}
                       {verOpcoes && (
                         <td className="botoes_acoes lastMaior">
-                          
-                            <button type="button" 
+
+                          <button type="button"
                             onClick={() => setConfirmDeleteItem(item)}
                             disabled={!isAdmin}>❌</button>
-                            <button onClick={() => {
-                              linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
-                            }} disabled={!isAdmin}>⚙️</button>
-                          
+                          <button onClick={() => {
+                            linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
+                          }} disabled={!isAdmin}>⚙️</button>
+
                         </td>
                       )}
 

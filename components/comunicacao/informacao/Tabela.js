@@ -23,7 +23,6 @@ const Tabela = () => {
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
-    const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
     const [informacoes, setInformacoes] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
@@ -44,40 +43,21 @@ const Tabela = () => {
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     };
 
-    //funcao que recebe os dados, insere em confirmUpdateItem e novosDados
-    const handleUpdateClick = (item) => {
-        setConfirmUpdateItem(item)
-        setNovosDados({
-            ...item
-        });
-    };
-
     //funcao que trata os dados e envia o conteudo para o backend para update
     const handleUpdateItem = async () => {
-        if (confirmUpdateItem) {
-            setLoading(true);
-            const updatedItem = { ...confirmUpdateItem, ...novosDados };
-
-            const updatedInformacoes = informacoes.map(item =>
-                item._id === updatedItem._id ? updatedItem : item
-            );
-            setInformacoes(updatedInformacoes);
-            setConfirmUpdateItem(null)
-            linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            try {
-                await handleUpdate({
-                    route: 'comunicacao/informacao/update?id',
-                    dados: updatedItem,
-                    item: confirmUpdateItem,
-                    fetchDados: fetchInformacoes
-                });
-            } catch (error) {
-                setInformacoes(informacoes);
-                setConfirmUpdateItem(confirmUpdateItem)
-                console.error("Update failed:", error);
-            }
-            setLoading(false);
+        setLoading(true);
+        try {
+            await handleUpdate({
+                route: 'comunicacao/informacao/update?id',
+                dados: novosDados,
+                fetchDados: fetchInformacoes
+            });
+        } catch (error) {
+            console.error("Update failed:", error);
         }
+        setLinhaVisivel();
+        setLoading(false);
+        setNovosDados(camposVazios);
     };
 
     //funcao que envia os dados para atualizacao no backend
@@ -235,14 +215,14 @@ const Tabela = () => {
                                                 ) : (
                                                     '-'
                                                 )}
-                                                
+
                                             </td>
                                             <td>{informacao.feedback || '-'}</td>
                                             <td>{informacao.acao || '-'}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(informacao)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(informacao._id); handleUpdateClick(informacao); setIsUptading([informacao.grupo, informacao.stakeholder])
+                                                    setLinhaVisivel(informacao._id); setNovosDados(informacao); setIsUptading([informacao.grupo, informacao.stakeholder])
                                                 }
                                                 } disabled={!isAdmin}>⚙️</button>
                                             </td>

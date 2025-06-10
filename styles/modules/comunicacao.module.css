@@ -31,6 +31,7 @@
 
 #engId{
     font-size: 0.8rem;
+    width: 7rem;
 }
 
 .tabelaComunicacao td, .tabelaComunicacao th,
@@ -116,10 +117,6 @@
 .tabelaStakeholders td:nth-child(6) select{
     font-size: 0.75rem;
     width: 4.6rem;
-}
-
-.tabelaEngajamento th{
-    width: 8rem;
 }
 
 .tabelaComunicacao td {

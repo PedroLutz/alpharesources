@@ -25,7 +25,6 @@ const TabelaRiscos = () => {
     })
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
-    const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
     const [riscos, setRiscos] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
@@ -51,10 +50,7 @@ const TabelaRiscos = () => {
             oldRisco: item.risco,
             newRisco: ''
         });
-        setConfirmUpdateItem(item)
-        setNovosDados({
-            ...item
-        });
+        setNovosDados(item);
     };
 
     const fetchCores = async () => {
@@ -67,29 +63,21 @@ const TabelaRiscos = () => {
       }
 
     const handleUpdateItem = async () => {
-        if (confirmUpdateItem) {
             setLoading(true);
-            const updatedItem = { ...confirmUpdateItem, ...novosDados };
             const dadosUpdate = {
                 ...dadosUpdateTudo,
                 newRisco: novosDados.risco
             }
-
-            setConfirmUpdateItem(null)
-            linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            
             try {
                 await handleUpdate({
                     route: 'riscos/risco/update/update?id',
-                    dados: updatedItem,
-                    item: confirmUpdateItem,
+                    dados: novosDados,
                     fetchDados: fetchRiscos
                 });
             } catch (error) {
-                setRiscos(riscos);
-                setConfirmUpdateItem(confirmUpdateItem)
                 console.error("Update failed:", error);
             }
+            setLinhaVisivel();
             try {
                 const response = await fetch(`/api/riscos/risco/update/tudoRiscos`, {
                   method: 'PUT',
@@ -110,7 +98,7 @@ const TabelaRiscos = () => {
             setDadosUpdateTudo({oldRisco: '',
                 newRisco: ''});
             setLoading(false);
-        }
+            setNovosDados(camposVazios);
     };
 
     const handleConfirmDelete = async () => {

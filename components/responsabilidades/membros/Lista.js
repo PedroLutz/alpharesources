@@ -11,7 +11,6 @@ const Tabela = () => {
   const [membros, setMembros] = useState([]);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
-  const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
   const [exibirModal, setExibirModal] = useState(null);
   const [loading, setLoading] = useState(true);
   const [linhaVisivel, setLinhaVisivel] = useState({});
@@ -24,15 +23,6 @@ const Tabela = () => {
   const [novoSubmit, setNovoSubmit] = useState(camposVazios);
   const [novosDados, setNovosDados] = useState(camposVazios);
   const { isAdmin } = useContext(AuthContext)
-
-  const handleUpdateClick = (item) => {
-    setConfirmUpdateItem(item);
-    setNovosDados({
-      nome: item.nome,
-      softskills: item.softskills,
-      hardskills: item.hardskills,
-    });
-  };
 
   const fetchMembros = async () => {
     setLoading(true);
@@ -86,24 +76,19 @@ const Tabela = () => {
   };
 
   const handleUpdateItem = async () => {
-    if (confirmUpdateItem) {
       setLoading(true);
-      const updatedItem = { _id: confirmUpdateItem._id, ...novosDados };
-      linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-      setConfirmUpdateItem(null);
       try {
         await handleUpdate({
           route: 'responsabilidades/membros/update?id',
-          dados: updatedItem,
-          item: confirmUpdateItem,
+          dados: novosDados,
           fetchDados: fetchMembros
         });
       } catch (error) {
-        setConfirmUpdateItem(confirmUpdateItem);
         console.error("Update failed:", error);
       }
       setLoading(false);
-    }
+      setNovosDados(camposVazios);
+      setLinhaVisivel();
   };
 
   return (
@@ -146,7 +131,7 @@ const Tabela = () => {
                     <button onClick={() => setConfirmDeleteItem(item)}
                       disabled={!isAdmin}>❌</button>
                     <button onClick={() => {
-                      linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
+                      linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setNovosDados(item)
                     }} disabled={!isAdmin}>⚙️</button>
                   </div>
                 </div>

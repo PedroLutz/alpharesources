@@ -21,7 +21,6 @@ const Tabela = () => {
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
-    const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
     const [custoBeneficios, setCustoBeneficios] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
@@ -42,43 +41,22 @@ const Tabela = () => {
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     };
 
-
-    //funcao que recebe o item, o insere no estado confirmUpdateItem e como objeto de novosDados
-    const handleUpdateClick = (item) => {
-        setConfirmUpdateItem(item)
-        setNovosDados({
-            ...item
-        });
-    };
-
-
     //funcao que trata os dados e os envia para atualizacao
     const handleUpdateItem = async () => {
-        if (confirmUpdateItem) {
-            setLoading(true);
-            const updatedItem = { ...confirmUpdateItem, ...novosDados };
-
-            const updatedCustoBeneficios = custoBeneficios.map(item =>
-                item._id === updatedItem._id ? updatedItem : item
-            );
-            setCustoBeneficios(updatedCustoBeneficios);
-            setConfirmUpdateItem(null)
-            linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            delete updatedItem.mediaBeneficios;
-            try {
-                await handleUpdate({
-                    route: 'financas/custoBeneficio/update?id',
-                    dados: updatedItem,
-                    item: confirmUpdateItem,
-                    fetchDados: fetchCustoBeneficios
-                });
-            } catch (error) {
-                setCustoBeneficios(custoBeneficios);
-                setConfirmUpdateItem(confirmUpdateItem)
-                console.error("Update failed:", error);
-            }
-            setLoading(false)
+        setLoading(true);
+        delete novosDados.mediaBeneficios;
+        try {
+            await handleUpdate({
+                route: 'financas/custoBeneficio/update?id',
+                dados: novosDados,
+                fetchDados: fetchCustoBeneficios
+            });
+        } catch (error) {
+            console.error("Update failed:", error);
         }
+        setLoading(false);
+        setLinhaVisivel();
+        setNovosDados(camposVazios);
     };
 
     //funcao que envia o id para ser deletado
@@ -244,7 +222,7 @@ const Tabela = () => {
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(custoBeneficio)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(custoBeneficio._id); handleUpdateClick(custoBeneficio)
+                                                    setLinhaVisivel(custoBeneficio._id); setNovosDados(custoBeneficio);
                                                 }
                                                 } disabled={!isAdmin}>⚙️</button>
                                             </td>
@@ -281,8 +259,10 @@ const Tabela = () => {
                         </thead>
                         <tbody >
                             <tr>
-                                <td rowSpan={5} style={{ border: 'transparent', 
-                                    backgroundColor: 'transparent', width: '1rem', writingMode: "sideways-lr", margin: '0rem', fontSize: '1rem' }}>Cost ranking</td>
+                                <td rowSpan={5} style={{
+                                    border: 'transparent',
+                                    backgroundColor: 'transparent', width: '1rem', writingMode: "sideways-lr", margin: '0rem', fontSize: '1rem'
+                                }}>Cost ranking</td>
                                 <th>5</th>
                                 <td style={{ backgroundColor: '#a5d68f' }}>{getCustosBeneficios(5, 1) || '-'}</td>
                                 <td style={{ backgroundColor: '#ffe990' }}>{getCustosBeneficios(5, 2) || '-'}</td>

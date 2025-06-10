@@ -160,27 +160,20 @@ const Tabela = () => {
       const valorInverso = isExpense ? novosDados.valor * -1 : novosDados.valor;
       const updatedItem = { ...confirmItemAction.item, ...novosDados, valor: valorInverso };
       delete updatedItem.balance;
-
-      const updatedLancamentos = lancamentos.map(item =>
-        item._id === updatedItem._id ? { ...updatedItem, data: jsDateToEuDate(updatedItem.data) } : item
-      );
-      setLancamentos(updatedLancamentos);
-      setDadosTabela({ object: updatedLancamentos, isDeletados: false, garbageButtonLabel: 'Garbage bin 🗑️' });
       setConfirmItemAction({ action: '', item: null })
-      linhaVisivel === confirmItemAction.item._id ? setLinhaVisivel() : setLinhaVisivel(confirmItemAction.item._id);
       try {
         await handleUpdate({
           route: 'financas/financas/update?id',
           dados: updatedItem,
-          item: confirmItemAction.item,
           fetchDados: fetchLancamentos
         });
       } catch (error) {
-        setLancamentos(lancamentos);
         setConfirmItemAction({ action: 'update', item: confirmItemAction.item })
         console.error("Update failed:", error);
       }
       setLoading(false);
+      setLinhaVisivel();
+      setNovosDados(camposVazios);
     }
   };
 

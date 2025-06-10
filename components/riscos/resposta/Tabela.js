@@ -15,7 +15,6 @@ const TabelaPlanos = () => {
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
-    const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
     const [respostas, setRespostas] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
@@ -23,7 +22,7 @@ const TabelaPlanos = () => {
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
-    const {isAdmin} = useContext(AuthContext)
+    const { isAdmin } = useContext(AuthContext)
 
     const enviar = async (e) => {
         e.preventDefault();
@@ -35,35 +34,20 @@ const TabelaPlanos = () => {
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     };
 
-    const handleUpdateClick = (item) => {
-        setConfirmUpdateItem(item)
-        setNovosDados({
-            ...item
-        });
-    };
-
     const handleUpdateItem = async () => {
-        if (confirmUpdateItem) {
-            setLoading(true);
-            const updatedItem = { ...confirmUpdateItem, ...novosDados };
-
-            setConfirmUpdateItem(null)
-            linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            
-            try {
-                await handleUpdate({
-                    route: 'riscos/resposta/update?id',
-                    dados: updatedItem,
-                    item: confirmUpdateItem,
-                    fetchDados: fetchRespostas
-                });
-            } catch (error) {
-                setConfirmUpdateItem(confirmUpdateItem)
-                console.error("Update failed:", error);
-            }
-            setReload(true);
-            setLoading(false);
+        setLoading(true);
+        try {
+            await handleUpdate({
+                route: 'riscos/resposta/update?id',
+                dados: novosDados,
+                fetchDados: fetchRespostas
+            });
+        } catch (error) {
+            console.error("Update failed:", error);
         }
+        setLoading(false);
+        setNovosDados(camposVazios);
+        setLinhaVisivel();
     };
 
     const handleConfirmDelete = async () => {
@@ -97,7 +81,7 @@ const TabelaPlanos = () => {
     };
 
     useEffect(() => {
-        if(reload == true){
+        if (reload == true) {
             setReload(false);
             fetchRespostas();
         }
@@ -198,7 +182,7 @@ const TabelaPlanos = () => {
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(item)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(item._id); handleUpdateClick(item); setIsUpdating(item.risco)
+                                                    setLinhaVisivel(item._id); setNovosDados(item); setIsUpdating(item.risco)
                                                 }
                                                 } disabled={!isAdmin}>⚙️</button>
                                             </td>

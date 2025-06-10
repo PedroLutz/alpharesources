@@ -18,7 +18,6 @@ const Tabela = () => {
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
-    const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
     const [recursos, setRecursos] = useState([]);
     const [datasPlanos, setDatasPlanos] = useState([]);
@@ -28,7 +27,7 @@ const Tabela = () => {
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
     const [cores, setCores] = useState([]);
-    const {isAdmin} = useContext(AuthContext)
+    const { isAdmin } = useContext(AuthContext)
 
 
     //funcao que busca as cores e insere em um array de objetos no formato { area : cor }
@@ -36,10 +35,10 @@ const Tabela = () => {
         const data = await fetchData('wbs/get/cores');
         var cores = {};
         data.areasECores.forEach((area) => {
-          cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
+            cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
         })
         setCores(cores);
-      }
+    }
 
     //funcao que busca as datas de inicio e termino dos planos
     const fetchDatasPlanos = async () => {
@@ -63,15 +62,6 @@ const Tabela = () => {
         setReload(true);
     };
 
-
-    //funcao que recebe o item, insere em confirmUpdateItem e novosDados
-    const handleUpdateClick = (item) => {
-        setConfirmUpdateItem(item)
-        setNovosDados({
-            ...item
-        });
-    };
-
     //fuuncao que busca os recursos
     const fetchRecursos = async () => {
         try {
@@ -85,24 +75,19 @@ const Tabela = () => {
 
     //funcao que trata os dados e envia para update
     const handleUpdateItem = async () => {
-        if (confirmUpdateItem) {
-            setLoading(true);
-            const updatedItem = { ...confirmUpdateItem, ...novosDados };
-            setConfirmUpdateItem(null)
-            linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            try {
-                await handleUpdate({
-                    route: 'recursos/recurso/update?id',
-                    dados: updatedItem,
-                    item: confirmUpdateItem
-                });
-            } catch (error) {
-                setConfirmUpdateItem(confirmUpdateItem)
-                console.error("Update failed:", error);
-            }
-            setReload(true);
-            setLoading(false);
+        setLoading(true);
+        try {
+            await handleUpdate({
+                route: 'recursos/recurso/update?id',
+                dados: novosDados,
+            });
+        } catch (error) {
+            console.error("Update failed:", error);
         }
+        setReload(true);
+        setLoading(false);
+        setLinhaVisivel();
+        setNovosDados(camposVazios);
     };
 
 
@@ -131,7 +116,7 @@ const Tabela = () => {
 
     //useEffect que so roda quando reload atualiza
     useEffect(() => {
-        if(reload == true){
+        if (reload == true) {
             setReload(false);
             fetchRecursos();
             fetchCores();
@@ -226,7 +211,7 @@ const Tabela = () => {
                                             setExibirModal={setExibirModal}
                                         />
                                     ) : (
-                                        <tr style={{backgroundColor: cores[recurso.area]}}>
+                                        <tr style={{ backgroundColor: cores[recurso.area] }}>
                                             {!isUpdating || isUpdating[0] !== recurso.area ? (
                                                 <React.Fragment>
                                                     {index === 0 || recursos[index - 1].area !== recurso.area ? (
@@ -256,7 +241,7 @@ const Tabela = () => {
                                                 <button onClick={() => setConfirmDeleteItem(recurso)}
                                                     disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(recurso._id); handleUpdateClick(recurso); setIsUpdating([recurso.area, recurso.item])
+                                                    setLinhaVisivel(recurso._id); setNovosDados(recurso); setIsUpdating([recurso.area, recurso.item])
                                                 }
                                                 } disabled={!isAdmin}>⚙️</button>
                                             </td>

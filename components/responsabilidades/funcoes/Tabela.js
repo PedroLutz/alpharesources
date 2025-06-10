@@ -6,7 +6,6 @@ import Loading from "../../Loading";
 import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../functions/crud";
 import { cleanForm } from "../../../functions/general";
 import { AuthContext } from "../../../contexts/AuthContext";
-import Link from "next/link";
 
 const Tabela = () => {
     const camposVazios = {
@@ -18,7 +17,6 @@ const Tabela = () => {
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
-    const [confirmUpdateItem, setConfirmUpdateItem] = useState(null);
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
     const [funcoes, setFuncoes] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
@@ -37,38 +35,20 @@ const Tabela = () => {
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     };
 
-    const handleUpdateClick = (item) => {
-        setConfirmUpdateItem(item)
-        setNovosDados({
-            ...item
-        });
-    };
-
     const handleUpdateItem = async () => {
-        if (confirmUpdateItem) {
-            setLoading(true);
-            const updatedItem = { ...confirmUpdateItem, ...novosDados };
-
-            const updatedInformacoes = funcoes.map(item =>
-                item._id === updatedItem._id ? updatedItem : item
-            );
-            setFuncoes(updatedInformacoes);
-            setConfirmUpdateItem(null)
-            linhaVisivel === confirmUpdateItem._id ? setLinhaVisivel() : setLinhaVisivel(confirmUpdateItem._id);
-            try {
-                await handleUpdate({
-                    route: 'responsabilidades/funcoes/update?id',
-                    dados: updatedItem,
-                    item: confirmUpdateItem,
-                    fetchDados: fetchFuncoes
-                });
-            } catch (error) {
-                setFuncoes(funcoes);
-                setConfirmUpdateItem(confirmUpdateItem)
-                console.error("Update failed:", error);
-            }
-            setLoading(false)
+        setLoading(true);
+        try {
+            await handleUpdate({
+                route: 'responsabilidades/funcoes/update?id',
+                dados: novosDados,
+                fetchDados: fetchFuncoes
+            });
+        } catch (error) {
+            console.error("Update failed:", error);
         }
+        setLoading(false)
+        setNovosDados(camposVazios);
+        setLinhaVisivel();
     };
 
     const handleConfirmDelete = async () => {
@@ -145,7 +125,7 @@ const Tabela = () => {
                 }} />
             )}
 
-            <div className={styles.tabelaRaci_container} style={{width: '67rem'}}>
+            <div className={styles.tabelaRaci_container} style={{ width: '67rem' }}>
                 <div className={styles.tabelaRaci_wrapper} >
                     <table className={styles.tabelaFuncoes}>
                         <thead>
@@ -167,7 +147,7 @@ const Tabela = () => {
                                             objSetter={setNovosDados}
                                             funcao={{
                                                 funcao1: () => handleUpdateItem(),
-                                                funcao2: () => { linhaVisivel === funcao._id ? setLinhaVisivel() : setLinhaVisivel(item._id)}
+                                                funcao2: () => { linhaVisivel === funcao._id ? setLinhaVisivel() : setLinhaVisivel(item._id) }
                                             }}
                                             setExibirModal={setExibirModal}
                                         />
@@ -181,7 +161,7 @@ const Tabela = () => {
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(funcao)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(funcao._id); handleUpdateClick(funcao);
+                                                    setLinhaVisivel(funcao._id); setNovosDados(funcao);
                                                 }
                                                 } disabled={!isAdmin}>⚙️</button>
                                             </td>
