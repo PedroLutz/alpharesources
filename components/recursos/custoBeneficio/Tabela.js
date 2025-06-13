@@ -25,14 +25,12 @@ const Tabela = () => {
     const [custoBeneficios, setCustoBeneficios] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
     const [linhaVisivel, setLinhaVisivel] = useState();
-    const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
     const { isAdmin } = useContext(AuthContext)
 
 
     //funcao que envia os dados de novoSubmit para cadastro
-    const enviar = async (e) => {
-        e.preventDefault();
+    const enviar = async () => {
         await handleSubmit({
             route: 'financas/custoBeneficio',
             dados: novoSubmit,
@@ -70,13 +68,12 @@ const Tabela = () => {
                     fetchDados: fetchCustoBeneficios
                 });
             } finally {
-                setExibirModal(`deleteSuccess-${getDeleteSuccess}`)
+                if(getDeleteSuccess){
+                    setExibirModal(`deleteSuccess`)
+                } else {
+                    setExibirModal(`deleteFail`)
+                }
             }
-        }
-        if (getDeleteSuccess) {
-            setExibirModal(`deleteSuccess`)
-        } else {
-            setExibirModal(`deleteFail`)
         }
         setConfirmDeleteItem(null);
     };
@@ -98,14 +95,6 @@ const Tabela = () => {
             setLoading(false);
         }
     };
-
-    //useEffect que so executa quando reload eh igual true
-    useEffect(() => {
-        if (reload == true) {
-            setReload(false);
-            fetchCustoBeneficios();
-        }
-    }, [reload]);
 
     //useEffect que so executa no primeiro render
     useEffect(() => {
@@ -192,9 +181,9 @@ const Tabela = () => {
                                         <Inputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
-                                            funcao={{
-                                                funcao1: () => handleUpdateItem(),
-                                                funcao2: () => linhaVisivel === custoBeneficio._id ? setLinhaVisivel() : setLinhaVisivel(custoBeneficio._id)
+                                            funcoes={{
+                                                enviar: () => handleUpdateItem(),
+                                                cancelar: () => linhaVisivel === custoBeneficio._id ? setLinhaVisivel() : setLinhaVisivel(custoBeneficio._id)
                                             }}
                                             setExibirModal={setExibirModal}
                                         />
@@ -233,7 +222,9 @@ const Tabela = () => {
                             <Inputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcao={enviar}
+                                funcoes={{
+                                    enviar: () => enviar()
+                                }}
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>

@@ -26,16 +26,25 @@
     font-size: small;
 }
 
-.tabela_financas th:nth-child(6){
-    width: 4rem;
+.tabela_financas th {
+    background-color: #ff8ff2;
+    border-width: 0.1rem;
+    font-size: 0.9rem;
+    border-style: solid;
+    border-color: rgb(0, 0, 0);
+    padding: 0.3rem;
 }
 
-.tabela_financas td:nth-child(6) select{
-    width: 4rem;
-}
-
-.tabela_financas td:last-child{
-    width: 2rem;
+.tabela_financas button{
+    background-color: transparent;
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    border-radius: 0.4rem;
+    height: 1.6rem;
+    width: 4.7rem;
+    cursor: pointer;
+    transition: 0.2s;
 }
 
 .tabela_financas td input, .tabela_financas td select, .tabela_financas td textarea {
@@ -58,48 +67,16 @@
     background-color: rgb(231, 231, 231);
 }
 
-.tabela_financas th {
-    background-color: #ff8ff2;
-    border-width: 0.1rem;
-    font-size: 0.9rem;
-    border-style: solid;
-    border-color: rgb(0, 0, 0);
-    padding: 0.3rem;
+.tabela_financas th:nth-child(6){
+    width: 4rem;
 }
 
-.tabela_financas button{
-    background-color: transparent;
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(167, 167, 167);
-    border-radius: 0.4rem;
-    height: 1.6rem;
-    width: 4.7rem;
-    cursor: pointer;
-    transition: 0.2s;
+.tabela_financas td:nth-child(6) select{
+    width: 4rem;
 }
 
-.botao_bonito {
-    background-color: #fc79ec;
-    border: 1px solid black;
-    border-radius: 5px;
-    padding: 3px;
-    color: black;
-    font-weight: bold;
-    font-size: 0.9rem;
-    cursor: pointer;
-    width: 12rem;
-    transition: 0.1s;
-    height: 1.7rem;
-    margin: 0.5rem;
-}
-
-.botao_bonito:hover {
-    background-color: #a84ee0;
-    font-size: 0.8rem;
-    font-weight: bold;
-    width: 10rem;
-    height: 1.7rem;
+.tabela_financas td:last-child{
+    width: 2rem;
 }
 
 .camposMaiores td input, .camposMaiores td textarea{

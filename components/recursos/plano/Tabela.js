@@ -32,15 +32,13 @@ const PlanoAquisicao = () => {
     const [planos, setPlanos] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
     const [linhaVisivel, setLinhaVisivel] = useState();
-    const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
     const { isAdmin } = useContext(AuthContext)
 
 
     //funcao que envia os dados do novoSubmit para cadastro no banco
-    const enviar = async (e) => {
-        e.preventDefault();
+    const enviar = async () => {
         await handleSubmit({
             route: 'recursos/planoAquisicao',
             dados: novoSubmit,
@@ -124,26 +122,15 @@ const PlanoAquisicao = () => {
                     fetchDados: fetchPlanos
                 });
             } finally {
-                setExibirModal(`deleteSuccess-${getDeleteSuccess}`)
+                if (getDeleteSuccess) {
+                    setExibirModal(`deleteSuccess`)
+                } else {
+                    setExibirModal(`deleteFail`)
+                }
             }
-        }
-        if (getDeleteSuccess) {
-            setExibirModal(`deleteSuccess`)
-        } else {
-            setExibirModal(`deleteFail`)
         }
         setConfirmDeleteItem(null);
     };
-
-
-    //useEffect que so roda quando reload eh atualizado
-    useEffect(() => {
-        if (reload == true) {
-            setReload(false);
-            fetchPlanos();
-        }
-    }, [reload]);
-
 
     //useEffect que so roda no primeiro render
     useEffect(() => {
@@ -236,9 +223,9 @@ const PlanoAquisicao = () => {
                                         <CadastroInputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
-                                            funcao={{
-                                                funcao1: () => handleUpdateItem(),
-                                                funcao2: () => { linhaVisivel === plano._id ? setLinhaVisivel() : setLinhaVisivel(plano._id); setIsUpdating(false) }
+                                            funcoes={{
+                                                enviar: () => handleUpdateItem(),
+                                                cancelar: () => { linhaVisivel === plano._id ? setLinhaVisivel() : setLinhaVisivel(plano._id); setIsUpdating(false) }
                                             }}
                                             setExibirModal={setExibirModal}
                                         />
@@ -290,7 +277,9 @@ const PlanoAquisicao = () => {
                             <CadastroInputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcao={enviar}
+                                funcoes={{
+                                    enviar: () => enviar()
+                                }}
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>

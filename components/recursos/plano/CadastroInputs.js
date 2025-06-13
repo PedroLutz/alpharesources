@@ -4,7 +4,7 @@ import { fetchData } from "../../../functions/crud";
 import { AuthContext } from "../../../contexts/AuthContext";
 import styles from '../../../styles/modules/planoAquisicao.module.css'
 
-const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
+const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     const [areaSelecionada, setAreaSelecionada] = useState("");
     const [recursos, setRecursos] = useState([]);
     const [recursosPorArea, setRecursosPorArea] = useState([]);
@@ -80,8 +80,11 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
     }
 
     //funcao geral para inserir os dados dos inputs no obj
-    const handleChange = (e) => {
-        const { name, value } = e.target;
+    const handleChange = (e, isNumber) => {
+        var { name, value } = e.target;
+        if(isNumber){
+            value = value.replace(/[^0-9.]/g, '');
+        }
         objSetter({
             ...obj,
             [name]: value,
@@ -116,11 +119,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
     const handleSubmit = async (e) => {
         const isInvalido = validaDados();
         if(isInvalido) return;
-        if (funcao.funcao1) {
-            funcao.funcao1();
-        } else {
-            funcao(e);
-        }
+        funcoes?.enviar();
     };
 
     return (
@@ -155,7 +154,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                 <select
                     value={obj.metodo_a}
                     name='metodo_a'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.metodo_a = el)} >
                     <option defaultValue value=''>Acquisition method</option>
                     <option value="Purchase">Purchase</option>
@@ -169,7 +168,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     value={obj.plano_a}
                     name='plano_a'
                     placeholder='Supplier'
-                    onChange={handleChange}
+                    onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.plano_a = el)} />
             </td>
             <td>
@@ -177,15 +176,15 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     value={obj.detalhes_a}
                     name='detalhes_a'
                     placeholder='Details'
-                    onChange={handleChange}
+                    onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.detalhes_a = el)} />
             </td>
             <td>
-                <input type='number'
+                <input
                     value={obj.valor_a}
                     name='valor_a'
                     placeholder='Value'
-                    onChange={handleChange}
+                    onChange={(e) => handleChange(e, true)}
                     min="0"
                     ref={el => (camposRef.current.valor_a = el)} />
             </td>
@@ -194,7 +193,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     value={obj.data_esperada}
                     name='data_esperada'
                     type="date"
-                    onChange={handleChange}
+                    onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.data_esperada = el)} />
             </td>
             <td>
@@ -202,14 +201,14 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     value={obj.data_limite}
                     name='data_limite'
                     type="date"
-                    onChange={handleChange}
+                    onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.data_limite = el)} />
             </td>
             <td>
                 <select
                     value={obj.metodo_b}
                     name='metodo_b'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.metodo_b = el)} >
                     <option defaultValue value=''>Acquisition method</option>
                     <option value="Purchase">Purchase</option>
@@ -223,7 +222,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     value={obj.plano_b}
                     name='plano_b'
                     placeholder='Supplier'
-                    onChange={handleChange}
+                    onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.plano_b = el)} />
             </td>
             <td>
@@ -231,15 +230,15 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     value={obj.detalhes_b}
                     name='detalhes_b'
                     placeholder='Details'
-                    onChange={handleChange}
+                    onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.detalhes_b = el)} />
             </td>
             <td>
-                <input type='number'
+                <input
                     value={obj.valor_b}
                     name='valor_b'
                     placeholder='Value'
-                    onChange={handleChange}
+                    onChange={(e) => handleChange(e, true)}
                     min="0"
                     ref={el => (camposRef.current.valor_b = el)} />
             </td>
@@ -248,7 +247,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     value={obj.plano_real}
                     name='plano_real'
                     placeholder='Actual strategy'
-                    onChange={handleChange}
+                    onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.plano_real = el)} />
             </td>
             <td>
@@ -256,7 +255,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     value={obj.data_real}
                     name='data_real'
                     type="date"
-                    onChange={handleChange}
+                    onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.data_real = el)} />
             </td>
             <td>
@@ -264,7 +263,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     value={obj.valor_real}
                     name='valor_real'
                     placeholder='Value'
-                    onChange={handleChange}
+                    onChange={(e) => handleChange(e, true)}
                     min="0"
                     ref={el => (camposRef.current.valor_real = el)} />
             </td>
@@ -276,7 +275,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>
-                        <button onClick={funcao.funcao2}>✖️</button>
+                        <button onClick={funcoes?.cancelar}>✖️</button>
                     </React.Fragment>
                 )}
             </td>

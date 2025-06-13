@@ -1,8 +1,8 @@
-import { useState, useRef, useContext } from "react";
+import { useRef, useContext } from "react";
 import React from "react";
 import { AuthContext } from "../../../contexts/AuthContext";
 
-const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
+const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     const camposRef = useRef({
         identificacao: null,
         descricao: null,
@@ -71,14 +71,10 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
     }
 
     //funcao que roda a funcao de envio de acordo com o tipo da funcao
-    const handleSubmit = (e) => {
+    const handleSubmit = () => {
         const isInvalido = validaDados();
         if(isInvalido) return;
-        if(funcao.funcao1){
-            funcao.funcao1();
-        } else {
-            funcao(e);
-        }
+        funcoes?.enviar();
     }
 
     return (
@@ -172,7 +168,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>
-                        <button onClick={funcao.funcao2}>✖️</button>
+                        <button onClick={funcoes?.cancelar}>✖️</button>
                     </React.Fragment>
                 )}
             </td>

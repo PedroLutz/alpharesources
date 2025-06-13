@@ -2,8 +2,7 @@ import React, { useState, useRef, useEffect, useContext } from 'react';
 import { fetchData } from '../../../functions/crud';
 import { AuthContext } from '../../../contexts/AuthContext';
 
-const CadastroTabela = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
-    const [emptyFields, setEmptyFields] = useState([]);
+const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
     const [elementosWBS, setElementosWBS] = useState([]);
     const camposRef = useRef({
         tipo: null,
@@ -15,14 +14,6 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
         destino: null
     })
     const { isAdmin } = useContext(AuthContext);
-
-
-    //funcao que retorna true se houver algum campo vazio e os nomes dos campos vazios 
-    const isFormVazio = (form) => {
-        const emptyFields = Object.entries(form).filter(([key, value]) => value === null || value === "");
-        return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
-    };
-
 
     //funcao que busca os elementos da WBS
     const fetchElementos = async () => {
@@ -38,8 +29,11 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
 
 
     //funcao que passa os dados dos inputs pro formulario
-    const handleChange = (e) => {
-        const { name, value } = e.target;
+    const handleChange = (e, isNumber) => {
+        var { name, value } = e.target;
+        if(isNumber){
+            value = value.replace(/[^0-9.]/g, '');
+        }
         objSetter({
             ...obj,
             [name]: value,
@@ -73,13 +67,10 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
     }
 
     //funcao que chama as funcoes de submit de acordo com o tipo de funcao, e apenas se os dados forem validos
-    const handleSubmit = async (e) => {
+    const handleSubmit = async () => {
         const isInvalido = validaDados();
-        if (funcao.funcao1) {
-            !isInvalido && funcao.funcao1();
-        } else {
-            !isInvalido && funcao(e);
-        }
+        if(isInvalido) return;
+        funcoes?.enviar();
     }
 
     return (
@@ -88,7 +79,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
                 <select
                     value={obj.tipo}
                     name='tipo'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
+                    onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.tipo = el)}
                 >
                     <option value="" defaultValue>Type</option>
@@ -101,14 +92,14 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
                 <input
                     value={obj.descricao}
                     name='descricao'
-                    onChange={handleChange}
+                    onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.descricao = el)} />
             </td>
             <td>
-                <input type='number'
+                <input
                     value={obj.valor}
                     name='valor'
-                    onChange={handleChange}
+                    onChange={(e) => handleChange(e, true)}
                     min="0"
                     ref={el => (camposRef.current.valor = el)} />
             </td>
@@ -116,13 +107,13 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
                 <input type="date"
                     value={obj.data}
                     name='data'
-                    onChange={handleChange}
+                    onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.data = el)} />
             </td>
             <td>
                 <select
                     name="area"
-                    onChange={handleChange}
+                    onChange={(e) => handleChange(e, false)}
                     value={obj.area}
                     ref={el => (camposRef.current.area = el)}
 
@@ -138,14 +129,14 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
                 <input
                     value={obj.origem}
                     name='origem'
-                    onChange={handleChange}
+                    onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.origem = el)} />
             </td>
             <td>
                 <input
                     value={obj.destino}
                     name='destino'
-                    onChange={handleChange}
+                    onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.destino = el)} />
             </td>
             <td>-</td>
@@ -155,7 +146,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>
-                        <button onClick={funcao.funcao2}>✖️</button>
+                        <button onClick={funcoes?.cancelar}>✖️</button>
                     </React.Fragment>
                 )}
             </td>

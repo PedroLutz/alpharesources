@@ -27,6 +27,20 @@
     word-wrap: break-word;
 }
 
+.tabela th {
+    background-color: #ff8ff2;
+    border-width: 0.1rem;
+    font-size: 0.9rem;
+    border-style: solid;
+    border-color: rgb(0, 0, 0);
+    padding: 0.3rem;
+}
+
+.tabela td {
+    width: 6rem;
+    text-align: left;
+}
+
 .tabela td input, .tabela td select, .tabela td textarea {
     border-width: 0.1rem;
     border-style: solid;
@@ -58,45 +72,6 @@
     font-size: small;
 }
 
-
-.tabela th {
-    background-color: #ff8ff2;
-    border-width: 0.1rem;
-    font-size: 0.9rem;
-    border-style: solid;
-    border-color: rgb(0, 0, 0);
-    padding: 0.3rem;
-}
-
-.tabela td {
-    width: 6rem;
-    text-align: left;
-}
-
-.tabela td:nth-child(3) input, .tabela td:nth-child(5) input, .tabela td:nth-child(8) input{
-    width: 3rem;
-}
-
-.tabela td:nth-child(4) input, .tabela td:nth-child(6) input, .tabela td:nth-child(8) input{
-    width: 4rem;
-}
-
-.tabela td:nth-child(7) input{
-    width: 4.7rem;
-}
-
-.tabela th:nth-child(4), .tabela th:nth-child(6), .tabela th:nth-child(7), .tabela th:nth-child(8), .tabela th:nth-child(9), .tabela th:nth-child(10){
-    min-width: 4rem;
-    font-size: 0.8rem;
-} 
-
-.tabela td:nth-child(4), .tabela td:nth-child(5), 
-.tabela td:nth-child(6), .tabela td:nth-child(7), 
-.tabela td:nth-child(8), .tabela td:nth-child(9), 
-.tabela td:nth-child(10), .tabela td:nth-child(12){
-    text-align: center;
-} 
-
 .tabela button{
     background-color: transparent;
     border-width: 0.1rem;
@@ -109,25 +84,38 @@
     transition: 0.2s;
 }
 
-.botao_bonito {
-    background-color: #fc79ec;
-    border: 1px solid black;
-    border-radius: 5px;
-    padding: 3px;
-    color: black;
-    font-weight: bold;
-    font-size: 0.9rem;
-    cursor: pointer;
-    width: 12rem;
-    transition: 0.1s;
-    height: 1.7rem;
-    margin: 0.5rem;
+.tabela td:nth-child(3) input{
+    width: 3.7rem;
 }
 
-.botao_bonito:hover {
-    background-color: #a84ee0;
+.tabela td:nth-child(5) input, .tabela td:nth-child(8) input{
+    width: 3rem;
+}
+
+.tabela td:nth-child(4) input, .tabela td:nth-child(6) input, .tabela td:nth-child(8) input{
+    width: 4rem;
+}
+
+.tabela td:nth-child(7) input{
+    width: 4.7rem;
+}
+
+.tabela td:nth-child(11){
+    min-width: 22rem;
+}
+
+.tabela td:nth-child(11) textarea{
+    min-width: 21.5rem;
+}
+
+.tabela th:nth-child(4), .tabela th:nth-child(6), .tabela th:nth-child(7), .tabela th:nth-child(8), .tabela th:nth-child(9), .tabela th:nth-child(10){
+    min-width: 4rem;
     font-size: 0.8rem;
-    font-weight: bold;
-    width: 10rem;
-    height: 1.7rem;
+} 
+
+.tabela td:nth-child(4), .tabela td:nth-child(5), 
+.tabela td:nth-child(6), .tabela td:nth-child(7), 
+.tabela td:nth-child(8), .tabela td:nth-child(9), 
+.tabela td:nth-child(10), .tabela td:nth-child(12){
+    text-align: center;
 }

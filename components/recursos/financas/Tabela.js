@@ -23,7 +23,6 @@ const Tabela = () => {
   const [exibirModal, setExibirModal] = useState(null);
   const [loading, setLoading] = useState(true);
   const [linhaVisivel, setLinhaVisivel] = useState({});
-  const [reload, setReload] = useState(false);
   const camposVazios = {
     tipo: '',
     descricao: '',
@@ -77,14 +76,6 @@ const Tabela = () => {
     }
   };
 
-  //useEffect que so roda quando reload eh atualizado
-  useEffect(() => {
-    if (reload == true) {
-      setReload(false);
-      fetchLancamentos();
-    }
-  }, [reload]);
-
   //useEffect que so roda na primeira execucao
   useEffect(() => {
     fetchLancamentos();
@@ -114,8 +105,7 @@ const Tabela = () => {
 
 
   //funcao que trata os dados dependendo do tipo e envia para o banco
-  const enviar = async (e) => {
-    e.preventDefault();
+  const enviar = async () => {
     const isExpense = novoSubmit.tipo === 'Expense';
     const valor = isExpense ? -parseFloat(novoSubmit.valor) : parseFloat(novoSubmit.valor);
     const updatedNovoSubmit = {
@@ -142,6 +132,7 @@ const Tabela = () => {
 
     setConfirmItemAction({ action: 'update', item: item })
     setNovosDados({
+      _id: item._id,
       tipo: item.tipo,
       descricao: item.descricao,
       valor: valorCorrigido,
@@ -158,7 +149,7 @@ const Tabela = () => {
       setLoading(true);
       const isExpense = confirmItemAction.item.tipo === 'Expense';
       const valorInverso = isExpense ? novosDados.valor * -1 : novosDados.valor;
-      const updatedItem = { ...confirmItemAction.item, ...novosDados, valor: valorInverso };
+      const updatedItem = { ...novosDados, valor: valorInverso };
       delete updatedItem.balance;
       setConfirmItemAction({ action: '', item: null })
       try {
@@ -234,7 +225,6 @@ const Tabela = () => {
       method: 'DELETE',
     })
     await fetchLancamentos();
-    setReload(true);
   }
 
   return (
@@ -261,7 +251,9 @@ const Tabela = () => {
               <CadastroInputs
                 obj={novoSubmit}
                 objSetter={setNovoSubmit}
-                funcao={enviar}
+                funcoes={{
+                  enviar: () => enviar()
+                }}
                 setExibirModal={setExibirModal}
                 tipo='cadastro'
               />
@@ -272,9 +264,9 @@ const Tabela = () => {
                       <CadastroInputs
                         obj={novosDados}
                         objSetter={setNovosDados}
-                        funcao={{
-                          funcao1: () => handleUpdateItem(),
-                          funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
+                        funcoes={{
+                          enviar: () => handleUpdateItem(),
+                          cancelar: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
                         }}
                         setExibirModal={setExibirModal}
                         tipo='update' />

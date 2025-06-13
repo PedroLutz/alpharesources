@@ -4,8 +4,7 @@ import { fetchData } from "../../../functions/crud";
 import { AuthContext } from "../../../contexts/AuthContext";
 import styles from '../../../styles/modules/recursos.module.css'
 
-const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
-    const [emptyFields, setEmptyFields] = useState([]);
+const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     const [elementosWBS, setElementosWBS] = useState([]);
     const [itensPorArea, setItensPorArea] = useState([]);
     const camposRef = useRef({
@@ -52,7 +51,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
         const itensDaArea = elementosWBS.filter(item => item.area === areaSelecionada).map(item => item.item);
         setItensPorArea(itensDaArea);
 
-        handleChange(e, objSetter, obj);
+        handleChange(e);
     };
 
 
@@ -90,11 +89,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
     const handleSubmit = async (e) => {
         const isInvalido = validaDados();
         if(isInvalido) return;
-        if (funcao.funcao1) {
-            funcao.funcao1();
-        } else {
-            funcao(e);
-        }
+        funcoes?.enviar();
     };
 
     return (
@@ -180,7 +175,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>
-                        <button onClick={funcao.funcao2}>✖️</button>
+                        <button onClick={funcoes?.cancelar}>✖️</button>
                     </React.Fragment>
                 )}
             </td>

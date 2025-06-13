@@ -52,11 +52,10 @@ const Tabela = () => {
 
 
     //funcao que envia os dados de novoSubmit para submit no banco
-    const enviar = async (e) => {
-        e.preventDefault();
+    const enviar = async () => {
         await handleSubmit({
             route: 'recursos/recurso',
-            dados: novoSubmit,
+            dados: novoSubmit
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
         setReload(true);
@@ -204,9 +203,9 @@ const Tabela = () => {
                                         <CadastroInputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
-                                            funcao={{
-                                                funcao1: () => handleUpdateItem(),
-                                                funcao2: () => { linhaVisivel === recurso._id ? setLinhaVisivel() : setLinhaVisivel(recurso._id); setIsUpdating(false) }
+                                            funcoes={{
+                                                enviar: () => handleUpdateItem(),
+                                                cancelar: () => { linhaVisivel === recurso._id ? setLinhaVisivel() : setLinhaVisivel(recurso._id); setIsUpdating(false) }
                                             }}
                                             setExibirModal={setExibirModal}
                                         />
@@ -252,7 +251,9 @@ const Tabela = () => {
                             <CadastroInputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcao={enviar}
+                                funcoes={{
+                                    enviar: () => enviar()
+                                }}
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>

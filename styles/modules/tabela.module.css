@@ -27,6 +27,20 @@
     font-size: small;
 }
 
+.tabela_financas th, .cash_flow th {
+    background-color: #ff8ff2;
+    border-width: 0.1rem;
+    border-style: solid;
+    font-size: 0.9rem;
+    border-color: rgb(0, 0, 0);
+    padding: 0.3rem;
+}
+
+.cash_flow td, .cash_flow th {
+    min-width: 8rem;
+    max-width: 8rem;
+}
+
 .tabela_financas td input, .tabela_financas td select {
     border-width: 0.1rem;
     border-style: solid;
@@ -38,6 +52,17 @@
     width: 6.2rem;
     font-size: small;
     background-color: white;
+}
+
+.tabela_financas button{
+    background-color: transparent;
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    border-radius: 0.4rem;
+    height: 1.6rem;
+    cursor: pointer;
+    transition: 0.2s;
 }
 
 .tabela_financas td input:hover, .tabela_financas td select:hover, .tabela_financas td:not(:global(.botoes_acoes)) button:hover{
@@ -53,29 +78,4 @@
 .tabela_financas td:nth-child(5), 
 .tabela_financas td:nth-child(5) select {
     width: 7.2rem;
-}
-
-.tabela_financas th, .cash_flow th {
-    background-color: #ff8ff2;
-    border-width: 0.1rem;
-    border-style: solid;
-    font-size: 0.9rem;
-    border-color: rgb(0, 0, 0);
-    padding: 0.3rem;
-}
-
-.tabela_financas button{
-    background-color: transparent;
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(167, 167, 167);
-    border-radius: 0.4rem;
-    height: 1.6rem;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.cash_flow td, .cash_flow th {
-    min-width: 8rem;
-    max-width: 8rem;
 }
