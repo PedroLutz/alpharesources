@@ -64,17 +64,6 @@ const Tabela = () => {
           item: confirmDeleteItem,
           fetchDados: fetchCronogramas
         });
-        try {
-          await fetch(`/api/cronograma/deleteByName`, {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ area: confirmDeleteItem.area, item: confirmDeleteItem.item }),
-          });
-        } catch (error) {
-          console.error(`Erro ao deletar`, error);
-        }
       } finally {
         setDeleteSuccess(getDeleteSuccess);
       }
@@ -222,8 +211,7 @@ const Tabela = () => {
 
 
   //funcao que cadastra o plano e o monitoramento, com os dados vazios
-  const enviar = async (e) => {
-    e.preventDefault();
+  const enviar = async () => {
     const formDataPlano = {
       ...novoSubmit,
       plano: true,
@@ -360,7 +348,9 @@ const Tabela = () => {
                     obj={{ ...novoSubmit, plano: true }}
                     objSetter={setNovoSubmit}
                     tipo='cadastro'
-                    funcao={enviar}
+                    funcoes={{
+                      funcao1: () => enviar()
+                    }}
                     setExibirModal={setExibirModal}
                   />
                 </tr>
@@ -380,7 +370,7 @@ const Tabela = () => {
                           obj={novosDados}
                           objSetter={setNovosDados}
                           setExibirModal={setExibirModal}
-                          funcao={{
+                          funcoes={{
                             funcao1: () => handleUpdateItem(),
                             funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
                           }}

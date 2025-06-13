@@ -10,7 +10,10 @@ const MudancaSchema = new mongoose.Schema({
   mudanca: String,
   justificativa: String,
   impacto: String,
-  aprovado: Boolean
+  aprovado: Boolean,
+  status: String,
+  responsavel_solicitacao: String,
+  responsavel_aprovacao: String
 }, { collection: 'mudancas' }); 
 
 const Mudanca = mongoose.models['Mudanca'] || mongoose.model('Mudanca', MudancaSchema); 

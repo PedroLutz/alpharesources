@@ -2,6 +2,7 @@ import { useState, useRef, useContext, useEffect } from "react";
 import React from "react";
 import { fetchData } from "../../../functions/crud";
 import { AuthContext } from "../../../contexts/AuthContext";
+import styles from '../../../styles/modules/monitoramento.module.css'
 
 const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
     const [elementosWBS, setElementosWBS] = useState([]);
@@ -13,7 +14,10 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
         mudanca: null,
         justificativa: null,
         impacto: null,
-        aprovado: null
+        aprovado: null,
+        status: null,
+        responsavel_solicitacao: null,
+        responsavel_aprovacao: null
     })
     const { isAdmin } = useContext(AuthContext);
 
@@ -71,7 +75,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
 
     return (
         <tr>
-            <td>
+            <td id={styles.mudancasData}>
                 <input type="date"
                     value={obj.data}
                     name='data'
@@ -116,7 +120,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.item_config = el)}
                 />
             </td>
-            <td>
+            <td id={styles.mudancasMudanca}>
                 <textarea
                     name="mudanca"
                     onChange={handleChange}
@@ -125,7 +129,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.mudanca = el)}
                 />
             </td>
-            <td>
+            <td id={styles.mudancasJustificativa}>
                 <textarea
                     name="justificativa"
                     onChange={handleChange}
@@ -134,7 +138,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.justificativa = el)}
                 />
             </td>
-            <td>
+            <td id={styles.mudancasImpacto}>
                 <textarea
                     name="impacto"
                     onChange={handleChange}
@@ -154,6 +158,37 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     <option value={true}>Approved</option>
                     <option value={false}>Rejected</option>
                 </select>
+            </td>
+            <td>
+                <select
+                    value={obj.status}
+                    name='status'
+                    onChange={handleChange}
+                    ref={el => (camposRef.current.status = el)}
+                >
+                    <option value="" defaultValue>Status</option>
+                    <option value="Starting">Starting</option>
+                    <option value="In progress">In progress</option>
+                    <option value="Finalized">Finalized</option>
+                </select>
+            </td>
+            <td>
+                <textarea
+                    name="responsavel_solicitacao"
+                    onChange={handleChange}
+                    value={obj.responsavel_solicitacao}
+                    placeholder="Applicant"
+                    ref={el => (camposRef.current.responsavel_solicitacao = el)}
+                />
+            </td>
+            <td>
+                <textarea
+                    name="responsavel_aprovacao"
+                    onChange={handleChange}
+                    value={obj.responsavel_aprovacao}
+                    placeholder="Responsible for approval"
+                    ref={el => (camposRef.current.responsavel_aprovacao = el)}
+                />
             </td>
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (

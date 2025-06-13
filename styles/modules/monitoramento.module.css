@@ -34,6 +34,34 @@
     padding: 0.3rem;
 }
 
+#mudancasMudanca, #mudancasJustificativa, #mudancasImpacto{
+    text-align: left;
+}
+
+#mudancasMudanca{
+    min-width: 15rem;
+}
+
+#mudancasMudanca textarea{
+    width: 14.5rem;
+}
+
+#mudancasJustificativa, #mudancasImpacto{
+    min-width: 18rem;
+}
+
+#mudancasJustificativa textarea, #mudancasImpacto textarea{
+    min-width: 17.5rem;
+}
+
+#mudancasData{
+    width: 5rem;
+}
+
+#mudancasData input{
+    width: 8rem
+}
+
 .tabela_mudancas td input, .tabela_mudancas td select, .tabela_mudancas td textarea,
 .tabela_licoes td input, .tabela_licoes td select, .tabela_licoes td textarea {
     border-width: 0.1rem;

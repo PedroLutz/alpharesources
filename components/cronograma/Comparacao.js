@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Chart } from 'react-google-charts';
 import Loading from '../Loading';
 import { fetchData } from '../../functions/crud';
@@ -172,11 +172,10 @@ const Tabela = () => {
                     width: "50rem",
                     display: "flex",
                     flexDirection: "row",
-                    alignItems: "flex-start", // Alinha as tabelas e o gráfico no topo
+                    alignItems: "flex-start",
                     position: 'relative',
                 }}>
 
-                    {/* Tabela à esquerda do gráfico Gantt */}
                     <table style={{
                         position: 'absolute',
                         zIndex: 2,
@@ -192,7 +191,6 @@ const Tabela = () => {
                         </tbody>
                     </table>
 
-                    {/* Gráfico Gantt */}
                     {chartDataLoaded && (
                         <Chart
                             width={'100%'}

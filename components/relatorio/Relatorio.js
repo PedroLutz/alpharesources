@@ -25,32 +25,18 @@ const Relatorio = () => {
         year: '',
         month: ''
     })
-    const [issues, setIssues] = useState('');
-    const [kpyAnalysisText, setKpiAnalysisText] = useState({
-        scope: '',
-        schedule: '',
-        risk: '',
-        quality: '',
-        cost: ''
-    })
-    const [kpyAnalysisStatus, setKpiAnalysisStatus] = useState({
+    const [kpiAnalysisStatus, setKpiAnalysisStatus] = useState({
         scopeStatus: '',
         scheduleStatus: '',
         riskStatus: '',
         qualityStatus: '',
         costStatus: ''
     });
-    const [information, setInformation] = useState({
-        data: '',
-        manager: ''
-    })
     const [tarefasIniciadas, setTarefasIniciadas] = useState([]);
-    const [costDados, setCostDados] = useState([]);
     const [tarefasEmAndamento, setTarefasEmAndamento] = useState([]);
     const [tarefasConcluidas, setTarefasConcluidas] = useState([]);
     const [tarefasPlanejadas, setTarefasPlanejadas] = useState([]);
     const [areaAnalysis, setAreaAnalysis] = useState([]);
-    const [notasAreas, setNotasAreas] = useState({});
     const [loading, setLoading] = useState(false);
     const [riscos, setRiscos] = useState([]);
     const [flagExport, setFlagExport] = useState(false);
@@ -71,27 +57,15 @@ const Relatorio = () => {
         setter(textoAjustado);
     }
 
-    const generateCostDados = (dados, setter) => {
-        const caixa = dados[0].total;
-        if (caixa >= 2000) {
-            setter({
-                valor: caixa,
-                status: 'Safe'
-            })
-        }
-        if (caixa >= 200 && caixa < 2000) {
-            setter({
-                valor: caixa,
-                status: 'Requires attention'
-            })
-        }
-        if (caixa < 200) {
-            setter({
-                valor: caixa,
-                status: 'Unsafe'
-            })
-        }
+    const handleChangeKPI = (e) => {
+        const {name, value} = e.target;
+
+        setKpiAnalysisStatus({
+            ...kpiAnalysisStatus,
+            [name]: value
+        })
     }
+
 
     const handleChange = (e, obj, setter) => {
         const { name, value } = e.target;
@@ -100,7 +74,7 @@ const Relatorio = () => {
             [name]: value,
         });
         const tdElement = e.target.closest('td');
-        if (obj === kpyAnalysisStatus)
+        if (obj === kpiAnalysisStatus)
             if (value === 'Unsafe') {
                 tdElement.classList.remove('attention');
                 tdElement.classList.add('unsafe');
@@ -115,23 +89,7 @@ const Relatorio = () => {
 
     const busca = async () => {
         setLoading(true)
-        setIssues('');
-        setKpiAnalysisStatus({
-            scopeStatus: '',
-            scheduleStatus: '',
-            riskStatus: '',
-            qualityStatus: ''
-        })
-        setKpiAnalysisText({
-            scope: '',
-            schedule: '',
-            risk: '',
-            quality: ''
-        })
-        setInformation({
-            data: '',
-            manager: ''
-        })
+
         const mesAno = `${monthYear.year}-${monthYear.month}`
         try {
             const response = await fetch(`/api/relatorio/get/geral`, {
@@ -149,7 +107,6 @@ const Relatorio = () => {
                 generateLabelsTarefas(data.tarefasEmAndamento, setTarefasEmAndamento);
                 generateLabelsTarefas(data.tarefasPlanejadas, setTarefasPlanejadas);
                 generateLabelsRiscos(data.riscos, setRiscos);
-                generateCostDados(data.caixaPorMes, setCostDados);
             } else {
                 console.error(`Erro ao buscar por dados`);
             }
@@ -393,17 +350,14 @@ const Relatorio = () => {
                                         <tr>
                                             <td>Projected Date of Completion</td>
                                             <td><input type="date"
-                                                id='dateCompletion'
-                                                name='data'
-                                                value={information.data}
-                                                onChange={(e) => handleChange(e, information, setInformation)} /></td>
+                                                id='dateCompletion'/>
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td>Project Manager</td>
                                             <td><input name='manager'
-                                                id='manager'
-                                                value={information.manager}
-                                                onChange={(e) => handleChange(e, information, setInformation)} /></td>
+                                                id='manager'/>
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -437,8 +391,7 @@ const Relatorio = () => {
                                     </tr>
                                     <tr>
                                         <td>Issues</td>
-                                        <td><textarea value={issues}
-                                            onChange={(e) => { setIssues(e.target.value) }} /></td>
+                                        <td><textarea/></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -483,11 +436,11 @@ const Relatorio = () => {
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td className='status_td'>
+                                       <td className='status_td'>
                                             <select name='scopeStatus'
                                                 style={{ textAlign: 'center' }}
-                                                value={kpyAnalysisStatus.scopeStatus}
-                                                onChange={(e) => handleChange(e, kpyAnalysisStatus, setKpiAnalysisStatus)}>
+                                                value={kpiAnalysisStatus.scopeStatus}
+                                                onChange={(e) => handleChange(e, kpiAnalysisStatus, setKpiAnalysisStatus)}>
                                                 <option value='Safe'>Safe</option>
                                                 <option value='Requires attention'>Requires attention</option>
                                                 <option value='Unsafe'>Unsafe</option>
@@ -496,8 +449,8 @@ const Relatorio = () => {
                                         <td className="status_td">
                                             <select name='scheduleStatus'
                                                 style={{ textAlign: 'center' }}
-                                                value={kpyAnalysisStatus.scheduleStatus}
-                                                onChange={(e) => handleChange(e, kpyAnalysisStatus, setKpiAnalysisStatus)}>
+                                                value={kpiAnalysisStatus.scheduleStatus}
+                                                onChange={(e) => handleChange(e, kpiAnalysisStatus, setKpiAnalysisStatus)}>
                                                 <option value='Safe'>Safe</option>
                                                 <option value='Requires attention'>Requires attention</option>
                                                 <option value='Unsafe'>Unsafe</option>
@@ -506,8 +459,8 @@ const Relatorio = () => {
                                         <td className="status_td">
                                             <select name='costStatus'
                                                 style={{ textAlign: 'center' }}
-                                                value={kpyAnalysisStatus.costStatus}
-                                                onChange={(e) => handleChange(e, kpyAnalysisStatus, setKpiAnalysisStatus)}>
+                                                value={kpiAnalysisStatus.costStatus}
+                                                onChange={(e) => handleChange(e, kpiAnalysisStatus, setKpiAnalysisStatus)}>
                                                 <option value='Safe'>Safe</option>
                                                 <option value='Requires attention'>Requires attention</option>
                                                 <option value='Unsafe'>Unsafe</option>
@@ -516,8 +469,8 @@ const Relatorio = () => {
                                         <td className="status_td">
                                             <select name='riskStatus'
                                                 style={{ textAlign: 'center' }}
-                                                value={kpyAnalysisStatus.riskStatus}
-                                                onChange={(e) => handleChange(e, kpyAnalysisStatus, setKpiAnalysisStatus)}>
+                                                value={kpiAnalysisStatus.riskStatus}
+                                                onChange={(e) => handleChange(e, kpiAnalysisStatus, setKpiAnalysisStatus)}>
                                                 <option value='Safe'>Safe</option>
                                                 <option value='Requires attention'>Requires attention</option>
                                                 <option value='Unsafe'>Unsafe</option>
@@ -526,8 +479,8 @@ const Relatorio = () => {
                                         <td className="status_td">
                                             <select name='qualityStatus'
                                                 style={{ textAlign: 'center' }}
-                                                value={kpyAnalysisStatus.qualityStatus}
-                                                onChange={(e) => handleChange(e, kpyAnalysisStatus, setKpiAnalysisStatus)}>
+                                                value={kpiAnalysisStatus.qualityStatus}
+                                                onChange={(e) => handleChange(e, kpiAnalysisStatus, setKpiAnalysisStatus)}>
                                                 <option value='Safe'>Safe</option>
                                                 <option value='Requires attention'>Requires attention</option>
                                                 <option value='Unsafe'>Unsafe</option>
@@ -536,39 +489,19 @@ const Relatorio = () => {
                                     </tr>
                                     <tr>
                                         <td>
-                                            <textarea
-                                                name="scope"
-                                                value={kpyAnalysisText.scope}
-                                                onChange={(e) => handleChange(e, kpyAnalysisText, setKpiAnalysisText)}
-                                            />
+                                            <textarea/>
                                         </td>
                                         <td>
-                                            <textarea
-                                                name="schedule"
-                                                value={kpyAnalysisText.schedule}
-                                                onChange={(e) => handleChange(e, kpyAnalysisText, setKpiAnalysisText)}
-                                            />
+                                            <textarea/>
                                         </td>
                                         <td>
-                                            <textarea
-                                                name="cost"
-                                                value={kpyAnalysisText.cost}
-                                                onChange={(e) => handleChange(e, kpyAnalysisText, setKpiAnalysisText)}
-                                            />
+                                            <textarea/>
                                         </td>
                                         <td>
-                                            <textarea
-                                                name="risk"
-                                                value={kpyAnalysisText.risk}
-                                                onChange={(e) => handleChange(e, kpyAnalysisText, setKpiAnalysisText)}
-                                            />
+                                            <textarea/>
                                         </td>
                                         <td>
-                                            <textarea
-                                                name="quality"
-                                                value={kpyAnalysisText.quality}
-                                                onChange={(e) => handleChange(e, kpyAnalysisText, setKpiAnalysisText)}
-                                            />
+                                            <textarea/>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -603,11 +536,7 @@ const Relatorio = () => {
                                                     area.status === 'Overdue' ? 'status_td unsafe' : 'status_td'
                                                 }>{area.status}</td>
                                             <td>
-                                                <textarea
-                                                    name={`${area.area}_notas`}
-                                                    value={notasAreas[`${area.area}_notas`]}
-                                                    onChange={(e) => handleChange(e, notasAreas, setNotasAreas)}
-                                                />
+                                                <textarea/>
                                             </td>
                                         </tr>
                                     ))}
@@ -653,10 +582,8 @@ const Relatorio = () => {
                                 </tbody>
                             </table>
                         </React.Fragment>
-
                     </div>
                 </div>
-
             )}
         </div>
     )

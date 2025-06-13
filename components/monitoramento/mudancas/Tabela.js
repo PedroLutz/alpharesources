@@ -16,7 +16,10 @@ const Tabela = () => {
         mudanca: '',
         justificativa: '',
         impacto: '',
-        aprovado: ''
+        aprovado: '',
+        status: '',
+        responsavel_solicitacao: '',
+        responsavel_aprovacao: ''
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
@@ -165,6 +168,9 @@ const Tabela = () => {
                                 <th>Reasoning</th>
                                 <th>Impact</th>
                                 <th>Decision</th>
+                                <th>Status</th>
+                                <th>Applicant</th>
+                                <th>Responsible for approval</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -184,14 +190,17 @@ const Tabela = () => {
                                         />
                                     ) : (
                                         <tr>
-                                            <td>{mudanca.data}</td>
+                                            <td id={styles.mudancasData}>{mudanca.data}</td>
                                             <td>{mudanca.area}</td>
                                             <td>{mudanca.tipo}</td>
                                             <td>{mudanca.item_config}</td>
-                                            <td>{mudanca.mudanca}</td>
-                                            <td>{mudanca.justificativa}</td>
-                                            <td>{mudanca.impacto}</td>
+                                            <td id={styles.mudancasMudanca}>{mudanca.mudanca}</td>
+                                            <td id={styles.mudancasJustificativa}>{mudanca.justificativa}</td>
+                                            <td id={styles.mudancasImpacto}>{mudanca.impacto}</td>
                                             <td>{mudanca.aprovado ? 'Approved' : 'Rejected'}</td>
+                                            <td>{mudanca.status}</td>
+                                            <td>{mudanca.responsavel_solicitacao}</td>
+                                            <td>{mudanca.responsavel_aprovacao}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(mudanca)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {

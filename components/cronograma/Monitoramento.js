@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext, useMemo } from 'react';
 import { Chart } from 'react-google-charts';
 import Loading from '../Loading';
 import Modal from '../Modal';
-import { fetchData, handleDelete, handleUpdate } from '../../functions/crud';
+import { fetchData, handleUpdate } from '../../functions/crud';
 import { jsDateToEuDate, euDateToJsDate, euDateToIsoDate, cleanForm } from '../../functions/general';
 import styles from '../../styles/modules/cronograma.module.css';
 import CadastroInputs from './CadastroInputs';
@@ -114,7 +114,7 @@ const Tabela = () => {
   };
 
 
-  //funcao para resetar (igualar a null )as datas
+  //funcao para resetar (igualar a null) as datas
   const handleResetarData = async () => {
     if (itemSelecionadoResetar === '') {
       setExibirModal('semtarefa');
@@ -173,7 +173,6 @@ const Tabela = () => {
     'tarefaNaoIniciada': "You can't update a task you haven't started yet!"
   };
 
-
   //funcao que gera a tabela de estados das areas
   const generateReport = async () => {
     const responsePlano = await fetchData('cronograma/get/startAndEndPlano');
@@ -187,14 +186,17 @@ const Tabela = () => {
     dadosSituacoesGantt.forEach((dado) => { 
       if(dado.itens.filter((item) => item.situacao === "em andamento").length === 0 &&
          dado.itens.filter((item) => item.situacao === "iniciar").length === 0){
-         objSituacao = {...objSituacao, [dado.area] : "Complete"}
-      } else if (dado.itens.filter((item) => item.situacao === "em andamento").length === 0 &&
-                 dado.itens.filter((item) => item.situacao === "iniciar").length > 0 && 
-                 dado.itens.filter((item) => item.situacao === 'concluida').length > 0){
+          objSituacao = {...objSituacao, [dado.area] : "Complete"}
+      } 
+      else if (dado.itens.filter((item) => item.situacao === "em andamento").length === 0 &&
+                  dado.itens.filter((item) => item.situacao === "iniciar").length > 0 && 
+                  dado.itens.filter((item) => item.situacao === 'concluida').length > 0){
         objSituacao = {...objSituacao, [dado.area] : "Hold"}
-      } else if (dado.itens.filter((item) => item.situacao === "em andamento").length > 0){
+      } 
+      else if (dado.itens.filter((item) => item.situacao === "em andamento").length > 0){
         objSituacao = {...objSituacao, [dado.area] : "Executing"}
-      } else if (dado.itens.filter((item) => item.situacao === "em andamento").length === 0 &&
+      } 
+      else if (dado.itens.filter((item) => item.situacao === "em andamento").length === 0 &&
                 dado.itens.filter((item) => item.situacao === "concluida").length === 0){
         objSituacao = {...objSituacao, [dado.area] : "To Begin"}
       }
@@ -552,7 +554,7 @@ const Tabela = () => {
                           gantt={true}
                           obj={novosDados}
                           objSetter={setNovosDados}
-                          funcao={{
+                          funcoes={{
                             funcao1: () => handleUpdateItem(),
                             funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
                           }}
