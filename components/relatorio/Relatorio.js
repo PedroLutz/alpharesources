@@ -25,13 +25,14 @@ const Relatorio = () => {
         year: '',
         month: ''
     })
-    const [kpiAnalysisStatus, setKpiAnalysisStatus] = useState({
+    const objKpis = {
         scopeStatus: '',
         scheduleStatus: '',
         riskStatus: '',
         qualityStatus: '',
         costStatus: ''
-    });
+    }
+    const [kpi, setKpi] = useState(objKpis);
     const [tarefasIniciadas, setTarefasIniciadas] = useState([]);
     const [tarefasEmAndamento, setTarefasEmAndamento] = useState([]);
     const [tarefasConcluidas, setTarefasConcluidas] = useState([]);
@@ -41,10 +42,13 @@ const Relatorio = () => {
     const [riscos, setRiscos] = useState([]);
     const [flagExport, setFlagExport] = useState(false);
 
+    //transforma os dados em uma unica string
     const generateLabelsTarefas = (dados, setter) => {
         const tarefas = dados.reduce(
             (texto, dado) => texto + `${dado.area} - ${dado.item}, `, ``
         )
+        //o reduce vai incluir uma virgula no final, ent é só cortar ela fora
+        //ent o slice pega o texto entre o inicio e a ultima virgula (exclusivo)
         const textoAjustado = tarefas.slice(0, tarefas.lastIndexOf(','));
         setter(textoAjustado);
     }
@@ -57,16 +61,6 @@ const Relatorio = () => {
         setter(textoAjustado);
     }
 
-    const handleChangeKPI = (e) => {
-        const {name, value} = e.target;
-
-        setKpiAnalysisStatus({
-            ...kpiAnalysisStatus,
-            [name]: value
-        })
-    }
-
-
     const handleChange = (e, obj, setter) => {
         const { name, value } = e.target;
         setter({
@@ -74,7 +68,7 @@ const Relatorio = () => {
             [name]: value,
         });
         const tdElement = e.target.closest('td');
-        if (obj === kpiAnalysisStatus)
+        if (obj === kpi)
             if (value === 'Unsafe') {
                 tdElement.classList.remove('attention');
                 tdElement.classList.add('unsafe');
@@ -436,73 +430,26 @@ const Relatorio = () => {
                                 </thead>
                                 <tbody>
                                     <tr>
-                                       <td className='status_td'>
-                                            <select name='scopeStatus'
-                                                style={{ textAlign: 'center' }}
-                                                value={kpiAnalysisStatus.scopeStatus}
-                                                onChange={(e) => handleChange(e, kpiAnalysisStatus, setKpiAnalysisStatus)}>
-                                                <option value='Safe'>Safe</option>
-                                                <option value='Requires attention'>Requires attention</option>
-                                                <option value='Unsafe'>Unsafe</option>
-                                            </select>
-                                        </td>
-                                        <td className="status_td">
-                                            <select name='scheduleStatus'
-                                                style={{ textAlign: 'center' }}
-                                                value={kpiAnalysisStatus.scheduleStatus}
-                                                onChange={(e) => handleChange(e, kpiAnalysisStatus, setKpiAnalysisStatus)}>
-                                                <option value='Safe'>Safe</option>
-                                                <option value='Requires attention'>Requires attention</option>
-                                                <option value='Unsafe'>Unsafe</option>
-                                            </select>
-                                        </td>
-                                        <td className="status_td">
-                                            <select name='costStatus'
-                                                style={{ textAlign: 'center' }}
-                                                value={kpiAnalysisStatus.costStatus}
-                                                onChange={(e) => handleChange(e, kpiAnalysisStatus, setKpiAnalysisStatus)}>
-                                                <option value='Safe'>Safe</option>
-                                                <option value='Requires attention'>Requires attention</option>
-                                                <option value='Unsafe'>Unsafe</option>
-                                            </select>
-                                        </td>
-                                        <td className="status_td">
-                                            <select name='riskStatus'
-                                                style={{ textAlign: 'center' }}
-                                                value={kpiAnalysisStatus.riskStatus}
-                                                onChange={(e) => handleChange(e, kpiAnalysisStatus, setKpiAnalysisStatus)}>
-                                                <option value='Safe'>Safe</option>
-                                                <option value='Requires attention'>Requires attention</option>
-                                                <option value='Unsafe'>Unsafe</option>
-                                            </select>
-                                        </td>
-                                        <td className="status_td">
-                                            <select name='qualityStatus'
-                                                style={{ textAlign: 'center' }}
-                                                value={kpiAnalysisStatus.qualityStatus}
-                                                onChange={(e) => handleChange(e, kpiAnalysisStatus, setKpiAnalysisStatus)}>
-                                                <option value='Safe'>Safe</option>
-                                                <option value='Requires attention'>Requires attention</option>
-                                                <option value='Unsafe'>Unsafe</option>
-                                            </select>
-                                        </td>
+                                        {Object.keys(objKpis).map((key, index) => (
+                                            <td className='status_td' key={index}>
+                                                <select
+                                                    name={`${key}`}
+                                                    style={{ textAlign: 'center' }}
+                                                    value={kpi[key]}
+                                                    onChange={(e) => handleChange(e, kpi, setKpi)}>
+                                                    <option value='Safe'>Safe</option>
+                                                    <option value='Requires attention'>Requires attention</option>
+                                                    <option value='Unsafe'>Unsafe</option>
+                                                </select>
+                                            </td>
+                                        ))}
                                     </tr>
                                     <tr>
-                                        <td>
-                                            <textarea/>
-                                        </td>
-                                        <td>
-                                            <textarea/>
-                                        </td>
-                                        <td>
-                                            <textarea/>
-                                        </td>
-                                        <td>
-                                            <textarea/>
-                                        </td>
-                                        <td>
-                                            <textarea/>
-                                        </td>
+                                        {Object.keys(objKpis).map((key, index) => (
+                                            <td key={index}>
+                                                <textarea/>
+                                            </td>
+                                        ))}
                                     </tr>
                                 </tbody>
                             </table>

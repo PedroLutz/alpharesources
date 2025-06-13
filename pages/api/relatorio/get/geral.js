@@ -101,42 +101,18 @@ export default async (req, res) => {
         })) : [{ _id: null }]
       }, 'risco');
 
-      const caixaBusca = await Lancamento.aggregate([
-        {
-          $match: {
-            tipo: { $in: ['Income', 'Expense'] },
-            deletado: false,
-            data: {$lte: endDate}
-          }
-        },
-        {
-          $group: {
-            _id: null,
-            total: { $sum: '$valor' }
-          }
-        }
-      ]);
-
-      var caixaPorMes = [];
-      if (caixaBusca.length > 0) {
-        caixaPorMes = caixaBusca;
-      } else {
-        caixaPorMes = [{ _id: null, total: 0 }];
-      }
-
       res.status(200).json({ 
         tarefasConcluidas, 
         tarefasIniciadas, 
         tarefasEmAndamento, 
         tarefasPlanejadas,
-        riscos,
-        caixaPorMes
+        riscos
       });
     } else {
       res.status(405).json({ error: 'Método não permitido' });
     }
   } catch (error) {
-    console.error('Erro ao buscar os cronogramas', error);
-    res.status(500).json({ error: 'Erro ao buscar os cronogramas' });
+    console.error('Erro ao buscar os dados do relatorio', error);
+    res.status(500).json({ error: 'Erro ao buscar os dados do relatorio' });
   }
 };
