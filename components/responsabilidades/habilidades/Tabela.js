@@ -202,7 +202,17 @@ const Tabela = () => {
                                             ) : (
                                                 <td>{habilidade.funcao}</td>
                                             )}
-                                            <td>{habilidade.responsavel}</td>
+                                            {!isUpdating || isUpdating[2] !== habilidade.responsavel ? (
+                                                <React.Fragment>
+                                                    {index === 0 || habilidades[index - 1].responsavel !== habilidade.responsavel ? (
+                                                        <td rowSpan={calculateRowSpan(habilidade.responsavel, index, 'responsavel')}
+                                                        >{habilidade.responsavel}</td>
+                                                    ) : null}
+                                                </React.Fragment>
+                                            ) : (
+                                                <td>{habilidade.responsavel}</td>
+                                            )}
+                                            
                                             <td>{habilidade.habilidade}</td>
                                             <td>{habilidade.nivel_atual}</td>
                                             <td>{habilidade.nivel_min}</td>
@@ -211,7 +221,7 @@ const Tabela = () => {
                                                 <button onClick={() => setConfirmDeleteItem(habilidade)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
                                                     setLinhaVisivel(habilidade._id); setNovosDados(habilidade);
-                                                    setIsUptading([habilidade.area, habilidade.funcao])
+                                                    setIsUptading([habilidade.area, habilidade.funcao, habilidade.responsavel])
                                                 }
                                                 } disabled={!isAdmin}>⚙️</button>
                                             </td>
