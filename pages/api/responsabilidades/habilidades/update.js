@@ -14,11 +14,13 @@ export default async (req, res) => {
         return res.status(400).json({ error: 'O ID do Habilidade é obrigatório para a atualização.' });
       }
 
+      console.log(req.body);
+
       const propriedadesNomes = Object.keys(HabilidadeSchema.paths);
       const updateFields = {};
       
       for (const key in req.body) {
-        if (req.body[key]) {
+        if (req.body[key] != null) {
           if (propriedadesNomes.includes(key)) {
             updateFields[key] = req.body[key];
           } else {

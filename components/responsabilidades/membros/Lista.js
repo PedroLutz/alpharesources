@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import members from '../../../styles/modules/members.module.css';
+import styles from '../../../styles/modules/responsabilidades.module.css'
 import Loading from '../../Loading';
 import Modal from '../../Modal';
 import CadastroInputs from './CadastroInputs';
@@ -9,7 +9,6 @@ import { AuthContext } from '../../../contexts/AuthContext';
 
 const Tabela = () => {
   const [membros, setMembros] = useState([]);
-  const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
   const [exibirModal, setExibirModal] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -35,7 +34,7 @@ const Tabela = () => {
   };
 
   useEffect(() => {
-    if(reload == true){
+    if (reload == true) {
       setReload(false);
       fetchMembros();
     }
@@ -45,8 +44,7 @@ const Tabela = () => {
     fetchMembros();
   }, [])
 
-  const enviar = async (e) => {
-    e.preventDefault();
+  const enviar = async () => {
     await handleSubmit({
       route: 'responsabilidades/membros',
       dados: novoSubmit,
@@ -57,6 +55,8 @@ const Tabela = () => {
 
   const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',
+    'deleteSuccess': 'Deletion Successful!',
+    'deleteFail': 'Deletion Failed!',
   };
 
   const handleConfirmDelete = async () => {
@@ -69,38 +69,44 @@ const Tabela = () => {
           fetchDados: fetchMembros
         });
       } finally {
-        setDeleteSuccess(getDeleteSuccess);
+        if (getDeleteSuccess) {
+          setExibirModal(`deleteSuccess`)
+        } else {
+          setExibirModal(`deleteFail`)
+        }
       }
     }
     setConfirmDeleteItem(null);
   };
 
   const handleUpdateItem = async () => {
-      setLoading(true);
-      try {
-        await handleUpdate({
-          route: 'responsabilidades/membros/update?id',
-          dados: novosDados,
-          fetchDados: fetchMembros
-        });
-      } catch (error) {
-        console.error("Update failed:", error);
-      }
-      setLoading(false);
-      setNovosDados(camposVazios);
-      setLinhaVisivel();
+    setLoading(true);
+    try {
+      await handleUpdate({
+        route: 'responsabilidades/membros/update?id',
+        dados: novosDados,
+        fetchDados: fetchMembros
+      });
+    } catch (error) {
+      console.error("Update failed:", error);
+    }
+    setLoading(false);
+    setNovosDados(camposVazios);
+    setLinhaVisivel();
   };
 
   return (
     <div className="centered-container">
       {loading && <Loading />}
       <h2>Team members</h2>
-      <div id="report" className={members.containerPai}>
+      <div id="report" className={styles.containerPai}>
         <CadastroInputs
           tipo='cadastro'
           obj={novoSubmit}
           objSetter={setNovoSubmit}
-          funcao={enviar}
+          funcoes={{
+            enviar: enviar
+          }}
           setExibirModal={setExibirModal}
         />
         {membros.map((item, index) => (
@@ -112,14 +118,14 @@ const Tabela = () => {
                   objSetter={setNovosDados}
                   tipo="update"
                   setExibirModal={setExibirModal}
-                  funcao={{
-                    funcao1: () => handleUpdateItem(),
-                    funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
+                  funcoes={{
+                    enviar: handleUpdateItem,
+                    cancelar: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
                   }} />
               </React.Fragment>
             ) : (
               <React.Fragment>
-                <div key={index} className={members.container}>
+                <div key={index} className={styles.container}>
                   <div><b>Name:</b> {item.nome}</div>
                   <div>
                     <b>Soft skills:</b> {item.softskills}
@@ -127,7 +133,7 @@ const Tabela = () => {
                   <div>
                     <b>Hard skills:</b> {item.hardskills}
                   </div>
-                  <div className={members.botoesAcoes}>
+                  <div className={styles.botoesAcoes}>
                     <button onClick={() => setConfirmDeleteItem(item)}
                       disabled={!isAdmin}>❌</button>
                     <button onClick={() => {
@@ -153,15 +159,6 @@ const Tabela = () => {
           botao2: {
             funcao: () => setConfirmDeleteItem(null), texto: 'Cancel'
           }
-        }} />
-      )}
-
-      {deleteSuccess && (
-        <Modal objeto={{
-          titulo: deleteSuccess ? 'Deletion successful!' : 'Deletion failed.',
-          botao1: {
-            funcao: () => setDeleteSuccess(false), texto: 'Close'
-          },
         }} />
       )}
 

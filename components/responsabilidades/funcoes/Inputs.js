@@ -1,11 +1,11 @@
 import { useEffect, useState, useRef, useContext } from "react";
 import React from "react";
+import styles from '../../../styles/modules/responsabilidades.module.css'
 import { fetchData } from "../../../functions/crud";
 import { AuthContext } from "../../../contexts/AuthContext";
 
-const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
+const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     const [nomesMembros, setNomesMembros] = useState([]);
-    const [areas, setAreas] = useState([]);
     const camposRef = useRef({
         funcao: null,
         descricao: null,
@@ -20,13 +20,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
         setNomesMembros(data.nomes);
     };
 
-    const fetchAreas = async () => {
-        const data = await fetchData('wbs/get/areas');
-        setAreas(data.areas);
-    }
-
     useEffect(() => {
-        fetchAreas();
         fetchMembros();
     }, []);
 
@@ -58,15 +52,10 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
         return false;
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = () => {
         const isInvalido = validaDados();
         if(isInvalido == true) return;
-
-        if (funcao.funcao1) {
-            funcao.funcao1();
-        } else {
-            funcao(e);
-        }
+        funcoes?.enviar();
     }
 
     return (
@@ -80,7 +69,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.funcao = el)}
                 />
             </td>
-            <td>
+            <td id={styles.funcoesTdDescricao}>
                 <textarea
                     name="descricao"
                     onChange={handleChange}
@@ -89,7 +78,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.descricao = el)}
                 />
             </td>
-            <td>
+            <td id={styles.funcoesTdHabilidade}>
                 <textarea
                     name="habilidades"
                     onChange={handleChange}
@@ -126,7 +115,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>
-                        <button onClick={funcao.funcao2}>✖️</button>
+                        <button onClick={funcoes?.cancelar}>✖️</button>
                     </React.Fragment>
                 )}
             </td>

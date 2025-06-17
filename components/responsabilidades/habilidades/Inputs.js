@@ -2,9 +2,9 @@ import { useEffect, useState, useRef, useContext } from "react";
 import React from "react";
 import { fetchData } from "../../../functions/crud";
 import { AuthContext } from "../../../contexts/AuthContext";
-import styles from '../../../styles/modules/members.module.css'
+import styles from '../../../styles/modules/responsabilidades.module.css'
 
-const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
+const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     const [nomesFuncoes, setNomesFuncoes] = useState([]);
     const camposRef = useRef({
         funcao: null,
@@ -52,12 +52,14 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                 return true;
             }
         }
-        const camposVazios = Object.entries(obj)
+        
+        const camposConsiderados = {...obj};
+        delete camposConsiderados.acao;
+        const camposVazios = Object.entries(camposConsiderados)
             .filter(([key, value]) => value === null || value === "")
             .map(([key]) => key);
 
         if (camposVazios.length > 0) {
-            console.log(camposVazios)
             camposVazios.forEach(campo => {
                 if (camposRef.current[campo]) {
                     camposRef.current[campo].classList.add('campo-vazio');
@@ -70,15 +72,10 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
         return false;
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = () => {
         const isInvalido = validaDados();
         if(isInvalido == true) return;
-
-        if (funcao.funcao1) {
-            funcao.funcao1();
-        } else {
-            funcao(e);
-        }
+        funcoes?.enviar();
     }
 
     return (
@@ -117,7 +114,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.habilidade = el)}
                 />
             </td>
-            <td id={styles.tdNivel}>
+            <td id={styles.habilidadeTdNivel}>
                 <textarea
                     name="nivel_atual"
                     onChange={(e) => handleChange(e, true)}
@@ -126,7 +123,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.nivel_atual = el)}
                 />
             </td>
-            <td id={styles.tdNivel}>
+            <td id={styles.habilidadeTdNivel}>
                 <textarea
                     name="nivel_min"
                     onChange={(e) => handleChange(e, true)}
@@ -135,7 +132,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.nivel_min = el)}
                 />
             </td>
-            <td>
+            <td id={styles.habilidadeTdAcao}>
                 <textarea
                     name="acao"
                     onChange={(e) => handleChange(e, false)}
@@ -150,7 +147,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>
-                        <button onClick={funcao.funcao2}>✖️</button>
+                        <button onClick={funcoes?.cancelar}>✖️</button>
                     </React.Fragment>
                 )}
             </td>

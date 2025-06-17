@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react"
-import styles from '../../../styles/modules/members.module.css'
+import styles from '../../../styles/modules/responsabilidades.module.css'
 import Inputs from "./Inputs";
 import Modal from "../../Modal";
 import Loading from "../../Loading";
@@ -25,8 +25,7 @@ const Tabela = () => {
     const [loading, setLoading] = useState(true);
     const { isAdmin } = useContext(AuthContext);
 
-    const enviar = async (e) => {
-        e.preventDefault();
+    const enviar = async () => {
         await handleSubmit({
             route: 'responsabilidades/funcoes',
             dados: novoSubmit,
@@ -61,13 +60,12 @@ const Tabela = () => {
                     fetchDados: fetchFuncoes
                 });
             } finally {
-                setExibirModal(`deleteSuccess-${getDeleteSuccess}`)
+                if (getDeleteSuccess) {
+                    setExibirModal(`deleteSuccess`)
+                } else {
+                    setExibirModal(`deleteFail`)
+                }
             }
-        }
-        if (getDeleteSuccess) {
-            setExibirModal(`deleteSuccess`)
-        } else {
-            setExibirModal(`deleteFail`)
         }
         setConfirmDeleteItem(null);
     };
@@ -145,17 +143,17 @@ const Tabela = () => {
                                         <Inputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
-                                            funcao={{
-                                                funcao1: () => handleUpdateItem(),
-                                                funcao2: () => { linhaVisivel === funcao._id ? setLinhaVisivel() : setLinhaVisivel(item._id) }
+                                            funcoes={{
+                                                enviar: handleUpdateItem,
+                                                cancelar: () => { linhaVisivel === funcao._id ? setLinhaVisivel() : setLinhaVisivel(item._id) }
                                             }}
                                             setExibirModal={setExibirModal}
                                         />
                                     ) : (
                                         <tr>
                                             <td>{funcao.funcao}</td>
-                                            <td>{funcao.descricao}</td>
-                                            <td>{funcao.habilidades}</td>
+                                            <td id={styles.funcoesTdDescricao}>{funcao.descricao}</td>
+                                            <td id={styles.funcoesTdHabilidade}>{funcao.habilidades}</td>
                                             <td>{funcao.responsavel}</td>
                                             <td>{funcao.area}</td>
                                             <td className='botoes_acoes'>
@@ -172,7 +170,9 @@ const Tabela = () => {
                             <Inputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcao={enviar}
+                                funcoes={{
+                                    enviar: enviar
+                                }}
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>

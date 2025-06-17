@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect, useContext, useMemo } from 'react';
 import { fetchData } from '../../../functions/crud';
 import { AuthContext } from '../../../contexts/AuthContext';
-import members from '../../../styles/modules/members.module.css';
+import styles from '../../../styles/modules/responsabilidades.module.css'
 
-const CadastroTabela = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
+const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
     const [elementosWBS, setElementosWBS] = useState([]);
     const [nomesMembros, setNomesMembros] = useState([])
     const [itensPorArea, setItensPorArea] = useState([]);
@@ -63,15 +63,10 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
         return false;
     }
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async () => {
         const isInvalido = validaDados();
         if(isInvalido == true) return;
-
-        if (funcao.funcao1) {
-            funcao.funcao1();
-        } else {
-            funcao(e);
-        }
+        funcoes?.enviar();
     };
 
     const fetchNomesMembros = async () => {
@@ -123,7 +118,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
     return (
         <React.Fragment>
             {tipo !== 'update' && (
-                <td id={members.raciTdArea}>
+                <td id={styles.raciTdArea}>
                     <select
                         name="area"
                         onChange={handleAreaChange}
@@ -139,7 +134,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
                 </td>
             )}
             {tipo !== 'update' && (
-                <td id={members.raciTdItem}>
+                <td id={styles.raciTdItem}>
                     <select
                         value={obj.item}
                         name='item'
@@ -172,11 +167,11 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
             ))}
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
-                    <button onClick={(e) => handleSubmit(e)} disabled={!isAdmin}>Add new</button>
+                    <button onClick={handleSubmit} disabled={!isAdmin}>Add new</button>
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>
-                        <button onClick={funcao.funcao2}>✖️</button>
+                        <button onClick={funcoes?.cancelar}>✖️</button>
                     </React.Fragment>
                 )}
             </td>

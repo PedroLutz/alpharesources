@@ -1,4 +1,3 @@
-import React from 'react';
 import Link from 'next/link';
 import Logout from '../LogoutButton';
 import { useContext, useEffect } from 'react';

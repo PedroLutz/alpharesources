@@ -1,8 +1,8 @@
-import React, { useState, useRef, useContext } from "react"
-import members from '../../../styles/modules/members.module.css';
+import React, { useRef, useContext } from "react"
+import styles from '../../../styles/modules/responsabilidades.module.css'
 import { AuthContext } from "../../../contexts/AuthContext";
 
-const CadastroInputs = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
+const CadastroInputs = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
     const camposRef = useRef({
         nome: null,
         softskills: null,
@@ -38,19 +38,14 @@ const CadastroInputs = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
         return false;
     }
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async () => {
         const isInvalido = validaDados();
         if(isInvalido == true) return;
-
-        if (funcao.funcao1) {
-            funcao.funcao1();
-        } else {
-            funcao(e);
-        }
+        funcoes?.enviar();
     }
 
     return (
-        <div className={members.container}>
+        <div className={styles.container}>
             <div><b>Name: </b>
                 <input
                     value={obj.nome}
@@ -74,13 +69,13 @@ const CadastroInputs = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
                     onChange={handleChange}
                     ref={el => (camposRef.current.hardskills = el)} />
             </div>
-            <div className={tipo == 'update' ? members.botoesAcoes : undefined}>
+            <div className={tipo == 'update' ? styles.botoesAcoes : undefined}>
                 {tipo !== 'update' ? (
                     <button onClick={(e) => handleSubmit(e)} disabled={!isAdmin}>Add new</button>
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>
-                        <button onClick={funcao.funcao2}>✖️</button>
+                        <button onClick={funcoes?.cancelar}>✖️</button>
                     </React.Fragment>
                 )}
             </div>

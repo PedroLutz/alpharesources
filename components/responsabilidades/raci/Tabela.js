@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext, useMemo } from 'react';
-import members from '../../../styles/modules/members.module.css';
+import styles from '../../../styles/modules/responsabilidades.module.css'
 import Loading from '../../Loading';
 import Modal from '../../Modal';
 import CadastroInputs from './CadastroInputs';
@@ -10,7 +10,6 @@ import { AuthContext } from '../../../contexts/AuthContext';
 const Tabela = () => {
   const [itensRaci, setItensRaci] = useState([]);
   const [nomesMembros, setNomesMembros] = useState([]);
-  const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
   const [verOpcoes, setVerOpcoes] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -193,7 +192,11 @@ const Tabela = () => {
           fetchDados: fetchItensRaci
         });
       } finally {
-        setDeleteSuccess(getDeleteSuccess);
+        if (getDeleteSuccess) {
+          setExibirModal(`deleteSuccess`)
+        } else {
+          setExibirModal(`deleteFail`)
+        }
       }
     }
     setConfirmDeleteItem(null);
@@ -241,6 +244,8 @@ const Tabela = () => {
   };
 
   const modalLabels = {
+    'deleteSuccess': 'Deletion Successful!',
+    'deleteFail': 'Deletion Failed!',
     'inputsVazios': 'Fill out all fields before adding new data!',
     'itemJaUsado': 'This item has already been registered!',
     'semAprovador': 'A task needs to have one person accountable!',
@@ -274,9 +279,9 @@ const Tabela = () => {
       {loading && <Loading />}
       <h2>RACI Matrix</h2>
       <button className="botao-bonito" style={{ width: '9rem' }} onClick={() => setVerOpcoes(!verOpcoes)}>Toggle options</button>
-      <div className={members.tabelaRaci_container}>
-        <div className={members.tabelaRaci_wrapper}>
-          <table className={members.tabelaRaci}>
+      <div className={styles.tabelaRaci_container}>
+        <div className={styles.tabelaRaci_wrapper}>
+          <table className={styles.tabelaRaci}>
             <thead>
               <tr>
                 <th>Area</th>
@@ -305,7 +310,9 @@ const Tabela = () => {
                   <CadastroInputs
                     obj={novoSubmit}
                     objSetter={setNovoSubmit}
-                    funcao={enviar}
+                    funcoes={{
+                      enviar: enviar
+                    }}
                     setExibirModal={setExibirModal}
                     tipo='cadastro' />
                 </tr>
@@ -314,17 +321,17 @@ const Tabela = () => {
                 <tr key={index} style={{ backgroundColor: cores[item.area] }}>
                   {index === 0 || itensRaci[index - 1].area !== item.area ? (
                     <td rowSpan={calculateRowSpan(itensRaci, item.area, index)}
-                      className={members.areaTc}>{item.area}</td>
+                      id={styles.raciTdArea}>{item.area}</td>
                   ) : null}
-                  <td className={members.itemTc}>{item.item}</td>
+                  <td id={styles.raciTdItem}>{item.item}</td>
                   {linhaVisivel === item._id ? (
                     <React.Fragment>
                       <CadastroInputs
                         obj={novosDados}
                         objSetter={setNovosDados}
-                        funcao={{
-                          funcao1: handleUpdateItem,
-                          funcao2: () => linhaVisivel === item._id ? setLinhaVisivel(null) : setLinhaVisivel(item._id)
+                        funcoes={{
+                          enviar: handleUpdateItem,
+                          cancelar: () => linhaVisivel === item._id ? setLinhaVisivel(null) : setLinhaVisivel(item._id)
                         }}
                         setExibirModal={setExibirModal}
                         tipo='update' />
@@ -368,15 +375,6 @@ const Tabela = () => {
           botao2: {
             funcao: () => setConfirmDeleteItem(null), texto: 'Cancel'
           }
-        }} />
-      )}
-
-      {deleteSuccess && (
-        <Modal objeto={{
-          titulo: deleteSuccess ? 'Deletion successful!' : 'Deletion failed.',
-          botao1: {
-            funcao: () => setDeleteSuccess(false), texto: 'Close'
-          },
         }} />
       )}
 

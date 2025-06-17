@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react"
-import styles from '../../../styles/modules/members.module.css'
+import styles from '../../../styles/modules/responsabilidades.module.css'
 import Inputs from "./Inputs";
 import Modal from "../../Modal";
 import Loading from "../../Loading";
@@ -27,8 +27,7 @@ const Tabela = () => {
     const [isUpdating, setIsUptading] = useState(false);
     const { isAdmin } = useContext(AuthContext);
 
-    const enviar = async (e) => {
-        e.preventDefault();
+    const enviar = async () => {
         await handleSubmit({
             route: 'responsabilidades/habilidades',
             dados: novoSubmit,
@@ -65,13 +64,12 @@ const Tabela = () => {
                     fetchDados: fetchHabilidades
                 });
             } finally {
-                setExibirModal(`deleteSuccess-${getDeleteSuccess}`)
+                if (getDeleteSuccess) {
+                    setExibirModal(`deleteSuccess`)
+                } else {
+                    setExibirModal(`deleteFail`)
+                }
             }
-        }
-        if (getDeleteSuccess) {
-            setExibirModal(`deleteSuccess`)
-        } else {
-            setExibirModal(`deleteFail`)
         }
         setConfirmDeleteItem(null);
     };
@@ -176,9 +174,9 @@ const Tabela = () => {
                                         <Inputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
-                                            funcao={{
-                                                funcao1: () => handleUpdateItem(),
-                                                funcao2: () => { linhaVisivel === habilidade._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUptading(false) }
+                                            funcoes={{
+                                                enviar: handleUpdateItem,
+                                                cancelar: () => { linhaVisivel === habilidade._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUptading(false) }
                                             }}
                                             setExibirModal={setExibirModal}
                                         />
@@ -208,7 +206,7 @@ const Tabela = () => {
                                             <td>{habilidade.habilidade}</td>
                                             <td>{habilidade.nivel_atual}</td>
                                             <td>{habilidade.nivel_min}</td>
-                                            <td>{habilidade.acao}</td>
+                                            <td id={styles.habilidadeTdAcao}>{habilidade.acao}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(habilidade)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
@@ -224,7 +222,9 @@ const Tabela = () => {
                             <Inputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcao={enviar}
+                                funcoes={{
+                                    enviar: enviar
+                                }}
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>
