@@ -1,7 +1,10 @@
 import connectToDatabase from '../../../../lib/db';
 import MembroModel from '../../../../models/responsabilidade/Membro';
+import FuncaoModel from '../../../../models/responsabilidade/Funcao';
+import mongoose from 'mongoose';
 
 const { Membro, MembroSchema } = MembroModel;
+const { Funcao } = FuncaoModel;
 
 export default async (req, res) => {
   try {
@@ -16,7 +19,7 @@ export default async (req, res) => {
 
       const propriedadesNomes = Object.keys(MembroSchema.paths);
       const updateFields = {};
-      
+
       for (const key in req.body) {
         if (req.body[key]) {
           if (propriedadesNomes.includes(key)) {
@@ -31,13 +34,34 @@ export default async (req, res) => {
         return res.status(400).json({ error: 'Pelo menos um campo deve ser fornecido para a atualização.' });
       }
 
-      const updatedData = await Membro.findByIdAndUpdate(id, updateFields, { new: true });
+      const membroOriginal = await Membro.findById(id);
 
-      if (!updatedData) {
-        return res.status(404).json({ error: 'Membro não encontrado.' });
+      const session = await mongoose.startSession();
+      session.startTransaction();
+
+      try{
+        const updatedData = await Membro.findByIdAndUpdate(id, updateFields, { new: true });
+
+        await Funcao.updateMany(
+          {responsavel: membroOriginal.nome},
+          {$set: {responsavel: updateFields.nome}}
+        )
+
+        if (!updatedData) {
+          return res.status(404).json({ error: 'Membro não encontrado.' });
+        }
+
+        await session.commitTransaction();
+        session.endSession();
+
+        return res.status(200).json(updatedData);
+
+      } catch {
+        await session.abortTransaction();
+        session.endSession();
+        console.error('Erro na transação:', error);
+        return res.status(500).json({ error: 'Erro ao atualizar Stakeholder e areas relacionadas.' });
       }
-
-      return res.status(200).json(updatedData);
     } else {
       res.status(405).json({ error: 'Método não permitido' });
     }
