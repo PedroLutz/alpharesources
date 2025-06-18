@@ -19,38 +19,24 @@ const TabelaRiscos = () => {
         gatilho: '',
         dono: ''
     }
-    const [dadosUpdateTudo, setDadosUpdateTudo] = useState({
-        oldRisco: '',
-        newRisco: ''
-    })
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
     const [riscos, setRiscos] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
     const [linhaVisivel, setLinhaVisivel] = useState();
-    const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUptading] = useState(false);
     const [cores, setCores] = useState({});
     const {isAdmin} = useContext(AuthContext);
 
-    const enviar = async (e) => {
-        e.preventDefault();
+    const enviar = async () => {
         await handleSubmit({
             route: 'riscos/risco',
             dados: novoSubmit,
             fetchDados: fetchRiscos
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-    };
-
-    const handleUpdateClick = (item) => {
-        setDadosUpdateTudo({
-            oldRisco: item.risco,
-            newRisco: ''
-        });
-        setNovosDados(item);
     };
 
     const fetchCores = async () => {
@@ -64,13 +50,9 @@ const TabelaRiscos = () => {
 
     const handleUpdateItem = async () => {
             setLoading(true);
-            const dadosUpdate = {
-                ...dadosUpdateTudo,
-                newRisco: novosDados.risco
-            }
             try {
                 await handleUpdate({
-                    route: 'riscos/risco/update/update?id',
+                    route: 'riscos/risco/update?id',
                     dados: novosDados,
                     fetchDados: fetchRiscos
                 });
@@ -78,25 +60,6 @@ const TabelaRiscos = () => {
                 console.error("Update failed:", error);
             }
             setLinhaVisivel();
-            try {
-                const response = await fetch(`/api/riscos/risco/update/tudoRiscos`, {
-                  method: 'PUT',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(dadosUpdate),
-                });
-      
-                if (response.status === 200) {
-                  return;
-                } else {
-                  console.error(`Erro ao atualizar outras áreas de riscos`);
-                }
-              } catch (error) {
-                console.error(`Erro ao atualizar outros áreas de riscos, ${error}`);
-              }
-            setDadosUpdateTudo({oldRisco: '',
-                newRisco: ''});
             setLoading(false);
             setNovosDados(camposVazios);
     };
@@ -111,13 +74,12 @@ const TabelaRiscos = () => {
                     fetchDados: fetchRiscos
                 });
             } finally {
-                setExibirModal(`deleteSuccess-${getDeleteSuccess}`)
+                if (getDeleteSuccess) {
+                    setExibirModal(`deleteSuccess`)
+                } else {
+                    setExibirModal(`deleteFail`)
+                }
             }
-        }
-        if (getDeleteSuccess) {
-            setExibirModal(`deleteSuccess`)
-        } else {
-            setExibirModal(`deleteFail`)
         }
         setConfirmDeleteItem(null);
     };
@@ -131,14 +93,6 @@ const TabelaRiscos = () => {
             setLoading(false);
         }
     };
-
-    useEffect(() => {
-        if(reload == true){
-            setReload(false);
-            fetchRiscos();
-            fetchCores();
-        }
-    }, [reload]);
 
     useEffect(() => {
         fetchRiscos();
@@ -209,16 +163,19 @@ const TabelaRiscos = () => {
                             </tr>
                         </thead>
                         <tbody>
-
                             {riscos.map((item, index) => (
                                 <React.Fragment key={index}>
                                     {linhaVisivel === item._id ? (
                                         <CadastroInputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
-                                            funcao={{
-                                                funcao1: () => handleUpdateItem(),
-                                                funcao2: () => { linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUptading(false); }
+                                            funcoes={{
+                                                enviar: handleUpdateItem,
+                                                cancelar: () => { 
+                                                    linhaVisivel === item._id ? 
+                                                    setLinhaVisivel() : 
+                                                    setLinhaVisivel(item._id); setIsUptading(false); 
+                                                }
                                             }}
                                             setExibirModal={setExibirModal}
                                         />
@@ -254,7 +211,7 @@ const TabelaRiscos = () => {
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(item)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(item._id); handleUpdateClick(item); setIsUptading([item.area, item.item])
+                                                    setLinhaVisivel(item._id); setNovosDados(item); setIsUptading([item.area, item.item])
                                                 }
                                                 } disabled={!isAdmin}>⚙️</button>
                                             </td>
@@ -265,7 +222,7 @@ const TabelaRiscos = () => {
                             <CadastroInputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcao={enviar}
+                                funcoes={{enviar}}
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>

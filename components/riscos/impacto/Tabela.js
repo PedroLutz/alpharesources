@@ -25,8 +25,7 @@ const TabelaAnalise = () => {
     const [isUpdating, setIsUpdating] = useState(false);
     const { isAdmin } = useContext(AuthContext);
 
-    const enviar = async (e) => {
-        e.preventDefault();
+    const enviar = async () => {
         await handleSubmit({
             route: 'riscos/impacto',
             dados: novoSubmit,
@@ -61,13 +60,12 @@ const TabelaAnalise = () => {
                     fetchDados: fetchAnalises
                 });
             } finally {
-                setExibirModal(`deleteSuccess-${getDeleteSuccess}`)
+                if (getDeleteSuccess) {
+                    setExibirModal(`deleteSuccess`)
+                } else {
+                    setExibirModal(`deleteFail`)
+                }
             }
-        }
-        if (getDeleteSuccess) {
-            setExibirModal(`deleteSuccess`)
-        } else {
-            setExibirModal(`deleteFail`)
         }
         setConfirmDeleteItem(null);
     };
@@ -151,9 +149,13 @@ const TabelaAnalise = () => {
                                         <CadastroInputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
-                                            funcao={{
-                                                funcao1: () => handleUpdateItem(),
-                                                funcao2: () => { linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false) }
+                                            funcoes={{
+                                                enviar: handleUpdateItem,
+                                                cancelar: () => { 
+                                                    linhaVisivel === item._id ? 
+                                                    setLinhaVisivel() : 
+                                                    setLinhaVisivel(item._id); setIsUpdating(false) 
+                                                }
                                             }}
                                             setExibirModal={setExibirModal}
                                         />
@@ -186,7 +188,7 @@ const TabelaAnalise = () => {
                             <CadastroInputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcao={enviar}
+                                funcoes={{enviar}}
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>

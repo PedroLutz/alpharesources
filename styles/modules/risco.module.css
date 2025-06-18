@@ -10,6 +10,7 @@
 
 .tabelaRisco_container{
     overflow: auto;
+    scrollbar-gutter: stable; /* mantém espaço fixo da scrollbar */
 }
 
 .tabelaRisco_wrapper{
@@ -148,12 +149,21 @@
 .tabelaAnalise th, 
 .tabelaImpacto th,
 .tabelaAudit th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
     background-color: #ff8ff2;
     border-width: 0.1rem;
     font-size: 0.9rem;
     border-style: solid;
     border-color: rgb(0, 0, 0);
     padding: 0.3rem;
+}
+
+.tabelaAnalise th{
+    word-wrap: break-word; 
+    width: 2rem;
+    font-size: 0.7rem;
 }
 
 .tabelaImpacto td:not(:first-child) input {

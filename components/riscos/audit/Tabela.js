@@ -25,13 +25,11 @@ const TabelaAnalise = () => {
     const [audits, setAudits] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
     const [linhaVisivel, setLinhaVisivel] = useState();
-    const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
     const { isAdmin } = useContext(AuthContext)
 
-    const enviar = async (e) => {
-        e.preventDefault();
+    const enviar = async () => {
         await handleSubmit({
             route: 'riscos/audit',
             dados: novoSubmit,
@@ -43,6 +41,8 @@ const TabelaAnalise = () => {
     const handleUpdateItem = async () => {
         setLoading(true);
         var updatedItem = {_id: novosDados._id};
+        //tem q recriar o obj pq o obj que novosDados recebe tem um monte
+        //de campos usados pra comparação q n devem ser updateados
         for(const key in camposVazios){
             updatedItem = {
                 ...updatedItem,
@@ -73,13 +73,12 @@ const TabelaAnalise = () => {
                     fetchDados: fetchAudits
                 });
             } finally {
-                setExibirModal(`deleteSuccess-${getDeleteSuccess}`)
+                if (getDeleteSuccess) {
+                    setExibirModal(`deleteSuccess`)
+                } else {
+                    setExibirModal(`deleteFail`)
+                }
             }
-        }
-        if (getDeleteSuccess) {
-            setExibirModal(`deleteSuccess`)
-        } else {
-            setExibirModal(`deleteFail`)
         }
         setConfirmDeleteItem(null);
     };
@@ -92,13 +91,6 @@ const TabelaAnalise = () => {
             setLoading(false);
         }
     };
-
-    useEffect(() => {
-        if (reload == true) {
-            setReload(false);
-            fetchAudits();
-        }
-    }, [reload]);
 
     useEffect(() => {
         fetchAudits();
@@ -175,9 +167,9 @@ const TabelaAnalise = () => {
                                         <CadastroInputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
-                                            funcao={{
-                                                funcao1: () => handleUpdateItem(),
-                                                funcao2: () => { linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false) }
+                                            funcoes={{
+                                                enviar: handleUpdateItem,
+                                                cancelar: () => { linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false) }
                                             }}
                                             setExibirModal={setExibirModal}
                                         />
@@ -230,7 +222,7 @@ const TabelaAnalise = () => {
                             <CadastroInputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcao={enviar}
+                                funcoes={{enviar}}
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>

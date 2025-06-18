@@ -14,7 +14,8 @@ const TabelaAnalise = () => {
         impacto: "",
         acao: "",
         urgencia: "",
-        impactoFinanceiro: ""
+        impactoFinanceiro: "",
+        impactoCronograma: ""
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
@@ -22,13 +23,11 @@ const TabelaAnalise = () => {
     const [analises, setAnalises] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
     const [linhaVisivel, setLinhaVisivel] = useState();
-    const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
     const { isAdmin } = useContext(AuthContext)
 
-    const enviar = async (e) => {
-        e.preventDefault();
+    const enviar = async () => {
         await handleSubmit({
             route: 'riscos/analise',
             dados: novoSubmit,
@@ -81,13 +80,12 @@ const TabelaAnalise = () => {
                     fetchDados: fetchAnalises
                 });
             } finally {
-                setExibirModal(`deleteSuccess-${getDeleteSuccess}`)
+                if (getDeleteSuccess) {
+                    setExibirModal(`deleteSuccess`)
+                } else {
+                    setExibirModal(`deleteFail`)
+                }
             }
-        }
-        if (getDeleteSuccess) {
-            setExibirModal(`deleteSuccess`)
-        } else {
-            setExibirModal(`deleteFail`)
         }
         setConfirmDeleteItem(null);
     };
@@ -100,13 +98,6 @@ const TabelaAnalise = () => {
             setLoading(false);
         }
     };
-
-    useEffect(() => {
-        if(reload == true){
-            setReload(false);
-            fetchAnalises();
-        }
-    }, [reload]);
 
     useEffect(() => {
         fetchAnalises();
@@ -167,17 +158,17 @@ const TabelaAnalise = () => {
                     <table className={styles.tabelaAnalise}>
                         <thead>
                             <tr>
-                                <th style={{ width: '10rem' }}>Risk</th>
-                                <th style={{ wordWrap: 'break-word', width: '2rem', fontSize: '0.7rem' }}>Occurrence</th>
-                                <th style={{ wordWrap: 'break-word', width: '2rem', fontSize: '0.7rem' }}>Impact</th>
-                                <th style={{ wordWrap: 'break-word', width: '2rem', fontSize: '0.7rem' }}>Action</th>
-                                <th style={{ wordWrap: 'break-word', width: '2rem', fontSize: '0.7rem' }}>Urgency</th>
-                                <th style={{ wordWrap: 'break-word', width: '2rem', fontSize: '0.7rem' }}>RPN</th>
-                                <th style={{ wordWrap: 'break-word', width: '2rem', fontSize: '0.7rem' }}>Financial Impact</th>
-                                <th style={{ wordWrap: 'break-word', width: '2rem', fontSize: '0.7rem' }}>Estimated Monetary Value</th>
-                                <th style={{ wordWrap: 'break-word', width: '2rem', fontSize: '0.7rem' }}>Schedule Impact</th>
-                                <th style={{ wordWrap: 'break-word', width: '2rem', fontSize: '0.7rem' }}>Estimated Time Impact</th>
-                                <th>Actions</th>
+                                <th style={{ width: '10rem', fontSize: '0.9rem' }}>Risk</th>
+                                <th>Occurrence</th>
+                                <th>Impact</th>
+                                <th>Action</th>
+                                <th>Urgency</th>
+                                <th>RPN</th>
+                                <th>Financial Impact</th>
+                                <th>Estimated Monetary Value</th>
+                                <th>Schedule Impact</th>
+                                <th>Estimated Time Impact</th>
+                                <th style={{fontSize: '0.9rem'}}>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -188,9 +179,9 @@ const TabelaAnalise = () => {
                                         <CadastroInputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
-                                            funcao={{
-                                                funcao1: () => handleUpdateItem(),
-                                                funcao2: () => { linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false) }
+                                            funcoes={{
+                                                enviar: handleUpdateItem,
+                                                cancelar: () => { linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false) }
                                             }}
                                             setExibirModal={setExibirModal}
                                         />
@@ -211,12 +202,15 @@ const TabelaAnalise = () => {
                                             <td>{item.acao}</td>
                                             <td>{item.urgencia}</td>
                                             <td style={{
-                                                backgroundColor: calculaRPN(item) >= 150 ? '#f7b2b2' : (calculaRPN(item) >= 50 ? '#f7dcb2' : '')
+                                                backgroundColor: calculaRPN(item) >= 150 ? '#f7b2b2' : (calculaRPN(item) >= 50 ? '#f7dcb2' : '#d2f5c6')
                                             }}>{calculaRPN(item)}</td>
                                             <td>{item.impactoFinanceiro != 0 ? `R$${(Number(item.impactoFinanceiro)).toFixed(2)}` : '-'}</td>
                                             <td>{item.impactoFinanceiro != 0 ? `R$${(item.impactoFinanceiro * (item.ocorrencia / 5)).toFixed(2)}` : '-'}</td>
-                                            <td>{(item.impactoCronograma != 0 && item.impactoCronograma != null) ? `${item.impactoCronograma} days` : '-'}</td>
-                                            <td>{(item.impactoCronograma != 0 && item.impactoCronograma != null) ? `${(item.impactoCronograma * (item.ocorrencia / 5)).toFixed()} days` : '-'}</td>
+                                            <td>{(item.impactoCronograma != 0 && item.impactoCronograma != null) ? 
+                                                `${item.impactoCronograma} days` : '-'}</td>
+                                            <td>{(item.impactoCronograma != 0 && item.impactoCronograma != null) ? 
+                                                `${(item.impactoCronograma * (item.ocorrencia / 5)).toFixed()} days` : '-'}
+                                            </td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(item)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
@@ -231,7 +225,7 @@ const TabelaAnalise = () => {
                             <CadastroInputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcao={enviar}
+                                funcoes={{enviar}}
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>

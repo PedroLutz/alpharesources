@@ -4,7 +4,7 @@ import { fetchData } from "../../../functions/crud";
 import { AuthContext } from "../../../contexts/AuthContext";
 import styles from '../../../styles/modules/risco.module.css'
 
-const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
+const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     const [elementosWBS, setElementosWBS] = useState([]);
     const [itensPorArea, setItensPorArea] = useState([]);
     const [nomesMembros, setNomesMembros] = useState([]);
@@ -87,15 +87,10 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
         return false;
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = () => {
         const isInvalido = validaDados();
         if(isInvalido == true) return;
-
-        if (funcao.funcao1) {
-            funcao.funcao1();
-        } else {
-            funcao(e);
-        }
+        funcoes?.enviar();
     }
 
     return (
@@ -219,7 +214,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>
-                        <button onClick={funcao.funcao2}>✖️</button>
+                        <button onClick={funcoes?.cancelar}>✖️</button>
                     </React.Fragment>
                 )}
             </td>

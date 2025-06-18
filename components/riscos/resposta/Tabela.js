@@ -19,13 +19,11 @@ const TabelaPlanos = () => {
     const [respostas, setRespostas] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
     const [linhaVisivel, setLinhaVisivel] = useState();
-    const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
     const { isAdmin } = useContext(AuthContext)
 
-    const enviar = async (e) => {
-        e.preventDefault();
+    const enviar = async () => {
         await handleSubmit({
             route: 'riscos/resposta',
             dados: novoSubmit,
@@ -60,13 +58,12 @@ const TabelaPlanos = () => {
                     fetchDados: fetchRespostas
                 });
             } finally {
-                setExibirModal(`deleteSuccess-${getDeleteSuccess}`)
+                if (getDeleteSuccess) {
+                    setExibirModal(`deleteSuccess`)
+                } else {
+                    setExibirModal(`deleteFail`)
+                }
             }
-        }
-        if (getDeleteSuccess) {
-            setExibirModal(`deleteSuccess`)
-        } else {
-            setExibirModal(`deleteFail`)
         }
         setConfirmDeleteItem(null);
     };
@@ -79,13 +76,6 @@ const TabelaPlanos = () => {
             setLoading(false);
         }
     };
-
-    useEffect(() => {
-        if (reload == true) {
-            setReload(false);
-            fetchRespostas();
-        }
-    }, [reload]);
 
     useEffect(() => {
         fetchRespostas();
@@ -150,7 +140,7 @@ const TabelaPlanos = () => {
                             <CadastroInputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcao={enviar}
+                                funcoes={{enviar}}
                                 setExibirModal={setExibirModal}
                             />
                             {respostas.map((item, index) => (
@@ -159,9 +149,13 @@ const TabelaPlanos = () => {
                                         <CadastroInputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
-                                            funcao={{
-                                                funcao1: () => handleUpdateItem(),
-                                                funcao2: () => { linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false) }
+                                            funcoes={{
+                                                enviar: handleUpdateItem,
+                                                cancelar: () => { 
+                                                    linhaVisivel === item._id ? 
+                                                    setLinhaVisivel() : 
+                                                    setLinhaVisivel(item._id); setIsUpdating(false) 
+                                                }
                                             }}
                                             setExibirModal={setExibirModal}
                                         />

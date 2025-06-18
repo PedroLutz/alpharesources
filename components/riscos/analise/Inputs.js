@@ -3,7 +3,7 @@ import React from "react";
 import { fetchData } from "../../../functions/crud";
 import { AuthContext } from "../../../contexts/AuthContext";
 
-const InputPlanos = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
+const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     const [riscos, setRiscos] = useState([])
     const [riscosPorArea, setRiscosPorArea] = useState([]);
     const [areaSelecionada, setAreaSelecionada] = useState('');
@@ -99,15 +99,10 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
         return false;
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = () => {
         const isInvalido = validaDados();
         if(isInvalido) return;
-
-        if (funcao.funcao1) {
-            funcao.funcao1();
-        } else {
-            funcao(e);
-        }
+        funcoes?.enviar();
     }
 
     return (
@@ -209,7 +204,7 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>
-                        <button onClick={funcao.funcao2}>✖️</button>
+                        <button onClick={funcoes?.cancelar}>✖️</button>
                     </React.Fragment>
                 )}
             </td>

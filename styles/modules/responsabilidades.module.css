@@ -114,6 +114,7 @@
 .tabelaRaci_wrapper{
     max-width: 1000px;
     display: inline-block;
+    max-height: 45rem;
 }
 
 .tabelaRaci th, .tabelaFuncoes th, .tabelaHabilidade th{

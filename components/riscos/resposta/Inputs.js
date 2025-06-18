@@ -4,7 +4,7 @@ import { fetchData } from "../../../functions/crud";
 import { AuthContext } from "../../../contexts/AuthContext";
 import styles from '../../../styles/modules/risco.module.css'
 
-const InputPlanos = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
+const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     const [riscos, setRiscos] = useState([])
     const [riscosPorArea, setRiscosPorArea] = useState([]);
     const [areaSelecionada, setAreaSelecionada] = useState('');
@@ -52,22 +52,6 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
         }
     }, [obj.risco, riscos]);
 
-    const handleAreaChange = (e) => {
-        setAreaSelecionada(e.target.value);
-        const areaSelect = e.target.value;
-        const itensDaArea = riscos.filter(item => item.area === areaSelect).map(item => item.risco);
-        setRiscosPorArea(itensDaArea);
-    };
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        objSetter({
-            ...obj,
-            [name]: value,
-        });
-        e.target.classList.remove('campo-vazio');
-    };
-
     const generateEstrategias = () => {
         if(!obj.risco){
             return;
@@ -86,6 +70,22 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
         }
     }
 
+    const handleAreaChange = (e) => {
+        setAreaSelecionada(e.target.value);
+        const areaSelect = e.target.value;
+        const itensDaArea = riscos.filter(item => item.area === areaSelect).map(item => item.risco);
+        setRiscosPorArea(itensDaArea);
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        objSetter({
+            ...obj,
+            [name]: value,
+        });
+        e.target.classList.remove('campo-vazio');
+    };
+
     const validaDados = () => {
         const camposVazios = Object.entries(obj)
             .filter(([key, value]) => value === null || value === "")
@@ -103,19 +103,15 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
         return false;
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = () => {
         const isInvalido = validaDados();
         if(isInvalido == true) return;
-        if (funcao.funcao1) {
-            funcao.funcao1();
-        } else {
-            funcao(e);
-        }
+        funcoes?.enviar();
     }
 
     return (
         <tr>
-            <td>
+            <td >
                 <div>
                 <select
                     name="area"
@@ -158,7 +154,6 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
             </td>
             <td>
                 <textarea
-                    
                     name="detalhamento"
                     onChange={handleChange}
                     value={obj.detalhamento}
@@ -171,7 +166,7 @@ const InputPlanos = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>
-                        <button onClick={funcao.funcao2}>✖️</button>
+                        <button onClick={funcoes?.cancelar}>✖️</button>
                     </React.Fragment>
                 )}
             </td>
