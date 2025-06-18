@@ -1,3 +1,7 @@
+/* 
+GERAL --------------------------
+*/
+
 .tabelaRisco table, .tabelaPlano table, .tabelaAnalise table, .tabelaImpacto table, .tabelaAudit table {
     border-width: 0.1rem;
     border-style: solid;
@@ -48,24 +52,6 @@
     background-color: white;
 }
 
-.tabelaRisco td input, .tabelaRisco td select{
-    height: 5rem;
-}
-
-.tabelaRisco td textarea{
-    height: 4.5rem;
-}
-
-.tabelaPlano td textarea{
-    width: 10rem;
-    height: 3rem;
-    font-size: small;
-}
-
-.tabelaRisco td:not(:global(.botoes_acoes)) button{
-    height: 5rem;
-}
-
 .tabelaRisco td:not(:global(.botoes_acoes)) button:hover, 
 .tabelaAnalise td:not(:global(.botoes_acoes)) button:hover,
 .tabelaPlano td:not(:global(.botoes_acoes)) button:hover,
@@ -87,63 +73,6 @@
     font-size: small;
 }
 
-.tabelaAudit td:first-child, .tabelaAudit th:first-child{
-    width: 10rem;
-}
-
-.tabelaAudit td:nth-child(3), .tabelaAudit td:nth-child(4){
-    width: 4.5rem;
-}
-
-.tabelaAudit td:nth-child(3) input, .tabelaAudit td:nth-child(4) input{
-    width: 3.7rem;
-}
-
-.tabelaAudit td input{
-    width: 3rem;
-}
-
-.tabelaAnalise td:first-child input, .tabelaAnalise td:first-child select{
-    width: 10rem;
-}
-
-.tabelaRisco td input[type='date'] {
-    width: 7rem;
-}
-
-.tabelaPlano td:nth-child(2) select{
-    width: 6rem;
-}
-
-.tabelaAudit td textarea, .tabelaAudit td input{
-    height: 3rem;
-}
-
-.tabelaAudit td button{
-    height: 3.5rem
-}
-
-.tabelaAnalise td input {
-    width: 2.5rem;
-    height: 2.8rem;
-}
-
-.tabelaAnalise td:nth-child(2) input{
-    width: 3.5rem;
-}
-
-.tabelaAnalise td:nth-child(7) input{
-    width: 4.2rem;
-}
-
-.tabelaAnalise td:not(:global(.botoes_acoes)) button {
-    height: 3.4rem;
-}
-
-.tabelaPlano td:not(:global(.botoes_acoes)) button {
-    height: 3.6rem;
-}
-
 .tabelaRisco th, 
 .tabelaPlano th, 
 .tabelaAnalise th, 
@@ -159,34 +88,6 @@
     border-color: rgb(0, 0, 0);
     padding: 0.3rem;
 }
-
-.tabelaAnalise th{
-    word-wrap: break-word; 
-    width: 2rem;
-    font-size: 0.7rem;
-}
-
-.tabelaImpacto td:not(:first-child) input {
-    height: 3rem;
-}
-
-.tabelaImpacto td:not(:first-child) select, .tabelaImpacto td:not(:global(.botoes_acoes)) button{
-    height: 3.5rem;
-}
-
-.tabelaImpacto td:not(:first-child) textarea{
-    height: 3rem;
-    font-size: 0.7rem;
-}
-
-.tabelaRisco td, .tabelaImpacto td {
-    width: 6rem;
-    text-align: left;
-}
-
-.tabelaRisco td:last-child, .tabelaImpacto td:last-child {
-    text-align: center;
-} 
 
 .tabelaRisco button, 
 .tabelaPlano button, 
@@ -227,6 +128,134 @@
     height: 1.7rem;
 }
 
+/* 
+RISCO --------------------------
+*/
+
+.tabelaRisco td input, .tabelaRisco td select{
+    height: 5rem;
+}
+
+.tabelaRisco td textarea{
+    height: 4.5rem;
+}
+
+.tabelaRisco td:not(:global(.botoes_acoes)) button{
+    height: 5rem;
+}
+
+.tabelaRisco td{
+    width: 6rem;
+    text-align: left;
+}
+
+.tabelaRisco td:last-child {
+    text-align: center;
+} 
+
+/* 
+PLANO --------------------------
+*/
+
+.tabelaPlano td textarea{
+    width: 10rem;
+    height: 3rem;
+    font-size: small;
+}
+
+.tabelaPlano td:nth-child(2) select{
+    width: 6rem;
+}
+
+.tabelaPlano td:not(:global(.botoes_acoes)) button {
+    height: 3.6rem;
+}
+
 .plano_td_estrategia select{
     height: 3.5rem;
+}
+
+/* 
+IMPACTO --------------------------
+*/
+
+.tabelaImpacto td:last-child{
+    text-align: center;
+}
+
+.tabelaImpacto td{
+    width: 6rem;
+    text-align: left;
+}
+
+.tabelaImpacto td:not(:first-child) input {
+    height: 3rem;
+}
+
+.tabelaImpacto td:not(:first-child) select, .tabelaImpacto td:not(:global(.botoes_acoes)) button{
+    height: 3.5rem;
+}
+
+.tabelaImpacto td:not(:first-child) textarea{
+    height: 3rem;
+    font-size: 0.7rem;
+}
+
+/* 
+AUDIT --------------------------
+*/
+
+.tabelaAudit td:first-child, .tabelaAudit th:first-child{
+    width: 10rem;
+}
+
+.tabelaAudit td:nth-child(3), .tabelaAudit td:nth-child(4){
+    width: 4.5rem;
+}
+
+.tabelaAudit td:nth-child(3) input, .tabelaAudit td:nth-child(4) input{
+    width: 3.7rem;
+}
+
+.tabelaAudit td input{
+    width: 3rem;
+}
+
+.tabelaAudit td textarea, .tabelaAudit td input{
+    height: 3rem;
+}
+
+.tabelaAudit td button{
+    height: 3.5rem
+}
+
+/* 
+ANALISE --------------------------
+*/
+
+.tabelaAnalise td:first-child input, .tabelaAnalise td:first-child select{
+    width: 10rem;
+}
+
+.tabelaAnalise td input {
+    width: 2.5rem;
+    height: 2.8rem;
+}
+
+.tabelaAnalise td:nth-child(2) input{
+    width: 3.5rem;
+}
+
+.tabelaAnalise td:nth-child(7) input{
+    width: 4.2rem;
+}
+
+.tabelaAnalise td:not(:global(.botoes_acoes)) button {
+    height: 3.4rem;
+}
+
+.tabelaAnalise th{
+    word-wrap: break-word; 
+    width: 2rem;
+    font-size: 0.7rem;
 }
