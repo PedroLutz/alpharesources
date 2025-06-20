@@ -9,12 +9,11 @@
 
 .tabela_financas_container{
     overflow: auto;
-    width: 100%
+    scrollbar-gutter: stable; /* mantém espaço fixo da scrollbar */
 }
 
 .tabela_financas_wrapper{
-    min-width: 800px;
-    max-width: 1200px;
+    max-height: 45rem;
     display: inline-block;
 }
 
@@ -34,6 +33,9 @@
     font-size: 0.9rem;
     border-color: rgb(0, 0, 0);
     padding: 0.3rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 .cash_flow td, .cash_flow th {

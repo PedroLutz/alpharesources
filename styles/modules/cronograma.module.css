@@ -28,6 +28,12 @@
     font-size: small;
 }
 
+.tabelaCronograma th{
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
 .tabelaCronograma th, .areaAnalysis th {
     background-color: #ff8ff2;
     border-width: 0.1rem;

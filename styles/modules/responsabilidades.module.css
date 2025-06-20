@@ -120,13 +120,16 @@
 .tabelaRaci th, .tabelaFuncoes th, .tabelaHabilidade th{
     background-color: #ff8ff2;
     border-width: 0.1rem;
-    border-style: solid;
     font-size: 0.9rem;
+    border-style: solid;
     border-color: rgb(0, 0, 0);
     padding: 0.3rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
-.tabelaRaci tr, .tabelaFuncoes tr, .tabelaHabilidade th {
+.tabelaRaci tr, .tabelaFuncoes tr, .tabelaHabilidade tr {
     border-style: solid;
     border-width: 0.1rem;
     padding: 1rem;
