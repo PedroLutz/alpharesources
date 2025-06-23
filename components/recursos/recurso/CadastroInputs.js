@@ -15,7 +15,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
         tipo: null,
         ehEssencial: null
     });
-    const {isAdmin} = useContext(AuthContext);
+    const { isAdmin } = useContext(AuthContext);
     const isFirstRender = useRef(true);
 
     //funcao que busca no banco os elementos da WBS
@@ -45,12 +45,20 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     }, [obj.area]);
 
 
-    //funcao que insere no array itensPorArea os itens relacionados à area relacionada
+    const atualizarItensPorArea = (area) => {
+        const itensDaArea = elementosWBS.filter(item => item.area === area).map(item => item.item);
+        setItensPorArea(itensDaArea);
+    }
+
+    useEffect(() => {
+        if (obj.area != '') {
+            atualizarItensPorArea(obj.area);
+        }
+    }, [obj.area, elementosWBS])
+
     const handleAreaChange = (e) => {
         const areaSelecionada = e.target.value;
-        const itensDaArea = elementosWBS.filter(item => item.area === areaSelecionada).map(item => item.item);
-        setItensPorArea(itensDaArea);
-
+        atualizarItensPorArea(areaSelecionada);
         handleChange(e);
     };
 
@@ -68,8 +76,8 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     //funcao que valida os dados, verificando quais campos estao vazios e inserindo a classe campo-vazio para destacá-los
     const validaDados = () => {
         const camposVazios = Object.entries(obj)
-        .filter(([key, value]) => value === null || value === "")
-        .map(([key]) => key);
+            .filter(([key, value]) => value === null || value === "")
+            .map(([key]) => key);
 
         if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
@@ -88,7 +96,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     //funcao que detecta se os dados sao validos, e se sao, utiliza a funcao de submit
     const handleSubmit = async (e) => {
         const isInvalido = validaDados();
-        if(isInvalido) return;
+        if (isInvalido) return;
         funcoes?.enviar();
     };
 

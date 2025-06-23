@@ -20,7 +20,7 @@ const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
         restricoes: null,
         recursos: null
     });
-    const {isAdmin} = useContext(AuthContext);
+    const { isAdmin } = useContext(AuthContext);
     const isFirstRender = useRef(true);
 
     //essa funcao busca os itens da wbs
@@ -41,24 +41,28 @@ const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
             isFirstRender.current = false;
             return;
         }
-    
+
         objSetter({
             ...obj,
             item: ''
         });
     }, [obj.area]);
 
+    const atualizarItensPorArea = (area) => {
+        const itensDaArea = elementosWBS.filter(item => item.area === area).map(item => item.item);
+        setItensPorArea(itensDaArea);
+    }
 
-    //essa funcao se responsabiliza especificamente por atualizar o estado de itensDaArea cada vez que a area muda
+    useEffect(() => {
+        if (obj.area != '') {
+            atualizarItensPorArea(obj.area);
+        }
+    }, [obj.area, elementosWBS])
+
     const handleAreaChange = (e) => {
         const areaSelecionada = e.target.value;
-        const itensDaArea = elementosWBS.filter(item => item.area === areaSelecionada).map(item => item.item);
-        setItensPorArea(itensDaArea);
-        objSetter({
-            ...obj,
-            area: areaSelecionada,
-        });
-        e.target.classList.remove('campo-vazio');
+        atualizarItensPorArea(areaSelecionada);
+        handleChange(e);
     };
 
     //essa funcao atualiza o estado de qualquer campo, quando ele tem seu valor alterado no input
@@ -75,8 +79,8 @@ const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
     //chama a funcao setExibirModal para levantar um modal avisando o problema
     const validaDados = () => {
         const camposVazios = Object.entries(obj)
-        .filter(([key, value]) => value === null || value === "")
-        .map(([key]) => key);
+            .filter(([key, value]) => value === null || value === "")
+            .map(([key]) => key);
 
         if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
@@ -96,7 +100,7 @@ const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
     //com o tipo de funcao recebida, executando apenas se os dados sao validos
     const handleSubmit = async () => {
         const isInvalido = validaDados();
-        if(isInvalido) return;
+        if (isInvalido) return;
         await funcoes?.enviar();
     };
 
@@ -136,8 +140,8 @@ const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
                     placeholder='Description'
                     onChange={handleChange}
                     min="0"
-                    ref={el => (camposRef.current.descricao = el)} 
-                    />
+                    ref={el => (camposRef.current.descricao = el)}
+                />
             </td>
             <td className={styles.td_proposito}>
                 <textarea type='text'
