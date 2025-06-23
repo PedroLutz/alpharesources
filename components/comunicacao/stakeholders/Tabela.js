@@ -29,7 +29,7 @@ const Tabela = () => {
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
     const { isAdmin } = useContext(AuthContext);
-    const [isUpdating, setIsUptading] = useState(false);
+    const [isUpdating, setIsUpdating] = useState(false);
 
     //funcao que cadastra os stakeholders e cadastra na funcao de engajamento o stakeholder do jeito devido
     const enviar = async () => {
@@ -74,6 +74,7 @@ const Tabela = () => {
             console.error("Update failed:", error);
         }
         setLinhaVisivel();
+        setIsUpdating(false);
         setLoading(false)
         setNovosDados(camposVazios);
     };
@@ -203,7 +204,7 @@ const Tabela = () => {
                                             objSetter={setNovosDados}
                                             funcoes={{
                                                 enviar: handleUpdateItem,
-                                                cancelar: () => { linhaVisivel === stakeholder._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUptading(false); }
+                                                cancelar: () => { linhaVisivel === stakeholder._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false); }
                                             }}
                                             setExibirModal={setExibirModal}
                                         />
@@ -231,7 +232,7 @@ const Tabela = () => {
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(stakeholder)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(stakeholder._id); setNovosDados(stakeholder); setIsUptading([stakeholder.grupo, stakeholder.stakeholder])
+                                                    setLinhaVisivel(stakeholder._id); setNovosDados(stakeholder); setIsUpdating([stakeholder.grupo, stakeholder.stakeholder])
                                                 }
                                                 } disabled={!isAdmin}>⚙️</button>
                                             </td>

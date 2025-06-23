@@ -21,7 +21,7 @@ const Tabela = () => {
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [loading, setLoading] = useState(true);
     const { isAdmin } = useContext(AuthContext);
-    const [isUpdating, setIsUptading] = useState(false);
+    const [isUpdating, setIsUpdating] = useState(false);
 
     //funcao que trata e envia o objeto de atualizacao para o backend
     const handleUpdateItem = async () => {
@@ -36,6 +36,7 @@ const Tabela = () => {
             console.error("Update failed:", error);
         }
         setLinhaVisivel();
+        setIsUpdating(false);
         setLoading(false);
         setNovosDados(camposVazios);
     };
@@ -145,7 +146,7 @@ const Tabela = () => {
                                                 objSetter={setNovosDados}
                                                 funcoes={{
                                                     enviar: handleUpdateItem,
-                                                    cancelar: () => { linhaVisivel === engajamento._id ? setLinhaVisivel() : setLinhaVisivel(engajamento._id); setIsUptading(false); }
+                                                    cancelar: () => { linhaVisivel === engajamento._id ? setLinhaVisivel() : setLinhaVisivel(engajamento._id); setIsUpdating(false); }
                                                 }}
                                                 setExibirModal={setExibirModal}
                                             />
@@ -157,7 +158,7 @@ const Tabela = () => {
                                                     <button onClick={() => {
                                                         setLinhaVisivel(engajamento._id);
                                                         setNovosDados(engajamento);
-                                                        setIsUptading([engajamento.grupo, engajamento.stakeholder])
+                                                        setIsUpdating([engajamento.grupo, engajamento.stakeholder])
                                                     }
                                                     } disabled={!isAdmin}>⚙️</button>
                                                 </td>

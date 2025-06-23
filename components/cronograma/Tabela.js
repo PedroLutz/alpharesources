@@ -8,7 +8,6 @@ import styles from '../../styles/modules/cronograma.module.css';
 import CadastroInputs from './CadastroInputs';
 import chroma from 'chroma-js';
 import { AuthContext } from "../../contexts/AuthContext";
-import { set } from 'lodash';
 
 const Tabela = () => {
   const [cronogramas, setCronogramas] = useState([]);

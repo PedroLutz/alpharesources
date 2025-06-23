@@ -105,7 +105,8 @@ const PlanoAquisicao = () => {
         } catch (error) {
             console.error("Update failed:", error);
         }
-        setLoading(false)
+        setLoading(false);
+        setIsUpdating(false);
         setLinhaVisivel();
         setNovosDados(camposVazios);
     };

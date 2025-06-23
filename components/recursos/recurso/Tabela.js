@@ -85,6 +85,7 @@ const Tabela = () => {
         }
         setReload(true);
         setLoading(false);
+        setIsUpdating(false);
         setLinhaVisivel();
         setNovosDados(camposVazios);
     };

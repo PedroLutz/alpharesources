@@ -46,6 +46,7 @@ const TabelaAnalise = () => {
             console.error("Update failed:", error);
         }
         setLoading(false);
+        setIsUpdating(false);
         setNovosDados(camposVazios);
         setLinhaVisivel();
     };

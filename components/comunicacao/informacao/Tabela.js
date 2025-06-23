@@ -30,7 +30,7 @@ const Tabela = () => {
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
     const { isAdmin } = useContext(AuthContext);
-    const [isUpdating, setIsUptading] = useState(false);
+    const [isUpdating, setIsUpdating] = useState(false);
 
     //funcao que envia os dados para registro no backend
     const enviar = async () => {
@@ -55,6 +55,7 @@ const Tabela = () => {
             console.error("Update failed:", error);
         }
         setLinhaVisivel();
+        setIsUpdating(false);
         setLoading(false);
         setNovosDados(camposVazios);
     };
@@ -176,7 +177,7 @@ const Tabela = () => {
                                             objSetter={setNovosDados}
                                             funcoes={{
                                                 enviar: handleUpdateItem,
-                                                cancelar: () => { linhaVisivel === informacao._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUptading(false); }
+                                                cancelar: () => { linhaVisivel === informacao._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false); }
                                             }}
                                             setExibirModal={setExibirModal}
                                         />
@@ -220,7 +221,7 @@ const Tabela = () => {
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(informacao)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(informacao._id); setNovosDados(informacao); setIsUptading([informacao.grupo, informacao.stakeholder])
+                                                    setLinhaVisivel(informacao._id); setNovosDados(informacao); setIsUpdating([informacao.grupo, informacao.stakeholder])
                                                 }
                                                 } disabled={!isAdmin}>⚙️</button>
                                             </td>

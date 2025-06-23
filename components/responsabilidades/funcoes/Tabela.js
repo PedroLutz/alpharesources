@@ -45,7 +45,7 @@ const Tabela = () => {
         } catch (error) {
             console.error("Update failed:", error);
         }
-        setLoading(false)
+        setLoading(false);
         setNovosDados(camposVazios);
         setLinhaVisivel();
     };

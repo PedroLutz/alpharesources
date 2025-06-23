@@ -53,12 +53,21 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
         fetchElementos();
     }, []);
 
+    const atualizarItensPorArea = (area) => {
+        const itensDaArea = elementosWBS.filter(item => item.area === area).map(item => item.item);
+        setItensPorArea(itensDaArea);
+    }
+
+    useEffect(() => {
+        if(obj.area != ''){
+            atualizarItensPorArea(obj.area);
+        }
+    }, [obj.area, elementosWBS])
+
     const handleAreaChange = (e) => {
         const areaSelecionada = e.target.value;
-        const itensDaArea = elementosWBS.filter(item => item.area === areaSelecionada).map(item => item.item);
-        setItensPorArea(itensDaArea);
-
-        handleChange(e, objSetter, obj);
+        atualizarItensPorArea(areaSelecionada);
+        handleChange(e);
     };
 
     const handleChange = (e) => {

@@ -28,7 +28,7 @@ const TabelaRiscos = () => {
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUptading] = useState(false);
     const [cores, setCores] = useState({});
-    const {isAdmin} = useContext(AuthContext);
+    const { isAdmin } = useContext(AuthContext);
 
     const enviar = async () => {
         await handleSubmit({
@@ -43,26 +43,26 @@ const TabelaRiscos = () => {
         const data = await fetchData('wbs/get/cores');
         var cores = {};
         data.areasECores.forEach((area) => {
-          cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
+            cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
         })
         setCores(cores);
-      }
+    }
 
     const handleUpdateItem = async () => {
-            setLoading(true);
-            try {
-                await handleUpdate({
-                    route: 'riscos/risco/update?id',
-                    dados: novosDados,
-                    fetchDados: fetchRiscos
-                });
-            } catch (error) {
-                console.error("Update failed:", error);
-            }
-            setIsUptading(false);
-            setLinhaVisivel();
-            setLoading(false);
-            setNovosDados(camposVazios);
+        setLoading(true);
+        try {
+            await handleUpdate({
+                route: 'riscos/risco/update?id',
+                dados: novosDados,
+                fetchDados: fetchRiscos
+            });
+        } catch (error) {
+            console.error("Update failed:", error);
+        }
+        setIsUptading(false);
+        setLinhaVisivel();
+        setLoading(false);
+        setNovosDados(camposVazios);
     };
 
     const handleConfirmDelete = async () => {
@@ -120,6 +120,38 @@ const TabelaRiscos = () => {
         return rowSpan;
     };
 
+    const TdArea = ({ item, index }) => {
+        const calculate = () => {
+            let rowSpan = 1;
+            console.log(isUpdating[2], index)
+            if (isUpdating[2] > index) {
+                for (let i = index + 1; i < isUpdating[2] - index; i++) {
+                    rowSpan++;
+                }
+            }
+            return rowSpan;
+        }
+
+        return (
+            <React.Fragment>
+                {!isUpdating || isUpdating[0] !== item.area ? (
+                    <React.Fragment>
+                        {index === 0 || riscos[index - 1].area !== item.area ? (
+                            <td rowSpan={calculateRowSpan(riscos, item.area, index, 'area')}
+                            >{item.area}</td>
+                        ) : null}
+                    </React.Fragment>
+                ) : (
+                    <React.Fragment>
+                        {index === 0 || riscos[index - 1].area !== item.area ?
+                            (<td rowSpan={calculate()}>{item.area}</td>) : null}
+
+                    </React.Fragment>
+                )}
+            </React.Fragment>
+        )
+    }
+
     return (
         <div className="centered-container">
             {loading && <Loading />}
@@ -172,16 +204,16 @@ const TabelaRiscos = () => {
                                             objSetter={setNovosDados}
                                             funcoes={{
                                                 enviar: handleUpdateItem,
-                                                cancelar: () => { 
-                                                    linhaVisivel === item._id ? 
-                                                    setLinhaVisivel() : 
-                                                    setLinhaVisivel(item._id); setIsUptading(false); 
+                                                cancelar: () => {
+                                                    linhaVisivel === item._id ?
+                                                        setLinhaVisivel() :
+                                                        setLinhaVisivel(item._id); setIsUptading(false);
                                                 }
                                             }}
                                             setExibirModal={setExibirModal}
                                         />
                                     ) : (
-                                        <tr style={{backgroundColor: cores[item.area]}}>
+                                        <tr style={{ backgroundColor: cores[item.area] }}>
                                             {!isUpdating || isUpdating[0] !== item.area ? (
                                                 <React.Fragment>
                                                     {index === 0 || riscos[index - 1].area !== item.area ? (
@@ -212,7 +244,7 @@ const TabelaRiscos = () => {
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(item)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(item._id); setNovosDados(item); setIsUptading([item.area, item.item])
+                                                    setLinhaVisivel(item._id); setNovosDados(item); setIsUptading([item.area, item.item, index])
                                                 }
                                                 } disabled={!isAdmin}>⚙️</button>
                                             </td>
@@ -223,7 +255,7 @@ const TabelaRiscos = () => {
                             <CadastroInputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcoes={{enviar}}
+                                funcoes={{ enviar }}
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>
