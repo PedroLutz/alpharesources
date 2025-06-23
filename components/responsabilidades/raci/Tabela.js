@@ -56,8 +56,7 @@ const Tabela = () => {
     setItensRaci(data.itensRaci);
   };
 
-  const enviar = async (e) => {
-    e.preventDefault();
+  const enviar = async () => {
     var itemJaUsado = false;
     itensRaci.forEach((item) => {
       if (Object.values(item).indexOf(novoSubmit.area) > -1) {

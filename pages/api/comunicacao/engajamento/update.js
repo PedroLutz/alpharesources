@@ -1,11 +1,17 @@
 import connectToDatabase from '../../../../lib/db';
 import EngajamentoModel from '../../../../models/comunicacao/Engajamento';
+import { verificarAuth } from '../../../../lib/verifica_auth';
 
 const { Engajamento, EngajamentoSchema } = EngajamentoModel;
 
 export default async (req, res) => {
   try {
     await connectToDatabase();
+
+    const user = verificarAuth(req);
+    if (!user) {
+      return res.status(401).json({ error: 'Not authorized' });
+    }
 
     if (req.method === 'PUT') {
       const { id } = req.query;
@@ -16,7 +22,7 @@ export default async (req, res) => {
 
       const propriedadesNomes = Object.keys(EngajamentoSchema.paths);
       const updateFields = {};
-      
+
       for (const key in req.body) {
         if (req.body[key] != null) {
           if (propriedadesNomes.includes(key)) {

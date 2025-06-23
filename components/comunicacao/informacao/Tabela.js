@@ -33,8 +33,7 @@ const Tabela = () => {
     const [isUpdating, setIsUptading] = useState(false);
 
     //funcao que envia os dados para registro no backend
-    const enviar = async (e) => {
-        e.preventDefault();
+    const enviar = async () => {
         await handleSubmit({
             route: 'comunicacao/informacao',
             dados: novoSubmit,
@@ -71,13 +70,12 @@ const Tabela = () => {
                     fetchDados: fetchInformacoes
                 });
             } finally {
-                setExibirModal(`deleteSuccess-${getDeleteSuccess}`)
+                if (getDeleteSuccess) {
+                    setExibirModal(`deleteSuccess`)
+                } else {
+                    setExibirModal(`deleteFail`)
+                }
             }
-        }
-        if (getDeleteSuccess) {
-            setExibirModal(`deleteSuccess`)
-        } else {
-            setExibirModal(`deleteFail`)
         }
         setConfirmDeleteItem(null);
     };
@@ -176,9 +174,9 @@ const Tabela = () => {
                                         <Inputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
-                                            funcao={{
-                                                funcao1: () => handleUpdateItem(),
-                                                funcao2: () => { linhaVisivel === informacao._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUptading(false); }
+                                            funcoes={{
+                                                enviar: handleUpdateItem,
+                                                cancelar: () => { linhaVisivel === informacao._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUptading(false); }
                                             }}
                                             setExibirModal={setExibirModal}
                                         />
@@ -233,7 +231,7 @@ const Tabela = () => {
                             <Inputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcao={enviar}
+                                funcoes={{enviar}}
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>

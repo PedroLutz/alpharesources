@@ -109,12 +109,14 @@
 
 .tabelaRaci_container{
     overflow: auto;
+    scrollbar-gutter: stable; /* mantém espaço fixo da scrollbar */
 }
 
 .tabelaRaci_wrapper{
     max-width: 1000px;
     display: inline-block;
     max-height: 45rem;
+    
 }
 
 .tabelaRaci th, .tabelaFuncoes th, .tabelaHabilidade th{

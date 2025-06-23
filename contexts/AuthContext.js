@@ -5,27 +5,34 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [autenticado, setAutenticado] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true); // pra evitar piscar
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString('utf-8'));
+    const checarToken = async () => {
+      try {
+        const res = await fetch('/api/verificaLogin');
+        const data = await res.json();
 
-      const agora = Math.floor(Date.now() / 1000); // em segundos
-      if (payload.exp && payload.exp > agora) {
-        setAutenticado(true);
-        setIsAdmin(payload.admin);
-      } else {
-        localStorage.removeItem('token'); // limpa token vencido
+        if (res.ok && data.autenticado) {
+          setAutenticado(true);
+          setIsAdmin(data.admin);
+        } else {
+          setAutenticado(false);
+          setIsAdmin(false);
+        }
+      } catch (err) {
+        console.error('erro ao verificar token', err);
         setAutenticado(false);
         setIsAdmin(false);
+      } finally {
+        setLoading(false); // quando terminar a verificação
       }
+    };
 
-      setIsAdmin(payload.admin);
-    } else {
-      setAutenticado(false);
-    }
+    checarToken();
   }, []);
+
+  if (loading) return <div>carregando...</div>; // evita piscar conteúdo
 
   return (
     <AuthContext.Provider value={{ autenticado, setAutenticado, isAdmin, setIsAdmin }}>

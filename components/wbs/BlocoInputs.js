@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useRef, useContext } from "react";
+import React, { useEffect, useRef, useContext } from "react";
 import styles from '../../styles/modules/wbs.module.css';
 import { AuthContext } from "../../contexts/AuthContext";
 
-const BlocoInputs = ({ tipo, obj, objSetter, funcao, setExibirModal, area, isNameUsed }) => {
+const BlocoInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, area, isNameUsed }) => {
     const camposRef = useRef({
         cor: null,
         item: null,
@@ -48,7 +48,6 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, setExibirModal, area, isNam
                 }
             }));
         }
-
         e.target.classList.remove('campo-vazio');
     };
 
@@ -83,31 +82,20 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, setExibirModal, area, isNam
         return false;
     };
 
-
-    //essa funcao executa o envio, tratanto diferentemente caso seja o
-    //componente tenha sido chamado para cor ou item e area
-    //ela tambem chama validaDados() e executa apenas se os dados forem validos.
-    const handleSubmit = async (e) => {
+    const handleSubmit = async () => {
         const isInvalido = tipo === 'updateCor' ? false : validaDados();
         if (isInvalido) return;
-        if (funcao.funcao1) {
-            funcao.funcao1();
-        } else {
-            if (area) {
-                await funcao(e, area);
-                var key;
-                key = `novo${area}`;
-                objSetter(prevState => ({
-                    ...prevState,
-                    [key]: {
-                        ...prevState[key],
-                        item: ''
-                    }
-                }));
-            } else {
-                funcao(e);
-            }
+        if (area) {
+            const key = `novo${area}`;
+            objSetter(prevState => ({
+                ...prevState,
+                [key]: {
+                    ...prevState[key],
+                    item: ''
+                }
+            }));
         }
+        await funcoes?.enviar(area);
     }
 
     if (tipo === 'cadastroArea') {
@@ -135,7 +123,7 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, setExibirModal, area, isNam
                     onChange={handleChange}
                     ref={el => (camposRef.current.cor = el)} />
 
-                <button onClick={(e) => handleSubmit(e)} disabled={!isAdmin}>Add new</button>
+                <button onClick={handleSubmit} disabled={!isAdmin}>Add new</button>
             </div>
         )
     }
@@ -149,7 +137,7 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, setExibirModal, area, isNam
                         data-area={area}
                         onChange={handleChange}
                         ref={el => (camposRef.current.item = el)} />
-                    <button onClick={(e) => handleSubmit(e)} disabled={!isAdmin}>➕</button>
+                    <button onClick={handleSubmit} disabled={!isAdmin}>➕</button>
                 </div>
             </div>
         )
@@ -164,9 +152,8 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, setExibirModal, area, isNam
                         ref={el => (camposRef.current.item = el)} />
 
                     <button onClick={handleSubmit}>✔️</button>
-                    <button onClick={funcao.funcao2}>✖️</button>
+                    <button onClick={funcoes?.cancelar}>✖️</button>
                 </div>
-
             </React.Fragment>
         )
     }
@@ -179,9 +166,8 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, setExibirModal, area, isNam
                         onChange={handleChange}
                         ref={el => (camposRef.current.area = el)} />
                     <button onClick={handleSubmit}>✔️</button>
-                    <button onClick={funcao.funcao2}>✖️</button>
+                    <button onClick={funcoes?.cancelar}>✖️</button>
                 </div>
-
             </React.Fragment>
         )
     }
@@ -195,9 +181,8 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcao, setExibirModal, area, isNam
                         onChange={handleChangeCor}
                         ref={el => (camposRef.current.cor = el)} />
                     <button onClick={handleSubmit}>✔️</button>
-                    <button onClick={funcao.funcao2}>✖️</button>
+                    <button onClick={funcoes?.cancelar}>✖️</button>
                 </div>
-
             </React.Fragment>
         )
     }

@@ -206,11 +206,11 @@ INFORMACAO
     min-width: 25rem;
 }
 
-#infotdFrequencia select{
+#infoTdFrequencia select{
     height: 2.7rem;
     margin-bottom: 0.2rem;
 }
 
-#infotdFrequencia input{
-    width: 9.5rem;
+#infoTdFrequencia input{
+    max-width: 9.5rem;
 }

@@ -143,9 +143,9 @@ const Tabela = () => {
                                             <Inputs tipo="update"
                                                 obj={novosDados}
                                                 objSetter={setNovosDados}
-                                                funcao={{
-                                                    funcao1: () => handleUpdateItem(),
-                                                    funcao2: () => { linhaVisivel === engajamento._id ? setLinhaVisivel() : setLinhaVisivel(engajamento._id); setIsUptading(false); }
+                                                funcoes={{
+                                                    enviar: handleUpdateItem,
+                                                    cancelar: () => { linhaVisivel === engajamento._id ? setLinhaVisivel() : setLinhaVisivel(engajamento._id); setIsUptading(false); }
                                                 }}
                                                 setExibirModal={setExibirModal}
                                             />

@@ -1,4 +1,5 @@
 import connectToDatabase from '../../../../lib/db';
+import { verificarAuth } from '../../../../lib/verifica_auth';
 import WbsModel from '../../../../models/wbs/wbs';
 import WbsDictionaryModel from '../../../../models/wbs/wbsDictionary'
 import PlanoAquisicaoModel from '../../../../models/recursos/PlanoAquisicao';
@@ -26,6 +27,11 @@ export default async (req, res) => {
   try {
     await connectToDatabase();
 
+    const user = verificarAuth(req);
+    if (!user) {
+      return res.status(401).json({ error: 'Not authorized' });
+    }
+
     if (req.method === 'PUT') {
       const { area, oldArea } = req.body;
 
@@ -33,48 +39,29 @@ export default async (req, res) => {
       session.startTransaction();
 
       try {
-        const updatedData = await Wbs.updateMany({ area: oldArea }, { $set: { area: area } });
+        const updatedData = await Wbs.updateMany({ area: oldArea }, { $set: { area: area } }, { session });
         if (!updatedData) {
           await session.abortTransaction();
+          session.endSession();
           return res.status(404).json({ error: 'WBS não encontrado.' });
         }
 
-        await PlanoAquisicao.updateMany(
-          { area: oldArea }, { $set: { area: area } }
-        );
-        await Recurso.updateMany(
-          { area: oldArea }, { $set: { area: area } }
-        );
-        await Lancamento.updateMany(
-          { area: oldArea }, { $set: { area: area } }
-        );
-        await Gantt.updateMany(
-          { area: oldArea }, { $set: { area: area } }
-        );
-        await Gantt.updateMany(
-          { dp_area: oldArea }, { $set: { dp_area: area } }
-        );
-        await Raci.updateMany(
-          { area: oldArea }, { $set: { area: area } }
-        );
-        await Risco.updateMany(
-          { area: oldArea }, { $set: { area: area } }
-        );
-        await WbsDictionary.updateMany(
-          { area: oldArea }, { $set: { area: area } }
-        );
-        await Habilidade.updateMany(
-          { area: oldArea }, { $set: { area: area } }
-        );
-        await Mudanca.updateMany(
-          { area: oldArea }, { $set: { area: area } }
-        );
+        await PlanoAquisicao.updateMany({ area: oldArea }, { $set: { area: area } }, { session });
+        await Recurso.updateMany({ area: oldArea }, { $set: { area: area } }, { session });
+        await Lancamento.updateMany({ area: oldArea }, { $set: { area: area } }, { session });
+        await Gantt.updateMany({ area: oldArea }, { $set: { area: area } }, { session });
+        await Gantt.updateMany({ dp_area: oldArea }, { $set: { dp_area: area } }, { session });
+        await Raci.updateMany({ area: oldArea }, { $set: { area: area } }, { session });
+        await Risco.updateMany({ area: oldArea }, { $set: { area: area } }, { session });
+        await WbsDictionary.updateMany({ area: oldArea }, { $set: { area: area } }, { session });
+        await Habilidade.updateMany({ area: oldArea }, { $set: { area: area } }, { session });
+        await Mudanca.updateMany({ area: oldArea }, { $set: { area: area } }, { session });
 
         await session.commitTransaction();
         session.endSession();
 
-        return res.status(200).json(updatedRecurso);
-      } catch {
+        return res.status(200).json({ success: true });
+      } catch (error) {
         await session.abortTransaction();
         session.endSession();
         console.error('Erro na transação:', error);

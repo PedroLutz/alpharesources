@@ -1,4 +1,5 @@
 import connectToDatabase from '../../../../lib/db';
+import { verificarAuth } from '../../../../lib/verifica_auth';
 import ImpactoModel from '../../../../models/riscos/Impacto';
 
 const { Impacto, ImpactoSchema } = ImpactoModel;
@@ -6,6 +7,11 @@ const { Impacto, ImpactoSchema } = ImpactoModel;
 export default async (req, res) => {
   try {
     await connectToDatabase();
+
+    const user = verificarAuth(req);
+    if (!user) {
+      return res.status(401).json({ error: 'Not authorized' });
+    }
 
     if (req.method === 'PUT') {
       const { id } = req.query;
@@ -16,7 +22,7 @@ export default async (req, res) => {
 
       const propriedadesNomes = Object.keys(ImpactoSchema.paths);
       const updateFields = {};
-      
+
       for (const key in req.body) {
         if (req.body[key]) {
           if (propriedadesNomes.includes(key)) {

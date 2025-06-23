@@ -46,34 +46,36 @@ export default async (req, res) => {
       session.startTransaction();
 
       try {
-        const updatedData = await Risco.findByIdAndUpdate(id, updateFields, { new: true });
+        const updatedData = await Risco.findByIdAndUpdate(id, updateFields, { new: true }, { session });
+
+        if (!updatedData) {
+          await session.abortTransaction();
+          session.endSession();
+          return res.status(404).json({ error: 'Risco não encontrado.' });
+        }
 
         await Resposta.updateMany(
           { risco: riscoOriginal.risco },
-          { $set: { risco: updateFields.risco } }
+          { $set: { risco: updateFields.risco } }, { session }
         );
         await Impacto.updateMany(
           { risco: riscoOriginal.risco },
-          { $set: { risco: updateFields.risco } }
+          { $set: { risco: updateFields.risco } }, { session }
         );
         await Audit.updateMany(
           { risco: riscoOriginal.risco },
-          { $set: { risco: updateFields.risco } }
+          { $set: { risco: updateFields.risco } }, { session }
         );
         await Analise.updateMany(
           { risco: riscoOriginal.risco },
-          { $set: { risco: updateFields.risco } }
+          { $set: { risco: updateFields.risco } }, { session }
         );
-
-        if (!updatedData) {
-          return res.status(404).json({ error: 'Risco não encontrado.' });
-        }
 
         await session.commitTransaction();
         session.endSession();
         
         return res.status(200).json(updatedData);
-      } catch {
+      } catch (error) {
         await session.abortTransaction();
         session.endSession();
         console.error('Erro na transação:', error);

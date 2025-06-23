@@ -1,9 +1,8 @@
-import { useEffect, useState, useRef, useContext } from "react";
+import { useRef, useContext } from "react";
 import React from "react";
-import { fetchData } from "../../../functions/crud";
 import { AuthContext } from "../../../contexts/AuthContext";
 
-const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
+const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     const camposRef = useRef({
         grupo: null,
         envolvimento: null,
@@ -29,12 +28,6 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
         e.target.classList.remove('campo-vazio');
     };
 
-    //funcao que retorna array com true caso algum campo esteja vazio, e os nomes dos campos vazios
-    const isFormVazio = (form) => {
-        const emptyFields = Object.entries(form).filter(([key, value]) => value === null || value === "");
-        return [emptyFields.length > 0, emptyFields.map(([key]) => key)];
-    };
-
     //funcao que valida os dados e insere nos campos vazios a classe "campo-vazio"
     const validaDados = () => {
         const camposVazios = Object.entries(obj)
@@ -55,18 +48,11 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
     }
 
     //funcao que, caso os dados sejam validos, executa a funcao de submit
-    const handleSubmit = (e) => {
+    const handleSubmit = () => {
         const isInvalido = validaDados();
         
-        if(isInvalido){
-            return;
-        }
-        
-        if(funcao.funcao1){
-            funcao.funcao1();
-        } else {
-            funcao(e);
-        }
+        if(isInvalido) return;
+        funcoes?.enviar();
     }
 
     return (
@@ -167,7 +153,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>
-                        <button onClick={funcao.funcao2}>✖️</button>
+                        <button onClick={funcoes?.cancelar}>✖️</button>
                     </React.Fragment>
                 )}
             </td>

@@ -1,11 +1,17 @@
 import connectToDatabase from '../../../lib/db';
+import { verificarAuth } from '../../../lib/verifica_auth';
 import GanttModel from '../../../models/Gantt';
 
-const { Gantt, GanttSchema } = GanttModel;
+const { Gantt } = GanttModel;
 
 export default async (req, res) => {
   try {
     await connectToDatabase();
+
+    const user = verificarAuth(req);
+    if (!user) {
+      return res.status(401).json({ error: 'Not authorized' });
+    }
 
     if (req.method === 'PUT') {
       const { id } = req.query;

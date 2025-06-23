@@ -178,11 +178,11 @@ const Tabela = () => {
                                         />
                                     ) : (
                                         <tr>
-                                            <td>{licao.data}</td>
-                                            <td>{licao.tipo}</td>
-                                            <td>{licao.situacao}</td>
-                                            <td>{licao.aprendizado}</td>
-                                            <td>{licao.acao}</td>
+                                            <td id={styles.licoesData}>{licao.data}</td>
+                                            <td id={styles.licoesTipo}>{licao.tipo}</td>
+                                            <td id={styles.licoesSituacao}>{licao.situacao}</td>
+                                            <td id={styles.licoesAprendizado}>{licao.aprendizado}</td>
+                                            <td id={styles.licoesAcao}>{licao.acao}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(licao)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {

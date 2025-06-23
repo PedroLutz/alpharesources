@@ -1,4 +1,5 @@
 import connectToDatabase from '../../../../lib/db';
+import { verificarAuth } from '../../../../lib/verifica_auth';
 import HabilidadeModel from '../../../../models/responsabilidade/Habilidade';
 
 const { Habilidade, HabilidadeSchema } = HabilidadeModel;
@@ -6,6 +7,11 @@ const { Habilidade, HabilidadeSchema } = HabilidadeModel;
 export default async (req, res) => {
   try {
     await connectToDatabase();
+
+    const user = verificarAuth(req);
+    if (!user) {
+      return res.status(401).json({ error: 'Not authorized' });
+    }
 
     if (req.method === 'POST') {
       const propriedadesNomes = Object.keys(HabilidadeSchema.paths);

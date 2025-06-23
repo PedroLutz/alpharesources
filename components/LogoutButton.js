@@ -2,17 +2,24 @@ import { useContext } from "react";
 import { AuthContext } from "../contexts/AuthContext";
 
 const Logout = () => {
-    const {setAutenticado} = useContext(AuthContext);
+    const { setAutenticado } = useContext(AuthContext);
 
-    const deslogar = () => {
-        sessionStorage.setItem('isAdmin', false)
-        setAutenticado(false);
-        localStorage.removeItem('token');
-    }
+    const deslogar = async () => {
+        try {
+            await fetch('/api/logout', {
+                method: 'POST',
+            });
+
+            setAutenticado(false);
+            sessionStorage.setItem('isAdmin', false);
+        } catch (err) {
+            console.error('Erro ao fazer logout', err);
+        }
+    };
 
     return (
-        <button className="botao_logout"onClick={deslogar}>Logoff</button>
-    )
-}
+        <button className="botao_logout" onClick={deslogar}>Logoff</button>
+    );
+};
 
 export default Logout;

@@ -1,4 +1,5 @@
 import connectToDatabase from '../../../../lib/db';
+import { verificarAuth } from '../../../../lib/verifica_auth';
 import RaciModel from '../../../../models/responsabilidade/Raci';
 
 const { Raci, RaciSchema } = RaciModel;
@@ -6,6 +7,11 @@ const { Raci, RaciSchema } = RaciModel;
 export default async (req, res) => {
   try {
     await connectToDatabase();
+
+    const user = verificarAuth(req);
+    if (!user) {
+      return res.status(401).json({ error: 'Not authorized' });
+    }
 
     if (req.method === 'POST') {
       const propriedadesNomes = Object.keys(RaciSchema.paths);

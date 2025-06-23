@@ -1,4 +1,5 @@
 import connectToDatabase from '../../../../lib/db';
+import { verificarAuth } from '../../../../lib/verifica_auth';
 import StakeholderGroupModel from '../../../../models/comunicacao/StakeholderGroup';
 import StakeholderModel from '../../../../models/comunicacao/Stakeholder';
 import EngajamentoModel from '../../../../models/comunicacao/Engajamento';
@@ -6,13 +7,18 @@ import InformacaoModel from '../../../../models/comunicacao/Informacao';
 import mongoose from 'mongoose';
 
 const { StakeholderGroup, StakeholderGroupSchema } = StakeholderGroupModel;
-const { Stakeholder, StakeholderSchema } = StakeholderModel;
-const { Engajamento, EngajamentoSchema } = EngajamentoModel;
-const { Informacao, InformacaoSchema } = InformacaoModel;
+const { Stakeholder } = StakeholderModel;
+const { Engajamento } = EngajamentoModel;
+const { Informacao } = InformacaoModel;
 
 export default async (req, res) => {
   try {
     await connectToDatabase();
+
+    const user = verificarAuth(req);
+    if (!user) {
+      return res.status(401).json({ error: 'Not authorized' });
+    }
 
     if (req.method === 'PUT') {
       const { id } = req.query;
@@ -44,32 +50,37 @@ export default async (req, res) => {
       session.startTransaction();
 
       try {
-        const updatedData = await StakeholderGroup.findByIdAndUpdate(id, updateFields, { new: true });
+        const updatedData = await StakeholderGroup.findByIdAndUpdate(id, updateFields, { new: true }, { session });
+
+        if (!updatedData) {
+          await session.abortTransaction();
+          session.endSession();
+          return res.status(404).json({ error: 'StakeholderGroup não encontrado.' });
+        }
 
         await Stakeholder.updateMany(
-          {grupo: grupoOriginal.grupo},
-          {$set: {grupo: updateFields.grupo}}
+          { grupo: grupoOriginal.grupo },
+          { $set: { grupo: updateFields.grupo } },
+          { session }
         )
 
         await Engajamento.updateMany(
-          {grupo: grupoOriginal.grupo},
-          {$set: {grupo: updateFields.grupo}}
+          { grupo: grupoOriginal.grupo },
+          { $set: { grupo: updateFields.grupo } },
+          { session }
         )
 
         await Informacao.updateMany(
-          {grupo: grupoOriginal.grupo},
-          {$set: {grupo: updateFields.grupo}}
+          { grupo: grupoOriginal.grupo },
+          { $set: { grupo: updateFields.grupo } },
+          { session }
         )
-
-        if (!updatedData) {
-          return res.status(404).json({ error: 'StakeholderGroup não encontrado.' });
-        }
 
         await session.commitTransaction();
         session.endSession();
 
         return res.status(200).json(updatedData);
-      } catch {
+      } catch (error) {
         await session.abortTransaction();
         session.endSession();
         console.error('Erro na transação:', error);

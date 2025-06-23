@@ -11,6 +11,7 @@ const handleSubmit = async (o) => {
 
     try {
         const response = await fetch(`/api/${o.route}/create`, {
+            credentials: 'include',
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -46,6 +47,7 @@ const handleDelete = async (o) => {
 
     try {
         const response = await fetch(`/api/${o.route}/delete?id=${o.item._id}`, {
+            credentials: 'include',
             method: 'DELETE',
         });
 
@@ -68,6 +70,7 @@ const fetchData = async (route) => {
 
     try {
         const response = await fetch(`/api/${route}`, {
+            credentials: 'include',
             method: 'GET',
         });
 
@@ -103,6 +106,7 @@ const handleUpdate = async (o) => {
     }
     try {
         const response = await fetch(route, {
+            credentials: 'include',
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -135,6 +139,7 @@ const handlePseudoDelete = async (o) => {
     try {
         const response = await fetch(`/api/${o.route}/updateDelete?id=${String(o.item._id)}`, {
             method: 'PUT',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
             },

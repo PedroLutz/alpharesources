@@ -3,7 +3,7 @@ import { fetchData } from '../../../functions/crud';
 import { AuthContext } from '../../../contexts/AuthContext';
 import styles from '../../../styles/modules/wbs.module.css'
 
-const Inputs = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
+const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
     const [elementosWBS, setElementosWBS] = useState([]);
     const [itensPorArea, setItensPorArea] = useState([]);
     const camposRef = useRef({
@@ -94,14 +94,10 @@ const Inputs = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
 
     //essa funcao se responsabiliza por executar o handleSubmit de acordo
     //com o tipo de funcao recebida, executando apenas se os dados sao validos
-    const handleSubmit = async (e) => {
+    const handleSubmit = async () => {
         const isInvalido = validaDados();
         if(isInvalido) return;
-        if (funcao.funcao1) {
-            funcao.funcao1();
-        } else {
-            funcao(e);
-        }
+        await funcoes?.enviar();
     };
 
     return (
@@ -117,7 +113,6 @@ const Inputs = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
                     {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
                         <option key={index} value={area}>{area}</option>
                     ))};
-                    <option value="Others">Others</option>
                 </select>
             </td>
             <td className={styles.td_item}>
@@ -132,7 +127,6 @@ const Inputs = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
                     {itensPorArea.map((item, index) => (
                         <option key={index} value={item}>{item}</option>
                     ))}
-                    <option value="Others">Others</option>
                 </select>
             </td>
             <td className={styles.td_descricao}>
@@ -228,11 +222,11 @@ const Inputs = ({ obj, objSetter, tipo, funcao, setExibirModal }) => {
             </td>
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
-                    <button onClick={(e) => handleSubmit(e)} disabled={!isAdmin}>Add new</button>
+                    <button onClick={handleSubmit} disabled={!isAdmin}>Add new</button>
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>
-                        <button onClick={funcao.funcao2}>✖️</button>
+                        <button onClick={funcoes?.cancelar}>✖️</button>
                     </React.Fragment>
                 )}
             </td>

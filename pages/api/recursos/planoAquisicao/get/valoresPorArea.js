@@ -1,4 +1,5 @@
 import connectToDatabase from '../../../../../lib/db';
+import { verificarAuth } from '../../../../../lib/verifica_auth';
 import PlanoAquisicaoModel from '../../../../../models/recursos/PlanoAquisicao';
 
 const { PlanoAquisicao } = PlanoAquisicaoModel;
@@ -6,6 +7,11 @@ const { PlanoAquisicao } = PlanoAquisicaoModel;
 export default async (req, res) => {
     try {
         await connectToDatabase();
+
+        const user = verificarAuth(req);
+        if (!user) {
+            return res.status(401).json({ error: 'Not authorized' });
+        }
 
         if (req.method === 'GET') {
             const valoresPorArea_all = await PlanoAquisicao.aggregate([
@@ -18,7 +24,7 @@ export default async (req, res) => {
                 },
                 {
                     $sort: {
-                        _id: 1 
+                        _id: 1
                     }
                 }
             ]);

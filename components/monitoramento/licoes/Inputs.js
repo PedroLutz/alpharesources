@@ -1,4 +1,5 @@
-import { useState, useRef, useContext, useEffect } from "react";
+import { useRef, useContext } from "react";
+import styles from '../../../styles/modules/monitoramento.module.css'
 import React from "react";
 import { AuthContext } from "../../../contexts/AuthContext";
 
@@ -54,14 +55,14 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
 
     return (
         <tr>
-            <td>
+            <td id={styles.licoesData}>
                 <input type="date"
                     value={obj.data}
                     name='data'
                     onChange={handleChange}
                     ref={el => (camposRef.current.data = el)} />
             </td>
-            <td>
+            <td id={styles.licoesTipo}>
                 <select
                     value={obj.tipo}
                     name='tipo'
@@ -73,7 +74,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     <option value='Tacit'>Tacit</option>
                 </select>
             </td>
-            <td>
+            <td id={styles.licoesSituacao}>
                 <textarea
                     name="situacao"
                     onChange={handleChange}
@@ -82,7 +83,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.situacao = el)}
                 />
             </td>
-            <td>
+            <td id={styles.licoesAprendizado}>
                 <textarea
                     name="aprendizado"
                     onChange={handleChange}
@@ -91,7 +92,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.aprendizado = el)}
                 />
             </td>
-            <td>
+            <td id={styles.licoesAcao}>
                 <textarea
                     name="acao"
                     onChange={handleChange}

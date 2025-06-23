@@ -1,6 +1,7 @@
 import connectToDatabase from '../../../../lib/db';
 import StakeholderModel from '../../../../models/comunicacao/Stakeholder';
 import EngajamentoModel from '../../../../models/comunicacao/Engajamento';
+import { verificarAuth } from '../../../../lib/verifica_auth';
 import mongoose from 'mongoose';
 
 const { Stakeholder } = StakeholderModel;
@@ -10,6 +11,11 @@ export default async (req, res) => {
   try {
     await connectToDatabase();
 
+    const user = verificarAuth(req);
+    if (!user) {
+      return res.status(401).json({ error: 'Not authorized' });
+    }
+
     if (req.method === 'DELETE') {
       if (!req.query.id) {
         return res.status(400).json({ error: 'O ID do Stakeholder não foi fornecido' });
@@ -18,7 +24,7 @@ export default async (req, res) => {
       const session = await mongoose.startSession();
       session.startTransaction();
 
-      try{
+      try {
         const deletedData = await Stakeholder.findByIdAndDelete(req.query.id);
         await Engajamento.findOneAndDelete({
           grupo: deletedData.grupo, stakeholder: deletedData.stakeholder
@@ -39,7 +45,7 @@ export default async (req, res) => {
         return res.status(500).json({ error: 'Erro ao deletar Stakeholders e areas relacionadas.' });
       }
 
-      
+
     } else {
       res.status(405).json({ error: 'Método não permitido' });
     }

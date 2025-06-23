@@ -1,4 +1,5 @@
 import connectToDatabase from '../../../../lib/db';
+import { verificarAuth } from '../../../../lib/verifica_auth';
 import MudancaModel from '../../../../models/monitoramento/Mudanca';
 
 const { Mudanca, MudancaSchema } = MudancaModel;
@@ -6,6 +7,11 @@ const { Mudanca, MudancaSchema } = MudancaModel;
 export default async (req, res) => {
   try {
     await connectToDatabase();
+
+    const user = verificarAuth(req);
+    if (!user) {
+      return res.status(401).json({ error: 'Not authorized' });
+    }
 
     if (req.method === 'PUT') {
       const { id } = req.query;
@@ -16,7 +22,7 @@ export default async (req, res) => {
 
       const propriedadesNomes = Object.keys(MudancaSchema.paths);
       const updateFields = {};
-      
+
       for (const key in req.body) {
         if (req.body[key]) {
           if (propriedadesNomes.includes(key)) {

@@ -1,11 +1,17 @@
 import connectToDatabase from '../../../../../lib/db';
+import { verificarAuth } from '../../../../../lib/verifica_auth';
 import AnaliseModel from '../../../../../models/riscos/Analise';
 
-const { Analise, AnaliseSchema } = AnaliseModel;
+const { Analise } = AnaliseModel;
 
 export default async (req, res) => {
   try {
     await connectToDatabase();
+
+    const user = verificarAuth(req);
+    if (!user) {
+      return res.status(401).json({ error: 'Not authorized' });
+    }
 
     if (req.method === 'GET') {
       // Buscar todas as análises
@@ -57,7 +63,7 @@ export default async (req, res) => {
           }
         }
       ]);
-      
+
       const resultadosAgrupados = {};
       for (let eti of etis) {
         resultadosAgrupados[eti.item] = eti.totalETI;

@@ -37,34 +37,6 @@
     z-index: 10;
 }
 
-#mudancasMudanca, #mudancasJustificativa, #mudancasImpacto{
-    text-align: left;
-}
-
-#mudancasMudanca{
-    min-width: 15rem;
-}
-
-#mudancasMudanca textarea{
-    width: 14.5rem;
-}
-
-#mudancasJustificativa, #mudancasImpacto{
-    min-width: 18rem;
-}
-
-#mudancasJustificativa textarea, #mudancasImpacto textarea{
-    min-width: 17.5rem;
-}
-
-#mudancasData{
-    width: 5rem;
-}
-
-#mudancasData input{
-    width: 8rem
-}
-
 .tabela_mudancas td input, .tabela_mudancas td select, .tabela_mudancas td textarea,
 .tabela_licoes td input, .tabela_licoes td select, .tabela_licoes td textarea {
     border-width: 0.1rem;
@@ -133,4 +105,82 @@
     font-weight: bold;
     width: 10rem;
     height: 1.7rem;
+}
+
+/* 
+------MUDANCAS
+*/
+
+#mudancasMudanca, #mudancasJustificativa, #mudancasImpacto{
+    text-align: left;
+}
+
+#mudancasMudanca{
+    min-width: 15rem;
+}
+
+#mudancasMudanca textarea{
+    width: 14.5rem;
+}
+
+#mudancasJustificativa, #mudancasImpacto{
+    min-width: 18rem;
+}
+
+#mudancasJustificativa textarea, #mudancasImpacto textarea{
+    min-width: 17.5rem;
+}
+
+#mudancasData{
+    width: 5rem;
+}
+
+#mudancasData input{
+    width: 8rem
+}
+
+/* 
+------LICOES
+*/
+
+#licoesData input{
+    width: 8rem;
+}
+
+#licoesTipo {
+    min-width: 5rem;
+}
+
+#licoesTipo select {
+    width: 5rem;
+}
+
+#licoesSituacao {
+    text-align: justify;
+    width: 22rem;
+    font-size: 0.75rem;
+}
+
+#licoesSituacao textarea{
+    width: 21.5rem;
+}
+
+#licoesAprendizado{
+    font-size: 0.75rem;
+    text-align: left;
+    width: 14rem;
+}
+
+#licoesAprendizado textarea{
+    width: 14rem;
+}
+
+#licoesAcao{
+    width: 16rem;
+    font-size: 0.75rem;
+    text-align: justify;
+}
+
+#licoesAcao textarea{
+    width: 15.5rem;
 }

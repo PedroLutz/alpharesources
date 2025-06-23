@@ -59,6 +59,7 @@ const TabelaRiscos = () => {
             } catch (error) {
                 console.error("Update failed:", error);
             }
+            setIsUptading(false);
             setLinhaVisivel();
             setLoading(false);
             setNovosDados(camposVazios);

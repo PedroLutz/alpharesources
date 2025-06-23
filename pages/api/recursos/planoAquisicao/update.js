@@ -1,4 +1,5 @@
 import connectToDatabase from '../../../../lib/db';
+import { verificarAuth } from '../../../../lib/verifica_auth';
 import PlanoAquisicaoModel from '../../../../models/recursos/PlanoAquisicao';
 
 const { PlanoAquisicao, PlanoAquisicaoSchema } = PlanoAquisicaoModel;
@@ -6,6 +7,11 @@ const { PlanoAquisicao, PlanoAquisicaoSchema } = PlanoAquisicaoModel;
 export default async (req, res) => {
   try {
     await connectToDatabase();
+
+    const user = verificarAuth(req);
+    if (!user) {
+      return res.status(401).json({ error: 'Not authorized' });
+    }
 
     if (req.method === 'PUT') {
       const { id } = req.query;
@@ -16,7 +22,7 @@ export default async (req, res) => {
 
       const propriedadesNomes = Object.keys(PlanoAquisicaoSchema.paths);
       const updateFields = {};
-      
+
       for (const key in req.body) {
         if (req.body.hasOwnProperty(key)) {
           if (propriedadesNomes.includes(key)) {

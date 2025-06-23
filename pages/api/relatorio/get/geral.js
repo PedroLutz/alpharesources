@@ -1,15 +1,19 @@
 import connectToDatabase from '../../../../lib/db';
+import { verificarAuth } from '../../../../lib/verifica_auth';
 import GanttModel from '../../../../models/Gantt';
 import RiscoModel from '../../../../models/riscos/Risco';
-import LancamentoModel from '../../../../models/financas/LancamentoFinanceiro';
 
 const { Gantt } = GanttModel;
 const { Risco } = RiscoModel;
-const { Lancamento } = LancamentoModel;
 
 export default async (req, res) => {
   try {
     await connectToDatabase();
+
+    const user = verificarAuth(req);
+    if (!user) {
+      return res.status(401).json({ error: 'Not authorized' });
+    }
 
     if (req.method === 'POST') {
       const { monthYear } = req.body;
@@ -25,7 +29,7 @@ export default async (req, res) => {
         termino: { $gte: startDate, $lte: endDate },
         situacao: "concluida",
         plano: false
-      }, 'area item'); 
+      }, 'area item');
 
       const tarefasIniciadas = await Gantt.find({
         inicio: { $gte: startDate, $lte: endDate },
@@ -33,9 +37,9 @@ export default async (req, res) => {
       }, 'area item');
 
       const tarefasEmAndamentoConditions = [
-        { termino: { $gte: endDate }, inicio: {$lte: startDate} },
+        { termino: { $gte: endDate }, inicio: { $lte: startDate } },
         { inicio: { $lte: startDate }, termino: { $lte: startDate }, situacao: 'em andamento' },
-        { inicio: { $gte: startDate, $lte: endDate }, termino: {$gte: endDate} }
+        { inicio: { $gte: startDate, $lte: endDate }, termino: { $gte: endDate } }
       ];
 
       const tarefasEmAndamento = await Gantt.find({
@@ -101,10 +105,10 @@ export default async (req, res) => {
         })) : [{ _id: null }]
       }, 'risco');
 
-      res.status(200).json({ 
-        tarefasConcluidas, 
-        tarefasIniciadas, 
-        tarefasEmAndamento, 
+      res.status(200).json({
+        tarefasConcluidas,
+        tarefasIniciadas,
+        tarefasEmAndamento,
         tarefasPlanejadas,
         riscos
       });

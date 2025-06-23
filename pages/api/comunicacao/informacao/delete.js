@@ -1,11 +1,17 @@
 import connectToDatabase from '../../../../lib/db';
 import InformacaoModel from '../../../../models/comunicacao/Informacao';
+import { verificarAuth } from '../../../../lib/verifica_auth';
 
 const { Informacao } = InformacaoModel;
 
 export default async (req, res) => {
   try {
     await connectToDatabase();
+
+    const user = verificarAuth(req);
+    if (!user) {
+      return res.status(401).json({ error: 'Not authorized' });
+    }
 
     if (req.method === 'DELETE') {
       if (!req.query.id) {

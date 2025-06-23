@@ -1,4 +1,5 @@
 import connectToDatabase from '../../../lib/db';
+import { verificarAuth } from '../../../lib/verifica_auth';
 import GanttModel from '../../../models/Gantt';
 import mongoose from 'mongoose';
 
@@ -8,6 +9,11 @@ export default async (req, res) => {
   try {
     await connectToDatabase();
 
+    const user = verificarAuth(req);
+    if (!user) {
+      return res.status(401).json({ error: 'Not authorized' });
+    }
+
     if (req.method === 'DELETE') {
       if (!req.query.id) {
         return res.status(400).json({ error: 'O ID do Gantt não foi fornecido' });
@@ -16,7 +22,7 @@ export default async (req, res) => {
       const session = await mongoose.startSession();
       session.startTransaction();
 
-      try{
+      try {
         const deletedData = await Gantt.findByIdAndDelete(req.query.id);
 
         if (!deletedData) {
@@ -24,7 +30,7 @@ export default async (req, res) => {
           return res.status(404).json({ error: 'Gantt não encontrado' });
         }
 
-        await Gantt.findOneAndDelete({area: deletedData.area, item: deletedData.item, plano: false});
+        await Gantt.findOneAndDelete({ area: deletedData.area, item: deletedData.item, plano: false });
 
         await session.commitTransaction();
         session.endSession();
@@ -37,7 +43,7 @@ export default async (req, res) => {
         return res.status(500).json({ error: 'Erro ao atualizar WBS coisas relacionadas.' });
       }
 
-      
+
     } else {
       res.status(405).json({ error: 'Método não permitido' });
     }

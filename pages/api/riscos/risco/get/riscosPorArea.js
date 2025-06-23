@@ -1,11 +1,17 @@
 import connectToDatabase from '../../../../../lib/db';
+import { verificarAuth } from '../../../../../lib/verifica_auth';
 import RiscoModel from '../../../../../models/riscos/Risco';
 
-const { Risco, RiscoSchema } = RiscoModel;
+const { Risco } = RiscoModel;
 
 export default async (req, res) => {
     try {
         await connectToDatabase();
+
+        const user = verificarAuth(req);
+        if (!user) {
+            return res.status(401).json({ error: 'Not authorized' });
+        }
 
         if (req.method === 'GET') {
             const riscosAgrupados = await Risco.aggregate([

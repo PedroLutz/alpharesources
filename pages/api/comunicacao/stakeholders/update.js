@@ -3,14 +3,20 @@ import StakeholderModel from '../../../../models/comunicacao/Stakeholder';
 import mongoose from 'mongoose';
 import EngajamentoModel from '../../../../models/comunicacao/Engajamento';
 import InformacaoModel from '../../../../models/comunicacao/Informacao';
+import { verificarAuth } from '../../../../lib/verifica_auth';
 
 const { Stakeholder, StakeholderSchema } = StakeholderModel;
-const { Engajamento, EngajamentoSchema } = EngajamentoModel;
-const { Informacao, InformacaoSchema } = InformacaoModel;
+const { Engajamento } = EngajamentoModel;
+const { Informacao } = InformacaoModel;
 
 export default async (req, res) => {
   try {
     await connectToDatabase();
+
+    const user = verificarAuth(req);
+    if (!user) {
+      return res.status(401).json({ error: 'Not authorized' });
+    }
 
     if (req.method === 'PUT') {
       const { id } = req.query;
@@ -42,21 +48,23 @@ export default async (req, res) => {
       session.startTransaction();
 
       try {
-        const updatedData = await Stakeholder.findByIdAndUpdate(id, updateFields, { new: true });
+        const updatedData = await Stakeholder.findByIdAndUpdate(id, updateFields, { new: true }, { session });
+        if (!updatedData) {
+          await session.abortTransaction();
+          session.endSession();
+          return res.status(404).json({ error: 'Stakeholder não encontrado.' });
+        }
 
         await Engajamento.updateOne(
-          {grupo: stakeholderOriginal.grupo, stakeholder: stakeholderOriginal.stakeholder}, 
-          {$set: {stakeholder: updateFields.stakeholder, poder: updateFields.poder, interesse: updateFields.interesse}}
+          { grupo: stakeholderOriginal.grupo, stakeholder: stakeholderOriginal.stakeholder },
+          { $set: { stakeholder: updateFields.stakeholder, poder: updateFields.poder, interesse: updateFields.interesse } }, { session }
         )
 
         await Informacao.updateMany(
-          {grupo: stakeholderOriginal.grupo, stakeholder: stakeholderOriginal.stakeholder}, 
-          {$set: {stakeholder: updateFields.stakeholder}}
+          { grupo: stakeholderOriginal.grupo, stakeholder: stakeholderOriginal.stakeholder },
+          { $set: { stakeholder: updateFields.stakeholder } }, { session }
         )
 
-        if (!updatedData) {
-          return res.status(404).json({ error: 'Stakeholder não encontrado.' });
-        }
         await session.commitTransaction();
         session.endSession();
 

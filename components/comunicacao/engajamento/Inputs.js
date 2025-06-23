@@ -1,7 +1,7 @@
 import { useRef} from "react";
 import React from "react";
 
-const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
+const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     const camposRef = useRef({
         nivel_engajamento: null,
         nivel_eng_desejado: null
@@ -39,7 +39,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
         const isInvalido = validaDados();
         if(isInvalido) return;
         
-        funcao.funcao1();
+        funcoes?.enviar();
     }
 
     return (
@@ -76,7 +76,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
    
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 <button onClick={handleSubmit}>✔️</button>
-                <button onClick={funcao.funcao2}>✖️</button>  
+                <button onClick={funcoes?.cancelar}>✖️</button>  
             </td>
         </React.Fragment>
     )

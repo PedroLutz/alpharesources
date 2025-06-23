@@ -52,40 +52,43 @@ export default async (req, res) => {
       try {
         const oldWBS = await Wbs.findById(id);
 
-        const updatedWBS = await Wbs.findByIdAndUpdate(id, updateFields, { new: true });
-        await PlanoAquisicao.updateMany(
-          { area: oldWBS.area, item: oldWBS.item }, { $set: { item: updateFields.item } }
-        );
-        await Gantt.updateMany(
-          { area: oldWBS.area, item: oldWBS.item }, { $set: { item: updateFields.item } }
-        );
-        await Gantt.updateMany(
-          { dp_area: oldWBS.area, dp_item: oldWBS.item }, { $set: { dp_item: updateFields.item } }
-        );
-        await Raci.updateMany(
-          { area: oldWBS.area, item: oldWBS.item }, { $set: { item: updateFields.item } }
-        );
-        await Recurso.updateMany(
-          { area: oldWBS.area, item: oldWBS.item }, { $set: { item: updateFields.item } }
-        );
-        await Risco.updateMany(
-          { area: oldWBS.area, item: oldWBS.item }, { $set: { item: updateFields.item } }
-        );
-        await WbsDictionary.updateMany(
-          { area: oldWBS.area, item: oldWBS.item }, { $set: { item: updateFields.item } }
-        );
-        await Habilidade.updateMany(
-          { area: oldWBS.area, item: oldWBS.item }, { $set: { item: updateFields.item } }
-        );
-
+        const updatedWBS = await Wbs.findByIdAndUpdate(id, updateFields, { new: true }, { session });
         if (!updatedWBS) {
+          await session.abortTransaction();
+          session.endSession();
           return res.status(404).json({ error: 'Wbs não encontrado.' });
         }
+
+        await PlanoAquisicao.updateMany(
+          { area: oldWBS.area, item: oldWBS.item }, { $set: { item: updateFields.item } }, { session }
+        );
+        await Gantt.updateMany(
+          { area: oldWBS.area, item: oldWBS.item }, { $set: { item: updateFields.item } }, { session }
+        );
+        await Gantt.updateMany(
+          { dp_area: oldWBS.area, dp_item: oldWBS.item }, { $set: { dp_item: updateFields.item } }, { session }
+        );
+        await Raci.updateMany(
+          { area: oldWBS.area, item: oldWBS.item }, { $set: { item: updateFields.item } }, { session }
+        );
+        await Recurso.updateMany(
+          { area: oldWBS.area, item: oldWBS.item }, { $set: { item: updateFields.item } }, { session }
+        );
+        await Risco.updateMany(
+          { area: oldWBS.area, item: oldWBS.item }, { $set: { item: updateFields.item } }, { session }
+        );
+        await WbsDictionary.updateMany(
+          { area: oldWBS.area, item: oldWBS.item }, { $set: { item: updateFields.item } }, { session }
+        );
+        await Habilidade.updateMany(
+          { area: oldWBS.area, item: oldWBS.item }, { $set: { item: updateFields.item } }, { session }
+        );
+
         await session.commitTransaction();
         session.endSession();
 
         return res.status(200).json(updatedWBS);
-      } catch {
+      } catch (error) {
         await session.abortTransaction();
         session.endSession();
         console.error('Erro na transação:', error);

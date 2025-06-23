@@ -36,8 +36,7 @@ const TabelaAnalise = () => {
 
 
     //essa funcao chama handleSubmit() e envia os dados para cadastro
-    const enviar = async (e) => {
-        e.preventDefault();
+    const enviar = async () => {
         await handleSubmit({
             route: 'wbsDictionary',
             dados: novoSubmit,
@@ -55,7 +54,6 @@ const TabelaAnalise = () => {
         })
         setCores(cores);
     }
-
 
     //essa funcao chama realiza um tratamento de dados de confirmUpdateItem para garantir que
     //os dados enviados sejam condizentes com o modelo, e depois chama handleUpdate() para
@@ -88,13 +86,12 @@ const TabelaAnalise = () => {
                     fetchDados: fetchDicionarios
                 });
             } finally {
-                setExibirModal(`deleteSuccess-${getDeleteSuccess}`)
+                if (getDeleteSuccess) {
+                    setExibirModal(`deleteSuccess`)
+                } else {
+                    setExibirModal(`deleteFail`)
+                }
             }
-        }
-        if (getDeleteSuccess) {
-            setExibirModal(`deleteSuccess`)
-        } else {
-            setExibirModal(`deleteFail`)
         }
         setConfirmDeleteItem(null);
         setReload(true);
@@ -201,9 +198,9 @@ const TabelaAnalise = () => {
                                         <CadastroInputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
-                                            funcao={{
-                                                funcao1: () => handleUpdateItem(),
-                                                funcao2: () => { linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false) }
+                                            funcoes={{
+                                                enviar: handleUpdateItem,
+                                                cancelar: () => { linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false) }
                                             }}
                                             setExibirModal={setExibirModal}
                                         />
@@ -244,7 +241,7 @@ const TabelaAnalise = () => {
                             <CadastroInputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcao={enviar}
+                                funcoes={{enviar}}
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>

@@ -1,4 +1,5 @@
 import connectToDatabase from '../../../../lib/db';
+import { verificarAuth } from '../../../../lib/verifica_auth';
 import GanttModel from '../../../../models/Gantt';
 
 const { Gantt } = GanttModel;
@@ -6,6 +7,11 @@ const { Gantt } = GanttModel;
 export default async (req, res) => {
   try {
     await connectToDatabase();
+
+    const user = verificarAuth(req);
+    if (!user) {
+      return res.status(401).json({ error: 'Not authorized' });
+    }
 
     if (req.method === 'GET') {
       const resultadosPlano = await Gantt.aggregate([
@@ -28,13 +34,13 @@ export default async (req, res) => {
                 $match: {
                   $expr: {
                     $or: [
-                      { 
+                      {
                         $and: [
                           { $eq: ["$area", "$$area"] },
                           { $eq: ["$inicio", "$$inicio"] }
                         ]
                       },
-                      { 
+                      {
                         $and: [
                           { $eq: ["$area", "$$area"] },
                           { $eq: ["$termino", "$$termino"] }
@@ -101,8 +107,8 @@ export default async (req, res) => {
             },
             ultimo: {
               item: "$ultimo.item",
-              inicio: "$ultimo.inicio", 
-              termino: "$ultimo.termino", 
+              inicio: "$ultimo.inicio",
+              termino: "$ultimo.termino",
               situacao: "$ultimo.situacao"
             }
           }

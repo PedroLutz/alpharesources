@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useContext } from "react";
 import styles from '../styles/modules/login.module.css'
 import { AuthContext } from "../contexts/AuthContext";
 import Loading from "./Loading";
@@ -6,7 +6,7 @@ import Loading from "./Loading";
 const { modal_login, gradient_text, input_login } = styles;
 
 const FormularioLogin = () => {
-  const { autenticado, setAutenticado, setIsAdmin } = useContext(AuthContext);
+  const { setAutenticado, setIsAdmin } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [usuario, setUsuario] = useState("");
   const [senha, setSenha] = useState("");
@@ -17,40 +17,36 @@ const FormularioLogin = () => {
       const response = await fetch('/api/login', {
         method: 'POST',
         body: JSON.stringify({ usuario, senha }),
-        headers: { 'Content-Type': 'application/json' }
-      })
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include' // aqui, pra mandar cookie
+      });
 
-      if (response.status === 200) {
-        const data = await response.json();
-        if (!data.achou) {
-          setAlert('user');
-          setLoading(false);
-          return false;
-        }
-        if (!data.acertou) {
-          setAlert('senha');
-          setLoading(false);
-          return false;
-        }
-        return data.token
-      } else {
-        console.error('Error in searching for timeline data');
+      if (response.status === 200) return true;
+      if (response.status === 401) {
+        const erro = await response.json();
+        setAlert(erro.error.includes('Senha') ? 'senha' : 'user');
+        setLoading(false);
         return false;
       }
-    } catch (error) {
-      console.error('Error in searching for financal releases data', error);
-      return false;
-    }
-  }
 
-  const validarCampos = async () => {
-    if (usuario === '' || senha === '') {
-      setAlert('campos');
+      setAlert('erro');
+      setLoading(false);
+      return false;
+    } catch (err) {
+      console.error(err);
+      setAlert('erro');
       setLoading(false);
       return false;
     }
+  };
+
+  const validarCampos = () => {
+    if (usuario === '' || senha === '') {
+      setAlert('campos');
+      return false;
+    }
     return true;
-  }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -58,24 +54,24 @@ const FormularioLogin = () => {
       return;
     }
     setLoading(true);
-    const token = await queryPorNome();
-    if (token !== false) {
-      setLoading(false);
-      setAlert(null);
-
-      localStorage.setItem('token', token);
-
-      const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString('utf-8'));
-
-      // var d = new Date();
-      // d.setMinutes(d.getMinutes() + 60);
-      // sessionStorage.setItem('tempoDeSessao', d.toString());
-
+    const deuCerto = await queryPorNome();
+    if (deuCerto) {
+      // depois de logar com sucesso, chama a API pra pegar isAdmin
+      try {
+        const verificarRes = await fetch('/api/verificaLogin', { credentials: 'include' });
+        if (verificarRes.ok) {
+          const data = await verificarRes.json();
+          setIsAdmin(data.admin);
+        } else {
+          setIsAdmin(false);
+        }
+      } catch {
+        setIsAdmin(false);
+      }
       setAutenticado(true);
-      setIsAdmin(payload.admin);
+      setAlert(null);
     }
-
-
+    setLoading(false);
   };
 
   return (
@@ -92,11 +88,9 @@ const FormularioLogin = () => {
             <div className={input_login}>
               <div>
                 <input type="text" placeholder="Username" value={usuario} onChange={(e) => setUsuario(e.target.value)} />
-
               </div>
               <div>
                 <input type="password" placeholder="Password" value={senha} onChange={(e) => setSenha(e.target.value)} />
-
               </div>
             </div>
             <div className={input_login}>
@@ -105,13 +99,13 @@ const FormularioLogin = () => {
                 {alert === 'campos' && <p>Fill all fields!</p>}
                 {alert === 'user' && <p>This user doesn't exist!</p>}
                 {alert === 'senha' && <p>Wrong password!</p>}
+                {alert === 'erro' && <p>Unexpected error occurred. Try again.</p>}
               </div>
             </div>
           </div>
         </div>
       </form>
     </div>
-
   );
 };
 

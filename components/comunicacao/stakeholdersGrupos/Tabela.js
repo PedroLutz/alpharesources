@@ -29,8 +29,7 @@ const Tabela = () => {
     const [loading, setLoading] = useState(true);
     const { isAdmin } = useContext(AuthContext)
 
-    const enviar = async (e) => {
-        e.preventDefault();
+    const enviar = async () => {
         if (stakeholderGroups.find(grupo => grupo.grupo == novoSubmit.grupo) != undefined) {
             setExibirModal('grupoRepetido');
             return;
@@ -157,9 +156,9 @@ const Tabela = () => {
                                         <CadastroInputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
-                                            funcao={{
-                                                funcao1: () => handleUpdateItem(),
-                                                funcao2: () => linhaVisivel === stakeholderGroup._id ? setLinhaVisivel() : setLinhaVisivel(stakeholderGroup._id)
+                                            funcoes={{
+                                                enviar: handleUpdateItem,
+                                                cancelar: () => linhaVisivel === stakeholderGroup._id ? setLinhaVisivel() : setLinhaVisivel(stakeholderGroup._id)
                                             }}
                                             setExibirModal={setExibirModal}
                                         />
@@ -189,7 +188,7 @@ const Tabela = () => {
                             <CadastroInputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcao={enviar}
+                                funcoes={{enviar}}
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>

@@ -222,6 +222,7 @@ const Tabela = () => {
   //funcao para limpar a lixeira
   const limparLixeira = async () => {
     await fetch(`/api/financas/cleanBin`, {
+      credentials: 'include',
       method: 'DELETE',
     })
     await fetchLancamentos();

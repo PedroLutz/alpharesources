@@ -1,4 +1,5 @@
 import connectToDatabase from '../../../../lib/db';
+import { verificarAuth } from '../../../../lib/verifica_auth';
 import PlanoAquisicaoModel from '../../../../models/recursos/PlanoAquisicao';
 import RaciModel from '../../../../models/responsabilidade/Raci'
 import GanttModel from '../../../../models/Gantt';
@@ -17,8 +18,13 @@ export default async (req, res) => {
     try {
         await connectToDatabase();
 
+        const user = verificarAuth(req);
+        if (!user) {
+            return res.status(401).json({ error: 'Not authorized' });
+        }
+
         if (req.method === 'POST') {
-            const {area, item} = req.body;
+            const { area, item } = req.body;
             const plano = await PlanoAquisicao.findOne({ area: area, item: item });
             const raci = await Raci.findOne({ area: area, item: item });
             const gantt = await Gantt.findOne({ area: area, item: item });
@@ -26,12 +32,12 @@ export default async (req, res) => {
             const risco = await Risco.findOne({ area: area, item: item });
             const wbsDictionary = await WbsDictionary.findOne({ area: area, item: item });
 
-            if (raci !== null || plano !== null || 
+            if (raci !== null || plano !== null ||
                 gantt !== null || recurso !== null ||
-                risco !== null || wbsDictionary !== null    ) {
+                risco !== null || wbsDictionary !== null) {
                 res.json({ found: true });
             } else {
-                res.json({ found:false });
+                res.json({ found: false });
             }
 
         } else {

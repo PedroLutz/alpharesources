@@ -32,13 +32,12 @@ const Tabela = () => {
     const [isUpdating, setIsUptading] = useState(false);
 
     //funcao que cadastra os stakeholders e cadastra na funcao de engajamento o stakeholder do jeito devido
-    const enviar = async (e) => {
+    const enviar = async () => {
         if (stakeholders.find((stakeholder) => stakeholder.grupo == novoSubmit.grupo
             && stakeholder.stakeholder == novoSubmit.stakeholder) != undefined) {
             setExibirModal('stakeholderRepetido');
             return;
         }
-        e.preventDefault();
         await handleSubmit({
             route: 'comunicacao/stakeholders',
             dados: novoSubmit,
@@ -202,9 +201,9 @@ const Tabela = () => {
                                         <Inputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
-                                            funcao={{
-                                                funcao1: () => handleUpdateItem(),
-                                                funcao2: () => { linhaVisivel === stakeholder._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUptading(false); }
+                                            funcoes={{
+                                                enviar: handleUpdateItem,
+                                                cancelar: () => { linhaVisivel === stakeholder._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUptading(false); }
                                             }}
                                             setExibirModal={setExibirModal}
                                         />
@@ -243,7 +242,7 @@ const Tabela = () => {
                             <Inputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcao={enviar}
+                                funcoes={{enviar}}
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>

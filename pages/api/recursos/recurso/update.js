@@ -1,14 +1,20 @@
 import connectToDatabase from '../../../../lib/db';
+import { verificarAuth } from '../../../../lib/verifica_auth';
 import RecursoModel from '../../../../models/recursos/Recurso';
 import PlanoAquisicaoModel from '../../../../models/recursos/PlanoAquisicao';
 import mongoose from 'mongoose';
 
 const { Recurso, RecursoSchema } = RecursoModel;
-const { PlanoAquisicao, PlanoAquisicaoSchema } = PlanoAquisicaoModel;
+const { PlanoAquisicao } = PlanoAquisicaoModel;
 
 export default async (req, res) => {
   try {
     await connectToDatabase();
+
+    const user = verificarAuth(req);
+    if (!user) {
+      return res.status(401).json({ error: 'Not authorized' });
+    }
 
     if (req.method === 'PUT') {
       const { id } = req.query;
@@ -42,6 +48,7 @@ export default async (req, res) => {
         const recursoAntigo = await Recurso.findById(id).session(session);
         if (!recursoAntigo) {
           await session.abortTransaction();
+          session.endSession();
           return res.status(404).json({ error: 'Recurso não encontrado.' });
         }
 

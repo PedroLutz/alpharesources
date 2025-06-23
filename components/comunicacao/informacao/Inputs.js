@@ -4,7 +4,7 @@ import { fetchData } from "../../../functions/crud";
 import { AuthContext } from "../../../contexts/AuthContext";
 import styles from '../../../styles/modules/comunicacao.module.css'
 
-const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
+const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     const [gruposENomes, setGruposENomes] = useState([]);
     const [stakeholdersDoGrupo, setStakeholdersDoGrupo] = useState([]);
     const [nomesMembros, setNomesMembros] = useState([]);
@@ -118,14 +118,11 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
         return false;
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async () => {
         const isInvalido = validaDados();
         if(isInvalido) return;
-        if (funcao.funcao1) {
-            funcao.funcao1();
-        } else {
-            funcao(e);
-        }
+        await funcoes?.enviar();
+        setVerOpcaoCustom(false);
     }
 
     return (
@@ -182,7 +179,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     onChange={handleFrequenciaChange}
                     ref={el => (camposRef.current.frequencia = el)}
                 >
-                    <option value="" defaultValue>Frequency</option>
+                    <option value="" name='default' defaultValue>Frequency</option>
                     <option value="Daily">Daily</option>
                     <option value="Weekly">Weekly</option>
                     <option value="Monthly">Monthly</option>
@@ -196,7 +193,6 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                         name='frequencia'
                         onChange={handleChange} />
                 )}
-
             </td>
             <td>
                 <textarea
@@ -254,7 +250,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>
-                        <button onClick={funcao.funcao2}>✖️</button>
+                        <button onClick={funcoes?.cancelar}>✖️</button>
                     </React.Fragment>
                 )}
             </td>

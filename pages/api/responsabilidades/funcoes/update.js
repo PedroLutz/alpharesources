@@ -1,4 +1,5 @@
 import connectToDatabase from '../../../../lib/db';
+import { verificarAuth } from '../../../../lib/verifica_auth';
 import FuncaoModel from '../../../../models/responsabilidade/Funcao';
 import HabilidadeModel from '../../../../models/responsabilidade/Habilidade';
 import mongoose from 'mongoose';
@@ -9,6 +10,11 @@ const { Habilidade } = HabilidadeModel;
 export default async (req, res) => {
   try {
     await connectToDatabase();
+
+    const user = verificarAuth(req);
+    if (!user) {
+      return res.status(401).json({ error: 'Not authorized' });
+    }
 
     if (req.method === 'PUT') {
       const { id } = req.query;
@@ -40,22 +46,24 @@ export default async (req, res) => {
       session.startTransaction();
 
       try {
-        const updatedData = await Funcao.findByIdAndUpdate(id, updateFields, { new: true });
+        const updatedData = await Funcao.findByIdAndUpdate(id, updateFields, { new: true }, { session });
+
+        if (!updatedData) {
+          await session.abortTransaction();
+          session.endSession();
+          return res.status(404).json({ error: 'Funcao não encontrado.' });
+        }
 
         await Habilidade.updateMany(
           { funcao: funcaoOriginal.funcao },
-          { funcao: updateFields.funcao }
+          { funcao: updateFields.funcao }, { session }
         )
-
-        if (!updatedData) {
-          return res.status(404).json({ error: 'Funcao não encontrado.' });
-        }
 
         await session.commitTransaction();
         session.endSession();
 
         return res.status(200).json(updatedData);
-      } catch {
+      } catch (error) {
         await session.abortTransaction();
         session.endSession();
         console.error('Erro na transação:', error);
