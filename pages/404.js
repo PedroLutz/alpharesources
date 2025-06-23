@@ -13,12 +13,15 @@ const Pagina404 = () => {
     }, []);
 
     return (
-        <div className="overlay">
+        <div style={{height: '90vh'}}>
+            <div className="overlay">
             <div className="modal">
                 <img src='/images/alphie_lost.png' style={{ width: '200px', height: '200px'}} />
                 <p style={{textAlign: 'center'}}> Uh oh, looks like you're lost! Redirecting you to the main menu...</p>
             </div>
         </div>
+        </div>
+        
     );
 }
 
