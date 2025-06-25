@@ -383,7 +383,6 @@ const Tabela = () => {
     }
     cleanForm(novosDados, setNovosDados, camposVazios);
     setLinhaVisivel();
-    window.location.reload();
   };
 
 
@@ -441,9 +440,10 @@ const Tabela = () => {
 
       {/* Gráfico Gantt */}
       {chartDataLoaded && (
+        <div style={{width: '90%', height: chartHeight}}>
         <Chart
-          width={'90%'}
-          height={chartHeight}
+          width='100%'
+          height='100%'
           chartType="Gantt"
           loader={<div>Loading Chart</div>}
           data={chartData}
@@ -458,6 +458,7 @@ const Tabela = () => {
 
           }}
         />
+        </div>
       )}
 
       <div className={styles.quickUpdate}>

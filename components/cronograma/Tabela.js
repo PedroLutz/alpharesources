@@ -227,13 +227,14 @@ const Tabela = () => {
     await handleSubmit({
       route: 'cronograma',
       dados: formDataPlano,
+      fetchDados: fetchCronogramas
     });
     await handleSubmit({
       route: 'cronograma',
       dados: formDataGantt,
+      
     });
     cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-    window.location.reload();
   };
 
   //funcao que trata os dados e atualiza o plano
@@ -308,9 +309,10 @@ const Tabela = () => {
       >{!showContingencies ? `Show contingencies` : `Hide contingencies`}</button>
 
       {chartDataLoaded && (
-        <Chart
-          height={chartHeight}
-          width={'90%'}
+        <div style={{width: '90%', height: chartHeight}}>
+          <Chart
+          height="100%"
+          width="100%"
           chartType="Gantt"
           loader={<div>Loading Chart</div>}
           data={!showContingencies ? chartData : chartDataContingencies}
@@ -324,6 +326,8 @@ const Tabela = () => {
             },
           }}
         />
+        </div>
+        
       )}
 
       <div className="centered-container">

@@ -35,8 +35,6 @@ export default async (req, res) => {
         return res.status(400).json({ error: 'Pelo menos um campo deve ser fornecido para a atualização.' });
       }
 
-      console.log(req.body)
-
       const { area, item, dp_item, dp_area } = req.body;
 
       const updatedData = await Gantt.findByIdAndUpdate(id, updateFields, { new: true });
