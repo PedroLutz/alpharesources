@@ -42,6 +42,11 @@ const Tabela = () => {
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     };
 
+    const isStakeholderCadastrado = (grupo, stakeholder) => {
+        return informacoes.find((informacao) => informacao.grupo == grupo
+            && informacao.stakeholder == stakeholder) != undefined;
+    }
+
     //funcao que trata os dados e envia o conteudo para o backend para update
     const handleUpdateItem = async () => {
         setLoading(true);
@@ -108,6 +113,7 @@ const Tabela = () => {
         'inputsVazios': 'Fill out all fields before adding new data!',
         'deleteSuccess': 'Deletion Successful!',
         'deleteFail': 'Deletion Failed!',
+        'stakeholderRepetido': 'You have already registered the information for this stakeholder!'
     };
 
     //funcao que calcula o rowSpan de grupo de acordo com a quantidade de stakeholders nele
@@ -177,6 +183,7 @@ const Tabela = () => {
                                             objSetter={setNovosDados}
                                             funcoes={{
                                                 enviar: handleUpdateItem,
+                                                isStakeholderCadastrado,
                                                 cancelar: () => { linhaVisivel === informacao._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false); }
                                             }}
                                             setExibirModal={setExibirModal}
@@ -232,7 +239,7 @@ const Tabela = () => {
                             <Inputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcoes={{enviar}}
+                                funcoes={{enviar, isStakeholderCadastrado}}
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>

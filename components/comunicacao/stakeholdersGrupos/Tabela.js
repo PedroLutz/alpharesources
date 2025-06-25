@@ -42,6 +42,10 @@ const Tabela = () => {
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     };
 
+    const isGrupoCadastrado = (grupo) => {
+        return stakeholderGroups.find(g => g.grupo == grupo) != undefined;
+    }
+
     const handleUpdateItem = async () => {
         setLoading(true);
         try {
@@ -158,6 +162,7 @@ const Tabela = () => {
                                             objSetter={setNovosDados}
                                             funcoes={{
                                                 enviar: handleUpdateItem,
+                                                isGrupoCadastrado,
                                                 cancelar: () => linhaVisivel === stakeholderGroup._id ? setLinhaVisivel() : setLinhaVisivel(stakeholderGroup._id)
                                             }}
                                             setExibirModal={setExibirModal}
@@ -188,7 +193,7 @@ const Tabela = () => {
                             <CadastroInputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcoes={{enviar}}
+                                funcoes={{enviar, isGrupoCadastrado}}
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>

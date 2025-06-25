@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useContext } from "react";
+import { useEffect, useState, useRef, useContext, forwardRef,  } from "react";
 import React from "react";
 import { fetchData } from "../../../functions/crud";
 import { AuthContext } from "../../../contexts/AuthContext";
@@ -97,6 +97,12 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
 
 
     const validaDados = () => {
+        if(funcoes?.isStakeholderCadastrado(obj.grupo, obj.stakeholder)){
+            camposRef.current.stakeholder.classList.add('campo-vazio');
+            setExibirModal('stakeholderRepetido');
+            return true;
+        }
+
         const camposConsiderados = { ...obj };
         delete camposConsiderados.feedback;
         delete camposConsiderados.acao;

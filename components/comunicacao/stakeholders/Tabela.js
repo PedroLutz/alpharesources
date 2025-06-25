@@ -33,11 +33,6 @@ const Tabela = () => {
 
     //funcao que cadastra os stakeholders e cadastra na funcao de engajamento o stakeholder do jeito devido
     const enviar = async () => {
-        if (stakeholders.find((stakeholder) => stakeholder.grupo == novoSubmit.grupo
-            && stakeholder.stakeholder == novoSubmit.stakeholder) != undefined) {
-            setExibirModal('stakeholderRepetido');
-            return;
-        }
         await handleSubmit({
             route: 'comunicacao/stakeholders',
             dados: novoSubmit,
@@ -60,6 +55,11 @@ const Tabela = () => {
         })
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     };
+
+    const isStakeholderCadastrado = (grupo, stakeholder) => {
+        return stakeholders.find((s) => s.grupo == grupo
+            && s.stakeholder == stakeholder) != undefined;
+    }
 
     //funcao que trata os dados e envia para realizacao do update
     const handleUpdateItem = async () => {
@@ -204,6 +204,7 @@ const Tabela = () => {
                                             objSetter={setNovosDados}
                                             funcoes={{
                                                 enviar: handleUpdateItem,
+                                                isStakeholderCadastrado,
                                                 cancelar: () => { linhaVisivel === stakeholder._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false); }
                                             }}
                                             setExibirModal={setExibirModal}
@@ -243,7 +244,7 @@ const Tabela = () => {
                             <Inputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcoes={{enviar}}
+                                funcoes={{enviar, isStakeholderCadastrado}}
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>
