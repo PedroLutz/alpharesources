@@ -83,8 +83,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt }
                 termino: ''
             }
         }
-        const datasNotOk = obj.inicio > obj.termino;
-        if (datasNotOk) {
+        if (obj.inicio > obj.termino) {
             setExibirModal('datasErradas');
             return true;
         }
@@ -95,7 +94,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt }
             return true;
         }
         if (obj.dp_area && !obj.dp_item) {
-            setExibirModal('depFaltando')
+            setExibirModal('depFaltando');
             return true;
         }
     }
@@ -153,9 +152,11 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt }
 
     //funcao que valida os dados e executa ou nao a funcao de submit
     const handleSubmit = async () => {
+        funcoes?.setLoading(true);
         const isInvalido = await validaDados();
+        funcoes?.setLoading(false);
         if (isInvalido) return;
-        funcoes?.funcao1();
+        funcoes?.enviar();
     }
 
     return (
@@ -264,7 +265,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt }
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>
-                        <button onClick={funcoes?.funcao2}>✖️</button>
+                        <button onClick={funcoes?.cancelar}>✖️</button>
                     </React.Fragment>
                 )}
             </td>

@@ -352,7 +352,8 @@ const Tabela = () => {
                     objSetter={setNovoSubmit}
                     tipo='cadastro'
                     funcoes={{
-                      funcao1: () => enviar()
+                      enviar,
+                      setLoading
                     }}
                     setExibirModal={setExibirModal}
                   />
@@ -374,8 +375,9 @@ const Tabela = () => {
                           objSetter={setNovosDados}
                           setExibirModal={setExibirModal}
                           funcoes={{
-                            funcao1: () => handleUpdateItem(),
-                            funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
+                            enviar: handleUpdateItem,
+                            setLoading,
+                            cancelar: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
                           }}
                         />
                       ) : (
