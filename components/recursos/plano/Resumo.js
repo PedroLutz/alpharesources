@@ -3,7 +3,6 @@ import { Chart } from 'react-google-charts';
 import { fetchData } from '../../../functions/crud';
 import Loading from '../../Loading';
 import styles from '../../../styles/modules/resumo.module.css'
-import { parse } from "path";
 
 const { grafico, pie_direita, pie_esquerda, pie_container, h3_resumo, custom_span } = styles;
 

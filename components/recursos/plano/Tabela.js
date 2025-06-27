@@ -144,6 +144,7 @@ const PlanoAquisicao = () => {
         'inputsVazios': 'Fill out all fields before adding new data!',
         'deleteSuccess': 'Deletion Successful!',
         'deleteFail': 'Deletion Failed!',
+        'datasSemSentido': 'The critical date must be after the expected date!'
     };
 
 

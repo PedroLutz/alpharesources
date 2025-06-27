@@ -94,6 +94,12 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
 
     //funcao para validar os dados do objeto
     const validaDados = () => {
+        if(obj.data_esperada > obj.data_limite){
+            camposRef.current.data_esperada.classList.add('campo-vazio');
+            camposRef.current.data_limite.classList.add('campo-vazio');
+            setExibirModal('datasSemSentido');
+            return true;
+        }
         const camposConsiderados = { ...obj };
         delete camposConsiderados.plano_real;
         delete camposConsiderados.valor_real;
