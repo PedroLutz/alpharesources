@@ -73,3 +73,9 @@
     color: #46205e;
   text-decoration: none;
 }
+
+@media (max-width: 768px){
+    .botao_logout{
+        margin-left: 0rem;
+    }
+}

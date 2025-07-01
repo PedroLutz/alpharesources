@@ -3,6 +3,7 @@
     color: #ff00e3;
     font-size: 13px;
     display: flex;
+    text-align: center;
     justify-content: space-around;
-    padding: 20px;
+    padding: 0.5rem;
 }

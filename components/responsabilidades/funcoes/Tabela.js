@@ -94,7 +94,12 @@ const Tabela = () => {
         'inputsVazios': 'Fill out all fields before adding new data!',
         'deleteSuccess': 'Deletion Successful!',
         'deleteFail': 'Deletion Failed!',
+        'funcaoRepetida': 'You have already registered that role!'
     };
+
+    const isFuncaoCadastrada = (funcao) => {
+        return funcoes.find((f) => f.funcao.toLowerCase() == funcao.toLowerCase()) != undefined;
+    }
 
     return (
         <div className="centered-container">
@@ -144,6 +149,7 @@ const Tabela = () => {
                                             obj={novosDados}
                                             objSetter={setNovosDados}
                                             funcoes={{
+                                                isFuncaoCadastrada,
                                                 enviar: handleUpdateItem,
                                                 cancelar: () => { linhaVisivel === funcao._id ? setLinhaVisivel() : setLinhaVisivel(item._id) }
                                             }}
@@ -171,6 +177,7 @@ const Tabela = () => {
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
                                 funcoes={{
+                                    isFuncaoCadastrada,
                                     enviar: enviar
                                 }}
                                 setExibirModal={setExibirModal}

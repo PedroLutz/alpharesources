@@ -53,10 +53,15 @@ const Tabela = () => {
     cleanForm(novoSubmit, setNovoSubmit, camposVazios);
   };
 
+  const isMembroCadastrado = (nome) => {
+        return membros.find((m) => m.nome.toLowerCase() == nome.toLowerCase()) != undefined;
+    }
+
   const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',
     'deleteSuccess': 'Deletion Successful!',
     'deleteFail': 'Deletion Failed!',
+    'membroRepetido': 'You have already registered that member!'
   };
 
   const handleConfirmDelete = async () => {
@@ -105,6 +110,7 @@ const Tabela = () => {
           obj={novoSubmit}
           objSetter={setNovoSubmit}
           funcoes={{
+            isMembroCadastrado,
             enviar: enviar
           }}
           setExibirModal={setExibirModal}
@@ -119,6 +125,7 @@ const Tabela = () => {
                   tipo="update"
                   setExibirModal={setExibirModal}
                   funcoes={{
+                    isMembroCadastrado,
                     enviar: handleUpdateItem,
                     cancelar: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
                   }} />

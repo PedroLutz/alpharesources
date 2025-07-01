@@ -153,29 +153,45 @@ const Tabela = () => {
   };
 
   useEffect(() => {
-    if (reload == true) {
-      setLoading(true);
-      setReload(false);
+    if (reload === true) {
+      const recarregar = async () => {
+        setLoading(true);
+        try {
+          await Promise.all([
+            fetchNomesMembros(),
+            fetchItensRaci(),
+            fetchCores()
+          ]);
+        } catch (err) {
+          console.error("Erro ao recarregar dados:", err);
+        } finally {
+          setLoading(false);
+          setReload(false);
+        }
+      };
+
+      recarregar();
+    }
+  }, [reload]);
+
+
+  useEffect(() => {
+    const carregarDados = async () => {
       try {
-        fetchNomesMembros();
-        fetchItensRaci();
-        fetchCores();
+        await Promise.all([
+          fetchNomesMembros(),
+          fetchItensRaci(),
+          fetchCores()
+        ]);
+      } catch (err) {
+        console.error("Erro ao carregar dados:", err);
       } finally {
         setLoading(false);
       }
-    }
+    };
 
-  }, [reload]);
-
-  useEffect(() => {
-    try {
-      fetchNomesMembros();
-      fetchItensRaci();
-      fetchCores();
-    } finally {
-      setLoading(false);
-    }
-  }, [])
+    carregarDados();
+  }, []);
 
   useEffect(() => {
     generateFormData();

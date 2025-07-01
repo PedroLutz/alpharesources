@@ -21,7 +21,7 @@ function MyApp({ Component, pageProps }) {
   );
 }
 
-function InnerApp({ Component, pageProps}) {
+function InnerApp({ Component, pageProps }) {
   const { titulo } = useContext(TituloContext);
   const { autenticado } = useContext(AuthContext);
   const title = `${titulo ? 'AM | ' + titulo : 'Alpha Management'}`
@@ -29,9 +29,9 @@ function InnerApp({ Component, pageProps}) {
 
   const handleResize = () => {
     if (window.innerWidth < 900) {
-        setIsMobile(true)
+      setIsMobile(true)
     } else {
-        setIsMobile(false)
+      setIsMobile(false)
     }
   }
 
@@ -45,7 +45,7 @@ function InnerApp({ Component, pageProps}) {
         <title>{title}</title>
         <link rel="icon" href="/images/logo.png" />
       </Head>
-      {isMobile && <MobileBlock/>}
+      {isMobile && <MobileBlock />}
       {autenticado ? (
         <>
           <Component {...pageProps} />

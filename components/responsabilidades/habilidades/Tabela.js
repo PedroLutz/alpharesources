@@ -37,6 +37,10 @@ const Tabela = () => {
         setReload(true);
     };
 
+    const isSkillCadastrada = (habilidade) => {
+        return habilidades.find((h) => h.habilidade.toLowerCase() == habilidade.toLowerCase()) != undefined;
+    }
+
     const handleUpdateItem = async () => {
         setLoading(true);
         delete novosDados.responsavel;
@@ -111,7 +115,8 @@ const Tabela = () => {
         'deleteSuccess': 'Deletion Successful!',
         'deleteFail': 'Deletion Failed!',
         'valorNegativo': 'No fields can have negative values!',
-        'maiorQueCinco': 'Classifications must be between 1 and 5!'
+        'maiorQueCinco': 'Classifications must be between 1 and 5!',
+        'habilidadeRepetida': 'You have already registered this skill!'
     };
 
     const calculateRowSpan = (currentArea, currentIndex, parametro) => {
@@ -176,6 +181,7 @@ const Tabela = () => {
                                             obj={novosDados}
                                             objSetter={setNovosDados}
                                             funcoes={{
+                                                isSkillCadastrada,
                                                 enviar: handleUpdateItem,
                                                 cancelar: () => { linhaVisivel === habilidade._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false) }
                                             }}
@@ -234,6 +240,7 @@ const Tabela = () => {
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
                                 funcoes={{
+                                    isSkillCadastrada,
                                     enviar: enviar
                                 }}
                                 setExibirModal={setExibirModal}

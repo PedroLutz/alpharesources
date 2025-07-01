@@ -21,6 +21,12 @@ const CadastroInputs = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
     };
 
     const validaDados = () => {
+        if(funcoes?.isMembroCadastrado){
+            camposRef.current.nome.classList.add('campo-vazio');
+            setExibirModal('membroRepetido');
+            return true;
+        }
+
         const camposVazios = Object.entries(obj)
             .filter(([key, value]) => value === null || value === "")
             .map(([key]) => key);

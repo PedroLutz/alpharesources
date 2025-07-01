@@ -71,3 +71,48 @@
   color: transparent;
   display: inline-block;
 }
+
+@media (max-width: 768px) {
+  .containerMenu {
+    height: auto;
+    padding: 20px 10px;
+  }
+
+  .menuGroup {
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 0;
+  }
+
+  .menuGroup span {
+    margin: 10px 0;
+    font-size: 0.9rem;
+  }
+
+  .menuGroup span img {
+    width: 60px;
+  }
+
+  .menuText {
+    font-size: 24px;
+  }
+
+  .logoItem {
+    width: 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .menuText {
+    font-size: 20px;
+  }
+
+  .menuGroup span {
+    font-size: 0.8rem;
+    padding: 10px;
+  }
+
+  .menuGroup span img {
+    width: 50px;
+  }
+}
