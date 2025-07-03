@@ -57,8 +57,8 @@ const Tabela = () => {
     };
 
     const isStakeholderCadastrado = (grupo, stakeholder) => {
-        return stakeholders.find((s) => s.grupo == grupo
-            && s.stakeholder == stakeholder) != undefined;
+        return stakeholders.some((s) => s.grupo.trim().toLowerCase() == grupo.trim().toLowerCase()
+            && s.stakeholder.trim().toLowerCase() == stakeholder.trim().toLowerCase());
     }
 
     //funcao que trata os dados e envia para realizacao do update

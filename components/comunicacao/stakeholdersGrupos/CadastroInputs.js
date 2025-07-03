@@ -30,7 +30,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
 
     //funcao que valida os dados e insere nos campos vazios a classe "campo-vazio"
     const validaDados = () => {
-        if(funcoes?.isGrupoCadastrado){
+        if(funcoes?.isGrupoCadastrado(obj.grupo)){
             camposRef.current.grupo.classList.add('campo-vazio');
             setExibirModal('grupoRepetido');
             return true;

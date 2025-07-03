@@ -36,6 +36,10 @@ const TabelaAnalise = () => {
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     };
 
+    const isRiscoCadastrado = (risco) => {
+        return analises.some((r) => r.risco.trim().toLowerCase() === risco.trim().toLowerCase());
+    }
+
     const getRiscosMapeados = (occ, imp) => {
         let riscos = []
         if (analises) {
@@ -109,7 +113,8 @@ const TabelaAnalise = () => {
         'deleteSuccess': 'Deletion Successful!',
         'deleteFail': 'Deletion Failed!',
         'valorNegativo': 'No fields can have negative values!',
-        'maiorQueCinco': 'Classifications must be between 1 and 5!'
+        'maiorQueCinco': 'Classifications must be between 1 and 5!',
+        'riscoRepetido': 'You have already analysed this risk!'
     };
 
     const calculateRowSpan = (itens, currentArea, currentIndex) => {
@@ -182,7 +187,8 @@ const TabelaAnalise = () => {
                                             objSetter={setNovosDados}
                                             funcoes={{
                                                 enviar: handleUpdateItem,
-                                                cancelar: () => { linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false) }
+                                                cancelar: () => { linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false) },
+                                                isRiscoCadastrado
                                             }}
                                             setExibirModal={setExibirModal}
                                         />
@@ -226,7 +232,7 @@ const TabelaAnalise = () => {
                             <CadastroInputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcoes={{enviar}}
+                                funcoes={{enviar, isRiscoCadastrado}}
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>

@@ -38,7 +38,7 @@ const Tabela = () => {
     };
 
     const isSkillCadastrada = (habilidade) => {
-        return habilidades.find((h) => h.habilidade.toLowerCase() == habilidade.toLowerCase()) != undefined;
+        return habilidades.some((h) => h.habilidade.trim().toLowerCase() == habilidade.trim().toLowerCase());
     }
 
     const handleUpdateItem = async () => {

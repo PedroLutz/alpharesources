@@ -35,7 +35,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     };
 
     const validaDados = () => {
-        if(funcoes?.isFuncaoCadastrada){
+        if(funcoes?.isFuncaoCadastrada(obj.funcao)){
             camposRef.current.funcao.classList.add('campo-vazio');
             setExibirModal('funcaoRepetida');
             return true;

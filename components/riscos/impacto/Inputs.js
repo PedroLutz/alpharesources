@@ -64,6 +64,11 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     };
 
     const validaDados = () => {
+        if(funcoes?.isImpactoCadastrado(obj.risco, obj.areaImpacto)){
+            camposRef.current.areaImpacto.classList.add('campo-vazio');
+            setExibirModal('impactoRepetido');
+            return true;
+        }
         if (obj.valor < 0) {
             camposRef.current['valor'].classList.add('campo-vazio');
             setExibirModal('valorNegativo');

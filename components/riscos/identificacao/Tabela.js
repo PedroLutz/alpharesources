@@ -39,6 +39,10 @@ const TabelaRiscos = () => {
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     };
 
+    const isRiscoCadastrado = (risco) => {
+        return riscos.some((r) => r.risco.trim().toLowerCase() === risco.trim().toLowerCase());
+    }
+
     const fetchCores = async () => {
         const data = await fetchData('wbs/get/cores');
         var cores = {};
@@ -105,7 +109,8 @@ const TabelaRiscos = () => {
         'deleteSuccess': 'Deletion Successful!',
         'deleteFail': 'Deletion Failed!',
         'valorNegativo': 'No fields can have negative values!',
-        'maiorQueCinco': 'Classifications must be between 1 and 5!'
+        'maiorQueCinco': 'Classifications must be between 1 and 5!',
+        'riscoRepetido': 'You have already registered this risk!'
     };
 
     const calculateRowSpan = (itens, currentArea, currentIndex, parametro) => {
@@ -176,7 +181,8 @@ const TabelaRiscos = () => {
                                                     linhaVisivel === item._id ?
                                                         setLinhaVisivel() :
                                                         setLinhaVisivel(item._id); setIsUptading(false);
-                                                }
+                                                },
+                                                isRiscoCadastrado
                                             }}
                                             setExibirModal={setExibirModal}
                                         />
@@ -223,7 +229,7 @@ const TabelaRiscos = () => {
                             <CadastroInputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcoes={{ enviar }}
+                                funcoes={{ enviar, isRiscoCadastrado }}
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>

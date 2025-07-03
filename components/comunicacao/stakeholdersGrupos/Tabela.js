@@ -30,10 +30,6 @@ const Tabela = () => {
     const { isAdmin } = useContext(AuthContext)
 
     const enviar = async () => {
-        if (stakeholderGroups.find(grupo => grupo.grupo == novoSubmit.grupo) != undefined) {
-            setExibirModal('grupoRepetido');
-            return;
-        }
         await handleSubmit({
             route: 'comunicacao/stakeholderGroups',
             dados: novoSubmit,
@@ -43,7 +39,7 @@ const Tabela = () => {
     };
 
     const isGrupoCadastrado = (grupo) => {
-        return stakeholderGroups.find(g => g.grupo == grupo) != undefined;
+        return stakeholderGroups.some(g => g.grupo.trim().toLowerCase() == grupo.trim().toLowerCase());
     }
 
     const handleUpdateItem = async () => {

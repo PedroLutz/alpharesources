@@ -54,7 +54,7 @@ const Tabela = () => {
   };
 
   const isMembroCadastrado = (nome) => {
-        return membros.find((m) => m.nome.toLowerCase() == nome.toLowerCase()) != undefined;
+        return membros.some((m) => m.nome.trim().toLowerCase() == nome.trim().toLowerCase());
     }
 
   const modalLabels = {

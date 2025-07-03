@@ -43,8 +43,8 @@ const Tabela = () => {
     };
 
     const isStakeholderCadastrado = (grupo, stakeholder) => {
-        return informacoes.find((informacao) => informacao.grupo == grupo
-            && informacao.stakeholder == stakeholder) != undefined;
+        return informacoes.some((informacao) => informacao.grupo.trim().toLowerCase() == grupo.trim().toLowerCase()
+            && informacao.stakeholder.trim().toLowerCase() == stakeholder.trim().toLowerCase());
     }
 
     //funcao que trata os dados e envia o conteudo para o backend para update

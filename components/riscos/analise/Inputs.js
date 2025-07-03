@@ -67,6 +67,11 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     };
 
     const validaDados = () => {
+        if(funcoes?.isRiscoCadastrado(obj.risco)){
+            camposRef.current.risco.classList.add('campo-vazio');
+            setExibirModal('riscoRepetido');
+            return true;
+        }
         const campos = { ocorrencia: obj.ocorrencia, impacto: obj.impacto, urgencia: obj.urgencia, acao: obj.acao };
 
         for (const [key, value] of Object.entries(campos)) {

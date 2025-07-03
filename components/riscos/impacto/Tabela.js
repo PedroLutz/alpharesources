@@ -34,6 +34,11 @@ const TabelaAnalise = () => {
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     };
 
+    const isImpactoCadastrado = (risco, areaImpacto) => {
+        return impactos.some((i) => i.risco.trim().toLowerCase() == risco.trim().toLowerCase() 
+        && i.areaImpacto.trim().toLowerCase() === areaImpacto.trim().toLowerCase());
+    }
+
     const handleUpdateItem = async () => {
         setLoading(true);
         try {
@@ -90,7 +95,8 @@ const TabelaAnalise = () => {
         'deleteSuccess': 'Deletion Successful!',
         'deleteFail': 'Deletion Failed!',
         'valorNegativo': 'No fields can have negative values!',
-        'maiorQueCinco': 'Classifications must be between 1 and 5!'
+        'maiorQueCinco': 'Classifications must be between 1 and 5!',
+        'impactoRepetido': 'You have already registered the impact in this area for this risk!'
     };
 
     const calculateRowSpan = (itens, currentArea, currentIndex) => {
@@ -156,7 +162,8 @@ const TabelaAnalise = () => {
                                                     linhaVisivel === item._id ? 
                                                     setLinhaVisivel() : 
                                                     setLinhaVisivel(item._id); setIsUpdating(false) 
-                                                }
+                                                },
+                                                isImpactoCadastrado
                                             }}
                                             setExibirModal={setExibirModal}
                                         />
@@ -189,7 +196,7 @@ const TabelaAnalise = () => {
                             <CadastroInputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcoes={{enviar}}
+                                funcoes={{enviar, isImpactoCadastrado}}
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>

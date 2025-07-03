@@ -98,7 +98,7 @@ const Tabela = () => {
     };
 
     const isFuncaoCadastrada = (funcao) => {
-        return funcoes.find((f) => f.funcao.toLowerCase() == funcao.toLowerCase()) != undefined;
+        return funcoes.some((f) => f.funcao.trim().toLowerCase() == funcao.trim().toLowerCase());
     }
 
     return (
