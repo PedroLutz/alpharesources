@@ -149,7 +149,7 @@ const TabelaAnalise = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2>WBS Dictionary</h2>
+            <h2 className="smallTitle">WBS Dictionary</h2>
             {exibirModal != null && (
                 <Modal objeto={{
                     titulo: modalLabels[exibirModal],

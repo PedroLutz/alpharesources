@@ -111,8 +111,7 @@
   color: white;
   cursor: pointer;
   position: absolute;
-  right: 1rem;
-  top: 0.5rem;
+  right: 2vw;
   z-index: 1001;
 }
 
@@ -121,9 +120,11 @@
   gap: 10px;
 }
 
-@media (max-width: 768px) {
+@media (orientation: landscape) and (max-width: 1024px){
   .hamburger {
     display: block;
+    top: 1vh;
+    font-size: 2rem;
   }
 
   .menu {
@@ -135,7 +136,7 @@
     background-image: linear-gradient(90deg, rgba(144, 6, 227, 1) 0%, rgba(255, 0, 227, 1) 100%);
     width: 100%;
     position: absolute;
-    top: 2.6rem !important;
+    top: 5vh;
     left: 0;
     z-index: 1000;
     padding: 0;
@@ -143,6 +144,7 @@
   }
 
   .menu.open {
+    top: 5vh;
     max-height: 500px;
     padding: 1rem 0;
   }
@@ -178,10 +180,125 @@
   .nav h2 {
     font-size: 1.2rem;
     text-align: center;
-    line-height: 2.3rem;
+    line-height: 4vh;
   }
 
   .nav img {
     visibility: hidden;
+  }
+
+  .nav{
+    height: 8vh;
+  }
+
+  .nav ul{
+    top: 8vh
+  }
+}
+
+@media (max-width: 768px) {
+  .hamburger {
+    display: block;
+    top: 1vh;
+    font-size: 2rem;
+  }
+
+  .menu {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease-out;
+    flex-direction: column;
+    align-items: center;
+    background-image: linear-gradient(90deg, rgba(144, 6, 227, 1) 0%, rgba(255, 0, 227, 1) 100%);
+    width: 100%;
+    position: absolute;
+    top: 5vh;
+    left: 0;
+    z-index: 1000;
+    padding: 0;
+    border-radius: 0 0 10px 10px;
+  }
+
+  .menu.open {
+    top: 4vh;
+    max-height: 500px;
+    padding: 1rem 0;
+  }
+
+
+  .menu li {
+    opacity: 0;
+    margin-top: -10px;
+    transition: opacity 0.3s ease, margin 0.3s ease;
+  }
+
+  .menu.open li {
+    opacity: 1;
+    margin-top: 0;
+    margin: 0;
+  }
+
+
+  .dropdownContent {
+    position: static;
+    background-color: white;
+    box-shadow: none;
+    border-radius: 5px;
+    margin-top: 0.5rem;
+  }
+
+  .dropdownContent a {
+    color: black;
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+
+  .nav h2 {
+    font-size: 1.2rem;
+    text-align: center;
+    line-height: 4vh;
+  }
+
+  .nav img {
+    visibility: hidden;
+  }
+
+  .nav{
+    height: 5vh;
+  }
+
+  .nav ul{
+    top: 4vh
+  }
+}
+
+@media (orientation: landscape) and (max-width: 768px){
+  .nav{
+    height: 8vh;
+  }
+
+  .hamburger {
+    top: 0vh;
+    font-size: 2rem;
+  }
+
+  .nav h2 {
+    font-size: 1.2rem;
+    text-align: center;
+    line-height: 1rem;
+  }
+
+  .menu{
+    top: 5vh;
+  }
+
+  .menu.open {
+    top: 8vh;
+    max-height: 500px;
+    padding: 1rem 0;
+  }
+
+  .nav ul{
+    top: 8vh
   }
 }

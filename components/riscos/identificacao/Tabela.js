@@ -120,38 +120,6 @@ const TabelaRiscos = () => {
         return rowSpan;
     };
 
-    const TdArea = ({ item, index }) => {
-        const calculate = () => {
-            let rowSpan = 1;
-            console.log(isUpdating[2], index)
-            if (isUpdating[2] > index) {
-                for (let i = index + 1; i < isUpdating[2] - index; i++) {
-                    rowSpan++;
-                }
-            }
-            return rowSpan;
-        }
-
-        return (
-            <React.Fragment>
-                {!isUpdating || isUpdating[0] !== item.area ? (
-                    <React.Fragment>
-                        {index === 0 || riscos[index - 1].area !== item.area ? (
-                            <td rowSpan={calculateRowSpan(riscos, item.area, index, 'area')}
-                            >{item.area}</td>
-                        ) : null}
-                    </React.Fragment>
-                ) : (
-                    <React.Fragment>
-                        {index === 0 || riscos[index - 1].area !== item.area ?
-                            (<td rowSpan={calculate()}>{item.area}</td>) : null}
-
-                    </React.Fragment>
-                )}
-            </React.Fragment>
-        )
-    }
-
     return (
         <div className="centered-container">
             {loading && <Loading />}

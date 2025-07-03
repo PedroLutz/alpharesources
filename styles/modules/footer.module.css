@@ -1,9 +1,23 @@
 .footer {
-    margin-top: 20px;
+    margin-top: 1vh;
     color: #ff00e3;
     font-size: 13px;
     display: flex;
     text-align: center;
     justify-content: space-around;
     padding: 0.5rem;
+}
+
+@media (orientation: landscape) and (max-width: 1024px){
+    .footer{
+        margin-top: 1vh;
+        font-size: 0.7rem;
+    }
+}
+
+@media (orientation: landscape) and (max-width: 768px){
+    .footer{
+        margin-top: 1vh;
+        font-size: 0.7rem;
+    }
 }

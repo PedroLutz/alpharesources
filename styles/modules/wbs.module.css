@@ -16,7 +16,9 @@
   align-items: center;
 }
 
-.wbsAreaCadastro input, .wbsArea input, .editArea input {
+.wbsAreaCadastro input,
+.wbsArea input,
+.editArea input {
   border-width: 0.1rem;
   border-style: solid;
   border-color: rgb(167, 167, 167);
@@ -32,26 +34,28 @@
   width: 11rem;
 }
 
-.wbsItem input{
+.wbsItem input {
   width: 9.5rem;
 }
 
-.editArea input{
+.editArea input {
   width: 9rem;
 }
 
-.editItem input{
+.editItem input {
   margin: 0;
   width: 8rem;
 }
 
-.editArea{
+.editArea {
   display: flex;
   align-items: center;
   height: 3.8rem;
 }
 
-.wbsAreaCadastro input:hover, .wbsArea input:hover, .wbsAreaCadastro button:hover {
+.wbsAreaCadastro input:hover,
+.wbsArea input:hover,
+.wbsAreaCadastro button:hover {
   background-color: rgb(231, 231, 231);
 }
 
@@ -75,7 +79,9 @@
   align-items: center;
 }
 
-.areaTitle button, .wbsItem button, .editArea button{
+.areaTitle button,
+.wbsItem button,
+.editArea button {
   background-color: transparent;
   border: none;
   font-size: medium;
@@ -108,24 +114,25 @@
   padding: 0.3rem;
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed; 
+  table-layout: fixed;
 }
 
-.tabelaDicionario_container{
+.tabelaDicionario_container {
   overflow: auto;
 }
 
-.tabelaDicionario_wrapper{
+.tabelaDicionario_wrapper {
   max-width: 75rem;
   max-height: 45rem;
-  display:block;
+  display: block;
 }
 
-.tabelaDicionario td{
+.tabelaDicionario td {
   text-align: left;
 }
 
-.tabelaDicionario td, .tabelaDicionario th{
+.tabelaDicionario td,
+.tabelaDicionario th {
   border-width: 0.1rem;
   border-style: solid;
   border-color: rgb(0, 0, 0);
@@ -134,7 +141,9 @@
   word-wrap: break-word;
 }
 
-.tabelaDicionario td input, .tabelaDicionario td select, .tabelaDicionario td textarea{
+.tabelaDicionario td input,
+.tabelaDicionario td select,
+.tabelaDicionario td textarea {
   border-width: 0.1rem;
   border-style: solid;
   border-color: rgb(167, 167, 167);
@@ -146,15 +155,17 @@
   background-color: white;
 }
 
-.tabelaDicionario td textarea{
+.tabelaDicionario td textarea {
   height: 6rem;
 }
 
-.tabelaDicionario td input:hover, .tabelaDicionario td select:hover, .tabelaDicionario td textarea:hover{
+.tabelaDicionario td input:hover,
+.tabelaDicionario td select:hover,
+.tabelaDicionario td textarea:hover {
   background-color: rgb(231, 231, 231);
 }
 
-.tabelaDicionario td:not(:global(.botoes_acoes)) button:hover{
+.tabelaDicionario td:not(:global(.botoes_acoes)) button:hover {
   background-color: rgb(231, 231, 231);
 }
 
@@ -162,29 +173,45 @@
   height: 6.5rem;
 }
 
-.td_area select, .td_item select{
+.td_area select,
+.td_item select {
   min-width: 10rem;
   height: 6.5rem;
   max-width: 10rem;
 }
 
-.td_descricao, .td_proposito, .td_criterio{
+.td_descricao,
+.td_proposito,
+.td_criterio {
   min-width: 15rem;
   max-width: 15rem;
 }
 
-.td_descricao textarea, .td_proposito textarea, .td_criterio textarea{
+.td_descricao textarea,
+.td_proposito textarea,
+.td_criterio textarea {
   min-width: 14.5rem;
   max-width: 14.5rem;
 }
 
-.td_premissas, .td_restricoes, .td_recursos, .td_verificacao, .td_timing, .td_responsavel, .td_responsavel_aprovacao{
+.td_premissas,
+.td_restricoes,
+.td_recursos,
+.td_verificacao,
+.td_timing,
+.td_responsavel,
+.td_responsavel_aprovacao {
   max-width: 10rem;
   min-width: 10rem;
 }
 
-.td_premissas textarea, .td_restricoes textarea, .td_recursos textarea, .td_verificacao textarea, 
-.td_timing textarea, .td_responsavel textarea, .td_responsavel_aprovacao textarea{
+.td_premissas textarea,
+.td_restricoes textarea,
+.td_recursos textarea,
+.td_verificacao textarea,
+.td_timing textarea,
+.td_responsavel textarea,
+.td_responsavel_aprovacao textarea {
   max-width: 9.5rem;
   min-width: 9.5rem;
 }
@@ -203,9 +230,9 @@
 
 .tabelaDicionario td:last-child {
   text-align: center;
-} 
+}
 
-.tabelaDicionario button{
+.tabelaDicionario button {
   background-color: transparent;
   border-width: 0.1rem;
   border-style: solid;
@@ -215,4 +242,226 @@
   width: 4.7rem;
   cursor: pointer;
   transition: 0.2s;
+}
+
+@media (max-width: 1280px){
+  .tabelaDicionario_wrapper {
+    max-width: 48rem;
+    max-height: 55rem;
+    display: block;
+  }
+
+  .tabelaDicionario td,
+  .tabelaDicionario th,
+  .tabelaDicionario td textarea,
+  .tabelaDicionario td select,
+  .tabelaDicionario td:not(:global(.botoes_acoes)) button {
+    font-size: 0.6rem;
+  }
+
+  .td_area select,
+  .td_item select {
+    min-width: 8rem;
+    height: 4rem;
+    max-width: 8rem;
+  }
+
+  .tabelaDicionario td textarea {
+    height: 3.5rem;
+  }
+
+  .tabelaDicionario td:not(:global(.botoes_acoes)) button {
+    height: 4rem !important;
+  }
+
+  .td_descricao,
+  .td_proposito,
+  .td_criterio {
+    min-width: 10rem;
+    max-width: 10rem;
+  }
+
+  .td_descricao textarea,
+  .td_proposito textarea,
+  .td_criterio textarea {
+    min-width: 9.5rem;
+    max-width: 9.5rem;
+  }
+
+  .td_premissas,
+  .td_restricoes,
+  .td_recursos,
+  .td_verificacao,
+  .td_timing,
+  .td_responsavel,
+  .td_responsavel_aprovacao {
+    max-width: 7rem;
+    min-width: 7rem;
+  }
+
+  .td_premissas textarea,
+  .td_restricoes textarea,
+  .td_recursos textarea,
+  .td_verificacao textarea,
+  .td_timing textarea,
+  .td_responsavel textarea,
+  .td_responsavel_aprovacao textarea {
+    max-width: 6.5rem;
+    min-width: 6.5rem;
+  }
+}
+
+@media (orientation: landscape) and (max-width: 1280px){
+    .tabelaDicionario_wrapper {
+      max-width: 95vw;
+      max-height: 76vh;
+      display: block;
+    }
+
+    .tabelaDicionario td, .tabelaDicionario th, .tabelaDicionario td select, .tabelaDicionario td textarea{
+      font-size: 0.7rem;
+    }
+}
+
+@media (orientation: landscape) and (max-width: 1024px){
+  .tabelaDicionario_wrapper {
+    max-width:  95vw;
+    max-height: 63vh;
+    display: block;
+  }
+
+  .tabelaDicionario td,
+  .tabelaDicionario th,
+  .tabelaDicionario td textarea,
+  .tabelaDicionario td select,
+  .tabelaDicionario td:not(:global(.botoes_acoes)) button {
+    font-size: 0.6rem;
+  }
+
+  .td_area select,
+  .td_item select {
+    min-width: 8rem;
+    height: 4rem;
+    max-width: 8rem;
+  }
+
+  .tabelaDicionario td textarea {
+    height: 3.5rem;
+  }
+
+  .tabelaDicionario td:not(:global(.botoes_acoes)) button {
+    height: 4rem !important;
+  }
+
+  .td_descricao,
+  .td_proposito,
+  .td_criterio {
+    min-width: 10rem;
+    max-width: 10rem;
+  }
+
+  .td_descricao textarea,
+  .td_proposito textarea,
+  .td_criterio textarea {
+    min-width: 9.5rem;
+    max-width: 9.5rem;
+  }
+
+  .td_premissas,
+  .td_restricoes,
+  .td_recursos,
+  .td_verificacao,
+  .td_timing,
+  .td_responsavel,
+  .td_responsavel_aprovacao {
+    max-width: 7rem;
+    min-width: 7rem;
+  }
+
+  .td_premissas textarea,
+  .td_restricoes textarea,
+  .td_recursos textarea,
+  .td_verificacao textarea,
+  .td_timing textarea,
+  .td_responsavel textarea,
+  .td_responsavel_aprovacao textarea {
+    max-width: 6.5rem;
+    min-width: 6.5rem;
+  }
+}
+
+
+@media (max-width: 768px) {
+  .tabelaDicionario_wrapper {
+    max-width: 90vw;
+    height: 80vh;
+    display: block;
+  }
+
+  .tabelaDicionario td,
+  .tabelaDicionario th,
+  .tabelaDicionario td textarea,
+  .tabelaDicionario td select,
+  .tabelaDicionario td:not(:global(.botoes_acoes)) button {
+    font-size: 0.6rem;
+  }
+
+  .td_area select,
+  .td_item select {
+    min-width: 8rem;
+    height: 5rem;
+    max-width: 8rem;
+  }
+
+  .tabelaDicionario td textarea {
+    height: 4.5rem;
+  }
+
+  .tabelaDicionario td:not(:global(.botoes_acoes)) button {
+    height: 5rem !important;
+  }
+
+  .td_descricao,
+  .td_proposito,
+  .td_criterio {
+    min-width: 10rem;
+    max-width: 10rem;
+  }
+
+  .td_descricao textarea,
+  .td_proposito textarea,
+  .td_criterio textarea {
+    min-width: 9.5rem;
+    max-width: 9.5rem;
+  }
+
+  .td_premissas,
+  .td_restricoes,
+  .td_recursos,
+  .td_verificacao,
+  .td_timing,
+  .td_responsavel,
+  .td_responsavel_aprovacao {
+    max-width: 7rem;
+    min-width: 7rem;
+  }
+
+  .td_premissas textarea,
+  .td_restricoes textarea,
+  .td_recursos textarea,
+  .td_verificacao textarea,
+  .td_timing textarea,
+  .td_responsavel textarea,
+  .td_responsavel_aprovacao textarea {
+    max-width: 6.5rem;
+    min-width: 6.5rem;
+  }
+}
+
+@media (orientation: landscape) and (max-width: 768px){
+  .tabelaDicionario_wrapper {
+    max-width: 95vw;
+    height: 90vh;
+    display: block;
+  }
 }
