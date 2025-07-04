@@ -257,10 +257,14 @@ const TabelaAnalise = () => {
                         </thead>
                         <tbody >
                             <tr>
-                                <td rowSpan={5} style={{
-                                    border: 'transparent',
-                                    backgroundColor: 'transparent', width: '1rem', writingMode: "sideways-lr", margin: '0rem', fontSize: '1rem'
-                                }}>Occurrence</td>
+                                <td rowSpan={5}
+                                    style={{ border: 'none', width: '0.2rem', fontSize: '1rem', margin: '0rem', padding: '0rem' }}
+                                ><div style={{
+                                    writingMode: 'sideways-lr',
+                                    display: 'inline-block',
+                                }}>
+                                        Occurrence
+                                    </div></td>
                                 <th>5</th>
                                 <td style={{ backgroundColor: '#a5d68f' }}>{getRiscosMapeados(5, 1) || '-'}</td>
                                 <td style={{ backgroundColor: '#ffe990' }}>{getRiscosMapeados(5, 2) || '-'}</td>
