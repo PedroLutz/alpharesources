@@ -80,8 +80,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     };
 
     const validaDados = () => {
-        console.log(obj.risco);
-        if(funcoes?.isRiscoCadastrado(obj.risco)){
+        if(funcoes?.isRiscoCadastrado?.(obj.risco) ?? false){
             camposRef.current.risco.classList.add('campo-vazio');
             setExibirModal('riscoRepetido');
             return true;

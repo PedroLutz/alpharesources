@@ -204,7 +204,6 @@ const Tabela = () => {
                                             objSetter={setNovosDados}
                                             funcoes={{
                                                 enviar: handleUpdateItem,
-                                                isStakeholderCadastrado,
                                                 cancelar: () => { linhaVisivel === stakeholder._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false); }
                                             }}
                                             setExibirModal={setExibirModal}

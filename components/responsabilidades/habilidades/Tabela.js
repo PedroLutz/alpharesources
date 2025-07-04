@@ -37,10 +37,6 @@ const Tabela = () => {
         setReload(true);
     };
 
-    const isSkillCadastrada = (habilidade) => {
-        return habilidades.some((h) => h.habilidade.trim().toLowerCase() == habilidade.trim().toLowerCase());
-    }
-
     const handleUpdateItem = async () => {
         setLoading(true);
         delete novosDados.responsavel;
@@ -181,7 +177,6 @@ const Tabela = () => {
                                             obj={novosDados}
                                             objSetter={setNovosDados}
                                             funcoes={{
-                                                isSkillCadastrada,
                                                 enviar: handleUpdateItem,
                                                 cancelar: () => { linhaVisivel === habilidade._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false) }
                                             }}
@@ -240,8 +235,7 @@ const Tabela = () => {
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
                                 funcoes={{
-                                    isSkillCadastrada,
-                                    enviar: enviar
+                                    enviar
                                 }}
                                 setExibirModal={setExibirModal}
                             />

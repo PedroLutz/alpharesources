@@ -182,7 +182,6 @@ const TabelaRiscos = () => {
                                                         setLinhaVisivel() :
                                                         setLinhaVisivel(item._id); setIsUptading(false);
                                                 },
-                                                isRiscoCadastrado
                                             }}
                                             setExibirModal={setExibirModal}
                                         />

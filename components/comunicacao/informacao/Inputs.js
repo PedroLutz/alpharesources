@@ -85,6 +85,13 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
         }
     }
 
+    useEffect(() => {
+        if(obj.grupo != ''){
+            const stakeholdersDoGrupo = gruposENomes.filter(item => item.grupo === obj.grupo).map(item => item.stakeholder);
+            setStakeholdersDoGrupo(stakeholdersDoGrupo);
+        }
+    }, [obj.grupo, gruposENomes])
+
 
     //funcao para atualizar o grupo, inserindo em stakeholdersDoGrupo os stakeholders pertencentes ao grupo selecionado
     const handleGrupoChange = (e) => {
@@ -97,7 +104,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
 
 
     const validaDados = () => {
-        if(funcoes?.isStakeholderCadastrado(obj.grupo, obj.stakeholder)){
+        if(funcoes?.isStakeholderCadastrado?.(obj.grupo, obj.stakeholder) ?? false){
             camposRef.current.stakeholder.classList.add('campo-vazio');
             setExibirModal('stakeholderRepetido');
             return true;

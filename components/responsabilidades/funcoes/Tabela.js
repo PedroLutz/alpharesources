@@ -149,7 +149,6 @@ const Tabela = () => {
                                             obj={novosDados}
                                             objSetter={setNovosDados}
                                             funcoes={{
-                                                isFuncaoCadastrada,
                                                 enviar: handleUpdateItem,
                                                 cancelar: () => { linhaVisivel === funcao._id ? setLinhaVisivel() : setLinhaVisivel(item._id) }
                                             }}

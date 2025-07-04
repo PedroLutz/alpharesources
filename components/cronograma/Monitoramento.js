@@ -556,8 +556,9 @@ const Tabela = () => {
                           obj={novosDados}
                           objSetter={setNovosDados}
                           funcoes={{
-                            funcao1: () => handleUpdateItem(),
-                            funcao2: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
+                            enviar: handleUpdateItem,
+                            cancelar: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id),
+                            setLoading
                           }}
                           setExibirModal={setExibirModal} />
                       ) : (

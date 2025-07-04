@@ -21,7 +21,7 @@ const CadastroInputs = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
     };
 
     const validaDados = () => {
-        if(funcoes?.isMembroCadastrado(obj.nome)){
+        if(funcoes?.isMembroCadastrado?.(obj.nome) ?? false){
             camposRef.current.nome.classList.add('campo-vazio');
             setExibirModal('membroRepetido');
             return true;

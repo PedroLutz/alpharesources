@@ -162,8 +162,7 @@ const TabelaAnalise = () => {
                                                     linhaVisivel === item._id ? 
                                                     setLinhaVisivel() : 
                                                     setLinhaVisivel(item._id); setIsUpdating(false) 
-                                                },
-                                                isImpactoCadastrado
+                                                }
                                             }}
                                             setExibirModal={setExibirModal}
                                         />

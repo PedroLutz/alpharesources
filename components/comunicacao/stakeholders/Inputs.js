@@ -42,7 +42,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
 
     //funcao para validar os dados e inserir no modal o texto de aviso
     const validaDados = () => {
-        if(funcoes?.isStakeholderCadastrado(obj.grupo, obj.stakeholder)){
+        if(funcoes?.isStakeholderCadastrado?.(obj.grupo, obj.stakeholder) ?? false){
             camposRef.current.stakeholder.classList.add('campo-vazio');
             setExibirModal('stakeholderRepetido');
             return true;

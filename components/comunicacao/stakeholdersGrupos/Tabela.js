@@ -158,7 +158,6 @@ const Tabela = () => {
                                             objSetter={setNovosDados}
                                             funcoes={{
                                                 enviar: handleUpdateItem,
-                                                isGrupoCadastrado,
                                                 cancelar: () => linhaVisivel === stakeholderGroup._id ? setLinhaVisivel() : setLinhaVisivel(stakeholderGroup._id)
                                             }}
                                             setExibirModal={setExibirModal}

@@ -38,11 +38,6 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     };
 
     const validaDados = () => {
-        if(funcoes?.isSkillCadastrada(obj.habilidade)){
-            camposRef.current.habilidade.classList.add('campo-vazio');
-            setExibirModal('habilidadeRepetida')
-            return true;
-        }
         const campos = { nivel_atual: obj.nivel_atual, nivel_min: obj.nivel_min };
 
         for (const [key, value] of Object.entries(campos)) {

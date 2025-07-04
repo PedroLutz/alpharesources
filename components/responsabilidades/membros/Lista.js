@@ -125,7 +125,6 @@ const Tabela = () => {
                   tipo="update"
                   setExibirModal={setExibirModal}
                   funcoes={{
-                    isMembroCadastrado,
                     enviar: handleUpdateItem,
                     cancelar: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
                   }} />

@@ -188,7 +188,6 @@ const TabelaAnalise = () => {
                                             funcoes={{
                                                 enviar: handleUpdateItem,
                                                 cancelar: () => { linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false) },
-                                                isRiscoCadastrado
                                             }}
                                             setExibirModal={setExibirModal}
                                         />
