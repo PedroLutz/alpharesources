@@ -78,6 +78,11 @@ const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
     //essa funcao verifica os casos de invalidez, e se algum deles for verdadeiro,
     //chama a funcao setExibirModal para levantar um modal avisando o problema
     const validaDados = () => {
+        if(funcoes?.isItemCadastrado?.(obj.item) ?? false){
+            camposRef.current.item.classList.add('campo-vazio');
+            setExibirModal('itemRepetido');
+            return true;
+        }
         const camposVazios = Object.entries(obj)
             .filter(([key, value]) => value === null || value === "")
             .map(([key]) => key);

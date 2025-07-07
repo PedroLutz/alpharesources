@@ -54,12 +54,11 @@ const BlocoInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, area, isNa
     //essa funcao verifica os casos de invalidez, e se algum deles for verdadeiro,
     //chama a funcao setExibirModal para levantar um modal avisando o problema
     const validaDados = () => {
-        const nomeUsado = isNameUsed(obj);
-        if (nomeUsado) {
-            setExibirModal && setExibirModal('nomeRepetido')
-            return true
-        };
-
+        if(funcoes?.isItemCadastrado?.(obj.item) ?? false){
+            camposRef.current.item.classList.add('campo-vazio');
+            setExibirModal('nomeRepetido');
+            return true;
+        }
         const camposVazios = Object.entries(obj)
             .filter(([key, value]) => value === null || value === "")
             .map(([key]) => key);

@@ -14,7 +14,7 @@ export default async (req, res) => {
     }
 
     if (req.method === 'GET') {
-      const dicionarios = await WbsDictionary.find().sort({ area: 1 });
+      const dicionarios = await WbsDictionary.find().sort({ area: 1, item: 1});
 
       res.status(200).json({ dicionarios });
     } else {

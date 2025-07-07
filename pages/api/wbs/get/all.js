@@ -14,7 +14,7 @@ export default async (req, res) => {
     }
 
     if (req.method === 'GET') {
-      const elementos = await Wbs.find().sort({ area: 1 });
+      const elementos = await Wbs.find().sort({ area: 1, item: 1 });
 
       res.status(200).json({ elementos });
     } else {

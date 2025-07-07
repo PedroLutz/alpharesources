@@ -45,6 +45,10 @@ const TabelaAnalise = () => {
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     };
 
+    const isItemCadastrado = (item) => {
+        return dicionarios.some((e) => e.item.trim() === item.trim());
+    }
+
     //essa funcao busca as cores para cada area
     const fetchCores = async () => {
         const data = await fetchData('wbs/get/cores');
@@ -130,7 +134,8 @@ const TabelaAnalise = () => {
         'deleteSuccess': 'Deletion Successful!',
         'deleteFail': 'Deletion Failed!',
         'valorNegativo': 'No fields can have negative values!',
-        'maiorQueCinco': 'Classifications must be between 1 and 5!'
+        'maiorQueCinco': 'Classifications must be between 1 and 5!',
+        'itemRepetido': 'You have already register the dictionary for this WBS item!'
     };
 
     //essa funcao calcula a quantidade de tds que o td de cada area deve ocupar
@@ -242,7 +247,7 @@ const TabelaAnalise = () => {
                             <CadastroInputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcoes={{enviar}}
+                                funcoes={{enviar, isItemCadastrado}}
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>

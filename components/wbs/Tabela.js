@@ -38,6 +38,9 @@
       cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     };
 
+    const isItemCadastrado = (item) => {
+        return elementos.some((e) => e.item.trim() === item.trim());
+    }
 
     //essa funcao chama a funcao handleSubmit(), enviando a rota e os dados antes de forcar um reload e limpar o formulario
     //const item serve só para facilitar a legibilidade. o valor à direita refere-se simplesmente ao item a ser armazenado.
@@ -155,13 +158,6 @@
       fetchCores();
     }, []);
 
-
-    //essa funcao verifica se existe algum elemento com o mesmo nome do obj q recebe
-    const isNameUsed = (obj) => {
-      return elementos.some(objeto => objeto.item === obj.item);
-    }
-
-
     //essa funcao realiza o update da cor acessando a rota API adequada
     const handleUpdateCor = async () => {
       if (confirmUpdateItem) {
@@ -277,9 +273,8 @@
               tipo='cadastroArea'
               obj={novoSubmit}
               objSetter={setNovoSubmit}
-              funcoes={{ enviar }}
+              funcoes={{ enviar, isItemCadastrado }}
               setExibirModal={setExibirModal}
-              isNameUsed={isNameUsed}
             />
           )}
 
@@ -291,9 +286,8 @@
                   tipo='cadastroArea'
                   obj={novoSubmit}
                   objSetter={setNovoSubmit}
-                  funcoes={{ enviar }}
+                  funcoes={{ enviar, isItemCadastrado }}
                   setExibirModal={setExibirModal}
-                  isNameUsed={isNameUsed}
                 />
               }
 
@@ -312,7 +306,6 @@
                             cancelar: () => linhaVisivel === area ? setLinhaVisivel() : setLinhaVisivel(item._id)
                           }}
                           setExibirModal={setExibirModal}
-                          isNameUsed={isNameUsed}
                         />
                       ) : (
                         <React.Fragment>
@@ -335,7 +328,6 @@
                             cancelar: () => linhaVisivel === `${area}Cor` ? setLinhaVisivel() : setLinhaVisivel(item._id)
                           }}
                           setExibirModal={setExibirModal}
-                          isNameUsed={isNameUsed}
                         />
                       ) : (
                         <div className={styles.areaTitle} style={{ marginBottom: '1rem' }}>
@@ -368,11 +360,11 @@
                                     obj={novosDados}
                                     objSetter={setNovosDados}
                                     funcoes={{
+                                      isItemCadastrado,
                                       enviar: handleUpdateItem,
                                       cancelar: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
                                     }}
-                                    setExibirModal={setExibirModal}
-                                    isNameUsed={isNameUsed} />
+                                    setExibirModal={setExibirModal}/>
                                 </React.Fragment>
                               ) : (
                                 <React.Fragment>
@@ -397,10 +389,10 @@
                           obj={submitEmArea}
                           objSetter={setSubmitEmArea}
                           funcoes={{
+                            isItemCadastrado,
                             enviar: enviarEmArea
                           }}
-                          setExibirModal={setExibirModal}
-                          isNameUsed={isNameUsed} />
+                          setExibirModal={setExibirModal} />
                       </React.Fragment>
                     }
                   </div>
