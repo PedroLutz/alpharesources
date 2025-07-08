@@ -27,17 +27,17 @@ function InnerApp({ Component, pageProps }) {
   const title = `${titulo ? 'AM | ' + titulo : 'Alpha Management'}`
   const [isMobile, setIsMobile] = useState(false);
 
-  const handleResize = () => {
-    if (window.innerWidth < 900) {
-      setIsMobile(true)
-    } else {
-      setIsMobile(false)
-    }
-  }
+  // const handleResize = () => {
+  //   if (window.innerWidth < 900) {
+  //     setIsMobile(true)
+  //   } else {
+  //     setIsMobile(false)
+  //   }
+  // }
 
-  useEffect(() => {
-    window.addEventListener("resize", handleResize);
-  })
+  // useEffect(() => {
+  //   window.addEventListener("resize", handleResize);
+  // })
 
   return (
     <div>
@@ -54,7 +54,6 @@ function InnerApp({ Component, pageProps }) {
       ) : (
         <>
           <FormularioLogin {...pageProps} />
-          <Footer />
         </>
       )}
     </div>
