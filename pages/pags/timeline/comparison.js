@@ -1,12 +1,12 @@
-import React from 'react';
-import Tabela from '../../../components/cronograma/Comparacao';
-import Navbar from '../../../components/cronograma/Navegador';
+import Tabela from '../../../components/features/cronograma/Comparacao';
+import PageWrapper from '../../../components/layout/CronogramaWrapper';
 
 function CadastroPage() {
   return (
     <div>
-      <Navbar/>
-      <Tabela/>
+      <PageWrapper>
+          <Tabela/>
+      </PageWrapper>
     </div>
   );
 }

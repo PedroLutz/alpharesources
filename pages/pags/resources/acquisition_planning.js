@@ -1,12 +1,12 @@
-import React from 'react';
-import Navbar from '../../../components/recursos/Navbar';
-import PlanoAquisicao from '../../../components/recursos/plano/Tabela';
+import PageWrapper from '../../../components/layout/ResourcesWrapper';
+import PlanoAquisicao from '../../../components/features/recursos/plano/Tabela';
 
 function TabelaPage() {
   return (
     <div>
-      <Navbar/>
-      <PlanoAquisicao/>
+      <PageWrapper>
+        <PlanoAquisicao />
+      </PageWrapper>
     </div>
   );
 }

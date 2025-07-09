@@ -1,12 +1,12 @@
-import React from 'react';
-import Navbar from '../../../components/comunicacao/Navegador';
-import Tabela from '../../../components/comunicacao/informacao/Tabela';
+import PageWrapper from '../../../components/layout/ComunicacaoWrapper';
+import Tabela from '../../../components/features/comunicacao/informacao/Tabela';
 
 function Wbs() {
   return (
     <div>
-      <Navbar />
-      <Tabela />
+      <PageWrapper>
+        <Tabela />
+      </PageWrapper>
     </div>
   );
 }

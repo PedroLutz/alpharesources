@@ -1,5 +1,4 @@
-import React from 'react';
-import Menu from '../components/Menu'
+import Menu from '../components/features/Menu'
 
 function index() {
   return (

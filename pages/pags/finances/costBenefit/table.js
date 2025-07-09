@@ -1,12 +1,12 @@
-import React from 'react';
-import Tabela from '../../../../components/recursos/custoBeneficio/Tabela';
-import Navbar from '../../../../components/recursos/Navbar';
+import Tabela from '../../../../components/features/recursos/custoBeneficio/Tabela';
+import PageWrapper from '../../../../components/layout/ResourcesWrapper';
 
 function TabelaPage() {
   return (
     <div>
-      <Navbar/>
-      <Tabela/>
+      <PageWrapper>
+        <Tabela />
+      </PageWrapper>
     </div>
   );
 }

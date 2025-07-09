@@ -1,12 +1,12 @@
-import React from 'react';
-import Lista from '../../../components/responsabilidades/membros/Lista';
-import Navbar from '../../../components/responsabilidades/Nav';
+import Lista from '../../../components/features/responsabilidades/membros/Lista';
+import PageWrapper from '../../../components/layout/ResponsabilidadeWrapper';
 
 function CadastroPage() {
   return (
     <div>
-      <Navbar />
-      <Lista />
+      <PageWrapper>
+        <Lista />
+      </PageWrapper>
     </div>
   );
 }

@@ -1,12 +1,12 @@
-import React from 'react';
-import Navbar from '../../../components/recursos/Navbar';
-import Tabela from '../../../components/recursos/cbs/Tabela';
+import PageWrapper from '../../../components/layout/ResourcesWrapper';
+import Tabela from '../../../components/features/recursos/cbs/Tabela';
 
 function TabelaPage() {
   return (
     <div>
-      <Navbar/>
-      <Tabela/>
+      <PageWrapper>
+        <Tabela />
+      </PageWrapper>
     </div>
   );
 }

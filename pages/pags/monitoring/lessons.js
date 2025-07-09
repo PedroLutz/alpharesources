@@ -1,12 +1,12 @@
-import React from 'react';
-import Tabela from '../../../components/monitoramento/licoes/Tabela';
-import Navbar from '../../../components/relatorio/Navbar';
+import Tabela from '../../../components/features/monitoramento/licoes/Tabela';
+import PageWrapper from '../../../components/layout/MonitoramentoWrapper';
 
 function TabelaPage() {
   return (
     <div>
-      <Navbar/>
-      <Tabela/>
+      <PageWrapper>
+        <Tabela/>
+      </PageWrapper>
     </div>
   );
 }

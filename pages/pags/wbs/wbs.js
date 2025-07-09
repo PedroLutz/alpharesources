@@ -1,12 +1,12 @@
-import React from 'react';
-import Tabela from '../../../components/wbs/Tabela';
-import Navbar from '../../../components/wbs/Navegador';
+import Tabela from '../../../components/features/wbs/Tabela';
+import PageWrapper from '../../../components/layout/WbsWrapper';
 
 function Wbs() {
   return (
     <div>
-      <Navbar/>
-      <Tabela/>
+      <PageWrapper>
+        <Tabela/>
+      </PageWrapper>
     </div>
   );
 }

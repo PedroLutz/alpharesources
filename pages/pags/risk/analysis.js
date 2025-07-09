@@ -1,12 +1,12 @@
-import React from 'react';
-import Navbar from '../../../components/riscos/Navegador';
-import Tabela from '../../../components/riscos/analise/Tabela';
+import PageWrapper from '../../../components/layout/RiscoWrapper';
+import Tabela from '../../../components/features/riscos/analise/Tabela';
 
 function TabelaPage() {
   return (
     <div>
-      <Navbar/>
-      <Tabela/>
+      <PageWrapper>
+        <Tabela/>
+      </PageWrapper>
     </div>
   );
 }

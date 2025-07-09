@@ -1,12 +1,12 @@
-import React from 'react';
-import Navbar from '../../components/relatorio/Navbar';
-import Report from '../../components/relatorio/Relatorio';
+import PageWrapper from '../../components/layout/MonitoramentoWrapper';
+import Report from '../../components/features/relatorio/Relatorio';
 
 function Wbs() {
   return (
     <div>
-      <Navbar/>
-      <Report />
+      <PageWrapper>
+        <Report />
+      </PageWrapper>
     </div>
   );
 }

@@ -1,12 +1,12 @@
-import React from 'react';
-import Navbar from '../../../components/recursos/Navbar';
-import Resumo from '../../../components/recursos/plano/Resumo';
+import PageWrapper from '../../../components/layout/ResourcesWrapper';
+import Resumo from '../../../components/features/recursos/plano/Resumo';
 
 function ResumoPage() {
   return (
     <div>
-      <Navbar/>
-      <Resumo/>
+      <PageWrapper>
+        <Resumo />
+      </PageWrapper>
     </div>
   );
 }

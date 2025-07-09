@@ -1,12 +1,12 @@
-import React from 'react';
-import Tabela from '../../../components/responsabilidades/raci/Tabela';
-import Navbar from '../../../components/responsabilidades/Nav';
+import Tabela from '../../../components/features/responsabilidades/raci/Tabela';
+import PageWrapper from '../../../components/layout/ResponsabilidadeWrapper';
 
 function CadastroPage() {
   return (
     <div>
-        <Navbar/>
-        <Tabela/>
+        <PageWrapper>
+          <Tabela/>
+        </PageWrapper>
     </div>
   );
 }

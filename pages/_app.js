@@ -3,9 +3,9 @@ import Head from 'next/head';
 import { useState, useEffect } from "react";
 import { TituloProvider, TituloContext } from '../contexts/TituloContext';
 import { AuthProvider, AuthContext } from '../contexts/AuthContext';
-import Footer from '../components/Footer';
-import FormularioLogin from '../components/Login'
-import MobileBlock from '../components/MobileBlock';
+import Footer from '../components/ui/Footer';
+import FormularioLogin from '../components/features/Login'
+import MobileBlock from '../components/ui/MobileBlock';
 
 import '../styles/global.css';
 import '../styles/graficos.css';

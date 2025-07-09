@@ -1,12 +1,12 @@
-import React from 'react';
-import Tabela from '../../../components/monitoramento/mudancas/Tabela';
-import Navbar from '../../../components/relatorio/Navbar';
+import Tabela from '../../../components/features/monitoramento/mudancas/Tabela';
+import PageWrapper from '../../../components/layout/MonitoramentoWrapper';
 
 function TabelaPage() {
   return (
     <div>
-      <Navbar/>
-      <Tabela/>
+      <PageWrapper>
+        <Tabela/>
+      </PageWrapper>
     </div>
   );
 }
