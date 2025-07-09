@@ -1,6 +1,5 @@
-import React from 'react';
-import Navbar from '../../../components/documentos/Navbar';
-import ProjectCharter from '../../../components/documentos/ProjectCharter';
+import Navbar from '../../../components/features/documentos/Navbar';
+import ProjectCharter from '../../../components/features/documentos/ProjectCharter';
 
 function Charter() {
   return (
