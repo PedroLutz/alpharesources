@@ -207,7 +207,7 @@ const Tabela = () => {
       const gantt = dadosGantt.find(o => o.area === dado.area);
       duplas.push([dado, gantt])
     })
-
+    
     let arrayAnalise = [];
     duplas.forEach((dupla) => {
       const area = dupla[0].area;
@@ -528,7 +528,7 @@ const Tabela = () => {
         <div className="centered-container">
           <div className={styles.tabelaCronograma_container}>
             <div className={styles.tabelaCronograma_wrapper}>
-              <table className={styles.tabelaCronograma}>
+              <table className={`${styles.tabelaCronograma} tabela`}>
                 <thead>
                   <tr>
                     <th>Area</th>
@@ -568,12 +568,10 @@ const Tabela = () => {
                           <td>{item.dp_area || '-'}</td>
                           <td>{item.dp_item || '-'}</td>
                           <td>{labelsSituacao[item.situacao.toLowerCase().replace(/\s/g, '')] || '-'}</td>
-                          <td>
-                            <div className='botoes_acoes'>
+                          <td className='botoes_acoes'>
                               <button onClick={() => {
                                 linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
                               }} disabled={!isAdmin}>⚙️</button>
-                            </div>
                           </td>
                         </React.Fragment>
                       )}
@@ -584,8 +582,8 @@ const Tabela = () => {
             </div>
           </div>
 
-          <div className={styles.areaAnalysis}>
-            <table>
+          <div className={`${styles.areaAnalysis}`}>
+            <table className='tabela'>
               <thead>
                 <tr>
                   <th>Area</th>

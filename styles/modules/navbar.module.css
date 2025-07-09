@@ -4,8 +4,12 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 3rem;
-  position: relative;
+  height: 4rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
   color: white;
 }
 
@@ -120,6 +124,82 @@
   gap: 10px;
 }
 
+@media (max-width: 1280px){
+  .nav{
+    height: 6vh
+  }
+
+  .hamburger {
+    display: block;
+    top: 1vh;
+    font-size: 2rem;
+  }
+
+  .menu {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease-out;
+    flex-direction: column;
+    align-items: center;
+    background-image: linear-gradient(90deg, rgba(144, 6, 227, 1) 0%, rgba(255, 0, 227, 1) 100%);
+    width: 100%;
+    position: absolute;
+    top: 6vh;
+    left: 0;
+    z-index: 1000;
+    padding: 0;
+    border-radius: 0 0 10px 10px;
+  }
+
+  .menu.open {
+    top: 4vh;
+    max-height: 500px;
+    padding: 1rem 0;
+  }
+
+
+  .menu li {
+    opacity: 0;
+    margin-top: -10px;
+    transition: opacity 0.3s ease, margin 0.3s ease;
+  }
+
+  .menu.open li {
+    opacity: 1;
+    margin-top: 0;
+    margin: 0;
+  }
+
+
+  .dropdownContent {
+    position: static;
+    background-color: white;
+    box-shadow: none;
+    border-radius: 5px;
+    margin-top: 0.5rem;
+  }
+
+  .dropdownContent a {
+    color: black;
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+
+  .nav h2 {
+    font-size: 1.2rem;
+    text-align: center;
+    line-height: 4vh;
+  }
+
+  .nav img {
+    visibility: hidden;
+  }
+
+  .nav ul{
+    top: 4vh
+  }
+}
+
 @media (orientation: landscape) and (max-width: 1024px){
   .hamburger {
     display: block;
@@ -188,15 +268,16 @@
   }
 
   .nav{
-    height: 8vh;
+    height: 12vh;
   }
 
   .nav ul{
-    top: 8vh
+    top: 5vh
   }
 }
 
 @media (max-width: 768px) {
+
   .hamburger {
     display: block;
     top: 1vh;
@@ -264,7 +345,7 @@
   }
 
   .nav{
-    height: 5vh;
+    height: 6.5vh;
   }
 
   .nav ul{
@@ -274,7 +355,7 @@
 
 @media (orientation: landscape) and (max-width: 768px){
   .nav{
-    height: 8vh;
+    height: 12vh;
   }
 
   .hamburger {

@@ -70,7 +70,10 @@ export default async (req, res) => {
           $unwind: "$detalhes"
         },
         {
-          $sort: { "detalhes.inicio": 1 } // Ordene por data de início para garantir consistência
+          $sort: {
+            "detalhes.termino": 1,
+            "detalhes._id": 1
+          }
         },
         {
           $group: {

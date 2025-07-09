@@ -333,7 +333,7 @@ const Tabela = () => {
       <div className="centered-container">
         <div className={styles.tabelaCronograma_container}>
           <div className={styles.tabelaCronograma_wrapper}>
-            <table style={{ marginBottom: '10px' }} className={styles.tabelaCronograma}>
+            <table style={{ marginBottom: '10px' }} className={`tabela ${styles.tabelaCronograma}`}>
               <thead>
                 <tr>
                   <th>Area</th>
@@ -386,15 +386,15 @@ const Tabela = () => {
                           <td>{item.termino}</td>
                           <td>{item.dp_area || '-'}</td>
                           <td>{item.dp_item || '-'}</td>
-                          <td>
-                            <div className="botoes_acoes">
+                          <td className="botoes_acoes">
+                            
                               <button onClick={() => setConfirmDeleteItem(item)}
                                 disabled={!isAdmin}>❌</button>
                               <button onClick={() => {
                                 linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
                               }}
                                 disabled={!isAdmin}>⚙️</button>
-                            </div>
+                            
                           </td>
                         </React.Fragment>
                       )}

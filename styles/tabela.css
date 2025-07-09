@@ -1,0 +1,81 @@
+.tabela {
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(0, 0, 0);
+    padding: 0.3rem;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabela td,
+.tabela th {
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(0, 0, 0);
+    padding: 0.3rem;
+    font-size: small;
+    word-wrap: break-word;
+}
+
+.tabela td:last-child {
+    text-align: center;
+}
+
+.tabela th {
+    background-color: #ff8ff2;
+    border-width: 0.1rem;
+    font-size: 0.9rem;
+    border-style: solid;
+    border-color: rgb(0, 0, 0);
+    padding: 0.3rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.tabela td input,
+.tabela td select,
+.tabela td textarea {
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    border-radius: 0.4rem;
+    padding: 0.2rem;
+    transition: 0.2s;
+    outline: none;
+    font-size: small;
+    background-color: white;
+}
+
+.tabela td input:hover,
+.tabela td select:hover,
+.tabela td textarea:hover,
+.tabela td:not(.botoes_acoes) button:hover {
+    background-color: rgb(231, 231, 231);
+}
+
+.tabela button{
+    background-color: transparent;
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    border-radius: 0.4rem;
+    height: 1.6rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+@media (max-width: 1280px),
+(orientation: landscape) and (max-width: 1280px),
+(orientation: landscape) and (max-width: 1024px),
+(max-width: 768px) {
+
+    .tabela td,
+    .tabela th,
+    .tabela td textarea,
+    .tabela td select,
+    .tabela td input,
+    .tabela td:not(.botoes_acoes) button {
+        font-size: 0.6rem;
+    }
+}

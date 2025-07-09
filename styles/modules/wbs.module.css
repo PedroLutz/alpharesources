@@ -107,16 +107,6 @@
   margin-bottom: 5px;
 }
 
-.tabelaDicionario table {
-  border-width: 0.1rem;
-  border-style: solid;
-  border-color: rgb(0, 0, 0);
-  padding: 0.3rem;
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-}
-
 .tabelaDicionario_container {
   overflow: auto;
 }
@@ -131,42 +121,8 @@
   text-align: left;
 }
 
-.tabelaDicionario td,
-.tabelaDicionario th {
-  border-width: 0.1rem;
-  border-style: solid;
-  border-color: rgb(0, 0, 0);
-  padding: 0.3rem;
-  font-size: small;
-  word-wrap: break-word;
-}
-
-.tabelaDicionario td input,
-.tabelaDicionario td select,
-.tabelaDicionario td textarea {
-  border-width: 0.1rem;
-  border-style: solid;
-  border-color: rgb(167, 167, 167);
-  border-radius: 0.4rem;
-  padding: 0.2rem;
-  transition: 0.2s;
-  outline: none;
-  font-size: small;
-  background-color: white;
-}
-
 .tabelaDicionario td textarea {
   height: 6rem;
-}
-
-.tabelaDicionario td input:hover,
-.tabelaDicionario td select:hover,
-.tabelaDicionario td textarea:hover {
-  background-color: rgb(231, 231, 231);
-}
-
-.tabelaDicionario td:not(:global(.botoes_acoes)) button:hover {
-  background-color: rgb(231, 231, 231);
 }
 
 .tabelaDicionario td:not(:global(.botoes_acoes)):last-child button {
@@ -216,47 +172,11 @@
   min-width: 9.5rem;
 }
 
-.tabelaDicionario th {
-  background-color: #ff8ff2;
-  border-width: 0.1rem;
-  font-size: 0.9rem;
-  border-style: solid;
-  border-color: rgb(0, 0, 0);
-  padding: 0.3rem;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.tabelaDicionario td:last-child {
-  text-align: center;
-}
-
-.tabelaDicionario button {
-  background-color: transparent;
-  border-width: 0.1rem;
-  border-style: solid;
-  border-color: rgb(167, 167, 167);
-  border-radius: 0.4rem;
-  height: 1.6rem;
-  width: 4.7rem;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
 @media (max-width: 1280px){
   .tabelaDicionario_wrapper {
     max-width: 48rem;
     max-height: 55rem;
     display: block;
-  }
-
-  .tabelaDicionario td,
-  .tabelaDicionario th,
-  .tabelaDicionario td textarea,
-  .tabelaDicionario td select,
-  .tabelaDicionario td:not(:global(.botoes_acoes)) button {
-    font-size: 0.6rem;
   }
 
   .td_area select,
@@ -317,10 +237,6 @@
       max-height: 76vh;
       display: block;
     }
-
-    .tabelaDicionario td, .tabelaDicionario th, .tabelaDicionario td select, .tabelaDicionario td textarea{
-      font-size: 0.7rem;
-    }
 }
 
 @media (orientation: landscape) and (max-width: 1024px){
@@ -328,14 +244,6 @@
     max-width:  95vw;
     max-height: 63vh;
     display: block;
-  }
-
-  .tabelaDicionario td,
-  .tabelaDicionario th,
-  .tabelaDicionario td textarea,
-  .tabelaDicionario td select,
-  .tabelaDicionario td:not(:global(.botoes_acoes)) button {
-    font-size: 0.6rem;
   }
 
   .td_area select,
@@ -396,14 +304,6 @@
     max-width: 90vw;
     height: 80vh;
     display: block;
-  }
-
-  .tabelaDicionario td,
-  .tabelaDicionario th,
-  .tabelaDicionario td textarea,
-  .tabelaDicionario td select,
-  .tabelaDicionario td:not(:global(.botoes_acoes)) button {
-    font-size: 0.6rem;
   }
 
   .td_area select,

@@ -179,7 +179,7 @@ const TabelaAnalise = () => {
 
             <div className={styles.tabelaDicionario_container}>
                 <div className={styles.tabelaDicionario_wrapper}>
-                    <table className={styles.tabelaDicionario}>
+                    <table className={`${styles.tabelaDicionario} tabela`}>
                         <thead>
                             <tr>
                                 <th>Area</th>

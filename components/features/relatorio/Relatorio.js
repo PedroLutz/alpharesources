@@ -3,28 +3,14 @@ import { fetchData } from "../../../functions/crud";
 import { isoDateToEuDate } from "../../../functions/general";
 import styles from '../../../styles/modules/relatorio.module.css'
 import Loading from "../../ui/Loading";
+import Modal from "../../ui/Modal";
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { format } from 'date-fns';
 
 const Relatorio = () => {
-    const months = [
-        ['01', 'January'],
-        ['02', 'February'],
-        ['03', 'March'],
-        ['04', 'April'],
-        ['05', 'May'],
-        ['06', 'June'],
-        ['07', 'July'],
-        ['08', 'August'],
-        ['09', 'September'],
-        ['10', 'October'],
-        ['11', 'November'],
-        ['12', 'December'],
-    ]
-    const years = ['2024', '2025', '2026', '2027', '2028', '2029', '2030'];
     const [showTable, setShowTable] = useState(false);
-    const [monthYear, setMonthYear] = useState({
-        year: '',
-        month: ''
-    })
+    const [mes, setMes] = useState("");
     const objKpis = {
         scopeStatus: '',
         scheduleStatus: '',
@@ -32,6 +18,7 @@ const Relatorio = () => {
         qualityStatus: '',
         costStatus: ''
     }
+    const [exibirModal, setExibirModal] = useState(false);
     const [kpi, setKpi] = useState(objKpis);
     const [tarefasIniciadas, setTarefasIniciadas] = useState([]);
     const [tarefasEmAndamento, setTarefasEmAndamento] = useState([]);
@@ -83,8 +70,12 @@ const Relatorio = () => {
 
     const busca = async () => {
         setLoading(true)
-
-        const mesAno = `${monthYear.year}-${monthYear.month}`
+        if(mes == ""){
+            setExibirModal(true);
+            setLoading(false);
+            return;
+        }
+        const mesAno = format(mes, 'yyyy-MM');
         try {
             const response = await fetch(`/api/relatorio/get/geral`, {
                 method: 'POST',
@@ -96,6 +87,7 @@ const Relatorio = () => {
 
             if (response.ok) {
                 const data = await response.json();
+                console.log(data)
                 generateLabelsTarefas(data.tarefasIniciadas, setTarefasIniciadas);
                 generateLabelsTarefas(data.tarefasConcluidas, setTarefasConcluidas);
                 generateLabelsTarefas(data.tarefasEmAndamento, setTarefasEmAndamento);
@@ -141,17 +133,19 @@ const Relatorio = () => {
         let arrayAnalise = [];
 
         duplas.forEach((dupla) => {
-            console.log(dupla)
             const area = dupla[0].area;
             const planoUltimo = dupla[0].ultimo;
             const ganttUltimo = dupla[1].ultimo;
             const getLastDayOfMonth = (monthYear) => {
+                console.log(monthYear)
                 const { year, month } = monthYear;
+                
                 const lastDay = new Date(year, month, 0).getDate(); // Dia 0 do próximo mês retorna o último dia do mês atual
                 return new Date(year, month - 1, lastDay); // month - 1 porque os meses são indexados de 0 a 11
             };
             var obj = { area: area, state: objSituacao[area] }
 
+            const monthYear = {year: format(mes, 'MM-yyyy').split("-")[1], month: format(mes, 'MM-yyyy').split("-")[0]}
             const hoje = getLastDayOfMonth(monthYear).toISOString();
 
             //executing
@@ -262,10 +256,9 @@ const Relatorio = () => {
             input.parentNode.insertBefore(div, input.nextSibling)
         })
 
-
         const opt = {
             margin: 1,
-            filename: `relatorio-${monthYear.month}-${monthYear.year}.pdf`,
+            filename: `relatorio-${format(mes, 'MM-yyyy')}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2 },
             jsPDF: {
@@ -281,8 +274,6 @@ const Relatorio = () => {
 
     useEffect(() => {
         if (flagExport == true) {
-
-
             generatePDF();
             setFlagExport(false);
         }
@@ -291,30 +282,30 @@ const Relatorio = () => {
 
     return (
         <div className="centered-container">
+            {exibirModal && (
+                <Modal objeto={{
+                    titulo: "Please select a valid month!",
+                    botao1: {
+                        funcao: () => setExibirModal(false), texto: 'Okay'
+                    },
+                }} />
+            )}
+
             <h2>Status Report Generator</h2>
             {loading && <Loading />}
             <div className={styles.menu}>
                 <h3>Select Month</h3>
                 <div>
-                    <select
-                        name="month"
-                        onChange={(e) => handleChange(e, monthYear, setMonthYear)}
-                        value={monthYear.month}>
-                        <option value='' disabled>Select month</option>
-                        {months.map((month, index) => (
-                            <option key={index} value={month[0]}>{month[1]}</option>
-                        ))}
-                    </select>
-
-                    <select
-                        name="year"
-                        onChange={(e) => handleChange(e, monthYear, setMonthYear)}
-                        value={monthYear.year}>
-                        <option value='' disabled>Select year</option>
-                        {years.map((year, index) => (
-                            <option key={index} value={year}>{year}</option>
-                        ))}
-                    </select>
+                    <DatePicker
+                        selected={mes}
+                        onChange={(date) => setMes(date)}
+                        dateFormat="MM/yyyy"
+                        className={styles.datePicker}
+                        calendarClassName={styles.datePicker_calendar}
+                        showMonthYearPicker
+                        showFullMonthYearPicker
+                        placeholderText="MM/yyyy"
+                    />
                 </div>
                 <button className="botao-padrao" onClick={busca}>Get data</button>
                 {showTable && (
@@ -339,18 +330,18 @@ const Relatorio = () => {
                                         </tr>
                                         <tr>
                                             <td>Month of report</td>
-                                            <td>{monthYear.month}/{monthYear.year}</td>
+                                            <td>{format(mes, 'MM/yyyy')}</td>
                                         </tr>
                                         <tr>
                                             <td>Projected Date of Completion</td>
                                             <td><input type="date"
-                                                id='dateCompletion'/>
+                                                id='dateCompletion' />
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>Project Manager</td>
                                             <td><input name='manager'
-                                                id='manager'/>
+                                                id='manager' />
                                             </td>
                                         </tr>
                                     </tbody>
@@ -385,7 +376,7 @@ const Relatorio = () => {
                                     </tr>
                                     <tr>
                                         <td>Issues</td>
-                                        <td><textarea/></td>
+                                        <td><textarea /></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -447,7 +438,7 @@ const Relatorio = () => {
                                     <tr>
                                         {Object.keys(objKpis).map((key, index) => (
                                             <td key={index}>
-                                                <textarea/>
+                                                <textarea />
                                             </td>
                                         ))}
                                     </tr>
@@ -483,7 +474,7 @@ const Relatorio = () => {
                                                     area.status === 'Overdue' ? 'status_td unsafe' : 'status_td'
                                                 }>{area.status}</td>
                                             <td>
-                                                <textarea/>
+                                                <textarea />
                                             </td>
                                         </tr>
                                     ))}

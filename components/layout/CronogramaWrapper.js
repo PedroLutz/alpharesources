@@ -5,7 +5,7 @@ const PageWrapper = ({ children }) => {
         <div>
             <GenericNavbar
                 base={{
-                    titulo: 'Time Management',
+                    titulo: 'Time',
                     link: "/pags/timeline/monitoring"
                 }}
                 itens={[

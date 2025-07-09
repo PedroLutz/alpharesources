@@ -10,6 +10,7 @@ import MobileBlock from '../components/ui/MobileBlock';
 import '../styles/global.css';
 import '../styles/graficos.css';
 import '../styles/botoes.css';
+import '../styles/tabela.css';
 
 function MyApp({ Component, pageProps }) {
   return (

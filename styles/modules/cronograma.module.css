@@ -1,16 +1,9 @@
-.tabelaCronograma_container{
-    overflow-y: auto;
-    width: 101.5%
+.tabelaCronograma_container {
+    overflow: auto;
+    scrollbar-gutter: stable;
 }
 
-.tabelaCronograma_wrapper{
-    min-width: 1rem;
-    max-width: 75rem;
-    max-height: 45rem;
-    display: inline-block;
-}
-
-.tabelaCronograma table, .areaAnalysis table {
+.areaAnalysis table {
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(0, 0, 0);
@@ -19,63 +12,27 @@
     border-collapse: collapse;
 }
 
-.tabelaCronograma td, .areaAnalysis td {
-    border-width: 0.1rem;
-    border-style: solid;
-    width: 5rem;
-    border-color: rgb(0, 0, 0);
-    padding: 0.3rem;
-    font-size: small;
+.tabelaCronograma_wrapper {
+    max-height: 45rem;
+    display:block;
 }
 
-.tabelaCronograma th{
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
-.tabelaCronograma th, .areaAnalysis th {
-    background-color: #ff8ff2;
-    border-width: 0.1rem;
-    border-style: solid;
-    font-size: 0.9rem;
-    border-color: rgb(0, 0, 0);
-    padding: 0.3rem;
-}
-
-.tabelaCronograma td input, .tabelaCronograma td select {
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(167, 167, 167);
-    border-radius: 0.4rem;
-    padding: 0.2rem;
-    transition: 0.2s;
-    outline: none;
+.tabelaCronograma td input,
+.tabelaCronograma td select {
     width: 9rem;
-    font-size: small;
-    background-color: white;
 }
 
-.tabelaCronograma td input:hover, .tabelaCronograma td select:hover, .botaoCadastro:hover {
+.botaoCadastro:hover {
     background-color: rgb(231, 231, 231);
 }
 
-.tabelaCronograma button{
-    background-color: transparent;
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(167, 167, 167);
-    border-radius: 0.4rem;
-    height: 1.6rem;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.tabelaCronograma th:first-child, .tabelaCronograma th:nth-child(2) {
+.tabelaCronograma th:first-child,
+.tabelaCronograma th:nth-child(2) {
     width: 8rem;
 }
 
-.tabelaCronograma th:nth-child(5), .tabelaCronograma th:nth-child(6) {
+.tabelaCronograma th:nth-child(5),
+.tabelaCronograma th:nth-child(6) {
     font-size: small;
 }
 
@@ -87,7 +44,7 @@
     width: 4.7rem;
 }
 
-.quickUpdate{
+.quickUpdate {
     border-style: solid;
     border-width: 0.1rem;
     border-color: rgb(175, 175, 175);
@@ -95,7 +52,7 @@
     padding: 1.5rem;
 }
 
-.quickUpdate select{
+.quickUpdate select {
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(167, 167, 167);
@@ -110,7 +67,7 @@
     background-color: transparent;
 }
 
-.quickUpdate button{
+.quickUpdate button {
     background-color: transparent;
     border-width: 0.1rem;
     border-style: solid;
@@ -123,7 +80,8 @@
     transition: 0.2s;
 }
 
-.quickUpdate button:hover, .quickUpdate select:hover{
+.quickUpdate button:hover,
+.quickUpdate select:hover {
     background-color: rgb(233, 233, 233);
 }
 
@@ -131,10 +89,60 @@
     margin-top: 2rem;
 }
 
-.areaAnalysis th:first-child{
+.areaAnalysis th:first-child {
     width: 12rem;
 }
 
-.areaAnalysis th:nth-child(2), .areaAnalysis th:nth-child(3){
+.areaAnalysis th:nth-child(2),
+.areaAnalysis th:nth-child(3) {
     width: 8rem;
+}
+
+@media (max-width: 1280px) {
+    .tabelaCronograma_wrapper {
+        max-width: 95vw;
+        max-height: 45rem;
+        display: inline-block;
+    }
+
+    .quickUpdate {
+        border-style: solid;
+        border-width: 0.1rem;
+        border-color: rgb(175, 175, 175);
+        border-radius: 1rem;
+        padding: 0.5rem;
+    }
+
+    .quickUpdate h4{
+        font-size: small;
+    }
+
+    .quickUpdate select {
+        border-width: 0.1rem;
+        border-style: solid;
+        border-color: rgb(167, 167, 167);
+        border-radius: 0.4rem;
+        padding: 0.2rem;
+        transition: 0.2s;
+        margin: 0.2rem;
+        margin-bottom: 1rem;
+        outline: none;
+        width: 10rem;
+        font-size: 0.7rem;
+        background-color: transparent;
+    }
+
+    .quickUpdate button {
+        background-color: transparent;
+        border-width: 0.1rem;
+        border-style: solid;
+        width: 8rem;
+        font-size: 0.7rem;
+        border-color: rgb(167, 167, 167);
+        border-radius: 0.4rem;
+        height: 1.6rem;
+        margin: 0.2rem;
+        cursor: pointer;
+        transition: 0.2s;
+    }
 }

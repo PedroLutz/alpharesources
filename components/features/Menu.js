@@ -13,7 +13,7 @@ const Menu = () => {
     }, [setTitulo]);
 
     return (
-        <div className={containerMenu}>
+        <div className={containerMenu} style={{marginTop: '-4rem'}}>
             {/*Logo e nome*/}
             <div className={`${menuText} centered-container`}>
                 <img src={'/images/logo.png'} alt="Logo" style={{ width: '200px', margin: '-10px' }} />
