@@ -39,6 +39,7 @@ const Tabela = () => {
   const [novosDados, setNovosDados] = useState(camposVazios);
   const {isAdmin} = useContext(AuthContext);
   const [paleta, setPaleta] = useState([]);
+  const [isMobile, setIsMobile] = useState(false);
 
   const labelsSituacao = {
     iniciar: 'Starting',
@@ -346,12 +347,25 @@ const Tabela = () => {
   //useEffect que so roda quando chartData recebe um valor, e define a altura do grafico gantt
   useEffect(() => {
     if (chartData.length > 1) {
-      const linhaHeight = 30;
+      const linhaHeight = isMobile ? 20 : 30;
       const novaAltura = ((chartData.length * linhaHeight) + 50) + 'px';
       setChartHeight(novaAltura);
       setChartDataLoaded(true);
     }
   }, [chartData]);
+
+  const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setIsMobile(true)
+      } else {
+        setIsMobile(false)
+      }
+    }
+  
+    useEffect(() => {
+      handleResize();
+      window.addEventListener("resize", handleResize);
+    }, [])
 
 
   //funcao que recebe o item a ser atualizado e o insere em novosDados
@@ -449,11 +463,16 @@ const Tabela = () => {
           data={chartData}
           options={{
             gantt: {
-              trackHeight: 30,
+              trackHeight: isMobile ? 20 : 30,
+              barHeight: isMobile ? 10 : null,
+              arrow: {
+                length: isMobile ? 0 : 8
+              },
               sortTasks: false,
               palette: paleta,
               shadowEnabled: false,
               criticalPathEnabled: false,
+              labelMaxWidth: isMobile ? 0 : 300
             },
 
           }}

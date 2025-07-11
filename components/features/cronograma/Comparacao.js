@@ -14,7 +14,7 @@ const Tabela = () => {
     const [reload, setReload] = useState(false);
     const [cores, setCores] = useState({});
     const [paleta, setPaleta] = useState([]);
-
+    const [isMobile, setIsMobile] = useState(false);
 
     //useEffect que so executa quando acontece reload é atualizado
     useEffect(() => {
@@ -140,20 +140,44 @@ const Tabela = () => {
         }
     }, [chartData]);
 
+    const tamanhoDaFonte = (num) => {
+        if(num <= 13){
+            return '0.7rem'
+        }
+        if(num > 13 && num <= 20){
+            return '0.6rem'
+        } else {
+            return isMobile ? '0.5rem' : '0.6rem'
+        }
+    }
+
+    const handleResize = () => {
+        if (window.innerWidth < 1024) {
+        setIsMobile(true)
+        } else {
+        setIsMobile(false)
+        }
+    }
+
+    useEffect(() => {
+        handleResize();
+        window.addEventListener("resize", handleResize);
+    }, []);
+
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2>Timeline monitoring</h2>
+            <h2>Planned Schedule vs Reality</h2>
 
-            <div style={{
-                width: "50rem",
+            <div className='centered-container' style={{
+                width: "50vw",
                 display: "flex",
                 flexDirection: "row",
                 alignItems: "center",
                 position: 'relative',
             }}>
                 <table style={{
-                    marginBottom: '5rem',
+                    marginBottom: '80px',
                 }}>
                     <tbody style={{ borderColor: 'black', borderStyle: 'solid', borderWidth: '0.01rem' }}>
                         {cronogramas.filter(item =>
@@ -171,13 +195,13 @@ const Tabela = () => {
                                         borderRightWidth: '0rem',
                                         backgroundColor: cores[item.area]
                                     }}>
-                                    <td style={{ fontSize: item.item.length > 13 ? '0.65rem' : '0.7rem' }}>{item.item}</td>
+                                    <td style={{ fontSize: tamanhoDaFonte(item.item.length), minWidth: '6rem', maxWidth: '8rem' }}>{item.item}</td>
                                 </tr>
                             ))}
                     </tbody>
                 </table>
                 <div className="centered-container" style={{
-                    width: "50rem",
+                    width: isMobile ? "70vw" :"40vw",
                     display: "flex",
                     flexDirection: "row",
                     alignItems: "flex-start",
@@ -204,7 +228,7 @@ const Tabela = () => {
 
                     {chartDataLoaded && (
                         <Chart
-                            width={'100%'}
+                            width={isMobile ? "70vw" :"40vw"}
                             height={chartHeight}
                             chartType="Gantt"
                             loader={<div>Loading Chart</div>}

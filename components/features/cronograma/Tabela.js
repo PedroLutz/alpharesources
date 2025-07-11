@@ -36,6 +36,7 @@ const Tabela = () => {
   const [etis, setEtis] = useState([]);
   const [showContingencies, setShowContingencies] = useState(false);
   const [tabela, setTabela] = useState([]);
+  const [isMobile, setIsMobile] = useState(false);
 
 
   //funcao que recebe o item a ser atualizado e insere os campos relevantes em novosDados
@@ -201,7 +202,7 @@ const Tabela = () => {
   //useEffect que só executa quando chartData recebe um valor para calcular o tamanho do grafico
   useEffect(() => {
     if (chartData.length > 1) {
-      const linhaHeight = 30;
+      const linhaHeight = isMobile ? 20 : 30;
       const novaAltura = ((chartData.length * linhaHeight) + 50) + 'px';
       setChartHeight(novaAltura);
       setChartDataLoaded(true);
@@ -268,6 +269,19 @@ const Tabela = () => {
     return rowSpan;
   };
 
+  const handleResize = () => {
+    if (window.innerWidth < 1024) {
+      setIsMobile(true)
+    } else {
+      setIsMobile(false)
+    }
+  }
+
+  useEffect(() => {
+    handleResize();
+    window.addEventListener("resize", handleResize);
+  }, []);
+
   return (
     <div className="centered-container">
       {loading && <Loading />}
@@ -311,6 +325,7 @@ const Tabela = () => {
       {chartDataLoaded && (
         <div style={{width: '90%', height: chartHeight}}>
           <Chart
+          key={isMobile ? "mobile" : "desktop"}
           height="100%"
           width="100%"
           chartType="Gantt"
@@ -318,11 +333,16 @@ const Tabela = () => {
           data={!showContingencies ? chartData : chartDataContingencies}
           options={{
             gantt: {
-              trackHeight: 30,
+              trackHeight: isMobile ? 20 : 30,
+              barHeight: isMobile ? 10 : null,
+              arrow: {
+                length: isMobile ? 0 : 8
+              },
               sortTasks: false,
               palette: paleta,
               shadowEnabled: false,
               criticalPathEnabled: false,
+              labelMaxWidth: isMobile ? 0 : 300
             },
           }}
         />
