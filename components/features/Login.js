@@ -79,7 +79,7 @@ const FormularioLogin = () => {
       {loading && <Loading />}
 
       <form onSubmit={handleSubmit}>
-        <div className="centered-container" style={{ height: '100vh' }}>
+        <div className="centered-container" style={{ height: '90vh' }}>
           <div className={modal_login}>
             <div>
               <img src={'/images/logo.png'} alt="Logo" style={{ width: '150px' }} />
