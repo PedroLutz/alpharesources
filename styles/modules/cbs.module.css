@@ -1,38 +1,21 @@
-.tabela_cbs table {
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(0, 0, 0);
-    padding: 0.3rem;
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.tabela_cbs_container{
+.tabela_cbs_container {
     overflow: auto;
 }
 
-.tabela_cbs_wrapper{
+.tabela_cbs_wrapper {
     max-width: 75rem;
     max-height: 45rem;
-    display:block;
+    display: block;
 }
 
-.tabela_cbs td {
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(0, 0, 0);
-    padding: 0.3rem;
-    font-size: small;
+#tdComparacao {
+    width: 15rem;
 }
 
-.tabela_cbs th {
-    background-color: #ff8ff2;
-    border-width: 0.1rem;
-    font-size: 0.9rem;
-    border-style: solid;
-    border-color: rgb(0, 0, 0);
-    padding: 0.3rem;
-    position: sticky;
-    top: 0;
-    z-index: 10;
+@media (max-width: 1280px) {
+    .tabela_cbs_wrapper {
+        max-width: 95vw;
+        max-height: 45rem;
+        display: block;
+    }
 }

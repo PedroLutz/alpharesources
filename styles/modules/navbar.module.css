@@ -135,6 +135,10 @@
     font-size: 2rem;
   }
 
+  .dropdown{
+    text-align: center;
+  }
+
   .menu {
     overflow: hidden;
     max-height: 0;
@@ -177,11 +181,13 @@
     box-shadow: none;
     border-radius: 5px;
     margin-top: 0.5rem;
+    text-align: center;
   }
 
   .dropdownContent a {
     color: black;
     padding: 10px;
+    margin: -10px;
     font-size: 0.9rem;
   }
 
@@ -245,10 +251,11 @@
 
   .dropdownContent {
     position: static;
-    background-color: white;
+    background-color: transparent;
     box-shadow: none;
     border-radius: 5px;
     margin-top: 0.5rem;
+    text-align: center;
   }
 
   .dropdownContent a {
@@ -322,7 +329,7 @@
 
   .dropdownContent {
     position: static;
-    background-color: white;
+    background-color: transparent;
     box-shadow: none;
     border-radius: 5px;
     margin-top: 0.5rem;

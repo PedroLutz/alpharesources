@@ -416,7 +416,7 @@ const Tabela = () => {
   return (
     <div className="centered-container">
       {loading && <Loading />}
-      <h2>Timeline monitoring</h2>
+      <h2 className='smallTitle'>Timeline monitoring</h2>
 
       {confirmCompleteTask && (
         <Modal objeto={{

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import Loading from '../../../ui/Loading';
 import Modal from '../../../ui/Modal';
 import CadastroInputs from './CadastroInputs';
-import styles from '../../../../styles/modules/tabela.module.css'
+import styles from '../../../../styles/modules/financas.module.css'
 import { handleSubmit, fetchData, handleDelete, handleUpdate, handlePseudoDelete } from '../../../../functions/crud';
 import { jsDateToEuDate, euDateToIsoDate, cleanForm } from '../../../../functions/general';
 import { AuthContext } from '../../../../contexts/AuthContext';
@@ -231,10 +231,10 @@ const Tabela = () => {
   return (
     <div className="centered-container">
       {loading && <Loading />}
-      <h2>Financial Releases Data</h2>
+      <h2 className='smallTitle'>Financial Releases Data</h2>
       <div id="report" className={styles.tabela_financas_container}>
         <div className={styles.tabela_financas_wrapper}>
-          <table className={styles.tabela_financas}>
+          <table className={`tabela ${styles.tabela_financas}`}>
             <thead>
               <tr>
                 <th>Type</th>
@@ -253,7 +253,7 @@ const Tabela = () => {
                 obj={novoSubmit}
                 objSetter={setNovoSubmit}
                 funcoes={{
-                  enviar: () => enviar()
+                  enviar
                 }}
                 setExibirModal={setExibirModal}
                 tipo='cadastro'
@@ -274,19 +274,19 @@ const Tabela = () => {
                     </React.Fragment>
                   ) : (
                     <React.Fragment>
-                      <tr>
+                      <tr key={index}>
                         <td>{labelsTipo[item.tipo]}</td>
-                        <td style={{ color: item.tipo === 'Income' ? 'green' : item.tipo === 'Exchange' ? '#335EFF' : 'red' }}>
+                        <td id={styles.tdDescricao} style={{ color: item.tipo === 'Income' ? 'green' : item.tipo === 'Exchange' ? '#335EFF' : 'red' }}>
                           {item.descricao}
                         </td>
-                        <td style={{ color: item.tipo === 'Income' ? 'green' : item.tipo === 'Exchange' ? '#335EFF' : 'red' }}>
+                        <td id={styles.tdValor} style={{ color: item.tipo === 'Income' ? 'green' : item.tipo === 'Exchange' ? '#335EFF' : 'red' }}>
                           <b>R${Math.abs(item.valor).toFixed(2)}</b>
                         </td>
-                        <td>{item.data}</td>
-                        <td>{item.area}</td>
-                        <td>{item.origem}</td>
-                        <td>{item.destino}</td>
-                        <td>
+                        <td id={styles.tdData}>{item.data}</td>
+                        <td id={styles.tdArea}>{item.area}</td>
+                        <td id={styles.tdOrigem}>{item.origem}</td>
+                        <td id={styles.tdDestino}>{item.destino}</td>
+                        <td id={styles.tdBalanco}>
                           <a style={{ color: item.tipo === 'Income' ? 'green' : 'red', fontSize: '1.2rem' }}>
                             {item.tipo === 'Income' ? "▲" : item.tipo === 'Exchange' ? "" : '▼'}
                           </a>

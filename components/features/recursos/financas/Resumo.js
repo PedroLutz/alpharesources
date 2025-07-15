@@ -4,7 +4,7 @@ import { sortBy } from 'lodash';
 import Loading from '../../../ui/Loading';
 import styles from '../../../../styles/modules/resumo.module.css'
 import { fetchData } from '../../../../functions/crud';
-import tabela from '../../../../styles/modules/tabela.module.css'
+import tabela from '../../../../styles/modules/financas.module.css'
 
 const { grafico, pie_direita, pie_esquerda, pie_container, h3_resumo, custom_span } = styles;
 
@@ -267,7 +267,7 @@ const Resumo = () => {
 
       <div className='centered-container'>
         <h3>KPIs per area</h3>
-        <table className={tabela.tabela_financas}>
+        <table className={`${tabela.cash_flow}`}>
           <thead>
             <tr>
               <th style={{ width: '8rem' }}>Area</th>

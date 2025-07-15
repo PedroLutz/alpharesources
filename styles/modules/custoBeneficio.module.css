@@ -1,124 +1,114 @@
-.tabela table {
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(0, 0, 0);
-    padding: 0.3rem;
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed; 
-}
-
-.tabela_container{
+.tabela_cb_container {
     overflow: auto;
+    scrollbar-gutter: stable;
 }
 
-.tabela_wrapper{
+.tabela_cb_wrapper {
     max-width: 75rem;
     max-height: 45rem;
-    display:block;
+    display: block;
 }
 
-.tabela td, .tabela th {
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(0, 0, 0);
-    padding: 0.3rem;
-    font-size: small;
-    word-wrap: break-word;
-}
-
-.tabela th {
-    background-color: #ff8ff2;
-    border-width: 0.1rem;
-    font-size: 0.9rem;
-    border-style: solid;
-    border-color: rgb(0, 0, 0);
-    padding: 0.3rem;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
-.tabela td {
-    width: 6rem;
+.tabela_cb td {
     text-align: left;
 }
 
-.tabela td input, .tabela td select, .tabela td textarea {
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(167, 167, 167);
-    border-radius: 0.4rem;
-    padding: 0.2rem;
-    transition: 0.2s;
-    outline: none;
-    background-color: white;
-    font-size: small;
-}
-
-.tabela td textarea, .tabela td input{
+.tabela_cb td input,
+.tabela_cb td textarea,
+.tabela_cb td:not(:global(.botoes_acoes)) button {
     height: 4rem;
 }
 
-.tabela td select, .tabela td:not(:global(.botoes_acoes)) button{
-    height: 4.5rem;
-}
-
-.tabela td input:hover, .tabela td select:hover,
-.tabela td textarea:hover, 
-.tabela td:not(:global(.botoes_acoes)) button:hover {
-    background-color: rgb(231, 231, 231);
-}
-
-.tabela td input, .tabela td select {
-    width: 10rem;
-    font-size: small;
-}
-
-.tabela button{
-    background-color: transparent;
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(167, 167, 167);
-    border-radius: 0.4rem;
-    height: 1.6rem;
+.tabela_cb button {
     width: 4.7rem;
-    cursor: pointer;
-    transition: 0.2s;
 }
 
-.tabela td:nth-child(3) input{
-    width: 3.7rem;
-}
-
-.tabela td:nth-child(5) input, .tabela td:nth-child(8) input{
-    width: 3rem;
-}
-
-.tabela td:nth-child(4) input, .tabela td:nth-child(6) input, .tabela td:nth-child(8) input{
+#tdCusto input {
     width: 4rem;
 }
 
-.tabela td:nth-child(7) input{
-    width: 4.7rem;
+#tdImpacto input,
+#tdAreas input {
+    width: 3rem;
 }
 
-.tabela td:nth-child(11){
-    min-width: 22rem;
+#tdDescricao {
+    width: 8rem;
 }
 
-.tabela td:nth-child(11) textarea{
-    min-width: 21.5rem;
+#tdEscala input,
+#tdUrgencia input,
+#tdAreas input {
+    width: 4rem;
 }
 
-.tabela th:nth-child(4), .tabela th:nth-child(6), .tabela th:nth-child(7), .tabela th:nth-child(8), .tabela th:nth-child(9), .tabela th:nth-child(10){
-    min-width: 4rem;
-    font-size: 0.8rem;
-} 
+#tdDiferencial input {
+    width: 4rem;
+}
 
-.tabela td:nth-child(4), .tabela td:nth-child(5), 
-.tabela td:nth-child(6), .tabela td:nth-child(7), 
-.tabela td:nth-child(8), .tabela td:nth-child(9), 
-.tabela td:nth-child(10), .tabela td:nth-child(12){
+#tdExplicacao {
+    width: 20rem;
+    text-align: justify;
+}
+
+#tdExplicacao textarea {
+    width: 19.5rem;
+}
+
+#tdEscala,
+#tdImpacto,
+#tdUrgencia,
+#tdDiferencial,
+#tdAreas,
+#tdMediaBeneficios,
+#tdIndice {
+    width: 4rem;
+}
+
+#tdCusto,
+#tdEscala,
+#tdImpacto,
+#tdUrgencia,
+#tdDiferencial,
+#tdAreas,
+#tdMediaBeneficios,
+#tdIndice,
+.tabela_cb td:nth-child(12) {
     text-align: center;
+}
+
+.tabela_cb th:nth-child(4),
+.tabela_cb th:nth-child(6),
+.tabela_cb th:nth-child(7),
+.tabela_cb th:nth-child(8),
+.tabela_cb th:nth-child(9),
+.tabela_cb th:nth-child(10) {
+    font-size: 0.8rem;
+}
+
+.tabela_cb th:nth-child(7) {
+    font-size: 0.6rem;
+}
+
+@media (max-width: 1280px) {
+    .tabela_cb_wrapper {
+        max-width: 95vw;
+        max-height: 45rem;
+        display: block;
+    }
+
+    .tabela_cb th:nth-child(4),
+    .tabela_cb th:nth-child(6),
+    .tabela_cb th:nth-child(7),
+    .tabela_cb th:nth-child(8),
+    .tabela_cb th:nth-child(9),
+    .tabela_cb th:nth-child(10) {
+        font-size: 0.6rem;
+    }
+
+    .tabela_cb td input,
+    .tabela_cb td textarea,
+    .tabela_cb td:not(:global(.botoes_acoes)) button {
+        height: 3rem;
+    }
 }

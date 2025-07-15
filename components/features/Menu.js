@@ -50,7 +50,7 @@ const Menu = () => {
                     </Link>
                 </span>
                 {/*Item finanças*/}
-                <span style={{ fontSize: '0.9rem' }}>
+                <span>
                     <Link href="/pags/finances/finances/table">
                         <div>
                             <img src={'/images/finance_logo.png'} alt="Planning Logo" className={logoItem} />

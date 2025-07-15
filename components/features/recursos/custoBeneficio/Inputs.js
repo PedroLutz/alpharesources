@@ -1,4 +1,5 @@
 import { useRef, useContext } from "react";
+import styles from '../../../../styles/modules/custoBeneficio.module.css'
 import React from "react";
 import { AuthContext } from "../../../../contexts/AuthContext";
 
@@ -88,7 +89,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.identificacao = el)}
                 />
             </td>
-            <td>
+            <td id={styles.tdDescricao}>
                 <textarea
                     name="descricao"
                     onChange={(e) => handleChange(e, false)}
@@ -97,7 +98,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.descricao = el)}
                 />
             </td>
-            <td>
+            <td id={styles.tdCusto}>
                 <input
                     name="custo"
                     onChange={(e) => handleChange(e, {dinheiro: true})}
@@ -106,7 +107,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.custo = el)}
                 />
             </td>
-            <td>
+            <td id={styles.tdEscala}>
                 <input
                     name="escala_custo"
                     onChange={(e) => handleChange(e, {dinheiro: false})}
@@ -115,7 +116,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.escala_custo = el)}
                 />
             </td>
-            <td>
+            <td id={styles.tdImpacto}>
                 <input
                     name="impacto"
                     onChange={(e) => handleChange(e, {dinheiro: false})}
@@ -124,7 +125,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.impacto = el)}
                 />
             </td>
-            <td>
+            <td id={styles.tdUrgencia}>
                 <input
                     name="urgencia"
                     onChange={(e) => handleChange(e, {dinheiro: false})}
@@ -133,7 +134,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.urgencia = el)}
                 />
             </td>
-            <td>
+            <td id={styles.tdDiferencial}>
                 <input
                     name="diferencial"
                     onChange={(e) => handleChange(e, {dinheiro: false})}
@@ -142,7 +143,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.diferencial = el)}
                 />
             </td>
-            <td>
+            <td id={styles.tdAreas}>
                 <input
                     name="areas_afetadas"
                     onChange={(e) => handleChange(e, {dinheiro: false})}
@@ -151,9 +152,9 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.areas_afetadas = el)}
                 />
             </td>
-            <td>-</td>
-            <td>-</td>
-            <td>
+            <td id={styles.tdMediaBeneficios}>-</td>
+            <td id={styles.tdIndice}>-</td>
+            <td id={styles.tdExplicacao}>
                 <textarea
                     name="explicacao"
                     onChange={(e) => handleChange(e, false)}

@@ -5,7 +5,7 @@ const PageWrapper = ({ children }) => {
         <div>
             <GenericNavbar
                 base={{
-                    titulo: 'Budget & Resource Management',
+                    titulo: 'Budget & Resource',
                     link: "/pags/finances/finances/table"
                 }}
                 dropdowns={[

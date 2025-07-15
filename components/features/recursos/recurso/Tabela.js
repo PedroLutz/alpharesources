@@ -155,7 +155,7 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2>Resource Identification</h2>
+            <h2 className="smallTitle">Resource Identification</h2>
 
             {exibirModal != null && (
                 <Modal objeto={{
@@ -181,7 +181,7 @@ const Tabela = () => {
 
             <div className={styles.tabela_financas_container}>
                 <div className={styles.tabela_financas_wrapper}>
-                    <table className={styles.tabela_financas}>
+                    <table className={`tabela ${styles.tabela_financas}`}>
                         <thead>
                             <tr>
                                 <th colSpan={2}>Resource Allocation</th>

@@ -1,7 +1,4 @@
 .tabela {
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(0, 0, 0);
     padding: 0.3rem;
     width: 100%;
     border-collapse: collapse;
@@ -31,6 +28,16 @@
     position: sticky;
     top: 0;
     z-index: 10;
+}
+
+.tabela thead{
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-style: solid;
+    border-width: 0.1rem;
+    border-color: rgb(0, 0, 0);
+    background: black;
 }
 
 .tabela td input,
@@ -69,7 +76,6 @@
 (orientation: landscape) and (max-width: 1280px),
 (orientation: landscape) and (max-width: 1024px),
 (max-width: 768px) {
-
     .tabela td,
     .tabela th,
     .tabela td textarea,

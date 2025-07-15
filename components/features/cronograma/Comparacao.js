@@ -167,7 +167,7 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2>Planned Schedule vs Reality</h2>
+            <h2 className='smallTitle'>Planned Schedule vs Reality</h2>
 
             <div className='centered-container' style={{
                 width: "50vw",

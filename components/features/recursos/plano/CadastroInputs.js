@@ -122,15 +122,15 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     };
 
     //funcao que chama validaDados, e se os dados estao ok, chama as funcoes de submit
-    const handleSubmit = async (e) => {
+    const handleSubmit = async () => {
         const isInvalido = validaDados();
         if(isInvalido) return;
         funcoes?.enviar();
     };
 
     return (
-        <tr className={`linha-cadastro ${styles.camposMaiores}`}>
-            <td className={styles.campo_recurso}>
+        <tr className="linha-cadastro">
+            <td id={styles.tdRecurso}>
                 <select
                     name="area"
                     onChange={handleAreaChange}
@@ -150,7 +150,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     onChange={handleRecursoChange}
                     ref={el => (camposRef.current.recurso = el)}
                 >
-                    <option defaultValue value=''>Resource</option>
+                    <option value="" defaultValue>Resource</option>
                     {recursosPorArea.map((item, index) => (
                         <option key={index} value={item}>{item}</option>
                     ))}
@@ -162,7 +162,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     name='metodo_a'
                     onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.metodo_a = el)} >
-                    <option defaultValue value=''>Acquisition method</option>
+                    <option value="" defaultValue>Acquisition method</option>
                     <option value="Purchase">Purchase</option>
                     <option value="Rental">Rental</option>
                     <option value="Borrowing">Borrowing</option>
@@ -185,7 +185,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.detalhes_a = el)} />
             </td>
-            <td>
+            <td id={styles.tdValor}>
                 <input
                     value={obj.valor_a}
                     name='valor_a'
@@ -202,7 +202,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.data_esperada = el)} />
             </td>
-            <td>
+            <td id={styles.tdCriticalDate}>
                 <input
                     value={obj.data_limite}
                     name='data_limite'
@@ -216,7 +216,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     name='metodo_b'
                     onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.metodo_b = el)} >
-                    <option defaultValue value=''>Acquisition method</option>
+                    <option value="" defaultValue>Acquisition method</option>
                     <option value="Purchase">Purchase</option>
                     <option value="Rental">Rental</option>
                     <option value="Borrowing">Borrowing</option>
@@ -239,7 +239,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.detalhes_b = el)} />
             </td>
-            <td>
+            <td id={styles.tdValor}>
                 <input
                     value={obj.valor_b}
                     name='valor_b'
@@ -264,7 +264,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.data_real = el)} />
             </td>
-            <td>
+            <td id={styles.tdValor}>
                 <input type='number'
                     value={obj.valor_real}
                     name='valor_real'

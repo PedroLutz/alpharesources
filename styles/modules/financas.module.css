@@ -1,4 +1,4 @@
-.tabela_financas table, .cash_flow table {
+.cash_flow table {
     border-width: 0.1rem;
     border-style: solid;
     border-color: rgb(0, 0, 0);
@@ -14,10 +14,11 @@
 
 .tabela_financas_wrapper{
     max-height: 45rem;
+    max-width: 95vw;
     display: inline-block;
 }
 
-.tabela_financas td, .cash_flow td {
+.cash_flow td {
     border-width: 0.1rem;
     border-style: solid;
     width: 5rem;
@@ -26,7 +27,7 @@
     font-size: small;
 }
 
-.tabela_financas th, .cash_flow th {
+.cash_flow th {
     background-color: #ff8ff2;
     border-width: 0.1rem;
     border-style: solid;
@@ -43,41 +44,21 @@
     max-width: 8rem;
 }
 
-.tabela_financas td input, .tabela_financas td select {
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(167, 167, 167);
-    border-radius: 0.4rem;
-    padding: 0.2rem;
-    transition: 0.2s;
-    outline: none;
-    width: 6.2rem;
-    font-size: small;
-    background-color: white;
-}
-
-.tabela_financas button{
-    background-color: transparent;
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(167, 167, 167);
-    border-radius: 0.4rem;
-    height: 1.6rem;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
 .tabela_financas td input:hover, .tabela_financas td select:hover, .tabela_financas td:not(:global(.botoes_acoes)) button:hover{
     background-color: rgb(231, 231, 231);
 }
 
-.tabela_financas td:nth-child(2), .tabela_financas td:nth-child(2) input {
-    width: 10rem !important;
+#tdDescricao{
+    width: 10rem;
 }
 
-.tabela_financas td:nth-child(4), 
-.tabela_financas td:nth-child(4) input,
-.tabela_financas td:nth-child(5), 
-.tabela_financas td:nth-child(5) select {
-    width: 7.2rem;
+#tdData, #tdData input, 
+#tdOrigem, #tdOrigem input, 
+#tdDestino, #tdDestino input,
+#tdArea select{
+    width: 8rem;
+}
+
+#tdValor, #tdValor input{
+    width: 6rem;
 }

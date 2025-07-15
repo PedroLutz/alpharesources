@@ -164,7 +164,7 @@ const PlanoAquisicao = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2>Resource Acquisition Planning</h2>
+            <h2 className="smallTitle">Resource Acquisition Planning</h2>
 
             {exibirModal != null && (
                 <Modal objeto={{
@@ -190,7 +190,7 @@ const PlanoAquisicao = () => {
 
             <div className={styles.tabela_financas_container}>
                 <div className={styles.tabela_financas_wrapper}>
-                    <table className={styles.tabela_financas}>
+                    <table className={`tabela ${styles.tabela_financas}`}>
                         <thead>
                             <tr>
                                 <th rowSpan="2">Resource</th>
@@ -248,7 +248,7 @@ const PlanoAquisicao = () => {
                                             <td>{plano.detalhes_a}</td>
                                             <td>R${Number(plano.valor_a).toFixed(2)}</td>
                                             <td>{plano.data_esperada}</td>
-                                            <td>{plano.data_limite}</td>
+                                            <td id={styles.tdCriticalDate}>{plano.data_limite}</td>
                                             <td>{plano.metodo_b}</td>
                                             <td>{plano.plano_b}</td>
                                             <td>{plano.detalhes_b}</td>

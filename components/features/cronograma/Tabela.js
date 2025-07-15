@@ -285,7 +285,7 @@ const Tabela = () => {
   return (
     <div className="centered-container">
       {loading && <Loading />}
-      <h2>Estimated timeline</h2>
+      <h2 className='smallTitle'>Estimated timeline</h2>
       {confirmDeleteItem && (
         <div className="overlay">
           <div className="modal">

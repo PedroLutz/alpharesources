@@ -1,31 +1,14 @@
-.tabela_financas table {
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(0, 0, 0);
-    padding: 0.3rem;
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.tabela_financas_container{
+.tabela_financas_container {
     overflow: auto;
 }
 
-.tabela_financas_wrapper{
+.tabela_financas_wrapper {
     max-width: 80rem;
     max-height: 45rem;
-    display:block;
+    display: block;
 }
 
-.tabela_financas td {
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(0, 0, 0);
-    padding: 0.3rem;
-    font-size: small;
-}
-
-.tabela_financas thead{
+.tabela_financas thead {
     position: sticky;
     top: 0;
     z-index: 10;
@@ -35,67 +18,39 @@
     background: black;
 }
 
-.tabela_financas th:nth-child(6){
+.tabela_financas th:nth-child(6) {
     width: 4rem;
 }
 
-.tabela_financas td:nth-child(7) select{
+.tabela_financas td:nth-child(7) select {
     width: 4rem;
 }
 
-.tabela_financas td:nth-child(5) select{
+.tabela_financas td:nth-child(5) select {
     max-width: 6rem;
 }
 
-.tabela_financas td:last-child{
+.tabela_financas td:last-child {
     width: 2rem;
 }
 
-.tabela_financas td input, .tabela_financas td select {
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(167, 167, 167);
-    border-radius: 0.4rem;
-    padding: 0.2rem;
-    transition: 0.2s;
-    outline: none;
-    width: 9rem;
-    font-size: small;
-    background-color: white;
-}
-
-.tabela_financas td input:hover, .tabela_financas td select:hover, .tabela_financas td:not(:global(.botoes_acoes)) button:hover {
-    background-color: rgb(231, 231, 231);
-}
-
-.tabela_financas th {
-    background-color: #ff8ff2;
-    border-width: 0.1rem;
-    font-size: 0.9rem;
-    border-style: solid;
-    border-color: rgb(0, 0, 0);
-    padding: 0.3rem;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
-.tabela_financas button{
-    background-color: transparent;
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(167, 167, 167);
-    border-radius: 0.4rem;
-    height: 1.6rem;
+.tabela_financas button {
     width: 4.7rem;
-    cursor: pointer;
-    transition: 0.2s;
+    height: 1.2rem;
 }
 
-.camposMaiores td input{
+.camposMaiores td input {
     width: 15rem;
 }
 
-.camposMaiores td select:not(.campo_ehEssencial){
+.camposMaiores td select:not(.campo_ehEssencial) {
     width: 10rem;
+}
+
+@media (max-width: 1280px) {
+    .tabela_financas_wrapper {
+        max-width: 95vw;
+        max-height: 45rem;
+        display: block;
+    }
 }

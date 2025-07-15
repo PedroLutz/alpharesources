@@ -130,7 +130,7 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2>Cost-Benefit Analysis</h2>
+            <h2 className='smallTitle'>Cost-Benefit Analysis</h2>
 
             {exibirModal != null && (
                 <Modal objeto={{
@@ -154,9 +154,9 @@ const Tabela = () => {
                 }} />
             )}
 
-            <div className={styles.tabela_container}>
-                <div className={styles.tabela_wrapper}>
-                    <table className={styles.tabela}>
+            <div className={styles.tabela_cb_container}>
+                <div className={styles.tabela_cb_wrapper}>
+                    <table className={`tabela ${styles.tabela_cb}`}>
                         <thead>
                             <tr>
                                 <th>Identification</th>
@@ -174,7 +174,6 @@ const Tabela = () => {
                             </tr>
                         </thead>
                         <tbody>
-
                             {custoBeneficios.map((custoBeneficio, index) => (
                                 <React.Fragment key={index}>
                                     {linhaVisivel === custoBeneficio._id ? (
@@ -190,24 +189,24 @@ const Tabela = () => {
                                     ) : (
                                         <tr>
                                             <td>{custoBeneficio.identificacao}</td>
-                                            <td>{custoBeneficio.descricao}</td>
-                                            <td>R${parseFloat(custoBeneficio.custo).toFixed(2)}</td>
-                                            <td>{custoBeneficio.escala_custo}</td>
-                                            <td>{custoBeneficio.impacto}</td>
-                                            <td>{custoBeneficio.urgencia}</td>
-                                            <td>{custoBeneficio.diferencial}</td>
-                                            <td>{custoBeneficio.areas_afetadas}</td>
-                                            <td>{
+                                            <td id={styles.tdDescricao}>{custoBeneficio.descricao}</td>
+                                            <td id={styles.tdCusto}>R${parseFloat(custoBeneficio.custo).toFixed(2)}</td>
+                                            <td id={styles.tdEscala}>{custoBeneficio.escala_custo}</td>
+                                            <td id={styles.tdImpacto}>{custoBeneficio.impacto}</td>
+                                            <td id={styles.tdUrgencia}>{custoBeneficio.urgencia}</td>
+                                            <td id={styles.tdDiferencial}>{custoBeneficio.diferencial}</td>
+                                            <td id={styles.tdAreas}>{custoBeneficio.areas_afetadas}</td>
+                                            <td id={styles.tdMediaBeneficios}>{
                                                 parseFloat((custoBeneficio.areas_afetadas
                                                     + custoBeneficio.impacto
                                                     + custoBeneficio.urgencia
                                                     + custoBeneficio.diferencial)
                                                     / 5).toFixed(2)}</td>
-                                            <td>{
+                                            <td id={styles.tdIndice}>{
                                                 parseFloat(((custoBeneficio.areas_afetadas + custoBeneficio.impacto
                                                     + custoBeneficio.urgencia + custoBeneficio.diferencial)
                                                     / 5) / custoBeneficio.escala_custo).toFixed(2)}</td>
-                                            <td>{custoBeneficio.explicacao}</td>
+                                            <td id={styles.tdExplicacao}>{custoBeneficio.explicacao}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(custoBeneficio)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
@@ -232,11 +231,11 @@ const Tabela = () => {
                 </div>
             </div>
 
-            <div className={styles.tabela_container} style={{ marginTop: '3rem' }}>
-                <h2>Cost-Benefit Matrix</h2>
+            <div className={styles.tabela_cb_container} style={{ marginTop: '3rem' }}>
+                <h2 className='smallTitle'>Cost-Benefit Matrix</h2>
                 <p>Benefit average</p>
-                <div className={styles.tabela_wrapper}>
-                    <table className={styles.tabela} style={{ width: '75rem' }}>
+                <div className={styles.tabela_cb_wrapper}>
+                    <table className={`${styles.tabela_cb} tabela`} style={{ width: '75rem' }}>
                         <thead>
                             <tr>
                                 <th style={{ border: 'transparent', backgroundColor: 'transparent', width: '1rem' }}></th>
@@ -251,7 +250,7 @@ const Tabela = () => {
                         <tbody >
                             <tr>
                                 <td rowSpan={5}
-                                    style={{ border: 'none', width: '0.2rem', fontSize: '1rem', margin: '0rem', padding: '0rem' }}
+                                    style={{ border: 'transparent', width: '0.2rem', fontSize: '1rem', margin: '0rem', padding: '0rem' }}
                                 ><div style={{
                                     writingMode: 'sideways-lr',
                                     display: 'inline-block',
