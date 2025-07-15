@@ -252,7 +252,7 @@ const Resumo = () => {
     <div className={h3_resumo}>
       {loading && <Loading />}
       <div className="centered-container">
-        <h2>Report</h2>
+        <h2 className="smallTitle">Report</h2>
 
         <div>
           <span className={custom_span}>Cash value:<br />R${Number(totalValor).toFixed(2)}</span>
@@ -267,32 +267,37 @@ const Resumo = () => {
 
       <div className='centered-container'>
         <h3>KPIs per area</h3>
-        <table className={`${tabela.cash_flow}`}>
-          <thead>
-            <tr>
-              <th style={{ width: '8rem' }}>Area</th>
-              <th>Planned cost</th>
-              <th>Real cost</th>
-              <th>Percentage of execution</th>
-              <th>Aggregated value*</th>
-              <th>Cost performance index**</th>
-            </tr>
-          </thead>
-          <tbody>
-            {kpis.map((item, index) => (
-              <tr key={index}>
-                <td>{item.area}</td>
-                <td>R${item.valorPlanejado}</td>
-                <td>R${item.custoReal * -1}</td>
-                <td>{Number(item.porcentagem).toFixed(2)}%</td>
-                <td>R${Number(item.valorAgregado).toFixed(2)}</td>
-                <td>{item.custoReal == 0 ? '-'
-                  : (Number(item.valorAgregado / (item.custoReal * -1)).toFixed(2)) != 0 ?
-                    Number(item.valorAgregado / (item.custoReal * -1)).toFixed(2) : '-'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className={tabela.tabela_financas_container}>
+          <div className={tabela.tabela_financas_wrapper}>
+            <table className={`${tabela.cash_flow} tabela`}>
+              <thead>
+                <tr>
+                  <th style={{ width: '8rem' }}>Area</th>
+                  <th>Planned cost</th>
+                  <th>Real cost</th>
+                  <th>Percentage of execution</th>
+                  <th>Aggregated value*</th>
+                  <th>Cost performance index**</th>
+                </tr>
+              </thead>
+              <tbody>
+                {kpis.map((item, index) => (
+                  <tr key={index}>
+                    <td>{item.area}</td>
+                    <td>R${item.valorPlanejado}</td>
+                    <td>R${item.custoReal * -1}</td>
+                    <td>{Number(item.porcentagem).toFixed(2)}%</td>
+                    <td>R${Number(item.valorAgregado).toFixed(2)}</td>
+                    <td>{item.custoReal == 0 ? '-'
+                      : (Number(item.valorAgregado / (item.custoReal * -1)).toFixed(2)) != 0 ?
+                        Number(item.valorAgregado / (item.custoReal * -1)).toFixed(2) : '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
 
         <p style={{ fontSize: 'small' }}>*Percentage of execution multiplied by the planned cost</p>
         <p style={{ fontSize: 'small', marginTop: '-0.8rem' }}>**Aggregated value/Real cost</p>
@@ -300,42 +305,46 @@ const Resumo = () => {
 
       <div className='centered-container'>
         <h3>Monthly Cash Flow</h3>
-        <table className={tabela.cash_flow}>
-          <thead>
-            <tr>
-              <th>Month</th>
-              {CashFlowMensal.map((valores, index) => (
-                <th key={index}>{valores.mes}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th>Income</th>
-              {CashFlowMensal.map((valores, index) => (
-                <td key={index}>R${Number(valores.receita).toFixed(2)}</td>
-              ))}
-            </tr>
-            <tr>
-              <th>Expense</th>
-              {CashFlowMensal.map((valores, index) => (
-                <td key={index}>R${Number(valores.despesa).toFixed(2)}</td>
-              ))}
-            </tr>
-            <tr>
-              <th>Net Movement</th>
-              {CashFlowMensal.map((valores, index) => (
-                <td key={index}>R${Number(valores.movimento).toFixed(2)}</td>
-              ))}
-            </tr>
-            <tr>
-              <th>Net Balance</th>
-              {CashFlowMensal.map((valores, index) => (
-                <td key={index}>R${Number(valores.balanco).toFixed(2)}</td>
-              ))}
-            </tr>
-          </tbody>
-        </table>
+        <div className={tabela.tabela_financas_container}>
+          <div className={tabela.tabela_financas_wrapper}>
+            <table className={`${tabela.cash_flow} tabela`}>
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  {CashFlowMensal.map((valores, index) => (
+                    <th key={index}>{valores.mes}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>Income</th>
+                  {CashFlowMensal.map((valores, index) => (
+                    <td key={index}>R${Number(valores.receita).toFixed(2)}</td>
+                  ))}
+                </tr>
+                <tr>
+                  <th>Expense</th>
+                  {CashFlowMensal.map((valores, index) => (
+                    <td key={index}>R${Number(valores.despesa).toFixed(2)}</td>
+                  ))}
+                </tr>
+                <tr>
+                  <th>Net Movement</th>
+                  {CashFlowMensal.map((valores, index) => (
+                    <td key={index}>R${Number(valores.movimento).toFixed(2)}</td>
+                  ))}
+                </tr>
+                <tr>
+                  <th>Net Balance</th>
+                  {CashFlowMensal.map((valores, index) => (
+                    <td key={index}>R${Number(valores.balanco).toFixed(2)}</td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
       <div>
@@ -423,7 +432,9 @@ const Resumo = () => {
 
       <div className='centered-container'>
         <h3>S Curve Data</h3>
-        <table className={tabela.cash_flow}>
+        <div className={tabela.tabela_financas_container}>
+            <div className={tabela.tabela_financas_wrapper}>
+              <table className={`tabela ${tabela.cash_flow}`}>
           <thead>
             <tr>
               <th>Month</th>
@@ -466,6 +477,9 @@ const Resumo = () => {
           </tbody>
 
         </table>
+            </div>
+        </div>
+        
       </div>
 
       <div>

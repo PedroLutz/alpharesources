@@ -1,33 +1,33 @@
-.grafico{
+.grafico {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    text-align: center; 
+    text-align: center;
     margin-left: 80px;
 }
 
-.pie_container{
+.pie_container {
     width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
 }
 
-.pie_esquerda{
+.pie_esquerda {
     width: 90%;
 }
 
-.pie_direita{
+.pie_direita {
     width: 90%;
 }
 
-.h3_resumo h3{
+.h3_resumo h3 {
     margin: 30px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    text-align: center; 
+    text-align: center;
 }
 
 span.custom_span {
@@ -42,10 +42,18 @@ span.custom_span {
     border: 1px solid #9006e3;
     background-color: #9006e3;
     font-size: 18px;
-    color: white; /* Define a cor do texto como branca */
+    color: white;
+    /* Define a cor do texto como branca */
     transition: background-color 0.2s ease;
-  }
+}
 
 span.custom_span:hover {
     background-color: #550586;
+}
+
+@media (max-width: 1280px) {
+    .grafico {
+        margin-left: 60px;
+    }
+
 }

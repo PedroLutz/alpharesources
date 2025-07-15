@@ -1,12 +1,3 @@
-.cash_flow table {
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(0, 0, 0);
-    padding: 0.3rem;
-    width: 100%;
-    border-collapse: collapse;
-}
-
 .tabela_financas_container{
     overflow: auto;
     scrollbar-gutter: stable; /* mantém espaço fixo da scrollbar */
@@ -16,32 +7,6 @@
     max-height: 45rem;
     max-width: 95vw;
     display: inline-block;
-}
-
-.cash_flow td {
-    border-width: 0.1rem;
-    border-style: solid;
-    width: 5rem;
-    border-color: rgb(0, 0, 0);
-    padding: 0.3rem;
-    font-size: small;
-}
-
-.cash_flow th {
-    background-color: #ff8ff2;
-    border-width: 0.1rem;
-    border-style: solid;
-    font-size: 0.9rem;
-    border-color: rgb(0, 0, 0);
-    padding: 0.3rem;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
-.cash_flow td, .cash_flow th {
-    min-width: 8rem;
-    max-width: 8rem;
 }
 
 .tabela_financas td input:hover, .tabela_financas td select:hover, .tabela_financas td:not(:global(.botoes_acoes)) button:hover{
