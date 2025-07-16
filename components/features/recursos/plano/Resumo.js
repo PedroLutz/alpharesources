@@ -22,7 +22,7 @@ const Resumo = () => {
     const [cores, setCores] = useState({});
 
     const [pieEssencial, setPieEssencial] = useState(false);
-
+    const [isMobile, setIsMobile] = useState(false);
 
     //funcao para  buscar os dados par a construcao do resumo
     const fetchResumos = async () => {
@@ -190,10 +190,23 @@ const Resumo = () => {
         },
     }
 
+    const handleResize = () => {
+        if (window.innerWidth < 1024) {
+          setIsMobile(true)
+        } else {
+          setIsMobile(false)
+        }
+      }
+    
+      useEffect(() => {
+        handleResize();
+        window.addEventListener("resize", handleResize);
+      }, []);
+
     return (
         <div className={h3_resumo}>
             {loading && <Loading />}
-            <h2 className="centered-container">Report</h2>
+            <h2 className="centered-container" style={{marginTop: '5rem'}}>Report</h2>
 
             <div>
                 <h3>Budget</h3>
@@ -271,10 +284,10 @@ const Resumo = () => {
                                     <h3>Essential timeline</h3>
                                 </div>
 
-                                <div className={grafico}>
+                                <div className={grafico} style={{width: isMobile ? '95vw' : null, marginLeft: isMobile ? '-0.05rem' : null}}>
                                     <Chart
                                         key={chartHeight}
-                                        width={'90%'}
+                                        width={isMobile ? '100%' : '90%'}
                                         height={chartHeight}
                                         chartType="Timeline"
                                         loader={<div>Loading graph</div>}
@@ -301,10 +314,10 @@ const Resumo = () => {
                                 <div className='centered-container'>
                                     <h3>All resources timeline</h3>
                                 </div>
-                                <div className={grafico}>
+                                <div className={grafico} style={{width: isMobile ? '95vw' : null, marginLeft: isMobile ? '-0.05rem' : null}}>
                                     <Chart
                                         key={chartHeight}
-                                        width={'90%'}
+                                        width={isMobile ? '100%' : '90%'}
                                         height={chartHeight}
                                         chartType="Timeline"
                                         loader={<div>Loading graph</div>}
