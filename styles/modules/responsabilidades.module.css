@@ -38,23 +38,25 @@
     margin-bottom: 0.1rem;
 }
 
-.container div input:hover, .container div select:hover, .container:first-child div button:hover {
+.container div input:hover,
+.container div select:hover,
+.container:first-child div button:hover {
     background-color: rgb(231, 231, 231);
 }
 
-.container div:nth-child(1) input{
+.container div:nth-child(1) input {
     width: 83%;
 }
 
-.container div:nth-child(2) input{
+.container div:nth-child(2) input {
     width: 76.5%;
 }
 
-.container div:nth-child(3) input{
+.container div:nth-child(3) input {
     width: 74.9%;
 }
 
-.container div:nth-child(4){
+.container div:nth-child(4) {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -62,7 +64,7 @@
     text-align: center;
 }
 
-.container:first-child div button{
+.container:first-child div button {
     background-color: transparent;
     border-width: 0.1rem;
     border-style: solid;
@@ -81,7 +83,7 @@
     text-align: center;
 }
 
-.botoesAcoes button{
+.botoesAcoes button {
     border-color: transparent;
     background-color: transparent;
     font-size: 12px;
@@ -97,7 +99,7 @@
     transition: 0.2s;
 }
 
-.botoesAcoes button:hover{
+.botoesAcoes button:hover {
     transform: scale(1.1);
 }
 
@@ -107,81 +109,24 @@
     overflow-wrap: break-word;
 }
 
-.tabelaRaci_container{
+.tabelaRaci_container {
     overflow: auto;
-    scrollbar-gutter: stable; /* mantém espaço fixo da scrollbar */
+    scrollbar-gutter: stable;
+    /* mantém espaço fixo da scrollbar */
 }
 
-.tabelaRaci_wrapper{
-    max-width: 1000px;
+.tabelaRaci_wrapper {
+    max-width: 75rem;
     display: inline-block;
     max-height: 45rem;
-    
-}
 
-.tabelaRaci th, .tabelaFuncoes th, .tabelaHabilidade th{
-    background-color: #ff8ff2;
-    border-width: 0.1rem;
-    font-size: 0.9rem;
-    border-style: solid;
-    border-color: rgb(0, 0, 0);
-    padding: 0.3rem;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
-.tabelaRaci tr, .tabelaFuncoes tr, .tabelaHabilidade tr {
-    border-style: solid;
-    border-width: 0.1rem;
-    padding: 1rem;
-}
-
-.tabelaRaci td, .tabelaFuncoes td, .tabelaHabilidade td {
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(0, 0, 0);
-    padding: 0.3rem;
-    font-size: small;
-}
-
-.tabelaRaci td input:hover, .tabelaRaci td select:hover, .tabelaRaci td:not(:global(.botoes_acoes)) button:hover,
-.tabelaFuncoes td select:hover, .tabelaFuncoes td textarea:hover, .tabelaFuncoes td:not(:global(.botoes_acoes)) button:hover,
-.tabelaHabilidade td select:hover, .tabelaHabilidade td textarea:hover, .tabelaHabilidade td:not(:global(.botoes_acoes)) button:hover{
-    background-color: rgb(231, 231, 231);
-}
-
-.tabelaRaci td input, .tabelaRaci td select,
-.tabelaFuncoes td select, .tabelaFuncoes td textarea,
-.tabelaHabilidade td select, .tabelaHabilidade td textarea {
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(167, 167, 167);
-    border-radius: 0.4rem;
-    padding: 0.2rem;
-    transition: 0.2s;
-    outline: none;
-    background-color: white;
-}
-
-.tabelaRaci button, .tabelaFuncoes button, .tabelaHabilidade button {
-    background-color: transparent;
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(167, 167, 167);
-    border-radius: 0.4rem;
-    height: 1.6rem;
-    cursor: pointer;
-    padding: 0.1rem;
-    width: 4.2rem;
-    transition: 0.2s;
 }
 
 /*
 ---------    RACI       ----------
 */
 
-.tabelaRaci tr:nth-child(1) td:nth-child(1) select{
+.tabelaRaci tr:nth-child(1) td:nth-child(1) select {
     width: 8rem;
 }
 
@@ -190,27 +135,25 @@
     width: 1.5rem;
 }
 
-.tabelaRaci td input, .tabelaRaci td select{
+.tabelaRaci td select {
     width: 4rem;
     font-size: 0.75rem;
 }
 
 #raciTdArea {
     text-align: center;
-    padding: 1rem;
     width: auto;
     font-weight: bold;
     border-style: solid;
     border-width: 0.1rem;
 }
 
-#raciTdArea select{
+#raciTdArea select {
     width: 16rem;
 }
 
 #raciTdItem {
     text-align: start;
-    padding: 0.4rem;
     border-style: solid;
     border-width: 0.1rem;
     width: auto;
@@ -218,7 +161,7 @@
     white-space: nowrap;
 }
 
-#raciTdItem select{
+#raciTdItem select {
     width: 16rem;
 }
 
@@ -226,68 +169,99 @@
 ---------    FUNCOES       ----------
 */
 
-#funcoesTdDescricao, #funcoesTdHabilidade{
+#funcoesTdDescricao,
+#funcoesTdHabilidade {
     font-size: 0.75rem;
-    text-align:justify;
+    text-align: justify;
     min-width: 18rem;
 }
 
-#funcoesTdDescricao textarea, #funcoesTdHabilidade textarea{
+#funcoesTdDescricao textarea,
+#funcoesTdHabilidade textarea {
     min-width: 17.5rem;
 }
 
-.tabelaFuncoes td textarea{
+.tabelaFuncoes td textarea {
     height: 4rem;
     font-size: 0.8rem;
 }
 
-.tabelaFuncoes td select{
-    height: 4.6rem;
+.tabelaFuncoes td select {
+    height: 4rem;
     font-size: 0.8rem;
 }
 
-.tabelaFuncoes td:first-child textarea{
+.tabelaFuncoes td:first-child textarea {
     width: 8rem;
 }
 
-.tabelaFuncoes td:nth-child(5) select{
+.tabelaFuncoes td:nth-child(5) select {
     width: 12rem;
 }
 
-.tabelaFuncoes td:not(:global(.botoes_acoes)) button{
-    height: 4.5rem;
+.tabelaFuncoes td:not(:global(.botoes_acoes)) button {
+    height: 4rem;
 }
 
 /*
 ---------    HABILIDADE       ----------
 */
 
-.tabelaHabilidade td textarea{
+.tabelaHabilidade td textarea {
     font-size: 0.85rem;
     height: 2.5rem;
     width: 10rem;
 }
 
-.tabelaHabilidade td select{
+.tabelaHabilidade td select {
     width: 10rem;
-    height: 3rem;
+    height: 2.5rem;
 }
 
-#habilidadeTdNivel textarea{
+#habilidadeTdNivel textarea {
     width: 5rem;
 }
 
-#habilidadeTdAcao{
+#habilidadeTdAcao {
     min-width: 15rem;
     font-size: 0.75rem;
     text-align: justify;
 }
 
-#habilidadeTdAcao textarea{
+#habilidadeTdAcao textarea {
     min-width: 14.5rem;
 }
 
-.tabelaHabilidade td:not(:global(.botoes_acoes)) button{
-    height: 3rem;
+#habilidadeThSkill {
+    padding: 0.5rem;
+    font-size: 0.7rem;
+}
+
+.tabelaHabilidade td:not(:global(.botoes_acoes)) button {
+    height: 2.5rem;
     width: 5rem;
+}
+
+@media(max-width: 1280px) {
+    .tabelaRaci_wrapper {
+        max-width: 95vw;
+        display: inline-block;
+        max-height: 45rem;
+    }
+
+    .tabelaRaci td select,
+    #funcoesTdDescricao,
+    #funcoesTdHabilidade,
+    .tabelaFuncoes td textarea,
+    .tabelaFuncoes td select,
+    #habilidadeTdAcao,
+    .tabelaHabilidade td textarea {
+        font-size: inherit;
+    }
+
+    /* -------- HABILIDADE ----------*/
+
+    #habilidadeThSkill {
+        font-size: 0.5rem;
+    }
 }

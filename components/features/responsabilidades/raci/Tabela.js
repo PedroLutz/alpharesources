@@ -292,11 +292,11 @@ const Tabela = () => {
   return (
     <div className="centered-container">
       {loading && <Loading />}
-      <h2>RACI Matrix</h2>
+      <h2 className="smallTitle">RACI Matrix</h2>
       <button className="botao-bonito" style={{ width: '9rem' }} onClick={() => setVerOpcoes(!verOpcoes)}>Toggle options</button>
       <div className={styles.tabelaRaci_container}>
         <div className={styles.tabelaRaci_wrapper}>
-          <table className={styles.tabelaRaci}>
+          <table className={`${styles.tabelaRaci} tabela`}>
             <thead>
               <tr>
                 <th>Area</th>

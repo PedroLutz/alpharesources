@@ -130,7 +130,7 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2>Skill evaluation</h2>
+            <h2 className="smallTitle">Skill evaluation</h2>
 
             {exibirModal != null && (
                 <Modal objeto={{
@@ -156,15 +156,15 @@ const Tabela = () => {
 
             <div className={styles.tabelaRaci_container}>
                 <div className={styles.tabelaRaci_wrapper}>
-                    <table className={styles.tabelaHabilidade}>
+                    <table className={`tabela ${styles.tabelaHabilidade}`}>
                         <thead>
                             <tr>
                                 <th>Area</th>
                                 <th>Role</th>
                                 <th>Responsible</th>
                                 <th>Skill</th>
-                                <th style={{ fontSize: '0.7rem', padding: '0.5rem' }}>Current skill level</th>
-                                <th style={{ fontSize: '0.7rem', padding: '0.5rem' }}>Desired skill level</th>
+                                <th id={styles.habilidadeThSkill}>Current skill level</th>
+                                <th id={styles.habilidadeThSkill}>Desired skill level</th>
                                 <th>Development action</th>
                                 <th>Actions</th>
                             </tr>

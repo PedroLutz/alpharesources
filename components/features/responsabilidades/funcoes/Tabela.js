@@ -104,7 +104,7 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2>Roles</h2>
+            <h2 className="smallTitle">Roles</h2>
 
             {exibirModal != null && (
                 <Modal objeto={{
@@ -128,9 +128,9 @@ const Tabela = () => {
                 }} />
             )}
 
-            <div className={styles.tabelaRaci_container} style={{ width: '67rem' }}>
+            <div className={styles.tabelaRaci_container}>
                 <div className={styles.tabelaRaci_wrapper} >
-                    <table className={styles.tabelaFuncoes}>
+                    <table className={`${styles.tabelaFuncoes} tabela`}>
                         <thead>
                             <tr>
                                 <th>Role</th>
