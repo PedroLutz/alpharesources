@@ -103,8 +103,8 @@ const Tabela = () => {
   return (
     <div className="centered-container">
       {loading && <Loading />}
-      <h2>Team members</h2>
-      <div id="report" className={styles.containerPai}>
+      <h2 className='smallTitle'>Team members</h2>
+      <div id="report" className={styles.membrosContainerPai}>
         <CadastroInputs
           tipo='cadastro'
           obj={novoSubmit}
@@ -131,15 +131,17 @@ const Tabela = () => {
               </React.Fragment>
             ) : (
               <React.Fragment>
-                <div key={index} className={styles.container}>
-                  <div><b>Name:</b> {item.nome}</div>
-                  <div>
+                <div key={index} className={styles.membrosContainer}>
+                  <div className={styles.membrosConteudo}>
+                    <b>Name:</b> {item.nome}
+                  </div>
+                  <div className={styles.membrosConteudo}>
                     <b>Soft skills:</b> {item.softskills}
                   </div>
-                  <div>
+                  <div className={styles.membrosConteudo}>
                     <b>Hard skills:</b> {item.hardskills}
                   </div>
-                  <div className={styles.botoesAcoes}>
+                  <div className={styles.membrosBotoesAcoes}>
                     <button onClick={() => setConfirmDeleteItem(item)}
                       disabled={!isAdmin}>❌</button>
                     <button onClick={() => {

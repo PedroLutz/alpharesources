@@ -157,8 +157,8 @@ const Tabela = () => {
                                     ) : (
                                         <tr>
                                             <td>{funcao.funcao}</td>
-                                            <td id={styles.funcoesTdDescricao}>{funcao.descricao}</td>
-                                            <td id={styles.funcoesTdHabilidade}>{funcao.habilidades}</td>
+                                            <td className={styles.funcoesTdDescricao}>{funcao.descricao}</td>
+                                            <td className={styles.funcoesTdHabilidade}>{funcao.habilidades}</td>
                                             <td>{funcao.responsavel}</td>
                                             <td>{funcao.area}</td>
                                             <td className='botoes_acoes'>

@@ -118,7 +118,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
     return (
         <React.Fragment>
             {tipo !== 'update' && (
-                <td id={styles.raciTdArea}>
+                <td className={styles.raciTdArea}>
                     <select
                         name="area"
                         onChange={handleAreaChange}
@@ -134,7 +134,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
                 </td>
             )}
             {tipo !== 'update' && (
-                <td id={styles.raciTdItem}>
+                <td className={styles.raciTdItem}>
                     <select
                         value={obj.item}
                         name='item'

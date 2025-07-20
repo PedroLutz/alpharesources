@@ -114,7 +114,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.habilidade = el)}
                 />
             </td>
-            <td id={styles.habilidadeTdNivel}>
+            <td className={styles.habilidadeTdNivel}>
                 <textarea
                     name="nivel_atual"
                     onChange={(e) => handleChange(e, true)}
@@ -123,7 +123,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.nivel_atual = el)}
                 />
             </td>
-            <td id={styles.habilidadeTdNivel}>
+            <td className={styles.habilidadeTdNivel}>
                 <textarea
                     name="nivel_min"
                     onChange={(e) => handleChange(e, true)}
@@ -132,7 +132,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.nivel_min = el)}
                 />
             </td>
-            <td id={styles.habilidadeTdAcao}>
+            <td className={styles.habilidadeTdAcao}>
                 <textarea
                     name="acao"
                     onChange={(e) => handleChange(e, false)}

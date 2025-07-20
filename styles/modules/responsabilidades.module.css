@@ -1,114 +1,3 @@
-.containerPai {
-    border-color: rgb(0, 0, 0);
-    border-radius: 20px;
-    border-style: solid;
-    border-width: 1px;
-    padding: 15px;
-    margin-bottom: 20px;
-}
-
-.container {
-    width: 25rem;
-    word-break: normal;
-    border-style: solid;
-    border-color: rgb(0, 0, 0);
-    border-radius: 20px;
-    border-width: 1px;
-    padding: 10px;
-    margin: 10px;
-    text-align: start;
-}
-
-.container div {
-    margin-top: 0.1rem;
-    margin-bottom: 0.1rem;
-}
-
-.container input {
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(167, 167, 167);
-    border-radius: 0.4rem;
-    padding: 0.2rem;
-    transition: 0.2s;
-    outline: none;
-    width: 10rem;
-    height: 1rem;
-    margin-top: 0.1rem;
-    margin-bottom: 0.1rem;
-}
-
-.container div input:hover,
-.container div select:hover,
-.container:first-child div button:hover {
-    background-color: rgb(231, 231, 231);
-}
-
-.container div:nth-child(1) input {
-    width: 83%;
-}
-
-.container div:nth-child(2) input {
-    width: 76.5%;
-}
-
-.container div:nth-child(3) input {
-    width: 74.9%;
-}
-
-.container div:nth-child(4) {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-}
-
-.container:first-child div button {
-    background-color: transparent;
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(167, 167, 167);
-    border-radius: 0.4rem;
-    height: 1.6rem;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.botoesAcoes {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-}
-
-.botoesAcoes button {
-    border-color: transparent;
-    background-color: transparent;
-    font-size: 12px;
-    font-weight: bold;
-    display: inline-block;
-    align-items: center;
-    cursor: pointer;
-    margin-top: -6px;
-    margin-bottom: -10px;
-    color: rgb(0, 0, 0);
-    margin-right: 5px;
-    margin: 0px;
-    transition: 0.2s;
-}
-
-.botoesAcoes button:hover {
-    transform: scale(1.1);
-}
-
-.textWrapper {
-    max-width: 100%;
-    word-break: break-all;
-    overflow-wrap: break-word;
-}
-
 .tabelaRaci_container {
     overflow: auto;
     scrollbar-gutter: stable;
@@ -119,28 +8,120 @@
     max-width: 75rem;
     display: inline-block;
     max-height: 45rem;
+}
 
+/* 
+------------    MEMBROS    ------------ 
+*/
+
+.membrosContainerPai {
+    border-color: rgb(0, 0, 0);
+    border-radius: 1rem;
+    border-style: solid;
+    border-width: 0.1rem;
+    padding: 1rem;
+}
+
+.membrosContainer {
+    width: 25rem;
+    word-break: normal;
+    border-style: solid;
+    border-color: rgb(0, 0, 0);
+    border-radius: 1rem;
+    border-width: 0.1rem;
+    padding: 0.8rem;
+    margin: 0.5rem;
+    text-align: start;
+}
+
+.membrosContainer div {
+    margin-top: 0.1rem;
+    margin-bottom: 0.1rem;
+}
+
+.membrosContainer input {
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    border-radius: 0.4rem;
+    padding: 0.2rem;
+    transition: 0.2s;
+    outline: none;
+    height: 1.5rem;
+    margin-top: 0.1rem;
+    margin-bottom: 0.1rem;
+}
+
+.membrosContainer input:hover,
+.membrosContainer select:hover,
+.membrosContainer:first-child button:hover {
+    background-color: rgb(231, 231, 231);
+}
+
+.membrosInputNome {
+    width: 83.5%;
+}
+
+.membrosInputSoftskills {
+    width: 76.5%;
+}
+
+.membrosInputHardskills {
+    width: 74.9%;
+}
+
+.membrosBotaoAddNew {
+    background-color: transparent;
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    border-radius: 0.4rem;
+    height: 1.6rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.membrosBotoesAcoes {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.membrosBotoesAcoes button:not(.membrosBotaoAddNew) {
+    border-color: transparent;
+    background-color: transparent;
+    font-size: 12px;
+    font-weight: bold;
+    display: inline-block;
+    align-items: center;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.membrosBotoesAcoes button:not(.membrosBotaoAddNew):hover {
+    transform: scale(1.1);
+}
+
+.membrosConteudo {
+    font-size: medium;
 }
 
 /*
 ---------    RACI       ----------
 */
 
-.tabelaRaci tr:nth-child(1) td:nth-child(1) select {
-    width: 8rem;
-}
-
 .tabelaRaci tr:not(:nth-child(1)) td:not(:nth-child(1)),
 .tabelaRaci tr:nth-child(1) td:not(:nth-child(1)):not(:nth-child(2)) {
     width: 1.5rem;
 }
 
-.tabelaRaci td select {
-    width: 4rem;
-    font-size: 0.75rem;
+.tabelaRaci td:not(:global(.botoes_acoes)) button {
+    width: 4.5rem;
 }
 
-#raciTdArea {
+.raciTdArea {
     text-align: center;
     width: auto;
     font-weight: bold;
@@ -148,11 +129,11 @@
     border-width: 0.1rem;
 }
 
-#raciTdArea select {
+.raciTdArea select {
     width: 16rem;
 }
 
-#raciTdItem {
+.raciTdItem {
     text-align: start;
     border-style: solid;
     border-width: 0.1rem;
@@ -161,7 +142,7 @@
     white-space: nowrap;
 }
 
-#raciTdItem select {
+.raciTdItem select {
     width: 16rem;
 }
 
@@ -169,34 +150,26 @@
 ---------    FUNCOES       ----------
 */
 
-#funcoesTdDescricao,
-#funcoesTdHabilidade {
+.funcoesTdDescricao,
+.funcoesTdHabilidade {
     font-size: 0.75rem;
     text-align: justify;
-    min-width: 18rem;
+    width: 18rem;
 }
 
-#funcoesTdDescricao textarea,
-#funcoesTdHabilidade textarea {
-    min-width: 17.5rem;
+.funcoesTdDescricao textarea,
+.funcoesTdHabilidade textarea {
+    width: 18rem;
 }
 
-.tabelaFuncoes td textarea {
-    height: 4rem;
-    font-size: 0.8rem;
-}
-
-.tabelaFuncoes td select {
-    height: 4rem;
-    font-size: 0.8rem;
-}
-
-.tabelaFuncoes td:first-child textarea {
+.funcoesTdFuncao textarea {
     width: 8rem;
 }
 
-.tabelaFuncoes td:nth-child(5) select {
-    width: 12rem;
+.tabelaFuncoes td textarea,
+.tabelaFuncoes td select {
+    height: 4rem;
+    font-size: 0.8rem;
 }
 
 .tabelaFuncoes td:not(:global(.botoes_acoes)) button {
@@ -210,29 +183,34 @@
 .tabelaHabilidade td textarea {
     font-size: 0.85rem;
     height: 2.5rem;
-    width: 10rem;
+    width: 100%;
 }
 
 .tabelaHabilidade td select {
-    width: 10rem;
+    width: 100%;
     height: 2.5rem;
 }
 
-#habilidadeTdNivel textarea {
+.tabelaHabilidade td.habilidadeTdNivel {
     width: 5rem;
 }
 
-#habilidadeTdAcao {
-    min-width: 15rem;
+.tabelaHabilidade td.habilidadeTdNivel textarea {
+    width: 5rem;
+}
+
+.tabelaHabilidade td.habilidadeTdAcao {
+    width: 15rem;
     font-size: 0.75rem;
     text-align: justify;
+    min-width: 0;
 }
 
-#habilidadeTdAcao textarea {
-    min-width: 14.5rem;
+.tabelaHabilidade td.habilidadeTdAcao textarea {
+    width: 14.5rem;
 }
 
-#habilidadeThSkill {
+.tabelaHabilidade th.habilidadeThSkill {
     padding: 0.5rem;
     font-size: 0.7rem;
 }
@@ -250,18 +228,61 @@
     }
 
     .tabelaRaci td select,
-    #funcoesTdDescricao,
-    #funcoesTdHabilidade,
+    .funcoesTdDescricao,
+    .funcoesTdHabilidade,
     .tabelaFuncoes td textarea,
     .tabelaFuncoes td select,
-    #habilidadeTdAcao,
+    .tabelaHabilidade td.habilidadeTdAcao,
     .tabelaHabilidade td textarea {
-        font-size: inherit;
+        font-size: 0.6rem;
+    }
+
+    /* --------- MEMBROS -----------*/
+
+    .membrosContainer {
+        width: 70vw;
+    }
+
+    .membrosConteudo {
+        font-size: small;
+    }
+
+    .membrosInputNome {
+        width: 78.5%;
+    }
+
+    .membrosInputSoftskills {
+        width: 69%;
+    }
+
+    .membrosInputHardskills {
+        width: 66.5%;
+    }
+
+    .membrosBotaoAddNew {
+        font-size: small;
+    }
+
+    /* -------- FUNCOES ----------*/
+
+    .tabelaFuncoes td textarea,
+    .tabelaFuncoes td select,
+    .tabelaFuncoes td:not(:global(.botoes_acoes)) button {
+        height: 3rem;
+    }
+
+    .funcoesTdDescricao textarea,
+    .funcoesTdHabilidade textarea {
+        width: 10rem;
+    }
+
+    .tabelaFuncoes td:not(:global(.botoes_acoes)) button {
+        width: 100%;
     }
 
     /* -------- HABILIDADE ----------*/
 
-    #habilidadeThSkill {
+    .tabelaHabilidade th.habilidadeThSkill {
         font-size: 0.5rem;
     }
 }

@@ -163,8 +163,8 @@ const Tabela = () => {
                                 <th>Role</th>
                                 <th>Responsible</th>
                                 <th>Skill</th>
-                                <th id={styles.habilidadeThSkill}>Current skill level</th>
-                                <th id={styles.habilidadeThSkill}>Desired skill level</th>
+                                <th className={styles.habilidadeThSkill}>Current skill level</th>
+                                <th className={styles.habilidadeThSkill}>Desired skill level</th>
                                 <th>Development action</th>
                                 <th>Actions</th>
                             </tr>
@@ -218,7 +218,7 @@ const Tabela = () => {
                                             <td>{habilidade.habilidade}</td>
                                             <td>{habilidade.nivel_atual}</td>
                                             <td>{habilidade.nivel_min}</td>
-                                            <td id={styles.habilidadeTdAcao}>{habilidade.acao}</td>
+                                            <td className={styles.habilidadeTdAcao}>{habilidade.acao}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(habilidade)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {

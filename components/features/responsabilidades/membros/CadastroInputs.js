@@ -51,38 +51,41 @@ const CadastroInputs = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
     }
 
     return (
-        <div className={styles.container}>
-            <div><b>Name: </b>
+        <div className={styles.membrosContainer}>
+            <div className={styles.membrosConteudo}><b>Name: </b>
                 <input
+                    className={styles.membrosInputNome}
                     value={obj.nome}
                     name='nome'
                     onChange={handleChange}
                     ref={el => (camposRef.current.nome = el)} />
             </div>
-            <div>
+            <div className={styles.membrosConteudo}>
                 <b>Softskills: </b>
                 <input
+                    className={styles.membrosInputSoftskills}
                     value={obj.softskills}
                     name='softskills'
                     onChange={handleChange}
                     ref={el => (camposRef.current.softskills = el)} />
             </div>
-            <div>
+            <div className={styles.membrosConteudo}>
                 <b>Hardskills: </b>
                 <input
+                    className={styles.membrosInputHardskills}
                     value={obj.hardskills}
                     name='hardskills'
                     onChange={handleChange}
                     ref={el => (camposRef.current.hardskills = el)} />
             </div>
-            <div className={tipo == 'update' ? styles.botoesAcoes : undefined}>
+            <div className={styles.membrosBotoesAcoes}>
                 {tipo !== 'update' ? (
-                    <button onClick={(e) => handleSubmit(e)} disabled={!isAdmin}>Add new</button>
+                    <button className={styles.membrosBotaoAddNew} onClick={(e) => handleSubmit(e)} disabled={!isAdmin}>Add new</button>
                 ) : (
-                    <React.Fragment>
+                    <div className={styles.membrosBotoesAcoes}>
                         <button onClick={handleSubmit}>✔️</button>
                         <button onClick={funcoes?.cancelar}>✖️</button>
-                    </React.Fragment>
+                    </div>
                 )}
             </div>
         </div>

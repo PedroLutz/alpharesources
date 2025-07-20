@@ -65,7 +65,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
 
     return (
         <tr>
-            <td>
+            <td className={styles.funcoesTdFuncao}>
                 <textarea
                     name="funcao"
                     onChange={handleChange}
@@ -74,7 +74,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.funcao = el)}
                 />
             </td>
-            <td id={styles.funcoesTdDescricao}>
+            <td className={styles.funcoesTdDescricao}>
                 <textarea
                     name="descricao"
                     onChange={handleChange}
@@ -83,7 +83,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.descricao = el)}
                 />
             </td>
-            <td id={styles.funcoesTdHabilidade}>
+            <td className={styles.funcoesTdHabilidade}>
                 <textarea
                     name="habilidades"
                     onChange={handleChange}

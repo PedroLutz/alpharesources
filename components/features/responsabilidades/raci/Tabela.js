@@ -336,9 +336,9 @@ const Tabela = () => {
                 <tr key={index} style={{ backgroundColor: cores[item.area] }}>
                   {index === 0 || itensRaci[index - 1].area !== item.area ? (
                     <td rowSpan={calculateRowSpan(itensRaci, item.area, index)}
-                      id={styles.raciTdArea}>{item.area}</td>
+                      className={styles.raciTdArea}>{item.area}</td>
                   ) : null}
-                  <td id={styles.raciTdItem}>{item.item}</td>
+                  <td className={styles.raciTdItem}>{item.item}</td>
                   {linhaVisivel === item._id ? (
                     <React.Fragment>
                       <CadastroInputs
