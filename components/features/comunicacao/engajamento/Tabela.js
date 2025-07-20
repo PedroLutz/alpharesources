@@ -94,7 +94,7 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2>Stakeholder Engagement Matrix</h2>
+            <h2 className="smallTitle">Stakeholder Engagement Matrix</h2>
             {exibirModal != null && (
                 <Modal objeto={{
                     titulo: modalLabels[exibirModal],
@@ -109,16 +109,16 @@ const Tabela = () => {
 
                 <div className={styles.tabelaComunicacao_container}>
                     <div className={styles.tabelaComunicacao_wrapper}>
-                        <table className={styles.tabelaEngajamento}>
+                        <table className={`${styles.tabelaEngajamento} tabela`}>
                             <thead>
                                 <tr>
                                     <th>Stakeholder Group</th>
                                     <th>Stakeholder</th>
-                                    <th id={styles.eng_poderId}>Power</th>
-                                    <th id={styles.eng_interesseId}>Interest</th>
+                                    <th className={styles.eng_poderId}>Power</th>
+                                    <th className={styles.eng_interesseId}>Interest</th>
                                     <th>Mapping</th>
-                                    <th id={styles.eng_engajamentoId}>Current Engagement Level</th>
-                                    <th id={styles.eng_engajamentoId}>Expected Engagement Level</th>
+                                    <th className={styles.eng_engajamentoId}>Current Engagement Level</th>
+                                    <th className={styles.eng_engajamentoId}>Expected Engagement Level</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>

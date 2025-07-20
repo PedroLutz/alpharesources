@@ -153,7 +153,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     ))};
                 </select>
             </td>
-            <td>
+            <td className={styles.infoTdStakeholder}>
                 <select
                     value={obj.stakeholder}
                     name='stakeholder'
@@ -167,7 +167,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     ))}
                 </select>
             </td>
-            <td id={styles.infoTdInfo}>
+            <td className={styles.infoTdInfo}>
                 <textarea
                     name="informacao"
                     onChange={handleChange}
@@ -185,7 +185,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.metodo = el)}
                 />
             </td>
-            <td id={verOpcaoCustom ? styles.infoTdFrequencia : ''}>
+            <td className={verOpcaoCustom ? styles.infoTdFrequencia : ''}>
                 <select
                     value={obj.frequencia}
                     name='frequencia'

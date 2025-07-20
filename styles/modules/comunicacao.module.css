@@ -2,134 +2,15 @@
 --------------------------------------------------------------
 GERAIS 
 */
-.tabelaComunicacao table, .tabelaStakeholders table,
-.tabelaEngajamento table, .tabelaInformacao table {
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(0, 0, 0);
-    padding: 0.3rem;
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed; 
-}
 
-.tabelaComunicacao_container{
+.tabelaComunicacao_container {
     overflow: auto;
 }
 
-.tabelaComunicacao_wrapper{
+.tabelaComunicacao_wrapper {
     max-width: 75rem;
     max-height: 45rem;
-    display:block;
-}
-
-.tabelaComunicacao td, .tabelaComunicacao th,
-.tabelaStakeholders td, .tabelaStakeholders th, 
-.tabelaEngajamento td, .tabelaEngajamento th,
-.tabelaInformacao td, .tabelaInformacao th{
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(0, 0, 0);
-    padding: 0.3rem;
-    font-size: small;
-    word-wrap: break-word;
-}
-
-.tabelaComunicacao th, .tabelaStakeholders th, .tabelaEngajamento th, .tabelaInformacao th{
-    background-color: #ff8ff2;
-    border-width: 0.1rem;
-    font-size: 0.9rem;
-    border-style: solid;
-    border-color: rgb(0, 0, 0);
-    padding: 0.3rem;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
-.tabelaComunicacao thead, .tabelaStakeholders thead, .tabelaEngajamento thead, .tabelaComunicacao thead{
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    border-style: solid;
-    border-width: 0.1rem;
-    border-color: rgb(0, 0, 0);
-    background: black;
-}
-
-.tabelaComunicacao td input, .tabelaComunicacao td select, .tabelaComunicacao td textarea,
-.tabelaStakeholders td input, .tabelaStakeholders td select, .tabelaStakeholders td textarea, 
-.tabelaEngajamento td select,
-.tabelaInformacao td input, .tabelaInformacao td select, .tabelaInformacao td textarea{
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(167, 167, 167);
-    border-radius: 0.4rem;
-    padding: 0.2rem;
-    transition: 0.2s;
-    outline: none;
-    background-color: white;
-    width: 10rem;
-    font-size: small;
-}
-
-.tabelaComunicacao td textarea, .tabelaStakeholders td textarea, .tabelaInformacao td textarea{
-    height: 4rem;
-}
-
-.tabelaComunicacao td select, .tabelaComunicacao td:not(:global(.botoes_acoes)) button,
-.tabelaStakeholders td select, .tabelaStakeholders td:not(:global(.botoes_acoes)) button,
-.tabelaInformacao td select, .tabelaInformacao td:not(:global(.botoes_acoes)) button{
-    height: 4.5rem;
-}
-
-.tabelaComunicacao td input:hover, .tabelaComunicacao td select:hover,
-.tabelaComunicacao td textarea:hover, 
-.tabelaComunicacao td:not(:global(.botoes_acoes)) button:hover,
-.tabelaStakeholders td input:hover, .tabelaStakeholders td select:hover,
-.tabelaStakeholders td textarea:hover, 
-.tabelaStakeholders td:not(:global(.botoes_acoes)) button:hover,
-.tabelaEngajamento td select:hover, 
-.tabelaInformacao td input:hover, .tabelaInformacao td select:hover,
-.tabelaInformacao td textarea:hover,
-.tabelaInformacao td:not(:global(.botoes_acoes)) button:hover{
-    background-color: rgb(231, 231, 231);
-}
-
-.tabelaComunicacao button, .tabelaStakeholders button, 
-.tabelaEngajamento button, .tabelaInformacao button{
-    background-color: transparent;
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(167, 167, 167);
-    border-radius: 0.4rem;
-    height: 1.6rem;
-    width: 4.7rem;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.botao_bonito {
-    background-color: #fc79ec;
-    border: 1px solid black;
-    border-radius: 5px;
-    padding: 3px;
-    color: black;
-    font-weight: bold;
-    font-size: 0.9rem;
-    cursor: pointer;
-    width: 12rem;
-    transition: 0.1s;
-    height: 1.7rem;
-    margin: 0.5rem;
-}
-
-.botao_bonito:hover {
-    background-color: #a84ee0;
-    font-size: 0.8rem;
-    font-weight: bold;
-    width: 10rem;
-    height: 1.7rem;
+    display: block;
 }
 
 /* 
@@ -138,14 +19,14 @@ STAKEHOLDERS
 */
 
 .tabelaStakeholders td:first-child select,
-.tabelaStakeholders td:nth-child(2) textarea{
+.tabelaStakeholders td:nth-child(2) textarea {
     width: 9rem;
 }
 
-.tabelaStakeholders td:nth-child(3) select, 
+.tabelaStakeholders td:nth-child(3) select,
 .tabelaStakeholders td:nth-child(4) select,
 .tabelaStakeholders td:nth-child(5) select,
-.tabelaStakeholders td:nth-child(6) select{
+.tabelaStakeholders td:nth-child(6) select {
     font-size: 0.75rem;
     width: 4.6rem;
 }
@@ -155,7 +36,8 @@ STAKEHOLDERS
 COMUNICACAO (STAKEHOLDER GROUPS)
 */
 
-.tabelaComunicacao td:nth-child(4) select, .tabelaComunicacao td:nth-child(5) select{
+.tabelaComunicacao td:nth-child(4) select,
+.tabelaComunicacao td:nth-child(5) select {
     width: 5rem;
 }
 
@@ -168,13 +50,17 @@ COMUNICACAO (STAKEHOLDER GROUPS)
     text-align: left;
 }
 
-.tabelaComunicacao td:nth-child(4), 
-.tabelaComunicacao td:nth-child(5), 
-.tabelaComunicacao td:nth-child(6), 
-.tabelaComunicacao td:nth-child(11), 
-.tabelaComunicacao td:nth-child(13), 
+.tabelaComunicacao td:nth-child(4),
+.tabelaComunicacao td:nth-child(5),
+.tabelaComunicacao td:nth-child(6),
+.tabelaComunicacao td:nth-child(11),
+.tabelaComunicacao td:nth-child(13),
 .tabelaComunicacao td:nth-child(14) {
     text-align: center;
+}
+
+.tabelaComunicacao td:not(:global(.botoes_acoes)) button {
+    height: 2.5rem;
 }
 
 /* 
@@ -183,17 +69,18 @@ ENGAJAMENTO
 */
 
 .tabelaEngajamento td select {
-    width: 8rem;
+    width: 100%;
 }
 
-#eng_poderId, #eng_interesseId{
+.tabelaEngajamento td.eng_poderId,
+.tabelaEngajamento td.eng_interesseId {
     width: 4rem;
     font-size: 0.7rem;
 }
 
-#eng_engajamentoId{
+.tabelaEngajamento th.eng_engajamentoId {
     font-size: 0.8rem;
-    width: 7rem;
+    width: 5rem;
 }
 
 /* 
@@ -201,16 +88,71 @@ ENGAJAMENTO
 INFORMACAO
 */
 
-#infoTdInfo, #infoTdInfo textarea {
-    text-align: left;
-    min-width: 25rem;
+.tabelaInformacao td textarea,
+.tabelaInformacao td select,
+.tabelaInformacao td:not(:global(.botoes_acoes)) button {
+    height: 3rem;
 }
 
-#infoTdFrequencia select{
+.tabelaInformacao td.infoTdInfo {
+    font-size: 0.7rem;
+    text-align: justify;
+    min-width: 18rem;
+}
+
+.tabelaInformacao td.infoTdInfo textarea {
+    text-align: left;
+    min-width: 100%;
+}
+
+.tabelaInformacao td.infoTdFrequencia select {
     height: 2.7rem;
     margin-bottom: 0.2rem;
 }
 
-#infoTdFrequencia input{
+.tabelaInformacao td.infoTdFrequencia input {
     max-width: 9.5rem;
+}
+
+.tabelaInformacao td.infoTdStakeholder select {
+    min-width: 10rem;
+    max-width: 10rem;
+}
+
+/* 
+----------------------------------------------------------------
+RESPONSIVIDADE
+*/
+
+@media (max-width: 1280px) {
+    .tabelaComunicacao_wrapper {
+        max-width: 95vw;
+    }
+
+    .tabelaComunicacao td:not(:global(.botoes_acoes)) button {
+        height: 1.9rem;
+        width: 100%;
+    }
+
+    /* ----- ENGAJAMENTO ----- */
+
+    .tabelaEngajamento td select {
+        width: 100%;
+    }
+
+    .tabelaEngajamento th.eng_engajamentoId {
+        font-size: 0.6rem;
+        width: 5rem;
+    }
+
+    /* -------INFORMACAO ------- */
+    .tabelaInformacao td.infoTdInfo {
+        font-size: 0.6rem;
+        text-align: justify;
+        min-width: 14rem;
+    }
+
+    .tabelaInformacao td:not(:global(.botoes_acoes)) button {
+        width: 100%;
+    }
 }

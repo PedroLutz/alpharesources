@@ -132,7 +132,7 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2>Communicated Information</h2>
+            <h2 className="smallTitle">Communicated Information</h2>
 
             {exibirModal != null && (
                 <Modal objeto={{
@@ -158,12 +158,12 @@ const Tabela = () => {
 
             <div className={styles.tabelaComunicacao_container}>
                 <div className={styles.tabelaComunicacao_wrapper}>
-                    <table className={styles.tabelaInformacao}>
+                    <table className={`${styles.tabelaInformacao} tabela`}>
                         <thead>
                             <tr>
                                 <th>Stakeholder Group</th>
                                 <th>Stakeholder</th>
-                                <th>Information</th>
+                                <th className={styles.infoTdInfo}>Information</th>
                                 <th>Method</th>
                                 <th>Frequency</th>
                                 <th>Channel</th>
@@ -209,7 +209,7 @@ const Tabela = () => {
                                             ) : (
                                                 <td>{informacao.stakeholder}</td>
                                             )}
-                                            <td id={styles.infoTdInfo}>{informacao.informacao}</td>
+                                            <td className={styles.infoTdInfo}>{informacao.informacao}</td>
                                             <td>{informacao.metodo}</td>
                                             <td>{informacao.frequencia}</td>
                                             <td>{informacao.canal}</td>
