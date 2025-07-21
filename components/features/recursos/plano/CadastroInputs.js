@@ -130,7 +130,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
 
     return (
         <tr className="linha-cadastro">
-            <td id={styles.tdRecurso}>
+            <td className={styles.tdRecurso}>
                 <select
                     name="area"
                     onChange={handleAreaChange}
@@ -185,7 +185,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.detalhes_a = el)} />
             </td>
-            <td id={styles.tdValor}>
+            <td className={styles.tdValor}>
                 <input
                     value={obj.valor_a}
                     name='valor_a'
@@ -202,7 +202,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.data_esperada = el)} />
             </td>
-            <td id={styles.tdCriticalDate}>
+            <td className={styles.tdCriticalDate}>
                 <input
                     value={obj.data_limite}
                     name='data_limite'
@@ -239,7 +239,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.detalhes_b = el)} />
             </td>
-            <td id={styles.tdValor}>
+            <td className={styles.tdValor}>
                 <input
                     value={obj.valor_b}
                     name='valor_b'
@@ -264,7 +264,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.data_real = el)} />
             </td>
-            <td id={styles.tdValor}>
+            <td className={styles.tdValor}>
                 <input type='number'
                     value={obj.valor_real}
                     name='valor_real'

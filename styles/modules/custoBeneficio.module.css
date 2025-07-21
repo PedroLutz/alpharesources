@@ -23,56 +23,56 @@
     width: 4.7rem;
 }
 
-#tdCusto input {
+.tabela_cb td.tdCusto input {
     width: 4rem;
 }
 
-#tdImpacto input,
-#tdAreas input {
+.tabela_cb td.tdImpacto input,
+.tabela_cb td.tdAreas input {
     width: 3rem;
 }
 
-#tdDescricao {
+.tabela_cb td.tdDescricao {
     width: 8rem;
 }
 
-#tdEscala input,
-#tdUrgencia input,
-#tdAreas input {
+.tabela_cb td.tdEscala input,
+.tabela_cb td.tdUrgencia input,
+.tabela_cb td.tdAreas input {
     width: 4rem;
 }
 
-#tdDiferencial input {
+.tabela_cb td.tdDiferencial input {
     width: 4rem;
 }
 
-#tdExplicacao {
+.tabela_cb td.tdExplicacao {
     width: 20rem;
     text-align: justify;
 }
 
-#tdExplicacao textarea {
+.tabela_cb td.tdExplicacao textarea {
     width: 19.5rem;
 }
 
-#tdEscala,
-#tdImpacto,
-#tdUrgencia,
-#tdDiferencial,
-#tdAreas,
-#tdMediaBeneficios,
-#tdIndice {
+.tabela_cb td.tdEscala,
+.tabela_cb td.tdImpacto,
+.tabela_cb td.tdUrgencia,
+.tabela_cb td.tdDiferencial,
+.tabela_cb td.tdAreas,
+.tabela_cb td.tdMediaBeneficios,
+.tabela_cb td.tdIndice {
     width: 4rem;
 }
 
-#tdCusto,
-#tdEscala,
-#tdImpacto,
-#tdUrgencia,
-#tdDiferencial,
-#tdAreas,
-#tdMediaBeneficios,
-#tdIndice,
+.tabela_cb td.tdCusto,
+.tabela_cb td.tdEscala,
+.tabela_cb td.tdImpacto,
+.tabela_cb td.tdUrgencia,
+.tabela_cb td.tdDiferencial,
+.tabela_cb td.tdAreas,
+.tabela_cb td.tdMediaBeneficios,
+.tabela_cb td.tdIndice,
 .tabela_cb td:nth-child(12) {
     text-align: center;
 }

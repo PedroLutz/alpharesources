@@ -8,7 +8,7 @@
     display: block;
 }
 
-#tdComparacao {
+.tabela_cbs td.tdComparacao {
     width: 15rem;
 }
 

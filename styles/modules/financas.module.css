@@ -9,21 +9,17 @@
     display: inline-block;
 }
 
-.tabela_financas td input:hover, .tabela_financas td select:hover, .tabela_financas td:not(:global(.botoes_acoes)) button:hover{
-    background-color: rgb(231, 231, 231);
-}
-
-#tdDescricao{
+.tabela_financas td.tdDescricao{
     width: 10rem;
 }
 
-#tdData, #tdData input, 
-#tdOrigem, #tdOrigem input, 
-#tdDestino, #tdDestino input,
-#tdArea select{
+.tabela_financas td.tdData, .tabela_financas td.tdData input, 
+.tabela_financas td.tdOrigem, .tabela_financas td.tdOrigem input, 
+.tabela_financas td.tdDestino, .tabela_financas td.tdDestino input,
+.tabela_financas td.tdArea select{
     width: 8rem;
 }
 
-#tdValor, #tdValor input{
+.tabela_financas td.tdValor, .tabela_financas td.tdValor input{
     width: 6rem;
 }

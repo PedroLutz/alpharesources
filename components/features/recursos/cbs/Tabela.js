@@ -85,7 +85,7 @@ const Tabela = () => {
                                         <td className={styles.td_custos}>R${parseFloat(cbs.custo_essencial).toFixed(2)}</td>
                                         <td className={styles.td_custos}>R${cbs.contingencia ? parseFloat(cbs.contingencia).toFixed(2) : 0}</td>
                                         <td className={styles.td_custos}>R${cbs.custo_real}</td>
-                                        <td id={styles.tdComparacao}>In relation to: <br />
+                                        <td className={styles.tdComparacao}>In relation to: <br />
                                             Ideal cost: R${parseFloat(cbs.custo_real - cbs.custo_ideal).toFixed(2)}<br />
                                             Essencial cost: R${parseFloat(cbs.custo_essencial - cbs.custo_ideal).toFixed(2)}<br />
                                             Ideal cost + contingency: R${parseFloat(cbs.custo_real + (cbs.contingencia ? cbs.contingencia : 0) - cbs.custo_ideal).toFixed(2)}<br />

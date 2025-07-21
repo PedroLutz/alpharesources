@@ -23,6 +23,12 @@ STAKEHOLDERS
     width: 9rem;
 }
 
+.tabelaStakeholders td select,
+.tabelaStakeholders td textarea,
+.tabelaStakeholders td:not(:global(.botoes_acoes)) button{
+    height: 3rem;
+}
+
 .tabelaStakeholders td:nth-child(3) select,
 .tabelaStakeholders td:nth-child(4) select,
 .tabelaStakeholders td:nth-child(5) select,

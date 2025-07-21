@@ -76,7 +76,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
 
     return (
         <tr className='linha-cadastro'>
-            <td id={styles.tdTipo}>
+            <td className={styles.tdTipo}>
                 <select
                     value={obj.tipo}
                     name='tipo'
@@ -89,14 +89,14 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
                     <option value='Exchange'>Exchange</option>
                 </select>
             </td>
-            <td id={styles.tdDescricao}>
+            <td className={styles.tdDescricao}>
                 <input
                     value={obj.descricao}
                     name='descricao'
                     onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.descricao = el)} />
             </td>
-            <td id={styles.tdValor}>
+            <td className={styles.tdValor}>
                 <input
                     value={obj.valor}
                     name='valor'
@@ -104,14 +104,14 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
                     min="0"
                     ref={el => (camposRef.current.valor = el)} />
             </td>
-            <td id={styles.tdData}>
+            <td className={styles.tdData}>
                 <input type="date"
                     value={obj.data}
                     name='data'
                     onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.data = el)} />
             </td>
-            <td id={styles.tdArea}>
+            <td className={styles.tdArea}>
                 <select
                     name="area"
                     onChange={(e) => handleChange(e, false)}
@@ -126,14 +126,14 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
                     <option value="Others">Others</option>
                 </select>
             </td>
-            <td id={styles.tdOrigem}>
+            <td className={styles.tdOrigem}>
                 <input
                     value={obj.origem}
                     name='origem'
                     onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.origem = el)} />
             </td>
-            <td id={styles.tdDestino}>
+            <td className={styles.tdDestino}>
                 <input
                     value={obj.destino}
                     name='destino'

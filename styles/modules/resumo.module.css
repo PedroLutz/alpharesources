@@ -43,7 +43,6 @@ span.custom_span {
     background-color: #9006e3;
     font-size: 18px;
     color: white;
-    /* Define a cor do texto como branca */
     transition: background-color 0.2s ease;
 }
 

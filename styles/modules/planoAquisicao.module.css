@@ -8,16 +8,16 @@
     display: block;
 }
 
-#tdRecurso select {
+.tabela_financas td.tdRecurso select {
     width: 12rem;
 }
 
-#tdValor input {
+.tabela_financas td.tdValor input {
     width: 6rem;
 }
 
 .tabela_financas th:nth-child(6),
-#tdCriticalDate select {
+.tabela_financas td.tdCriticalDate select {
     width: 4rem;
 }
 
@@ -27,7 +27,7 @@
 
 .tabela_financas td input,
 .tabela_financas td textarea,
-.tabela_financas td:not(#tdRecurso) select,
+.tabela_financas td:not(.tdRecurso) select,
 .tabela_financas td:not(:global(.botoes_acoes)) button {
     height: 3.5rem;
 }

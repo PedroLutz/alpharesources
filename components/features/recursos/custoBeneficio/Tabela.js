@@ -189,24 +189,24 @@ const Tabela = () => {
                                     ) : (
                                         <tr>
                                             <td>{custoBeneficio.identificacao}</td>
-                                            <td id={styles.tdDescricao}>{custoBeneficio.descricao}</td>
-                                            <td id={styles.tdCusto}>R${parseFloat(custoBeneficio.custo).toFixed(2)}</td>
-                                            <td id={styles.tdEscala}>{custoBeneficio.escala_custo}</td>
-                                            <td id={styles.tdImpacto}>{custoBeneficio.impacto}</td>
-                                            <td id={styles.tdUrgencia}>{custoBeneficio.urgencia}</td>
-                                            <td id={styles.tdDiferencial}>{custoBeneficio.diferencial}</td>
-                                            <td id={styles.tdAreas}>{custoBeneficio.areas_afetadas}</td>
-                                            <td id={styles.tdMediaBeneficios}>{
+                                            <td className={styles.tdDescricao}>{custoBeneficio.descricao}</td>
+                                            <td className={styles.tdCusto}>R${parseFloat(custoBeneficio.custo).toFixed(2)}</td>
+                                            <td className={styles.tdEscala}>{custoBeneficio.escala_custo}</td>
+                                            <td className={styles.tdImpacto}>{custoBeneficio.impacto}</td>
+                                            <td className={styles.tdUrgencia}>{custoBeneficio.urgencia}</td>
+                                            <td className={styles.tdDiferencial}>{custoBeneficio.diferencial}</td>
+                                            <td className={styles.tdAreas}>{custoBeneficio.areas_afetadas}</td>
+                                            <td className={styles.tdMediaBeneficios}>{
                                                 parseFloat((custoBeneficio.areas_afetadas
                                                     + custoBeneficio.impacto
                                                     + custoBeneficio.urgencia
                                                     + custoBeneficio.diferencial)
                                                     / 5).toFixed(2)}</td>
-                                            <td id={styles.tdIndice}>{
+                                            <td className={styles.tdIndice}>{
                                                 parseFloat(((custoBeneficio.areas_afetadas + custoBeneficio.impacto
                                                     + custoBeneficio.urgencia + custoBeneficio.diferencial)
                                                     / 5) / custoBeneficio.escala_custo).toFixed(2)}</td>
-                                            <td id={styles.tdExplicacao}>{custoBeneficio.explicacao}</td>
+                                            <td className={styles.tdExplicacao}>{custoBeneficio.explicacao}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(custoBeneficio)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {
@@ -236,10 +236,10 @@ const Tabela = () => {
                 <p>Benefit average</p>
                 <div className={styles.tabela_cb_wrapper}>
                     <table className={`${styles.tabela_cb} tabela`} style={{ width: '75rem' }}>
-                        <thead>
+                        <thead style={{background: 'transparent'}}>
                             <tr>
-                                <th style={{ border: 'transparent', backgroundColor: 'transparent', width: '1rem' }}></th>
-                                <th style={{ border: 'transparent', backgroundColor: 'transparent', width: '1rem' }}></th>
+                                <th style={{ borderColor: 'transparent', backgroundColor: 'transparent', width: '1rem', color: 'white' }}></th>
+                                <th style={{ borderColor: 'transparent', borderBottomColor: 'black', borderRightColor: 'black', backgroundColor: 'transparent', width: '1rem', color: 'white' }}></th>
                                 <th>1</th>
                                 <th>2</th>
                                 <th>3</th>

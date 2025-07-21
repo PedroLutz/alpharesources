@@ -276,17 +276,17 @@ const Tabela = () => {
                     <React.Fragment>
                       <tr key={index}>
                         <td>{labelsTipo[item.tipo]}</td>
-                        <td id={styles.tdDescricao} style={{ color: item.tipo === 'Income' ? 'green' : item.tipo === 'Exchange' ? '#335EFF' : 'red' }}>
+                        <td className={styles.tdDescricao} style={{ color: item.tipo === 'Income' ? 'green' : item.tipo === 'Exchange' ? '#335EFF' : 'red' }}>
                           {item.descricao}
                         </td>
-                        <td id={styles.tdValor} style={{ color: item.tipo === 'Income' ? 'green' : item.tipo === 'Exchange' ? '#335EFF' : 'red' }}>
+                        <td className={styles.tdValor} style={{ color: item.tipo === 'Income' ? 'green' : item.tipo === 'Exchange' ? '#335EFF' : 'red' }}>
                           <b>R${Math.abs(item.valor).toFixed(2)}</b>
                         </td>
-                        <td id={styles.tdData}>{item.data}</td>
-                        <td id={styles.tdArea}>{item.area}</td>
-                        <td id={styles.tdOrigem}>{item.origem}</td>
-                        <td id={styles.tdDestino}>{item.destino}</td>
-                        <td id={styles.tdBalanco}>
+                        <td className={styles.tdData}>{item.data}</td>
+                        <td className={styles.tdArea}>{item.area}</td>
+                        <td className={styles.tdOrigem}>{item.origem}</td>
+                        <td className={styles.tdDestino}>{item.destino}</td>
+                        <td className={styles.tdBalanco}>
                           <a style={{ color: item.tipo === 'Income' ? 'green' : 'red', fontSize: '1.2rem' }}>
                             {item.tipo === 'Income' ? "▲" : item.tipo === 'Exchange' ? "" : '▼'}
                           </a>
