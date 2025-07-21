@@ -128,7 +128,7 @@ const TabelaRiscos = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2>Risk Identification</h2>
+            <h2 className="smallTitle">Risk Identification</h2>
             {exibirModal != null && (
                 <Modal objeto={{
                     titulo: modalLabels[exibirModal],
@@ -153,7 +153,7 @@ const TabelaRiscos = () => {
 
             <div className={styles.tabelaRisco_container}>
                 <div className={styles.tabelaRisco_wrapper}>
-                    <table className={styles.tabelaRisco}>
+                    <table className={`${styles.tabelaRisco} tabela`}>
                         <thead>
                             <tr>
                                 <th>Area</th>
@@ -190,22 +190,24 @@ const TabelaRiscos = () => {
                                             {!isUpdating || isUpdating[0] !== item.area ? (
                                                 <React.Fragment>
                                                     {index === 0 || riscos[index - 1].area !== item.area ? (
-                                                        <td rowSpan={calculateRowSpan(riscos, item.area, index, 'area')}
+                                                        <td className={styles.riscoTdArea} 
+                                                        rowSpan={calculateRowSpan(riscos, item.area, index, 'area')}
                                                         >{item.area}</td>
                                                     ) : null}
                                                 </React.Fragment>
                                             ) : (
-                                                <td>{item.area}</td>
+                                                <td className={styles.riscoTdArea}>{item.area}</td>
                                             )}
                                             {!isUpdating || isUpdating[1] !== item.item ? (
                                                 <React.Fragment>
                                                     {index === 0 || riscos[index - 1].item !== item.item ? (
-                                                        <td rowSpan={calculateRowSpan(riscos, item.item, index, 'item')}
+                                                        <td className={styles.riscoTdItem}
+                                                        rowSpan={calculateRowSpan(riscos, item.item, index, 'item')}
                                                         >{item.item}</td>
                                                     ) : null}
                                                 </React.Fragment>
                                             ) : (
-                                                <td>{item.item}</td>
+                                                <td className={styles.riscoTdItem}>{item.item}</td>
                                             )}
                                             <td>{item.risco}</td>
                                             <td>{item.classificacao}</td>

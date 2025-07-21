@@ -136,7 +136,7 @@ const TabelaAnalise = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2>Risk Analysis</h2>
+            <h2 className="smallTitle">Risk Analysis</h2>
             {exibirModal != null && (
                 <Modal objeto={{
                     titulo: modalLabels[exibirModal],
@@ -161,10 +161,10 @@ const TabelaAnalise = () => {
 
             <div className={styles.tabelaRisco_container}>
                 <div className={styles.tabelaRisco_wrapper}>
-                    <table className={styles.tabelaAnalise}>
+                    <table className={`${styles.tabelaAnalise} tabela`}>
                         <thead>
                             <tr>
-                                <th style={{ width: '10rem', fontSize: '0.9rem' }}>Risk</th>
+                                <th style={{ width: '10rem'}}>Risk</th>
                                 <th>Occurrence</th>
                                 <th>Impact</th>
                                 <th>Action</th>
@@ -174,7 +174,7 @@ const TabelaAnalise = () => {
                                 <th>Estimated Monetary Value</th>
                                 <th>Schedule Impact</th>
                                 <th>Estimated Time Impact</th>
-                                <th style={{fontSize: '0.9rem'}}>Actions</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -239,15 +239,14 @@ const TabelaAnalise = () => {
                 </div>
             </div>
             <h2 style={{ marginTop: '3rem' }}>Risk Assessment Matrix</h2>
-            <div className={styles.tabelaRisco_container} style={{ width: '71.5rem' }}>
-
+            <div className={styles.tabelaRisco_container}>
                 <p>Impact</p>
                 <div className={styles.tabelaRisco_wrapper}>
-                    <table className={styles.tabelaAnalise} style={{ width: '70rem' }}>
-                        <thead>
+                    <table className={`${styles.tabelaAnalise} tabela`} style={{ width: '75rem' }}>
+                        <thead style={{background: 'transparent'}}>
                             <tr>
-                                <th style={{ border: 'transparent', backgroundColor: 'transparent' }}></th>
-                                <th style={{ borderTop: 'transparent', borderLeft: 'transparent', backgroundColor: 'transparent' }}></th>
+                                <th style={{ borderColor: 'transparent', backgroundColor: 'transparent', width: '1rem', color: 'white' }}></th>
+                                <th style={{ borderColor: 'transparent', borderBottomColor: 'black', borderRightColor: 'black', backgroundColor: 'transparent', width: '1rem', color: 'white' }}></th>
                                 <th>1</th>
                                 <th>2</th>
                                 <th>3</th>

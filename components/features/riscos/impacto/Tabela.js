@@ -114,7 +114,7 @@ const TabelaAnalise = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2>Risk Impact Analysis</h2>
+            <h2 className="smallTitle">Risk Impact Analysis</h2>
             {exibirModal != null && (
                 <Modal objeto={{
                     titulo: modalLabels[exibirModal],
@@ -139,7 +139,7 @@ const TabelaAnalise = () => {
 
             <div className={styles.tabelaRisco_container}>
                 <div className={styles.tabelaRisco_wrapper}>
-                    <table className={styles.tabelaImpacto}>
+                    <table className={`${styles.tabelaImpacto} tabela`}>
                         <thead>
                             <tr>
                                 <th>Risk</th>
@@ -180,7 +180,7 @@ const TabelaAnalise = () => {
                                             )}
                                             <td>{item.areaImpacto}</td>
                                             <td style={{ width: '3rem', textAlign: 'center' }}>{item.valor}</td>
-                                            <td style={{ fontSize: '0.7rem' }}>{item.descricao}</td>
+                                            <td className={styles.impactoTdDescricao}>{item.descricao}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(item)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {

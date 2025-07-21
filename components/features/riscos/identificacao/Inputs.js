@@ -109,13 +109,13 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
 
     return (
         <tr>
-            <td>
+            <td className={styles.riscoTdArea}>
                 <select
                     name="area"
                     onChange={handleAreaChange}
                     value={obj.area}
                     ref={el => (camposRef.current.area = el)}
-                    className={styles.risco_td_area}
+                    
                 >
                     <option value="" defaultValue>Area</option>
                     {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
@@ -124,13 +124,12 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     <option value="Others">Others</option>
                 </select>
             </td>
-            <td>
+            <td className={styles.riscoTdItem}>
                 <select
                     value={obj.item}
                     name='item'
                     onChange={(e) => handleChange(e, objSetter, obj)}
                     ref={el => (camposRef.current.item = el)}
-                    className={styles.risco_td_item}
                 >
                     <option value="" defaultValue>Item</option>
                     {itensPorArea.map((item, index) => (

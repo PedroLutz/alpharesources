@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useContext } from "react";
 import React from "react";
 import { fetchData } from "../../../../functions/crud";
 import { AuthContext } from "../../../../contexts/AuthContext";
+import styles from '../../../../styles/modules/risco.module.css'
 
 const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     const [riscos, setRiscos] = useState([])
@@ -103,7 +104,7 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
 
     return (
         <tr>
-            <td>
+            <td className={styles.impactoTdRisco}>
                 <div>
                     <select
                         name="area"
@@ -157,7 +158,7 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.valor = el)}
                 />
             </td>
-            <td>
+            <td className={styles.impactoTdDescricao}>
                 <textarea
                     type='text'
                     name="descricao"

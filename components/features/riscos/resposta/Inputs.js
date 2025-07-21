@@ -139,7 +139,7 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     ))}
                 </select>
             </td>
-            <td className={styles.plano_td_estrategia}>
+            <td>
                 <select
                     name="estrategia"
                     onChange={handleChange}

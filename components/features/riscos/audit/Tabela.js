@@ -145,13 +145,13 @@ const TabelaAnalise = () => {
 
             <div className={styles.tabelaRisco_container}>
                 <div className={styles.tabelaRisco_wrapper}>
-                    <table className={styles.tabelaAudit}>
+                    <table className={`${styles.tabelaAudit} tabela`}>
                         <thead>
                             <tr>
                                 <th>Risk</th>
                                 <th>Impact description</th>
-                                <th style={{ fontSize: '0.8rem' }}>Financial impact</th>
-                                <th style={{ fontSize: '0.8rem' }}>Schedule impact</th>
+                                <th className={styles.auditThImpacto}>Financial impact</th>
+                                <th className={styles.auditThImpacto}>Schedule impact</th>
                                 <th>Response</th>
                                 <th>Impact</th>
                                 <th>Action</th>
@@ -187,24 +187,24 @@ const TabelaAnalise = () => {
                                                 <td>{item.risco}</td>
                                             )}
                                             <td>{item.descricaoImpacto}</td>
-                                            <td style={{ fontSize: '0.8rem' }}>
+                                            <td className={styles.auditTdComparacao}>
                                                 Plan: R${Number(item.impactoFinanceiroPlano).toFixed(2)}<br />
                                                 Actual: R${Number(item.impactoFinanceiro).toFixed(2)}
                                             </td>
-                                            <td style={{ fontSize: '0.8rem' }}>
+                                            <td className={styles.auditTdComparacao}>
                                                 Plan: <br />{item.impactoCronogramaPlano} days<br />
                                                 Actual: <br />{item.impactoCronograma} days
                                             </td>
                                             <td>{item.resposta}</td>
-                                            <td style={{ fontSize: '0.8rem' }}>
+                                            <td className={styles.auditTdComparacao}>
                                                 Plan: {item.impactoPlano}<br />
                                                 Actual: {item.impacto}<br />
                                             </td>
-                                            <td style={{ fontSize: '0.8rem' }}>
+                                            <td className={styles.auditTdComparacao}>
                                                 Plan: {item.acaoPlano}<br />
                                                 Actual: {item.acao}<br />
                                             </td>
-                                            <td style={{ fontSize: '0.8rem' }}>
+                                            <td className={styles.auditTdComparacao}>
                                                 Plan: {item.urgenciaPlano}<br />
                                                 Actual: {item.urgencia}<br />
                                             </td>

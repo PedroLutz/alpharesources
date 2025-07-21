@@ -5,7 +5,7 @@ const PageWrapper = ({ children }) => {
         <div>
             <GenericNavbar
                 base={{
-                    titulo: 'Risk Management',
+                    titulo: 'Risks',
                     link: "/pags/risk/risks"
                 }}
                 itens={[

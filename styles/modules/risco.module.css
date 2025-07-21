@@ -2,176 +2,68 @@
 GERAL --------------------------
 */
 
-.tabelaRisco table, .tabelaPlano table, .tabelaAnalise table, .tabelaImpacto table, .tabelaAudit table {
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(0, 0, 0);
-    padding: 0.3rem;
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed; 
-}
-
-.tabelaRisco_container{
+.tabelaRisco_container {
     overflow: auto;
-    scrollbar-gutter: stable; /* mantém espaço fixo da scrollbar */
+    scrollbar-gutter: stable;
+    /* mantém espaço fixo da scrollbar */
 }
 
-.tabelaRisco_wrapper{
+.tabelaRisco_wrapper {
     max-width: 75rem;
     max-height: 45rem;
-    display:block;
-}
-
-.tabelaRisco td, .tabelaRisco th, 
-.tabelaPlano td, .tabelaPlano th,
-.tabelaAnalise td, .tabelaAnalise th,
-.tabelaImpacto td, .tabelaImpacto th,
-.tabelaAudit td, .tabelaAudit th{
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(0, 0, 0);
-    padding: 0.3rem;
-    font-size: small;
-    word-wrap: break-word;
-    max-width: 11rem;
-}
-
-.tabelaRisco td input, .tabelaRisco td select, .tabelaRisco td textarea, 
-.tabelaPlano td input, .tabelaPlano td select, .tabelaPlano td textarea,
-.tabelaAnalise td input, .tabelaAnalise td select,
-.tabelaImpacto td input, .tabelaImpacto td select, .tabelaImpacto td textarea,
-.tabelaAudit td input, .tabelaAudit td select, .tabelaAudit td textarea{
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(167, 167, 167);
-    border-radius: 0.4rem;
-    padding: 0.2rem;
-    transition: 0.2s;
-    outline: none;
-    background-color: white;
-}
-
-.tabelaRisco td:not(:global(.botoes_acoes)) button:hover, 
-.tabelaAnalise td:not(:global(.botoes_acoes)) button:hover,
-.tabelaPlano td:not(:global(.botoes_acoes)) button:hover,
-.tabelaImpacto td:not(:global(.botoes_acoes)) button:hover,
-.tabelaAudit td:not(:global(.botoes_acoes)) button:hover,
-.tabelaRisco td input:hover, .tabelaRisco td select:hover, .tabelaRisco td textarea:hover,
-.tabelaPlano td input:hover, .tabelaPlano td select:hover, .tabelaPlano td textarea:hover,
-.tabelaAnalise td input:hover, .tabelaAnalise td select:hover,
-.tabelaImpacto td input:hover, .tabelaImpacto td select:hover, .tabelaImpacto td textarea:hover,
-.tabelaAudit td input:hover, .tabelaAudit td select:hover, .tabelaAudit td textarea:hover{
-    background-color: rgb(231, 231, 231);
-}
-
-.tabelaRisco td input, .tabelaRisco td select, .tabelaRisco td textarea,
-.tabelaPlano td input, .tabelaPlano td select,
-.tabelaImpacto td input, .tabelaImpacto td select, .tabelaImpacto td textarea,
-.tabelaAudit td select, .tabelaAudit td textarea{
-    width: 10rem;
-    font-size: small;
-}
-
-.tabelaRisco th, 
-.tabelaPlano th, 
-.tabelaAnalise th, 
-.tabelaImpacto th,
-.tabelaAudit th {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background-color: #ff8ff2;
-    border-width: 0.1rem;
-    font-size: 0.9rem;
-    border-style: solid;
-    border-color: rgb(0, 0, 0);
-    padding: 0.3rem;
-}
-
-.tabelaRisco button, 
-.tabelaPlano button, 
-.tabelaAnalise button, 
-.tabelaImpacto button,
-.tabelaAudit button{
-    background-color: transparent;
-    border-width: 0.1rem;
-    border-style: solid;
-    border-color: rgb(167, 167, 167);
-    border-radius: 0.4rem;
-    height: 1.6rem;
-    width: 4.7rem;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.botao_bonito {
-    background-color: #fc79ec;
-    border: 1px solid black;
-    border-radius: 5px;
-    padding: 3px;
-    color: black;
-    font-weight: bold;
-    font-size: 0.9rem;
-    cursor: pointer;
-    width: 12rem;
-    transition: 0.1s;
-    height: 1.7rem;
-    margin: 0.5rem;
-}
-
-.botao_bonito:hover {
-    background-color: #a84ee0;
-    font-size: 0.8rem;
-    font-weight: bold;
-    width: 10rem;
-    height: 1.7rem;
+    display: block;
 }
 
 /* 
 RISCO --------------------------
 */
 
-.tabelaRisco td input, .tabelaRisco td select{
+.tabelaRisco td input,
+.tabelaRisco td select,
+.tabelaRisco td textarea,
+.tabelaRisco td:not(:global(.botoes_acoes)) button {
     height: 5rem;
 }
 
-.tabelaRisco td textarea{
-    height: 4.5rem;
+.tabelaRisco td:not(:global(.botoes_acoes)) button {
+    width: 100%
 }
 
-.tabelaRisco td:not(:global(.botoes_acoes)) button{
-    height: 5rem;
+.tabelaRisco td.riscoTdArea select,
+.tabelaRisco td.riscoTdItem select {
+    max-width: 12rem;
+    min-width: 12rem;
 }
 
-.tabelaRisco td{
+.tabelaRisco td {
     width: 6rem;
     text-align: left;
 }
 
 .tabelaRisco td:last-child {
     text-align: center;
-} 
+}
 
 /* 
 PLANO --------------------------
 */
 
-.tabelaPlano td textarea{
+.tabelaPlano td:first-child,
+.tabelaPlano td:first-child select {
     width: 10rem;
-    height: 3rem;
-    font-size: small;
 }
 
-.tabelaPlano td:nth-child(2) select{
-    width: 6rem;
+.tabelaPlano td:nth-child(2) {
+    width: 8rem;
 }
 
+.tabelaPlano td:nth-child(2) select {
+    width: 10rem;
+}
+
+.tabelaPlano td:nth-child(2) select,
+.tabelaPlano td:nth-child(3) textarea,
 .tabelaPlano td:not(:global(.botoes_acoes)) button {
-    height: 3.6rem;
-}
-
-.plano_td_estrategia select{
     height: 3.5rem;
 }
 
@@ -179,61 +71,80 @@ PLANO --------------------------
 IMPACTO --------------------------
 */
 
-.tabelaImpacto td:last-child{
+.tabelaImpacto td:last-child {
     text-align: center;
 }
 
-.tabelaImpacto td{
+.tabelaImpacto td {
     width: 6rem;
     text-align: left;
 }
 
-.tabelaImpacto td:not(:first-child) input {
-    height: 3rem;
-}
-
-.tabelaImpacto td:not(:first-child) select, .tabelaImpacto td:not(:global(.botoes_acoes)) button{
+.tabelaImpacto td:not(:first-child) select,
+.tabelaImpacto td textarea,
+.tabelaImpacto td input,
+.tabelaImpacto td:not(:global(.botoes_acoes)) button {
     height: 3.5rem;
 }
 
-.tabelaImpacto td:not(:first-child) textarea{
-    height: 3rem;
+.tabelaImpacto td.impactoTdDescricao,
+.tabelaImpacto td.impactoTdDescricao textarea {
     font-size: 0.7rem;
+}
+
+.tabelaImpacto td.impactoTdRisco select {
+    width: 10rem;
+}
+
+.tabelaImpacto td:not(:global(.botoes_acoes)) button {
+    width: 100%;
 }
 
 /* 
 AUDIT --------------------------
 */
 
-.tabelaAudit td:first-child, .tabelaAudit th:first-child{
-    width: 10rem;
+
+
+.tabelaAudit td:first-child select {
+    width: 12rem;
 }
 
-.tabelaAudit td:nth-child(3), .tabelaAudit td:nth-child(4){
+.tabelaAudit td:nth-child(3),
+.tabelaAudit td:nth-child(4) {
     width: 4.5rem;
 }
 
-.tabelaAudit td:nth-child(3) input, .tabelaAudit td:nth-child(4) input{
+.tabelaAudit td:nth-child(3) input,
+.tabelaAudit td:nth-child(4) input {
     width: 3.7rem;
 }
 
-.tabelaAudit td input{
+.tabelaAudit td input {
     width: 3rem;
 }
 
-.tabelaAudit td textarea, .tabelaAudit td input{
-    height: 3rem;
+.tabelaAudit td textarea,
+.tabelaAudit td input,
+.tabelaAudit td:not(:global(.botoes_acoes)) button {
+    height: 3.5rem
 }
 
-.tabelaAudit td button{
-    height: 3.5rem
+.tabelaAudit th.auditThImpacto,
+.tabelaAudit td.auditTdComparacao {
+    font-size: 0.8rem;
+}
+
+.tabelaAudit td:not(:global(.botoes_acoes)) button {
+    width: 100%;
 }
 
 /* 
 ANALISE --------------------------
 */
 
-.tabelaAnalise td:first-child input, .tabelaAnalise td:first-child select{
+.tabelaAnalise td:first-child input,
+.tabelaAnalise td:first-child select {
     width: 10rem;
 }
 
@@ -242,20 +153,85 @@ ANALISE --------------------------
     height: 2.8rem;
 }
 
-.tabelaAnalise td:nth-child(2) input{
+.tabelaAnalise td:nth-child(2) input {
     width: 3.5rem;
 }
 
-.tabelaAnalise td:nth-child(7) input{
+.tabelaAnalise td:nth-child(7) input {
     width: 4.2rem;
 }
 
 .tabelaAnalise td:not(:global(.botoes_acoes)) button {
-    height: 3.4rem;
+    height: 2.8rem;
+    width: 100%;
 }
 
-.tabelaAnalise th{
-    word-wrap: break-word; 
+.tabelaAnalise th:not(:first-child):not(:last-child) {
+    word-wrap: break-word;
     width: 2rem;
     font-size: 0.7rem;
+}
+
+@media(max-width: 1280px) {
+    .tabelaRisco_wrapper {
+        max-width: 95vw;
+        max-height: 75vh;
+        display: block;
+    }
+
+    /* ---------- RISCO --------- */
+
+    .tabelaRisco td input,
+    .tabelaRisco td select,
+    .tabelaRisco td textarea,
+    .tabelaRisco td:not(:global(.botoes_acoes)) button {
+        height: 3rem;
+    }
+
+    .tabelaRisco td.riscoTdArea select,
+    .tabelaRisco td.riscoTdItem select {
+        max-width: 8rem;
+        min-width: 8rem;
+    }
+
+    /* -------- ANALISE -------- */
+    .tabelaAnalise th:not(:first-child):not(:last-child) {
+        font-size: 0.6rem;
+    }
+
+    /* --------- IMPACTO ------- */
+    .tabelaImpacto td:not(:first-child) select,
+    .tabelaImpacto td textarea,
+    .tabelaImpacto td input,
+    .tabelaImpacto td:not(:global(.botoes_acoes)) button {
+        height: 3rem;
+    }
+
+    .tabelaImpacto td.impactoTdDescricao,
+    .tabelaImpacto td.impactoTdDescricao textarea {
+        font-size: 0.6rem;
+    }
+
+    .tabelaImpacto td.impactoTdRisco select {
+        width: 8rem;
+    }
+
+    /* ---------PLANO --------- */
+    .tabelaPlano td:nth-child(2) select,
+    .tabelaPlano td:nth-child(3) textarea,
+    .tabelaPlano td:not(:global(.botoes_acoes)) button {
+        height: 3rem;
+    }
+
+    /* ---------AUDIT--------- */
+    .tabelaAudit th.auditThImpacto,
+    .tabelaAudit td.auditTdComparacao {
+        font-size: 0.6rem;
+    }
+
+    .tabelaAudit td textarea,
+    .tabelaAudit td input,
+    .tabelaAudit td:not(:global(.botoes_acoes)) button {
+        height: 3rem
+    }
 }

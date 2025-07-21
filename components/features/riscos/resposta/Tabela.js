@@ -103,7 +103,7 @@ const TabelaPlanos = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2>Risk Response Planning</h2>
+            <h2 className="smallTitle">Risk Response Planning</h2>
             {exibirModal != null && (
                 <Modal objeto={{
                     titulo: modalLabels[exibirModal],
@@ -128,7 +128,7 @@ const TabelaPlanos = () => {
 
             <div className={styles.tabelaRisco_container}>
                 <div className={styles.tabelaRisco_wrapper}>
-                    <table className={styles.tabelaPlano}>
+                    <table className={`${styles.tabelaPlano} tabela`}>
                         <thead>
                             <tr>
                                 <th>Risk</th>
