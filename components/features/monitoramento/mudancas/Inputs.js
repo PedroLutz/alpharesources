@@ -75,14 +75,14 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
 
     return (
         <tr>
-            <td id={styles.mudancasData}>
+            <td className={styles.mudancasData}>
                 <input type="date"
                     value={obj.data}
                     name='data'
                     onChange={handleChange}
                     ref={el => (camposRef.current.data = el)} />
             </td>
-            <td>
+            <td className={styles.mudancasArea}>
                 <select
                     name="area"
                     onChange={handleChange}
@@ -120,7 +120,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.item_config = el)}
                 />
             </td>
-            <td id={styles.mudancasMudanca}>
+            <td className={styles.mudancasMudanca}>
                 <textarea
                     name="mudanca"
                     onChange={handleChange}
@@ -129,7 +129,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.mudanca = el)}
                 />
             </td>
-            <td id={styles.mudancasJustificativa}>
+            <td className={styles.mudancasJustificativa}>
                 <textarea
                     name="justificativa"
                     onChange={handleChange}
@@ -138,7 +138,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.justificativa = el)}
                 />
             </td>
-            <td id={styles.mudancasImpacto}>
+            <td className={styles.mudancasImpacto}>
                 <textarea
                     name="impacto"
                     onChange={handleChange}

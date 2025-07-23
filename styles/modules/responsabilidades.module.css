@@ -224,7 +224,7 @@
     .tabelaRaci_wrapper {
         max-width: 95vw;
         display: inline-block;
-        max-height: 45rem;
+        max-height: 75vh;
     }
 
     .tabelaRaci td select,

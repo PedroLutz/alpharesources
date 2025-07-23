@@ -131,7 +131,7 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2>Change Log</h2>
+            <h2 className="smallTitle">Change Log</h2>
 
             {exibirModal != null && (
                 <Modal objeto={{
@@ -157,7 +157,7 @@ const Tabela = () => {
 
             <div className={styles.container}>
                 <div className={styles.wrapper}>
-                    <table className={styles.tabela_mudancas}>
+                    <table className={`tabela ${styles.tabela_mudancas}`}>
                         <thead>
                             <tr>
                                 <th>Date</th>
@@ -190,13 +190,13 @@ const Tabela = () => {
                                         />
                                     ) : (
                                         <tr>
-                                            <td id={styles.mudancasData}>{mudanca.data}</td>
+                                            <td className={styles.mudancasData}>{mudanca.data}</td>
                                             <td>{mudanca.area}</td>
                                             <td>{mudanca.tipo}</td>
                                             <td>{mudanca.item_config}</td>
-                                            <td id={styles.mudancasMudanca}>{mudanca.mudanca}</td>
-                                            <td id={styles.mudancasJustificativa}>{mudanca.justificativa}</td>
-                                            <td id={styles.mudancasImpacto}>{mudanca.impacto}</td>
+                                            <td className={styles.mudancasMudanca}>{mudanca.mudanca}</td>
+                                            <td className={styles.mudancasJustificativa}>{mudanca.justificativa}</td>
+                                            <td className={styles.mudancasImpacto}>{mudanca.impacto}</td>
                                             <td>{mudanca.aprovado ? 'Approved' : 'Rejected'}</td>
                                             <td>{mudanca.status}</td>
                                             <td>{mudanca.responsavel_solicitacao}</td>

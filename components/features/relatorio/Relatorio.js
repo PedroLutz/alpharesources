@@ -70,7 +70,7 @@ const Relatorio = () => {
 
     const busca = async () => {
         setLoading(true)
-        if(mes == ""){
+        if (mes == "") {
             setExibirModal(true);
             setLoading(false);
             return;
@@ -139,13 +139,13 @@ const Relatorio = () => {
             const getLastDayOfMonth = (monthYear) => {
                 console.log(monthYear)
                 const { year, month } = monthYear;
-                
+
                 const lastDay = new Date(year, month, 0).getDate(); // Dia 0 do próximo mês retorna o último dia do mês atual
                 return new Date(year, month - 1, lastDay); // month - 1 porque os meses são indexados de 0 a 11
             };
             var obj = { area: area, state: objSituacao[area] }
 
-            const monthYear = {year: format(mes, 'MM-yyyy').split("-")[1], month: format(mes, 'MM-yyyy').split("-")[0]}
+            const monthYear = { year: format(mes, 'MM-yyyy').split("-")[1], month: format(mes, 'MM-yyyy').split("-")[0] }
             const hoje = getLastDayOfMonth(monthYear).toISOString();
 
             //executing
@@ -196,6 +196,7 @@ const Relatorio = () => {
     const generatePDF = async () => {
         const html2pdf = (await import('html2pdf.js')).default;
         const element = document.querySelector('.report');
+        element.style.maxWidth = "";
         if (!element) return;
 
         document.querySelectorAll('textarea').forEach((textarea) => {
@@ -312,216 +313,219 @@ const Relatorio = () => {
                     <button className="botao-padrao" onClick={() => setFlagExport(true)}>Export</button>)}
             </div>
             {showTable && (
-                <div className={`report`} style={{ padding: '1rem' }}>
-                    <div className={styles.report}>
+                <div className={styles.report_container}>
+                    <div className={`report`} style={{ padding: '1rem', maxWidth: '95vw' }}>
+                        <div className={styles.report}>
 
-                        <React.Fragment>
-                            <div style={{ display: 'flex' }}>
-                                <table className={`tableInformation ${styles.tableInformation}`}>
-                                    <thead>
-                                        <tr>
-                                            <th colSpan={2}>PROJECT INFORMATION</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>Project Name</td>
-                                            <td>Alpha Scuderia</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Month of report</td>
-                                            <td>{format(mes, 'MM/yyyy')}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Projected Date of Completion</td>
-                                            <td><input type="date"
-                                                id='dateCompletion' />
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Project Manager</td>
-                                            <td><input name='manager'
-                                                id='manager' />
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                <div style={{ width: '90%', textAlign: 'center' }}>
-                                    <img src={'/images/logo.png'} alt="Logo" style={{ width: '200px', margin: '-10px' }} />
-                                </div>
-                            </div>
-
-                            <table style={{ marginTop: '2rem' }} className={`tableProgress ${styles.tableProgress}`}>
-                                <thead>
-                                    <tr>
-                                        <th colSpan={2}>TASK ANALYSIS</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Tasks initiated</td>
-                                        <td>{tarefasIniciadas || '-'}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Tasks in execution</td>
-                                        <td>{tarefasEmAndamento || '-'}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Tasks finished</td>
-                                        <td>{tarefasConcluidas || '-'}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Risks</td>
-                                        <td>{riscos || '-'}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Issues</td>
-                                        <td><textarea /></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-
-                            {tarefasConcluidas && (
-                                <table className={`tableResources ${styles.tableResources}`} style={{ marginTop: '2rem' }}>
-                                    <thead>
-                                        <tr>
-                                            <th colSpan={3}>WORK COMPLETED VERSUS RESOURCES USED</th>
-                                        </tr>
-                                        <tr>
-                                            <th>Finished task</th>
-                                            <th>Planned resources</th>
-                                            <th>Used resources</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {tarefasConcluidas.split(', ').map((tarefa, index) => (
-                                            <tr key={index}>
-                                                <td style={{ textAlign: 'left', fontSize: 'small', padding: '0.3rem' }}>{tarefa}</td>
-                                                <td><textarea style={{ textAlign: 'left', fontSize: 'small', padding: '0.3rem' }} /></td>
-                                                <td><textarea style={{ textAlign: 'left', fontSize: 'small', padding: '0.3rem' }} /></td>
+                            <React.Fragment>
+                                <div style={{ display: 'flex' }}>
+                                    <table className={`tableInformation ${styles.tableInformation}`}>
+                                        <thead>
+                                            <tr>
+                                                <th colSpan={2}>PROJECT INFORMATION</th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            )}
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Project Name</td>
+                                                <td>Alpha Scuderia</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Month of report</td>
+                                                <td>{format(mes, 'MM/yyyy')}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Projected Date of Completion</td>
+                                                <td><input type="date"
+                                                    id='dateCompletion' />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Project Manager</td>
+                                                <td><input name='manager'
+                                                    id='manager' />
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <div style={{ width: '90%', textAlign: 'center' }}>
+                                        <img src={'/images/logo.png'} alt="Logo" style={{ width: '200px', margin: '-10px' }} />
+                                    </div>
+                                </div>
 
-
-                            <table className={`tableStatus ${styles.tableStatus}`} style={{ marginTop: '2rem' }}>
-                                <thead>
-                                    <tr>
-                                        <th colSpan={5}>KPI ANALYSIS</th>
-                                    </tr>
-                                    <tr>
-                                        <th>Scope</th>
-                                        <th>Schedule</th>
-                                        <th>Cost</th>
-                                        <th>Risk</th>
-                                        <th>Quality</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        {Object.keys(objKpis).map((key, index) => (
-                                            <td className='status_td' key={index}>
-                                                <select
-                                                    name={`${key}`}
-                                                    style={{ textAlign: 'center' }}
-                                                    value={kpi[key]}
-                                                    onChange={(e) => handleChange(e, kpi, setKpi)}>
-                                                    <option value='Safe'>Safe</option>
-                                                    <option value='Requires attention'>Requires attention</option>
-                                                    <option value='Unsafe'>Unsafe</option>
-                                                </select>
-                                            </td>
-                                        ))}
-                                    </tr>
-                                    <tr>
-                                        {Object.keys(objKpis).map((key, index) => (
-                                            <td key={index}>
-                                                <textarea />
-                                            </td>
-                                        ))}
-                                    </tr>
-                                </tbody>
-                            </table>
-
-                            <table className={`tableDetails ${styles.tableDetails}`} style={{ marginTop: '2rem' }}>
-                                <thead>
-                                    <tr>
-                                        <th colSpan={4}>AREA ANALYSIS (PLANNED VERSUS ACTUAL PROGRESS)</th>
-                                    </tr>
-                                    <tr>
-                                        <th>Area</th>
-                                        <th>Situation</th>
-                                        <th>Status</th>
-                                        <th>Notes</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {areaAnalysis.map((area, index) => (
-                                        <tr key={index}>
-                                            <td>{area.area}</td>
-                                            <td
-                                                className={
-                                                    area.state === 'To Begin' ? 'status_td unsafe' : (
-                                                        area.state === 'Complete' ? 'status_td' : (
-                                                            area.state === 'Hold' ? 'status_td hold' : 'status_td attention'
-                                                        )
-                                                    )
-                                                }>{area.state}</td>
-                                            <td
-                                                className={
-                                                    area.status === 'Overdue' ? 'status_td unsafe' : 'status_td'
-                                                }>{area.status}</td>
-                                            <td>
-                                                <textarea />
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-
-                            {tarefasPlanejadas && (
                                 <table style={{ marginTop: '2rem' }} className={`tableProgress ${styles.tableProgress}`}>
                                     <thead>
                                         <tr>
-                                            <th colSpan={2}>PREDICTIONS OF FUTURE PROJECT PERFORMANCE</th>
+                                            <th colSpan={2}>TASK ANALYSIS</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>Tasks planned for next month</td>
-                                            <td>{tarefasPlanejadas || '-'}</td>
+                                            <td>Tasks initiated</td>
+                                            <td>{tarefasIniciadas || '-'}</td>
                                         </tr>
                                         <tr>
-                                            <td>Comments</td>
+                                            <td>Tasks in execution</td>
+                                            <td>{tarefasEmAndamento || '-'}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Tasks finished</td>
+                                            <td>{tarefasConcluidas || '-'}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Risks</td>
+                                            <td>{riscos || '-'}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Issues</td>
                                             <td><textarea /></td>
                                         </tr>
                                     </tbody>
                                 </table>
-                            )}
+
+                                {tarefasConcluidas && (
+                                    <table className={`tableResources ${styles.tableResources}`} style={{ marginTop: '2rem' }}>
+                                        <thead>
+                                            <tr>
+                                                <th colSpan={3}>WORK COMPLETED VERSUS RESOURCES USED</th>
+                                            </tr>
+                                            <tr>
+                                                <th>Finished task</th>
+                                                <th>Planned resources</th>
+                                                <th>Used resources</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {tarefasConcluidas.split(', ').map((tarefa, index) => (
+                                                <tr key={index}>
+                                                    <td style={{ textAlign: 'left', fontSize: 'small', padding: '0.3rem' }}>{tarefa}</td>
+                                                    <td><textarea style={{ textAlign: 'left', fontSize: 'small', padding: '0.3rem' }} /></td>
+                                                    <td><textarea style={{ textAlign: 'left', fontSize: 'small', padding: '0.3rem' }} /></td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                )}
 
 
-                            <table style={{ marginTop: '2rem' }} className={`tableProgress ${styles.tableProgress}`}>
-                                <thead>
-                                    <tr>
-                                        <th colSpan={2}>PROJECT CHANGES</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Changes</td>
-                                        <td><textarea /></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Lessons learned</td>
-                                        <td><textarea /></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </React.Fragment>
+                                <table className={`tableStatus ${styles.tableStatus}`} style={{ marginTop: '2rem' }}>
+                                    <thead>
+                                        <tr>
+                                            <th colSpan={5}>KPI ANALYSIS</th>
+                                        </tr>
+                                        <tr>
+                                            <th>Scope</th>
+                                            <th>Schedule</th>
+                                            <th>Cost</th>
+                                            <th>Risk</th>
+                                            <th>Quality</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            {Object.keys(objKpis).map((key, index) => (
+                                                <td className='status_td' key={index}>
+                                                    <select
+                                                        name={`${key}`}
+                                                        style={{ textAlign: 'center' }}
+                                                        value={kpi[key]}
+                                                        onChange={(e) => handleChange(e, kpi, setKpi)}>
+                                                        <option value='Safe'>Safe</option>
+                                                        <option value='Requires attention'>Requires attention</option>
+                                                        <option value='Unsafe'>Unsafe</option>
+                                                    </select>
+                                                </td>
+                                            ))}
+                                        </tr>
+                                        <tr>
+                                            {Object.keys(objKpis).map((key, index) => (
+                                                <td key={index}>
+                                                    <textarea />
+                                                </td>
+                                            ))}
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <table className={`tableDetails ${styles.tableDetails}`} style={{ marginTop: '2rem' }}>
+                                    <thead>
+                                        <tr>
+                                            <th colSpan={4}>AREA ANALYSIS (PLANNED VERSUS ACTUAL PROGRESS)</th>
+                                        </tr>
+                                        <tr>
+                                            <th>Area</th>
+                                            <th>Situation</th>
+                                            <th>Status</th>
+                                            <th>Notes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {areaAnalysis.map((area, index) => (
+                                            <tr key={index}>
+                                                <td>{area.area}</td>
+                                                <td
+                                                    className={
+                                                        area.state === 'To Begin' ? 'status_td unsafe' : (
+                                                            area.state === 'Complete' ? 'status_td' : (
+                                                                area.state === 'Hold' ? 'status_td hold' : 'status_td attention'
+                                                            )
+                                                        )
+                                                    }>{area.state}</td>
+                                                <td
+                                                    className={
+                                                        area.status === 'Overdue' ? 'status_td unsafe' : 'status_td'
+                                                    }>{area.status}</td>
+                                                <td>
+                                                    <textarea />
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+
+                                {tarefasPlanejadas && (
+                                    <table style={{ marginTop: '2rem' }} className={`tableProgress ${styles.tableProgress}`}>
+                                        <thead>
+                                            <tr>
+                                                <th colSpan={2}>PREDICTIONS OF FUTURE PROJECT PERFORMANCE</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Tasks planned for next month</td>
+                                                <td>{tarefasPlanejadas || '-'}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Comments</td>
+                                                <td><textarea /></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                )}
+
+
+                                <table style={{ marginTop: '2rem' }} className={`tableProgress ${styles.tableProgress}`}>
+                                    <thead>
+                                        <tr>
+                                            <th colSpan={2}>PROJECT CHANGES</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Changes</td>
+                                            <td><textarea /></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Lessons learned</td>
+                                            <td><textarea /></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </React.Fragment>
+                        </div>
                     </div>
                 </div>
+
             )}
         </div>
     )

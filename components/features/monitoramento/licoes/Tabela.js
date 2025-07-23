@@ -125,7 +125,7 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2>Lessons learned</h2>
+            <h2 className="smallTitle">Lessons learned</h2>
 
             {exibirModal != null && (
                 <Modal objeto={{
@@ -151,7 +151,7 @@ const Tabela = () => {
 
             <div className={styles.container}>
                 <div className={styles.wrapper}>
-                    <table className={styles.tabela_licoes}>
+                    <table className={`tabela ${styles.tabela_licoes}`}>
                         <thead>
                             <tr>
                                 <th>Date</th>
@@ -178,11 +178,11 @@ const Tabela = () => {
                                         />
                                     ) : (
                                         <tr>
-                                            <td id={styles.licoesData}>{licao.data}</td>
-                                            <td id={styles.licoesTipo}>{licao.tipo}</td>
-                                            <td id={styles.licoesSituacao}>{licao.situacao}</td>
-                                            <td id={styles.licoesAprendizado}>{licao.aprendizado}</td>
-                                            <td id={styles.licoesAcao}>{licao.acao}</td>
+                                            <td className={styles.licoesData}>{licao.data}</td>
+                                            <td className={styles.licoesTipo}>{licao.tipo}</td>
+                                            <td className={styles.licoesSituacao}>{licao.situacao}</td>
+                                            <td className={styles.licoesAprendizado}>{licao.aprendizado}</td>
+                                            <td className={styles.licoesAcao}>{licao.acao}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(licao)} disabled={!isAdmin}>❌</button>
                                                 <button onClick={() => {

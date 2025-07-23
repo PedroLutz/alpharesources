@@ -133,6 +133,7 @@ RESPONSIVIDADE
 @media (max-width: 1280px) {
     .tabelaComunicacao_wrapper {
         max-width: 95vw;
+        max-height: 75vh;
     }
 
     .tabelaComunicacao td:not(:global(.botoes_acoes)) button {

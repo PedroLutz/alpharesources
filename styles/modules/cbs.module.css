@@ -15,7 +15,7 @@
 @media (max-width: 1280px) {
     .tabela_cbs_wrapper {
         max-width: 95vw;
-        max-height: 45rem;
+        max-height: 75vh;
         display: block;
     }
 }

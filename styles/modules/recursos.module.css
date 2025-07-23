@@ -8,16 +8,6 @@
     display: block;
 }
 
-.tabela_financas thead {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    border-style: solid;
-    border-width: 0.1rem;
-    border-color: rgb(0, 0, 0);
-    background: black;
-}
-
 .tabela_financas th:nth-child(6) {
     width: 4rem;
 }
@@ -50,7 +40,7 @@
 @media (max-width: 1280px) {
     .tabela_financas_wrapper {
         max-width: 95vw;
-        max-height: 45rem;
+        max-height: 75vh;
         display: block;
     }
 }

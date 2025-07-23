@@ -1,25 +1,36 @@
-.tabela_financas_container{
+.tabela_financas_container {
     overflow: auto;
-    scrollbar-gutter: stable; /* mantém espaço fixo da scrollbar */
+    scrollbar-gutter: stable;
+    /* mantém espaço fixo da scrollbar */
 }
 
-.tabela_financas_wrapper{
+.tabela_financas_wrapper {
     max-height: 45rem;
     max-width: 95vw;
     display: inline-block;
 }
 
-.tabela_financas td.tdDescricao{
+.tabela_financas td.tdDescricao {
     width: 10rem;
 }
 
-.tabela_financas td.tdData, .tabela_financas td.tdData input, 
-.tabela_financas td.tdOrigem, .tabela_financas td.tdOrigem input, 
-.tabela_financas td.tdDestino, .tabela_financas td.tdDestino input,
-.tabela_financas td.tdArea select{
+.tabela_financas td.tdData,
+.tabela_financas td.tdData input,
+.tabela_financas td.tdOrigem,
+.tabela_financas td.tdOrigem input,
+.tabela_financas td.tdDestino,
+.tabela_financas td.tdDestino input,
+.tabela_financas td.tdArea select {
     width: 8rem;
 }
 
-.tabela_financas td.tdValor, .tabela_financas td.tdValor input{
+.tabela_financas td.tdValor,
+.tabela_financas td.tdValor input {
     width: 6rem;
+}
+
+@media(max-width: 1280px) {
+    .tabela_financas_wrapper {
+        max-height: 75vh;
+    }
 }

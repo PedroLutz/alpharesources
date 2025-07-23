@@ -55,14 +55,14 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
 
     return (
         <tr>
-            <td id={styles.licoesData}>
+            <td className={styles.licoesData}>
                 <input type="date"
                     value={obj.data}
                     name='data'
                     onChange={handleChange}
                     ref={el => (camposRef.current.data = el)} />
             </td>
-            <td id={styles.licoesTipo}>
+            <td className={styles.licoesTipo}>
                 <select
                     value={obj.tipo}
                     name='tipo'
@@ -74,7 +74,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     <option value='Tacit'>Tacit</option>
                 </select>
             </td>
-            <td id={styles.licoesSituacao}>
+            <td className={styles.licoesSituacao}>
                 <textarea
                     name="situacao"
                     onChange={handleChange}
@@ -83,7 +83,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.situacao = el)}
                 />
             </td>
-            <td id={styles.licoesAprendizado}>
+            <td className={styles.licoesAprendizado}>
                 <textarea
                     name="aprendizado"
                     onChange={handleChange}
@@ -92,7 +92,7 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.aprendizado = el)}
                 />
             </td>
-            <td id={styles.licoesAcao}>
+            <td className={styles.licoesAcao}>
                 <textarea
                     name="acao"
                     onChange={handleChange}
