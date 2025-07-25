@@ -83,8 +83,11 @@ const Menu = () => {
                 {/*Item Risco*/}
                 <span>
                     <Link href="/pags/risk/risks">
-                        <img src={'/images/risk_logo.png'} alt="Planning Logo" className={logoItem} />
-                        <br />Risk<br />Management
+                        <div>
+                    <img src={'/images/risk_logo.png'} alt="Planning Logo" className={logoItem} />
+                        </div>
+                        
+                        Risk<br />Management
                     </Link>
                 </span>
                 {/* Item Report */}

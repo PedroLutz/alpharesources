@@ -72,6 +72,30 @@
   display: inline-block;
 }
 
+@media (orientation: landscape) and (max-width: 1024px) {
+  .containerMenu {
+    height: auto;
+    padding: 20px 10px;
+  }
+
+  .menuGroup {
+  display: flex;
+  margin-bottom: 0;
+}
+
+  .menuGroup span{
+    height: 7rem;
+  }
+
+  .menuGroup span a {
+    font-size: 0.7rem;
+  }
+
+  .menuGroup span div img {
+    width: 50px;
+  }
+}
+
 @media (max-width: 768px) {
   .containerMenu {
     height: auto;

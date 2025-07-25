@@ -195,24 +195,44 @@ const Relatorio = () => {
 
     const generatePDF = async () => {
         const html2pdf = (await import('html2pdf.js')).default;
-        const element = document.querySelector('.report');
+        const element = document.querySelector('.reportToPrint');
         element.style.maxWidth = "";
         if (!element) return;
+
+        const innerReport = document.getElementById('innerReport');
+        innerReport.style.width = '60rem';
+
+        document.querySelectorAll('td').forEach((td) => {
+            td.style.fontSize = 'small';
+        });
+
+        document.querySelectorAll('th').forEach((th) => {
+            th.style.fontSize = 'small';
+        });
+
+        document.querySelectorAll('img').forEach((img) => {
+            img.style.width = '200px';
+            img.style.margin = '-10px';
+        });
+        
+
+        document.getElementsByClassName('alphaLogo').forEach((a) => {
+            a.style.width = '90%';
+        })
 
         document.querySelectorAll('textarea').forEach((textarea) => {
             const div = document.createElement('div')
             div.innerText = textarea.value
             div.style.whiteSpace = 'pre-wrap'
             div.style.wordBreak = 'break-word'
+            div.style.minHeight = '20px'
             div.style.border = 'none'
-            div.style.minHeight = '50px'
             div.style.paddingLeft = '2px'
             div.style.paddingRight = '2px'
             div.style.fontFamily = 'inherit'
             div.style.textAlign = 'left'
             div.style.fontSize = 'small'
-            div.style.width = `${textarea.offsetWidth}px`
-            div.style.height = `${textarea.offsetHeight + 20}px`
+            div.style.width = `100%`
 
             textarea.style.display = 'none'
             textarea.parentNode.insertBefore(div, textarea.nextSibling)
@@ -225,7 +245,7 @@ const Relatorio = () => {
             div.style.wordBreak = 'break-word'
             div.style.border = 'none'
             div.style.fontFamily = 'inherit'
-            div.style.fontSize = 'inherit'
+            div.style.fontSize = 'small'
             div.style.color = 'black'
             div.style.height = `20px`
             div.style.textAlign = 'center'
@@ -248,7 +268,7 @@ const Relatorio = () => {
             div.style.wordBreak = 'break-word'
             div.style.border = 'none'
             div.style.fontFamily = 'inherit'
-            div.style.fontSize = 'inherit'
+            div.style.fontSize = 'small'
             div.style.color = 'black'
             div.style.height = `25px`
             div.style.textAlign = 'left'
@@ -292,7 +312,7 @@ const Relatorio = () => {
                 }} />
             )}
 
-            <h2>Status Report Generator</h2>
+            <h2 className="smallTitle">Status Report Generator</h2>
             {loading && <Loading />}
             <div className={styles.menu}>
                 <h3>Select Month</h3>
@@ -314,8 +334,8 @@ const Relatorio = () => {
             </div>
             {showTable && (
                 <div className={styles.report_container}>
-                    <div className={`report`} style={{ padding: '1rem', maxWidth: '95vw' }}>
-                        <div className={styles.report}>
+                    <div className={`reportToPrint`} style={{ padding: '1rem', maxWidth: '95vw' }}>
+                        <div className={styles.report} id="innerReport">
 
                             <React.Fragment>
                                 <div style={{ display: 'flex' }}>
@@ -348,8 +368,8 @@ const Relatorio = () => {
                                             </tr>
                                         </tbody>
                                     </table>
-                                    <div style={{ width: '90%', textAlign: 'center' }}>
-                                        <img src={'/images/logo.png'} alt="Logo" style={{ width: '200px', margin: '-10px' }} />
+                                    <div className={styles.alphaLogo}>
+                                        <img src={'/images/logo.png'} alt="Logo" />
                                     </div>
                                 </div>
 
@@ -378,7 +398,7 @@ const Relatorio = () => {
                                         </tr>
                                         <tr>
                                             <td>Issues</td>
-                                            <td><textarea /></td>
+                                            <td><textarea/></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -398,9 +418,9 @@ const Relatorio = () => {
                                         <tbody>
                                             {tarefasConcluidas.split(', ').map((tarefa, index) => (
                                                 <tr key={index}>
-                                                    <td style={{ textAlign: 'left', fontSize: 'small', padding: '0.3rem' }}>{tarefa}</td>
-                                                    <td><textarea style={{ textAlign: 'left', fontSize: 'small', padding: '0.3rem' }} /></td>
-                                                    <td><textarea style={{ textAlign: 'left', fontSize: 'small', padding: '0.3rem' }} /></td>
+                                                    <td style={{ textAlign: 'left', padding: '0.3rem' }}>{tarefa}</td>
+                                                    <td><textarea/></td>
+                                                    <td><textarea/></td>
                                                 </tr>
                                             ))}
                                         </tbody>

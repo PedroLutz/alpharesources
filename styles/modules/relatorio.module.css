@@ -1,4 +1,4 @@
-.report_container{
+.report_container {
     overflow: auto;
 }
 
@@ -25,17 +25,17 @@
     margin-right: 0.5rem;
 }
 
-.datePicker_calendar{
+.datePicker_calendar {
     font-family: 'Montserrat' !important;
     font-size: 0.7rem !important;
 }
 
 .menu :global(.react-datepicker__month-text:hover),
 .menu :global(.react-datepicker__month-text--today:hover) {
-  background-color: #ffc3f7 !important;
+    background-color: #ffc3f7 !important;
 }
 
-.menu :global(.react-datepicker__month-text--keyboard-selected){
+.menu :global(.react-datepicker__month-text--keyboard-selected) {
     background-color: #ff75ef !important;
 }
 
@@ -44,10 +44,23 @@
     border-radius: 2rem;
     padding: 1.5rem;
     width: 60rem;
-    
 }
 
-.tableInformation, .tableProgress, .tableStatus, .tableDetails, .tableResources{
+.alphaLogo {
+    width: 90%;
+    text-align: center
+}
+
+.alphaLogo img{
+    width: 200px;
+    margin: -10px
+}
+
+.tableInformation,
+.tableProgress,
+.tableStatus,
+.tableDetails,
+.tableResources {
     border-color: black;
     border-style: solid;
     border-width: 0.1rem;
@@ -58,11 +71,18 @@
     width: 60%
 }
 
-.tableProgress, .tableStatus, .tableDetails, .tableResources {
+.tableProgress,
+.tableStatus,
+.tableDetails,
+.tableResources {
     width: 100%
 }
 
-.tableInformation th, .tableProgress th, .tableResources thead tr:first-child, .tableStatus thead tr:first-child, .tableDetails thead tr:first-child {
+.tableInformation th,
+.tableProgress th,
+.tableResources thead tr:first-child,
+.tableStatus thead tr:first-child,
+.tableDetails thead tr:first-child {
     background-color: #ff00e3;
     border-color: black;
     font-weight: bolder;
@@ -71,7 +91,9 @@
     color: white;
 }
 
-.tableStatus thead tr:last-child th, .tableDetails thead tr:last-child th, .tableResources thead tr:last-child th {
+.tableStatus thead tr:last-child th,
+.tableDetails thead tr:last-child th,
+.tableResources thead tr:last-child th {
     border-color: black;
     font-weight: bold;
     border-style: solid;
@@ -82,14 +104,19 @@
     text-align: center;
 }
 
-.tableInformation tr td:first-child, .tableProgress tr td:not(#notPink):first-child {
+.tableInformation tr td:first-child,
+.tableProgress tr td:not(#notPink):first-child {
     background-color: #ffccf9;
     font-weight: bold;
     width: 10rem;
     text-align: left;
 }
 
-.tableInformation td, .tableProgress td, .tableStatus td, .tableDetails td, .tableResources td {
+.tableInformation td,
+.tableProgress td,
+.tableStatus td,
+.tableDetails td,
+.tableResources td {
     border-color: black;
     border-style: solid;
     border-width: 0.1rem;
@@ -98,35 +125,46 @@
     text-align: left;
 }
 
-.tableStatus td, .tableDetails td{
+.tableStatus td,
+.tableDetails td {
     text-align: center;
 }
 
-.tableResources td{
+.tableResources td {
     align-items: center;
     text-align: center;
     padding: 0.1rem;
 }
 
-.tableDetails td:nth-child(1){
+.tableDetails td:nth-child(1) {
     width: 20%;
 }
 
-.tableDetails td:nth-child(2), .tableDetails td:nth-child(3){
+.tableDetails td:nth-child(2),
+.tableDetails td:nth-child(3) {
     width: 11%;
 }
 
-.tableInformation td, .tableInformation td input,
-.tableProgress td, .tableProgress td textarea,
-.tableStatus td, .tableStatus td textarea, .tableStatus td select,
-.tableResources td textarea, .tableResources td textarea, 
-.tableDetails td, .tableDetails input{
+.tableInformation td,
+.tableInformation td input,
+.tableProgress td,
+.tableProgress td textarea,
+.tableStatus td,
+.tableStatus td textarea,
+.tableStatus td select,
+.tableResources td,
+.tableResources td textarea,
+.tableDetails td,
+.tableDetails input {
     font-size: small;
 }
 
-.tableInformation td input, .tableProgress td textarea, 
-.tableStatus td textarea, .tableStatus td select, .tableResources td textarea,
-.tableDetails td textarea{
+.tableInformation td input,
+.tableProgress td textarea,
+.tableStatus td textarea,
+.tableStatus td select,
+.tableResources td textarea,
+.tableDetails td textarea {
     width: 12rem;
     border-width: 0.1rem;
     border-style: solid;
@@ -139,34 +177,88 @@
     margin: 0.3rem;
 }
 
-.tableResources td:first-child{
+.tableResources td:first-child {
     max-width: 13rem;
     width: 13rem;
     min-width: 13rem;
 }
 
-.tableResources td textarea{
+.tableResources td textarea {
     min-width: 21.4rem;
     height: 2.5rem;
 }
 
-.tableStatus td select{
+.tableStatus td select {
     width: 9.5rem;
 }
 
-.tableProgress td textarea, .tableStatus td textarea, .tableDetails td textarea {
+.tableProgress td textarea,
+.tableStatus td textarea,
+.tableDetails td textarea {
     width: 98%;
     resize: none;
     margin: 0.1rem;
     height: 2rem;
 }
 
-.tableStatus td textarea, .tableDetails td textarea{
+.tableStatus td textarea,
+.tableDetails td textarea {
     width: 92%;
     height: 3rem;
 }
 
-.tableDetails td textarea{
+.tableDetails td textarea {
     width: 95%;
     height: 2rem;
+}
+
+@media(max-width: 1280px) {
+    .report {
+        width: 40rem;
+    }
+
+    .alphaLogo img{
+        width: 120px;
+        margin-top: 20px;
+    }
+
+    .tableInformation th,
+    .tableInformation td,
+    .tableInformation td input,
+    .tableProgress th,
+    .tableProgress td,
+    .tableProgress td textarea,
+    .tableStatus th,
+    .tableStatus td,
+    .tableStatus td textarea,
+    .tableStatus td select,
+    .tableResources th,
+    .tableResources td,
+    .tableResources td textarea,
+    .tableDetails th,
+    .tableDetails td,
+    .tableDetails td textarea {
+        font-size: 0.6rem;
+    }
+
+    .tableProgress td textarea,
+    .tableStatus td textarea,
+    .tableResources td textarea{
+        height: 2rem;
+    }
+
+    .tableResources td textarea{
+        min-width: 10.6rem;
+        max-width: 10.6rem;
+    }
+
+    .tableProgress td textarea,
+    .tableDetails td textarea {
+        width: 95%;
+    }
+
+    .tableStatus td textarea,
+    .tableStatus td select{
+        width: 95%;
+    }
 }
