@@ -6,12 +6,13 @@
     "start": "next start"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.53.0",
     "bcryptjs": "^3.0.2",
     "chroma": "^0.0.1",
     "chroma-js": "^3.1.1",
     "cookie": "^1.0.2",
     "date-fns-tz": "^2.0.0",
-    "dotenv": "^16.4.5",
+    "dotenv": "^17.2.1",
     "html2canvas": "^1.4.1",
     "html2pdf": "^0.0.11",
     "html2pdf.js": "^0.10.3",
@@ -21,6 +22,7 @@
     "mongodb": "^4.17.1",
     "mongoose": "^7.6.7",
     "next": "^14.0.3",
+    "next-auth": "^4.24.11",
     "react": "^18.3.1",
     "react-datepicker": "^8.4.0",
     "react-dom": "^18.2.0",

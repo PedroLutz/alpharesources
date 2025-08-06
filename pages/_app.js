@@ -1,44 +1,56 @@
+'use client';
 import { useContext } from 'react';
 import Head from 'next/head';
 import { useState, useEffect } from "react";
 import { TituloProvider, TituloContext } from '../contexts/TituloContext';
-import { AuthProvider, AuthContext } from '../contexts/AuthContext';
 import Footer from '../components/ui/Footer';
-import FormularioLogin from '../components/features/Login'
-import MobileBlock from '../components/ui/MobileBlock';
+import { useRouter } from 'next/router';
+import useAuth from '../hooks/useAuth';
+
+import { AuthProvider } from '../contexts/AuthProvider';
 
 import '../styles/global.css';
 import '../styles/graficos.css';
 import '../styles/botoes.css';
 import '../styles/tabela.css';
 
+function AuthGuard({ children }) {
+  const router = useRouter();
+  const { user, loading } = useAuth();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!loading && isMounted && !user) {
+      router.replace('/login');
+    }
+  }, [loading, isMounted, user]);
+
+  if (!isMounted || loading) {
+    return null;
+  }
+
+  return children;
+}
+
 function MyApp({ Component, pageProps }) {
   return (
     <AuthProvider>
-      <TituloProvider>
-        <InnerApp Component={Component} pageProps={pageProps} />
-      </TituloProvider>
+      <AuthGuard>
+        <TituloProvider>
+          <InnerApp Component={Component} pageProps={pageProps} />
+        </TituloProvider>
+      </AuthGuard>
     </AuthProvider>
   );
 }
 
 function InnerApp({ Component, pageProps }) {
   const { titulo } = useContext(TituloContext);
-  const { autenticado } = useContext(AuthContext);
   const title = `${titulo ? 'AM | ' + titulo : 'Alpha Management'}`
-  const [isMobile, setIsMobile] = useState(false);
-
-  // const handleResize = () => {
-  //   if (window.innerWidth < 900) {
-  //     setIsMobile(true)
-  //   } else {
-  //     setIsMobile(false)
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   window.addEventListener("resize", handleResize);
-  // })
 
   return (
     <div>
@@ -46,17 +58,8 @@ function InnerApp({ Component, pageProps }) {
         <title>{title}</title>
         <link rel="icon" href="/images/logo.png" />
       </Head>
-      {isMobile && <MobileBlock />}
-      {autenticado ? (
-        <>
-          <Component {...pageProps} />
-          <Footer />
-        </>
-      ) : (
-        <>
-          <FormularioLogin {...pageProps} />
-        </>
-      )}
+        <Component {...pageProps} />
+        <Footer />
     </div>
   );
 }
