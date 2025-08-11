@@ -28,6 +28,7 @@
 
 .new_inputs_color {
     display: flex;
+    align-items: center;
 }
 
 .new_inputs_color label{
@@ -36,7 +37,7 @@
 }
 
 .new_inputs_color input{
-    height: 1rem;
+    height: 1.5rem;
 }
 
 .new_inputs input{
