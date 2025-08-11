@@ -43,3 +43,5 @@ const handleReq = async (o) => {
     return { success: false, error: err.message || 'Request error' };
   }
 };
+
+export {handleReq};

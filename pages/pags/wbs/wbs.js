@@ -1,12 +1,10 @@
-import Tabela from '../../../components/features/wbs/Tabela';
-import PageWrapper from '../../../components/layout/WbsWrapper';
+import Main from '../../../components/features/n_wbs/Main';
+// import PageWrapper from '../../../components/layout/WbsWrapper';
 
 function Wbs() {
   return (
     <div>
-      <PageWrapper>
-        <Tabela/>
-      </PageWrapper>
+      <Main/>
     </div>
   );
 }
