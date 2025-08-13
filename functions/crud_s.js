@@ -41,7 +41,7 @@ const handleReq = async (o) => {
 const handleFetch = async (o) => {
   if (!o.table) throw new Error('Request done without a table!');
 
-  let url = `/api/${o.table}/${o.route}/all`;
+  let url = `/api/${o.table}/get/${o.query}`;
   let options = {
     method: 'GET',
     headers: { 

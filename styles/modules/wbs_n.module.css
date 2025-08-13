@@ -1,9 +1,15 @@
-.main_container {
+.main_container{
+    overflow-x: auto;
+}
+
+.main_wrapper {
     display: flex;
+    width: 95vw;
 }
 
 .wbs_container {
-    margin: 1rem;
+    margin: 0.5rem;
+    flex: 0 0 15rem;
 }
 
 .block {
@@ -88,7 +94,7 @@
 .area_label {
     font-weight: bold;
     padding: 0.5rem;
-    font-size: small;
+    font-size: 0.9rem;
 }
 
 .item_label {

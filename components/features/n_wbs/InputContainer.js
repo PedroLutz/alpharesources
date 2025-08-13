@@ -1,22 +1,35 @@
 import styles from "../../../styles/modules/wbs_n.module.css"
 import { useRef, useState, useEffect } from "react";
 
-const InputContainer = ({ op, functions, isNew, obj, objSetter, setShowModal, area_id }) => {
+const InputContainer = ({ op, functions, isNew, obj, objSetter, setShowModal, area_id, style }) => {
+    const camposItemVazios = {
+        area_id: area_id || '',
+        name: ''
+    };
+    const [newItem, setNewItem] = useState(camposItemVazios);
+
     const camposRef = useRef({
         name: null,
         color: null
     });
 
     useEffect(() => {
-        if(area_id){
-            objSetter({
-                ...obj,
-                area_id
-            })
+        if (area_id) {
+            if(op == 'item' && isNew == true){
+                setNewItem({
+                    ...newItem,
+                    area_id
+                })
+            } else {
+                objSetter({
+                    ...obj,
+                    area_id
+                })
+            }
         }
     }, [area_id])
 
-    const handleChange = (e) => {
+    const handleChange = (e, obj, objSetter) => {
         const { name, value } = e.target;
         objSetter({
             ...obj,
@@ -25,13 +38,35 @@ const InputContainer = ({ op, functions, isNew, obj, objSetter, setShowModal, ar
         e.target.classList.remove('campo-vazio');
     }
 
+    if(isNew == true && op == 'item'){
+        return (
+        <div className={styles.block} style={style}>
+            <div className={styles.new_inputs}>
+                <input
+                    name="name"
+                    value={newItem.name}
+                    onChange={(e) => handleChange(e, newItem, setNewItem)}
+                    placeholder="New item"
+                    ref={el => (camposRef.current.name = el)}
+                />
+            </div>
+            <div className={styles.action_buttons}>
+                <button onClick={() => {
+                    functions?.submit(newItem);
+                    setNewItem(camposItemVazios)
+                    }}>✔️</button>
+            </div>
+        </div>
+        )
+    }
+
     return (
-        <div className={styles.block}>
+        <div className={styles.block} style={style}>
             <div className={styles.new_inputs}>
                 <input
                     name="name"
                     value={obj.name}
-                    onChange={handleChange}
+                    onChange={(e) => handleChange(e, obj, objSetter)}
                     placeholder={`New ${op == 'area' ? 'area' : 'item'}`}
                     ref={el => (camposRef.current.name = el)}
                 />
@@ -41,18 +76,19 @@ const InputContainer = ({ op, functions, isNew, obj, objSetter, setShowModal, ar
                         <input
                             name="color"
                             value={obj.color}
-                            type="color" 
-                            onChange={handleChange}
+                            type="color"
+                            onChange={(e) => handleChange(e, obj, objSetter)}
                             ref={el => (camposRef.current.color = el)}
                         />
                     </div>
                 )}
-
             </div>
             <div className={styles.action_buttons}>
-                <button onClick={functions?.submit}>✔️</button>
+                <button onClick={() => {
+                    functions?.submit(); 
+                    functions?.hide && functions?.hide()}}>✔️</button>
                 {isNew == false &&
-                    <button onClick={functions?.cancel}>✖️</button>
+                    <button onClick={functions?.hide}>✖️</button>
                 }
             </div>
         </div>
