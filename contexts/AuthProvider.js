@@ -6,16 +6,19 @@ const AuthContext = createContext(null);
 
 const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [token, setToken] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         client.auth.getSession().then(({ data }) => {
             setUser(data.session?.user || null);
+            setToken(data.session?.access_token || null);
             setLoading(false);
         });
 
         const { data: listener } = client.auth.onAuthStateChange((e, session) => {
             setUser(session?.user || null);
+            setToken(session?.access_token || null);
         });
 
         return () => {
@@ -23,7 +26,7 @@ const AuthProvider = ({ children }) => {
         }
     }, []);
 
-    return <AuthContext.Provider value={{ user, loading }}>
+    return <AuthContext.Provider value={{ user, token, loading }}>
         {children}
     </AuthContext.Provider>
 }

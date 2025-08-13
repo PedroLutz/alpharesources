@@ -6,7 +6,7 @@
     margin: 1rem;
 }
 
-.area_block, .item_inner_block {
+.block {
     border-radius: 1rem;
     border-width: 0.1rem;
     border-color: black;

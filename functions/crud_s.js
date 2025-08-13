@@ -6,7 +6,6 @@ const handleReq = async (o) => {
     'create': 'POST',
     'update': 'PUT',
     'delete': 'DELETE',
-    'get': 'GET',
   };
   
   const method = routeToMethod[o.route];
@@ -15,18 +14,13 @@ const handleReq = async (o) => {
   let url = `/api/${o.table}/${o.route}`;
   let options = {
     method,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${o.token}` },
   };
 
-  if (method === 'GET') {
-    if (o.data && Object.keys(o.data).length > 0) {
-      const params = new URLSearchParams(o.data).toString();
-      url += `?${params}`;
-    }
-  } else {
     if (!o.data) throw new Error('Request done without data!');
     options.body = JSON.stringify(o.data);
-  }
 
   try {
     const response = await fetch(url, options);
@@ -44,4 +38,31 @@ const handleReq = async (o) => {
   }
 };
 
-export {handleReq};
+const handleFetch = async (o) => {
+  if (!o.table) throw new Error('Request done without a table!');
+
+  let url = `/api/${o.table}/${o.route}/all`;
+  let options = {
+    method: 'GET',
+    headers: { 
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${o.token}` },
+  };
+
+  try {
+    const response = await fetch(url, options);
+    const json = await response.json();
+
+    if (!response.ok) {
+      return { success: false, error: json.error || 'Unknown error' };
+    }
+
+    if (o.fetchData) await o.fetchData();
+
+    return { success: true, data: json };
+  } catch (err) {
+    return { success: false, error: err.message || 'Request error' };
+  }
+}
+
+export {handleReq, handleFetch};

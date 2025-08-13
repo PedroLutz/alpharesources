@@ -1,9 +1,11 @@
-'use client';
-import client from "../../../lib/supabaseClient";
+import { createServerClient } from "../../../lib/supabaseServerClient";
 
 export default async function handler(req, res) {
   const { table, op } = req.query
   const body = req.body
+
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  const client = createServerClient(token);
 
   if (!['create', 'update', 'delete'].includes(op)) {
     return res.status(400).json({ error: 'operação inválida' })
