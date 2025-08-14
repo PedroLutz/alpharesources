@@ -1,7 +1,7 @@
 import styles from "../../../styles/modules/wbs_n.module.css"
 import { useRef, useState, useEffect } from "react";
 
-const InputContainer = ({ op, functions, isNew, obj, objSetter, setShowModal, area_id, style }) => {
+const InputContainer = ({ op, functions, isNew, obj, objSetter, setExibirModal, area_id, style }) => {
     const camposItemVazios = {
         area_id: area_id || '',
         name: ''
@@ -38,6 +38,38 @@ const InputContainer = ({ op, functions, isNew, obj, objSetter, setShowModal, ar
         e.target.classList.remove('campo-vazio');
     }
 
+    const handleSubmit = (isItem) => {
+        const usedObj = op == 'item' && isNew == true ? newItem : obj;
+        delete usedObj.id;
+
+        const camposVazios = Object.entries(usedObj)
+            .filter(([key, value]) => value === null || value === "")
+            .map(([key]) => key);
+
+        if (camposVazios.length > 0) {
+            camposVazios.forEach(campo => {
+                if (camposRef.current[campo]) {
+                    camposRef.current[campo].classList.add('campo-vazio');
+                }
+            });
+            setExibirModal('inputsVazios');
+            return true;
+        }
+
+        let submitSuccess;
+
+        if(isItem) submitSuccess = functions?.submit(newItem);
+        else submitSuccess = functions?.submit();
+
+        if(!submitSuccess){
+            camposRef.current.name.classList.add('campo-vazio');
+            return;
+        }
+
+        if(functions?.hide) functions?.hide();
+        if(isItem) setNewItem(camposItemVazios);
+    }
+
     if(isNew == true && op == 'item'){
         return (
         <div className={styles.block} style={style}>
@@ -51,17 +83,14 @@ const InputContainer = ({ op, functions, isNew, obj, objSetter, setShowModal, ar
                 />
             </div>
             <div className={styles.action_buttons}>
-                <button onClick={() => {
-                    functions?.submit(newItem);
-                    setNewItem(camposItemVazios)
-                    }}>✔️</button>
+                <button onClick={() => handleSubmit(true)}>✔️</button>
             </div>
         </div>
         )
     }
 
     return (
-        <div className={styles.block} style={style}>
+        <div className={styles.block} style={{...style, backgroundColor: obj.color}}>
             <div className={styles.new_inputs}>
                 <input
                     name="name"
@@ -75,7 +104,7 @@ const InputContainer = ({ op, functions, isNew, obj, objSetter, setShowModal, ar
                         <label>Color: </label>
                         <input
                             name="color"
-                            value={obj.color}
+                            value={obj.color || '#FFFFFF'}
                             type="color"
                             onChange={(e) => handleChange(e, obj, objSetter)}
                             ref={el => (camposRef.current.color = el)}
@@ -84,9 +113,7 @@ const InputContainer = ({ op, functions, isNew, obj, objSetter, setShowModal, ar
                 )}
             </div>
             <div className={styles.action_buttons}>
-                <button onClick={() => {
-                    functions?.submit(); 
-                    functions?.hide && functions?.hide()}}>✔️</button>
+                <button onClick={handleSubmit}>✔️</button>
                 {isNew == false &&
                     <button onClick={functions?.hide}>✖️</button>
                 }

@@ -15,11 +15,17 @@ const Main = () => {
     const [items, setItems] = useState([]);
 
     const [isLoading, setIsLoading] = useState(true);
+    const [exibirModal, setExibirModal] = useState(null);
+    const modalLabels = {
+        'inputsVazios': 'Fill out all fields before adding new data!',
+        'areaDup': 'This area is already registered!',
+        'itemDup': 'This item is already registered in another area!'
+    };
 
     const camposAreaVazios = {
         id: '',
         name: '',
-        color: ''
+        color: '#FFFFFF'
     };
     const [newArea, setNewArea] = useState(camposAreaVazios);
     const [updateArea, setUpdateArea] = useState(camposAreaVazios);
@@ -67,6 +73,10 @@ const Main = () => {
     }, [])
 
     const submitNewArea = async () => {
+        if (areas.some(area => area.name.toLowerCase() == newArea.name.toLowerCase())) {
+            setExibirModal('areaDup');
+            return false;
+        }
         delete newArea.id;
         await handleReq({
             table: 'wbs_area',
@@ -76,9 +86,14 @@ const Main = () => {
             fetchData
         });
         cleanForm(newArea, setNewArea, camposAreaVazios);
+        return true;
     }
 
     const submitNewItem = async (newItem) => {
+        if (items.some(items => items.name.toLowerCase() == newItem.name.toLowerCase())) {
+            setExibirModal('itemDup');
+            return false;
+        }
         const objSent = {
             ...newItem,
             user_id: user.id
@@ -90,6 +105,7 @@ const Main = () => {
             data: objSent,
             fetchData
         });
+        return true;
     }
 
     const submitUpdate = async (table) => {
@@ -106,8 +122,8 @@ const Main = () => {
 
     const submitDelete = async (table, id) => {
         setIsLoading(true);
-        if(deleteAreaConfirm) setDeleteAreaConfirm(null);
-        if(deleteItemConfirm) setDeleteItemConfirm(null);
+        if (deleteAreaConfirm) setDeleteAreaConfirm(null);
+        if (deleteItemConfirm) setDeleteItemConfirm(null);
         await handleReq({
             table: table,
             route: 'delete',
@@ -121,6 +137,7 @@ const Main = () => {
     return (
         <div className="centered-container">
             {isLoading && <Loading />}
+            <h2 className="smallTitle">Work Breakdown Structure</h2>
             <div className={styles.main_container}>
                 <div className={styles.main_wrapper}>
                     <div className={styles.wbs_container}>
@@ -132,6 +149,7 @@ const Main = () => {
                             functions={{
                                 submit: submitNewArea
                             }}
+                            setExibirModal={setExibirModal}
                         />
                     </div>
 
@@ -148,6 +166,7 @@ const Main = () => {
                                         submit: () => submitUpdate('wbs_area'),
                                         hide: setEditId
                                     }}
+                                    setExibirModal={setExibirModal}
                                 />
                             ) : (
                                 <div key={area.id} className={styles.block} style={{ backgroundColor: area.color }}>
@@ -182,6 +201,7 @@ const Main = () => {
                                                 }}
                                                 obj={updateItem}
                                                 objSetter={setUpdateItem}
+                                                setExibirModal={setExibirModal}
                                             />
                                         </div>
                                     ) : (
@@ -207,12 +227,14 @@ const Main = () => {
 
                             <div key={index} className={styles.item_outer_block}>
                                 <InputContainer
+                                    style={{ backgroundColor: area.color }}
                                     op={'item'}
                                     isNew={true}
                                     area_id={area.id}
                                     functions={{
                                         submit: submitNewItem
                                     }}
+                                    setExibirModal={setExibirModal}
                                 />
                             </div>
                         </div>
@@ -242,6 +264,15 @@ const Main = () => {
                     },
                     botao2: {
                         funcao: () => setDeleteItemConfirm(null), texto: 'Cancel'
+                    },
+                }} />
+            )}
+
+            {exibirModal != null && (
+                <Modal objeto={{
+                    titulo: modalLabels[exibirModal],
+                    botao1: {
+                        funcao: () => setExibirModal(null), texto: 'Okay'
                     },
                 }} />
             )}
