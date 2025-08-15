@@ -1,7 +1,7 @@
 import styles from "../../../styles/modules/wbs_n.module.css"
 import { useRef, useState, useEffect } from "react";
 
-const InputContainer = ({ op, functions, isNew, obj, objSetter, setExibirModal, area_id, style }) => {
+const InputContainer = ({ op, functions, isNew, obj, objSetter, setExibirModal, area_id, style, disabled }) => {
     const camposItemVazios = {
         area_id: area_id || '',
         name: ''
@@ -83,7 +83,7 @@ const InputContainer = ({ op, functions, isNew, obj, objSetter, setExibirModal, 
                 />
             </div>
             <div className={styles.action_buttons}>
-                <button onClick={() => handleSubmit(true)}>✔️</button>
+                <button onClick={() => handleSubmit(true)} disabled={disabled}>✔️</button>
             </div>
         </div>
         )
@@ -113,7 +113,7 @@ const InputContainer = ({ op, functions, isNew, obj, objSetter, setExibirModal, 
                 )}
             </div>
             <div className={styles.action_buttons}>
-                <button onClick={handleSubmit}>✔️</button>
+                <button onClick={handleSubmit} disabled={disabled}>✔️</button>
                 {isNew == false &&
                     <button onClick={functions?.hide}>✖️</button>
                 }

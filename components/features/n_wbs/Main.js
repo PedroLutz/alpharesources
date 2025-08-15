@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import React from "react";
 import Loading from '../../ui/Loading';
 import Modal from "../../ui/Modal";
@@ -7,9 +7,11 @@ import { cleanForm } from '../../../functions/general';
 import styles from "../../../styles/modules/wbs_n.module.css"
 import InputContainer from "./InputContainer";
 import useAuth from "../../../hooks/useAuth";
+import usePerm from "../../../hooks/usePerm";
 
 const Main = () => {
-    const { user, token } = useAuth();
+    const { user, token} = useAuth();
+    const {isEditor} = usePerm();
 
     const [areas, setAreas] = useState([]);
     const [items, setItems] = useState([]);
@@ -150,6 +152,7 @@ const Main = () => {
                                 submit: submitNewArea
                             }}
                             setExibirModal={setExibirModal}
+                            disabled={!isEditor}
                         />
                     </div>
 
@@ -177,10 +180,10 @@ const Main = () => {
                                         <button onClick={() => {
                                             setEditId(area.id);
                                             setUpdateArea(area)
-                                        }}>⚙️</button>
+                                        }} disabled={!isEditor}>⚙️</button>
                                         <button onClick={() => {
                                             setDeleteAreaConfirm(area)
-                                        }}>❌</button>
+                                        }} disabled={!isEditor}>❌</button>
                                     </div>
                                 </div>
                             )}
@@ -234,6 +237,7 @@ const Main = () => {
                                     functions={{
                                         submit: submitNewItem
                                     }}
+                                    disabled={!isEditor}
                                     setExibirModal={setExibirModal}
                                 />
                             </div>

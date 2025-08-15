@@ -6,6 +6,7 @@ import { TituloProvider, TituloContext } from '../contexts/TituloContext';
 import Footer from '../components/ui/Footer';
 import { useRouter } from 'next/router';
 import useAuth from '../hooks/useAuth';
+import { PermissionProvider } from '../contexts/PermissionProvider';
 
 import { AuthProvider } from '../contexts/AuthProvider';
 
@@ -39,11 +40,14 @@ function AuthGuard({ children }) {
 function MyApp({ Component, pageProps }) {
   return (
     <AuthProvider>
-      <AuthGuard>
+      <PermissionProvider>
+          <AuthGuard>
         <TituloProvider>
           <InnerApp Component={Component} pageProps={pageProps} />
         </TituloProvider>
       </AuthGuard>
+      </PermissionProvider>
+      
     </AuthProvider>
   );
 }

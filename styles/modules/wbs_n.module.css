@@ -87,6 +87,11 @@
     transition: 0.1s;
 }
 
+.action_buttons button:disabled, .action_buttons button[disabled] {
+    color: grey;
+    filter: grayscale(100%);
+}
+
 .action_buttons button:hover {
     transform: scale(1.1);
 }
