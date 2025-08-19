@@ -100,6 +100,7 @@ const Main = () => {
             ...newItem,
             user_id: user.id
         }
+        delete objSent.id;
         await handleReq({
             table: 'wbs_item',
             route: 'create',
@@ -112,7 +113,6 @@ const Main = () => {
 
     const submitUpdate = async (table) => {
         setIsLoading(true);
-        console.log(updateArea);
         await handleReq({
             table: table,
             route: 'update',

@@ -12,9 +12,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    let resultado
-
-    console.log(req.body)
+    let resultado;
 
     if (op === 'create') {
       const { data, error } = await client.from(table).insert(body)

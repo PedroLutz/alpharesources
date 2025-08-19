@@ -9,7 +9,9 @@ import { cleanForm } from "../../../../functions/general";
 import useAuth from "../../../../hooks/useAuth";
 
 const TabelaAnalise = () => {
+    const { user, token } = useAuth();
     const camposVazios = {
+        id: '',
         item_id: '',
         description: '',
         purpose: '',
@@ -20,7 +22,8 @@ const TabelaAnalise = () => {
         approval_responsible: '',
         premises: '',
         restrictions: '',
-        resources: ''
+        resources: '',
+        user_id: user.id
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
@@ -30,59 +33,80 @@ const TabelaAnalise = () => {
     const [linhaVisivel, setLinhaVisivel] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
-    const { user, token} = useAuth();
 
 
     //essa funcao chama handleSubmit() e envia os dados para cadastro
     const enviar = async () => {
-        const obj = {...novoSubmit, user_id: user.id}
+        const objSent = {
+            ...novoSubmit,
+            user_id: user.id
+        }
+        delete objSent.id;
         await handleReq({
             table: 'wbs_dictionary',
             route: 'create',
             token,
-            data: obj,
-            fetchData
+            data: objSent,
+            fetchData: fetchDicionarios
         });
-        // cleanForm(novoSubmit, setNovoSubmit, camposVazios);
+        cleanForm(novoSubmit, setNovoSubmit, camposVazios);
         return true;
-        
+
     };
 
     const isItemCadastrado = (item_id) => {
         return dicionarios.some((e) => e.item_id == item_id);
     }
 
-
     //essa funcao chama realiza um tratamento de dados de confirmUpdateItem para garantir que
     //os dados enviados sejam condizentes com o modelo, e depois chama handleUpdate() para
     //cadastrar as mudancas no banco
     const handleUpdateItem = async () => {
         setLoading(true);
-        try {
-            await handleUpdate({
-                route: 'wbsDictionary/update?id',
-                dados: novosDados,
-                fetchDados: fetchDicionarios
-            });
-        } catch (error) {
-            console.error("Update failed:", error);
-        }
+        await handleReq({
+            table: 'wbs_dictionary',
+            route: 'update',
+            token,
+            data: novosDados,
+            fetchData: fetchDicionarios
+        });
         setLoading(false);
         setIsUpdating(false);
-        setNovosDados(camposVazios);
+        cleanForm(novosDados, setNovosDados, camposVazios);
         setLinhaVisivel();
     };
 
+    const handleClickUpdate = (item) => {
+        setNovosDados({
+            ...novosDados,
+            id: item.id,
+            item_id: item.wbs_item.id,
+            description: item.description,
+            purpose: item.purpose,
+            criteria: item.criteria,
+            inspection: item.inspection,
+            timing: item.timing,
+            responsible: item.responsible,
+            approval_responsible: item.approval_responsible,
+            premises: item.premises,
+            restrictions: item.restrictions,
+            resources: item.resources
+        })
+        setLinhaVisivel(item.id);
+        setIsUpdating(item.wbs_item.wbs_area.name);
+    }
 
     //essa funcao chama handleDelete e deleta o que estiver em confirmDeleteItem
     const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
             var getDeleteSuccess = false;
             try {
-                getDeleteSuccess = await handleDelete({
-                    route: 'wbsDictionary',
-                    item: confirmDeleteItem,
-                    fetchDados: fetchDicionarios
+                getDeleteSuccess = await handleReq({
+                    table: 'wbs_dictionary',
+                    route: 'delete',
+                    token,
+                    data: { id: confirmDeleteItem.id },
+                    fetchData: fetchDicionarios
                 });
             } finally {
                 if (getDeleteSuccess) {
@@ -98,17 +122,17 @@ const TabelaAnalise = () => {
 
     //essa funcao busca todos os itens do dicionario
     const fetchDicionarios = async () => {
-        try{
+        try {
             const data = await handleFetch({
-            table: 'wbs_dictionary',
-            query: 'all',
-            token
-        })
-        setDicionarios(data.data);
+                table: 'wbs_dictionary',
+                query: 'all',
+                token
+            })
+            setDicionarios(data.data);
         } finally {
             setLoading(false);
         }
-        
+
     };
 
     //esse useEffect so executa na primeira render
@@ -153,7 +177,7 @@ const TabelaAnalise = () => {
 
             {confirmDeleteItem && (
                 <Modal objeto={{
-                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.item}"?`,
+                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.wbs_item.name}"?`,
                     alerta: true,
                     botao1: {
                         funcao: handleConfirmDelete, texto: 'Confirm'
@@ -195,6 +219,7 @@ const TabelaAnalise = () => {
                                                 enviar: handleUpdateItem,
                                                 cancelar: () => { linhaVisivel === item.id ? setLinhaVisivel(null) : setLinhaVisivel(item.id); setIsUpdating(false) }
                                             }}
+                                            area_id={item.wbs_item.wbs_area.id}
                                             setExibirModal={setExibirModal}
                                         />
                                     ) : (
@@ -222,11 +247,8 @@ const TabelaAnalise = () => {
                                             <td className={styles.td_responsavel_aprovacao}>{item.approval_responsible}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
-                                                <button onClick={() => {
-                                                    setLinhaVisivel(item.id); setNovosDados(item); setIsUpdating(item.wbs_item.wbs_area.name)
-                                                }
-                                                }>⚙️</button>
-                                            </td>   
+                                                <button onClick={() => handleClickUpdate(item)}>⚙️</button>
+                                            </td>
                                         </tr>
                                     )}
                                 </React.Fragment>
@@ -234,7 +256,7 @@ const TabelaAnalise = () => {
                             <CadastroInputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcoes={{enviar, isItemCadastrado}}
+                                funcoes={{ enviar, isItemCadastrado }}
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>

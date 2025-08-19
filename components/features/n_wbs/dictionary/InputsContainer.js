@@ -4,11 +4,11 @@ import styles from '../../../../styles/modules/wbs.module.css'
 import { handleFetch } from '../../../../functions/crud_s';
 import useAuth from "../../../../hooks/useAuth";
 
-const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
+const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, area_id }) => {
     const [elementosWBS, setElementosWBS] = useState([]);
     const [itensPorArea, setItensPorArea] = useState([]);
     const [areasUnicas, setAreasUnicas] = useState([]);
-    const [areaSelecionada, setAreaSelecionada] = useState("");
+    const [areaSelecionada, setAreaSelecionada] = useState(area_id || '');
     const { user, token } = useAuth();
     const camposRef = useRef({
         item_id: null,
@@ -61,18 +61,18 @@ const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
     }, [obj.area]);
 
     const atualizarItensPorArea = (area) => {
-        objSetter({...obj, item_id: ""});
         const itensDaArea = elementosWBS.filter(item => item.wbs_area.id == area);
         setItensPorArea(itensDaArea);
     }
 
     useEffect(() => {
-        if (obj.area != '') {
-            atualizarItensPorArea(obj.area);
+        if (areaSelecionada != '') {
+            atualizarItensPorArea(areaSelecionada);
         }
-    }, [obj.area, elementosWBS])
+    }, [areaSelecionada, elementosWBS])
 
     const handleAreaChange = (e) => {
+        objSetter({...obj, item_id: ""});
         const areaSelecionada = e.target.value;
         atualizarItensPorArea(areaSelecionada);
         setAreaSelecionada(areaSelecionada);
@@ -96,11 +96,15 @@ const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
             setExibirModal('itemRepetido');
             return true;
         }
-        const camposVazios = Object.entries(obj)
+        const camposConsiderados = {...obj};
+        console.log(obj)
+        delete camposConsiderados.id;
+        delete camposConsiderados.user_id;
+        const camposVazios = Object.entries(camposConsiderados)
             .filter(([key, value]) => value === null || value === "")
             .map(([key]) => key);
 
-            console.log(camposVazios)
+            console.log(camposVazios);
         if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
                 if (camposRef.current[campo]) {

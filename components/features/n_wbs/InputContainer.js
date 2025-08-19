@@ -40,9 +40,10 @@ const InputContainer = ({ op, functions, isNew, obj, objSetter, setExibirModal, 
 
     const handleSubmit = (isItem) => {
         const usedObj = op == 'item' && isNew == true ? newItem : obj;
-        if(isNew) delete usedObj.id;
 
-        const camposVazios = Object.entries(usedObj)
+        const camposConsiderados = {...usedObj};
+        delete camposConsiderados.id;
+        const camposVazios = Object.entries(camposConsiderados)
             .filter(([key, value]) => value === null || value === "")
             .map(([key]) => key);
 
