@@ -14,6 +14,8 @@ export default async function handler(req, res) {
   try {
     let resultado
 
+    console.log(req.body)
+
     if (op === 'create') {
       const { data, error } = await client.from(table).insert(body)
       if (error) throw error

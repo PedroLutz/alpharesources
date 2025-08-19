@@ -112,6 +112,7 @@ const Main = () => {
 
     const submitUpdate = async (table) => {
         setIsLoading(true);
+        console.log(updateArea);
         await handleReq({
             table: table,
             route: 'update',
