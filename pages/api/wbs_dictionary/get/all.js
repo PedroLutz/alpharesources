@@ -33,7 +33,7 @@ export default async function handler(req, res) {
         restrictions,
         resources`
     )
-    .order('wbs_item(wbs_area)', { ascending: false })
+    .order('wbs_item(wbs_area->name)', { ascending: true })
     .order('wbs_item(name)', { ascending: true })
 
   if (error) return res.status(400).json({ error: error.message })

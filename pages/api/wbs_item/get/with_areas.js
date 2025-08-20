@@ -17,6 +17,7 @@ export default async function handler(req, res) {
             name
         ), 
         name`)
+    .order('wbs_area(name)', { ascending: true })
     .order('name', { ascending: true })
 
   if (error) return res.status(400).json({ error: error.message })

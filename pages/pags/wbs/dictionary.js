@@ -1,4 +1,4 @@
-import Tabela from '../../../components/features/n_wbs/dictionary/Tabela';
+import Tabela from '../../../components/features/wbs/dictionary/Tabela';
 import PageWrapper from '../../../components/layout/WbsWrapper';
 
 function Wbs() {

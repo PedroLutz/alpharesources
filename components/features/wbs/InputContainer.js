@@ -1,4 +1,4 @@
-import styles from "../../../styles/modules/wbs_n.module.css"
+import styles from "../../../styles/modules/wbs.module.css"
 import { useRef, useState, useEffect } from "react";
 
 const InputContainer = ({ op, functions, isNew, obj, objSetter, setExibirModal, area_id, style, disabled }) => {

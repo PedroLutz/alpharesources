@@ -1,111 +1,123 @@
-.wbsContainer {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+.main_container{
+    overflow-x: auto;
 }
 
-.wbsArea {
-  border: 1px solid #000000;
-  border-radius: 5px;
-  padding: 10px;
-  margin-left: 5px;
-  margin-right: 5px;
-  margin-bottom: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.main_wrapper {
+    display: flex;
+    width: 95vw;
 }
 
-.wbsAreaCadastro input,
-.wbsArea input,
-.editArea input {
-  border-width: 0.1rem;
-  border-style: solid;
-  border-color: rgb(167, 167, 167);
-  border-radius: 0.4rem;
-  padding: 0.2rem;
-  margin: 0.3rem;
-  transition: 0.2s;
-  outline: none;
-  font-size: small;
+.wbs_container {
+    margin: 0.5rem;
+    flex: 0 0 15rem;
 }
 
-.wbsAreaCadastro input {
-  width: 11rem;
+.block {
+    border-radius: 1rem;
+    border-width: 0.1rem;
+    border-color: black;
+    border-style: solid;
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+    max-width: 15rem;
 }
 
-.wbsItem input {
-  width: 9.5rem;
+.new_inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0.5rem;
 }
 
-.editArea input {
-  width: 9rem;
+.new_inputs_color {
+    display: flex;
+    align-items: center;
 }
 
-.editItem input {
-  margin: 0;
-  width: 8rem;
+.new_inputs_color label{
+    font-size: small;
+    margin-right: 0.5rem;
 }
 
-.editArea {
-  display: flex;
-  align-items: center;
-  height: 3.8rem;
+.new_inputs_color input{
+    height: 1.5rem;
 }
 
-.wbsAreaCadastro input:hover,
-.wbsArea input:hover,
-.wbsAreaCadastro button:hover {
-  background-color: rgb(231, 231, 231);
+.new_inputs input{
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    border-radius: 0.4rem;
+    padding: 0.2rem;
+    transition: 0.2s;
+    outline: none;
+    font-size: small;
+    background-color: white;
+    width: 100%;
 }
 
-.wbsAreaCadastro {
-  width: 13.9rem;
+.new_inputs input:hover {
+    background-color: rgb(231, 231, 231);
 }
 
-.wbsAreaCadastro button {
-  background-color: transparent;
-  border-width: 0.1rem;
-  border-style: solid;
-  border-color: rgb(167, 167, 167);
-  border-radius: 0.4rem;
-  height: 1.6rem;
-  cursor: pointer;
-  transition: 0.2s;
+.item_outer_block {
+    position: relative;
+    min-width: 5rem;
+    max-width: 15rem;
+    padding-top: 0.8rem;
 }
 
-.areaTitle {
-  display: flex;
-  align-items: center;
+.action_buttons {
+    display: flex;
+    flex-direction: column;
+    border-left: 0.1rem solid black;
+    padding: 0.5rem;
+    align-self: stretch;
+    justify-content: center;
 }
 
-.areaTitle button,
-.wbsItem button,
-.editArea button {
-  background-color: transparent;
-  border: none;
-  font-size: medium;
-  cursor: pointer;
-  height: 1.5rem;
-  width: 1.7rem;
+.action_buttons button {
+    background-color: transparent;
+    border-style: none;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: 0.1s;
 }
 
-.wbsItem {
-  border: 1px solid #000000;
-  border-radius: 10px;
-  padding: 5px;
-  margin: 5px;
-  width: 200px;
+.action_buttons button:disabled, .action_buttons button[disabled] {
+    color: grey;
+    filter: grayscale(100%);
 }
 
-.wbsArea ul {
-  list-style-type: none;
-  padding: 0;
+.action_buttons button:hover {
+    transform: scale(1.1);
 }
 
-.wbsArea li {
-  margin-bottom: 5px;
+.area_label {
+    font-weight: bold;
+    padding: 0.5rem;
+    font-size: 0.9rem;
 }
+
+.item_label {
+    padding: 0.5rem;
+    font-size: small;
+}
+
+.item_connective_line {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 0.8rem;
+  background-color: black;
+}
+
+/*----------------DICIONARIO--------------- */
 
 .tabelaDicionario_container {
   overflow: auto;
@@ -126,13 +138,13 @@
 }
 
 .tabelaDicionario td:not(:global(.botoes_acoes)):last-child button {
-  height: 6.5rem;
+  height: 6rem;
 }
 
 .td_area select,
 .td_item select {
   min-width: 10rem;
-  height: 6.5rem;
+  height: 6rem;
   max-width: 10rem;
 }
 
@@ -146,8 +158,7 @@
 .td_descricao textarea,
 .td_proposito textarea,
 .td_criterio textarea {
-  min-width: 14.5rem;
-  max-width: 14.5rem;
+  width: 100%;
 }
 
 .td_premissas,
@@ -168,8 +179,7 @@
 .td_timing textarea,
 .td_responsavel textarea,
 .td_responsavel_aprovacao textarea {
-  max-width: 9.5rem;
-  min-width: 9.5rem;
+  width: 100%;
 }
 
 @media (max-width: 1280px){
@@ -187,11 +197,12 @@
   }
 
   .tabelaDicionario td textarea {
-    height: 3.5rem;
+    height: 4rem;
   }
 
   .tabelaDicionario td:not(:global(.botoes_acoes)) button {
     height: 4rem !important;
+    width: 100%;
   }
 
   .td_descricao,
@@ -204,8 +215,7 @@
   .td_descricao textarea,
   .td_proposito textarea,
   .td_criterio textarea {
-    min-width: 9.5rem;
-    max-width: 9.5rem;
+    width: 100%;
   }
 
   .td_premissas,
@@ -226,8 +236,7 @@
   .td_timing textarea,
   .td_responsavel textarea,
   .td_responsavel_aprovacao textarea {
-    max-width: 6.5rem;
-    min-width: 6.5rem;
+    width: 100%;
   }
 }
 
@@ -249,7 +258,7 @@
   .td_area select,
   .td_item select {
     min-width: 8rem;
-    height: 4rem;
+    height: 3.5rem;
     max-width: 8rem;
   }
 
@@ -258,7 +267,7 @@
   }
 
   .tabelaDicionario td:not(:global(.botoes_acoes)) button {
-    height: 4rem !important;
+    height: 3.5rem !important;
   }
 
   .td_descricao,
@@ -271,8 +280,7 @@
   .td_descricao textarea,
   .td_proposito textarea,
   .td_criterio textarea {
-    min-width: 9.5rem;
-    max-width: 9.5rem;
+    width: 100%;
   }
 
   .td_premissas,
@@ -293,8 +301,7 @@
   .td_timing textarea,
   .td_responsavel textarea,
   .td_responsavel_aprovacao textarea {
-    max-width: 6.5rem;
-    min-width: 6.5rem;
+    width: 100%;
   }
 }
 
@@ -309,7 +316,7 @@
   .td_area select,
   .td_item select {
     min-width: 8rem;
-    height: 5rem;
+    height: 4.5rem;
     max-width: 8rem;
   }
 
@@ -318,7 +325,7 @@
   }
 
   .tabelaDicionario td:not(:global(.botoes_acoes)) button {
-    height: 5rem !important;
+    height: 4.5rem !important;
   }
 
   .td_descricao,
@@ -331,8 +338,7 @@
   .td_descricao textarea,
   .td_proposito textarea,
   .td_criterio textarea {
-    min-width: 9.5rem;
-    max-width: 9.5rem;
+    width: 100%;
   }
 
   .td_premissas,
@@ -353,8 +359,7 @@
   .td_timing textarea,
   .td_responsavel textarea,
   .td_responsavel_aprovacao textarea {
-    max-width: 6.5rem;
-    min-width: 6.5rem;
+    width: 100%;
   }
 }
 

@@ -1,5 +1,4 @@
-import React, { useState, useRef, useEffect, useContext } from 'react';
-import { fetchData } from '../../../../functions/crud';
+import React, { useState, useRef, useEffect } from 'react';
 import styles from '../../../../styles/modules/wbs.module.css'
 import { handleFetch } from '../../../../functions/crud_s';
 import useAuth from "../../../../hooks/useAuth";
@@ -9,7 +8,7 @@ const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, area_id }) => {
     const [itensPorArea, setItensPorArea] = useState([]);
     const [areasUnicas, setAreasUnicas] = useState([]);
     const [areaSelecionada, setAreaSelecionada] = useState(area_id || '');
-    const { user, token } = useAuth();
+    const { token } = useAuth();
     const camposRef = useRef({
         item_id: null,
         description: null,
@@ -97,7 +96,6 @@ const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, area_id }) => {
             return true;
         }
         const camposConsiderados = {...obj};
-        console.log(obj)
         delete camposConsiderados.id;
         delete camposConsiderados.user_id;
         const camposVazios = Object.entries(camposConsiderados)
@@ -125,6 +123,7 @@ const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, area_id }) => {
         const isInvalido = validaDados();
         if (isInvalido) return;
         await funcoes?.enviar();
+        setAreaSelecionada(area_id || '');
     };
 
     return (

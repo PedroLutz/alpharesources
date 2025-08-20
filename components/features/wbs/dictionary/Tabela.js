@@ -1,62 +1,60 @@
-import React, { useEffect, useState, useContext } from "react"
+import React, { useEffect, useState } from "react"
 import styles from '../../../../styles/modules/wbs.module.css'
-import CadastroInputs from "./Inputs";
+import CadastroInputs from "./InputsContainer";
 import Modal from "../../../ui/Modal";
 import Loading from "../../../ui/Loading";
-import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../../functions/crud";
+import { handleFetch, handleReq } from '../../../../functions/crud_s';
 import { cleanForm } from "../../../../functions/general";
-import { AuthContext } from "../../../../contexts/AuthContext";
+import useAuth from "../../../../hooks/useAuth";
 
 const TabelaAnalise = () => {
+    const { user, token } = useAuth();
     const camposVazios = {
-        area: '',
-        item: '',
-        descricao: '',
-        criterio: '',
-        verificacao: '',
+        id: '',
+        item_id: '',
+        description: '',
+        purpose: '',
+        criteria: '',
+        inspection: '',
         timing: '',
-        responsavel: '',
-        proposito: '',
-        responsavel_aprovacao: '',
-        premissas: '',
-        restricoes: '',
-        recursos: ''
+        responsible: '',
+        approval_responsible: '',
+        premises: '',
+        restrictions: '',
+        resources: '',
+        user_id: user.id
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
     const [dicionarios, setDicionarios] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
-    const [linhaVisivel, setLinhaVisivel] = useState();
-    const [reload, setReload] = useState(false);
+    const [linhaVisivel, setLinhaVisivel] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [cores, setCores] = useState({});
     const [isUpdating, setIsUpdating] = useState(false);
-    const { isAdmin } = useContext(AuthContext)
 
 
     //essa funcao chama handleSubmit() e envia os dados para cadastro
     const enviar = async () => {
-        await handleSubmit({
-            route: 'wbsDictionary',
-            dados: novoSubmit,
-            fetchDados: fetchDicionarios
+        const objSent = {
+            ...novoSubmit,
+            user_id: user.id
+        }
+        delete objSent.id;
+        await handleReq({
+            table: 'wbs_dictionary',
+            route: 'create',
+            token,
+            data: objSent,
+            fetchData: fetchDicionarios
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
+        return true;
+
     };
 
-    const isItemCadastrado = (item) => {
-        return dicionarios.some((e) => e.item.trim() === item.trim());
-    }
-
-    //essa funcao busca as cores para cada area
-    const fetchCores = async () => {
-        const data = await fetchData('wbs/get/cores');
-        var cores = {};
-        data.areasECores.forEach((area) => {
-            cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
-        })
-        setCores(cores);
+    const isItemCadastrado = (item_id) => {
+        return dicionarios.some((e) => e.item_id == item_id);
     }
 
     //essa funcao chama realiza um tratamento de dados de confirmUpdateItem para garantir que
@@ -64,31 +62,50 @@ const TabelaAnalise = () => {
     //cadastrar as mudancas no banco
     const handleUpdateItem = async () => {
         setLoading(true);
-        try {
-            await handleUpdate({
-                route: 'wbsDictionary/update?id',
-                dados: novosDados,
-                fetchDados: fetchDicionarios
-            });
-        } catch (error) {
-            console.error("Update failed:", error);
-        }
+        await handleReq({
+            table: 'wbs_dictionary',
+            route: 'update',
+            token,
+            data: novosDados,
+            fetchData: fetchDicionarios
+        });
         setLoading(false);
         setIsUpdating(false);
-        setNovosDados(camposVazios);
+        cleanForm(novosDados, setNovosDados, camposVazios);
         setLinhaVisivel();
     };
 
+    const handleClickUpdate = (item) => {
+        setNovosDados({
+            ...novosDados,
+            id: item.id,
+            item_id: item.wbs_item.id,
+            description: item.description,
+            purpose: item.purpose,
+            criteria: item.criteria,
+            inspection: item.inspection,
+            timing: item.timing,
+            responsible: item.responsible,
+            approval_responsible: item.approval_responsible,
+            premises: item.premises,
+            restrictions: item.restrictions,
+            resources: item.resources
+        })
+        setLinhaVisivel(item.id);
+        setIsUpdating(item.wbs_item.wbs_area.name);
+    }
 
     //essa funcao chama handleDelete e deleta o que estiver em confirmDeleteItem
     const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
             var getDeleteSuccess = false;
             try {
-                getDeleteSuccess = await handleDelete({
-                    route: 'wbsDictionary',
-                    item: confirmDeleteItem,
-                    fetchDados: fetchDicionarios
+                getDeleteSuccess = await handleReq({
+                    table: 'wbs_dictionary',
+                    route: 'delete',
+                    token,
+                    data: { id: confirmDeleteItem.id },
+                    fetchData: fetchDicionarios
                 });
             } finally {
                 if (getDeleteSuccess) {
@@ -99,34 +116,27 @@ const TabelaAnalise = () => {
             }
         }
         setConfirmDeleteItem(null);
-        setReload(true);
     };
 
 
     //essa funcao busca todos os itens do dicionario
     const fetchDicionarios = async () => {
         try {
-            const data = await fetchData('wbsDictionary/get/all');
-            setDicionarios(data.dicionarios);
+            const data = await handleFetch({
+                table: 'wbs_dictionary',
+                query: 'all',
+                token
+            })
+            setDicionarios(data.data);
         } finally {
             setLoading(false);
         }
+
     };
-
-
-    //esse useEffect so executa quando reload é true
-    useEffect(() => {
-        if (reload) {
-            setReload(false);
-            fetchDicionarios();
-            fetchCores();
-        }
-    }, [reload]);
 
     //esse useEffect so executa na primeira render
     useEffect(() => {
         fetchDicionarios();
-        fetchCores();
     }, []);
 
     const modalLabels = {
@@ -142,7 +152,7 @@ const TabelaAnalise = () => {
     const calculateRowSpan = (itens, currentArea, currentIndex) => {
         let rowSpan = 1;
         for (let i = currentIndex + 1; i < itens.length; i++) {
-            if (itens[i].area === currentArea) {
+            if (itens[i].wbs_item.wbs_area.name === currentArea) {
                 rowSpan++;
             } else {
                 break;
@@ -166,7 +176,7 @@ const TabelaAnalise = () => {
 
             {confirmDeleteItem && (
                 <Modal objeto={{
-                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.item}"?`,
+                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.wbs_item.name}"?`,
                     alerta: true,
                     botao1: {
                         funcao: handleConfirmDelete, texto: 'Confirm'
@@ -190,7 +200,7 @@ const TabelaAnalise = () => {
                                 <th>Restrictions</th>
                                 <th>Expected Resources and Costs</th>
                                 <th>Acceptance Criteria</th>
-                                <th>Verification</th>
+                                <th>Inspection</th>
                                 <th>Timing</th>
                                 <th>Responsible for Criteria</th>
                                 <th>Responsible for Approval</th>
@@ -200,45 +210,43 @@ const TabelaAnalise = () => {
                         <tbody>
                             {dicionarios.map((item, index) => (
                                 <React.Fragment key={index}>
-                                    {linhaVisivel === item._id ? (
+                                    {linhaVisivel === item.id ? (
                                         <CadastroInputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
                                             funcoes={{
                                                 enviar: handleUpdateItem,
-                                                cancelar: () => { linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false) }
+                                                cancelar: () => { setLinhaVisivel(null) ; setIsUpdating(false) }
                                             }}
+                                            area_id={item.wbs_item.wbs_area.id}
                                             setExibirModal={setExibirModal}
                                         />
                                     ) : (
-                                        <tr style={{ backgroundColor: cores[item.area] }}>
-                                            {!isUpdating || isUpdating !== item.area ? (
+                                        <tr style={{ backgroundColor: item.wbs_item.wbs_area.color }}>
+                                            {!isUpdating || isUpdating !== item.wbs_item.wbs_area.name ? (
                                                 <React.Fragment>
-                                                    {index === 0 || dicionarios[index - 1].area !== item.area ? (
-                                                        <td rowSpan={calculateRowSpan(dicionarios, item.area, index)}
-                                                            className={styles.td_area}>{item.area}</td>
+                                                    {index === 0 || dicionarios[index - 1].wbs_item.wbs_area.name !== item.wbs_item.wbs_area.name ? (
+                                                        <td rowSpan={calculateRowSpan(dicionarios, item.wbs_item.wbs_area.name, index)}
+                                                            className={styles.td_area}>{item.wbs_item.wbs_area.name}</td>
                                                     ) : null}
                                                 </React.Fragment>
                                             ) : (
-                                                <td className={styles.td_area}>{item.area}</td>
+                                                <td className={styles.td_area}>{item.wbs_item.wbs_area.name}</td>
                                             )}
-                                            <td className={styles.td_item}>{item.item}</td>
-                                            <td className={styles.td_descricao}>{item.descricao}</td>
-                                            <td className={styles.td_proposito}>{item.proposito}</td>
-                                            <td className={styles.td_premissas}>{item.premissas}</td>
-                                            <td className={styles.td_restricoes}>{item.restricoes}</td>
-                                            <td className={styles.td_recursos}>{item.recursos}</td>
-                                            <td className={styles.td_criterio}>{item.criterio}</td>
-                                            <td className={styles.td_verificacao}>{item.verificacao}</td>
+                                            <td className={styles.td_item}>{item.wbs_item.name}</td>
+                                            <td className={styles.td_descricao}>{item.description}</td>
+                                            <td className={styles.td_proposito}>{item.purpose}</td>
+                                            <td className={styles.td_premissas}>{item.premises}</td>
+                                            <td className={styles.td_restricoes}>{item.restrictions}</td>
+                                            <td className={styles.td_recursos}>{item.resources}</td>
+                                            <td className={styles.td_criterio}>{item.criteria}</td>
+                                            <td className={styles.td_verificacao}>{item.inspection}</td>
                                             <td className={styles.td_timing}>{item.timing}</td>
-                                            <td className={styles.td_responsavel}>{item.responsavel}</td>
-                                            <td className={styles.td_responsavel_aprovacao}>{item.responsavel_aprovacao}</td>
+                                            <td className={styles.td_responsavel}>{item.responsible}</td>
+                                            <td className={styles.td_responsavel_aprovacao}>{item.approval_responsible}</td>
                                             <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(item)} disabled={!isAdmin}>❌</button>
-                                                <button onClick={() => {
-                                                    setLinhaVisivel(item._id); setNovosDados(item); setIsUpdating(item.area)
-                                                }
-                                                } disabled={!isAdmin}>⚙️</button>
+                                                <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
+                                                <button onClick={() => handleClickUpdate(item)}>⚙️</button>
                                             </td>
                                         </tr>
                                     )}
@@ -247,7 +255,7 @@ const TabelaAnalise = () => {
                             <CadastroInputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcoes={{enviar, isItemCadastrado}}
+                                funcoes={{ enviar, isItemCadastrado }}
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>
