@@ -6,9 +6,11 @@ import Loading from "../../../ui/Loading";
 import { handleFetch, handleReq } from '../../../../functions/crud_s';
 import { cleanForm } from "../../../../functions/general";
 import useAuth from "../../../../hooks/useAuth";
+import usePerm from "../../../../hooks/usePerm";
 
 const TabelaAnalise = () => {
     const { user, token } = useAuth();
+    const {isEditor} = usePerm();
     const camposVazios = {
         id: '',
         item_id: '',
@@ -220,6 +222,7 @@ const TabelaAnalise = () => {
                                             }}
                                             area_id={item.wbs_item.wbs_area.id}
                                             setExibirModal={setExibirModal}
+                                            disabled={!isEditor}
                                         />
                                     ) : (
                                         <tr style={{ backgroundColor: item.wbs_item.wbs_area.color }}>
@@ -245,8 +248,8 @@ const TabelaAnalise = () => {
                                             <td className={styles.td_responsavel}>{item.responsible}</td>
                                             <td className={styles.td_responsavel_aprovacao}>{item.approval_responsible}</td>
                                             <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(item)}>❌</button>
-                                                <button onClick={() => handleClickUpdate(item)}>⚙️</button>
+                                                <button onClick={() => setConfirmDeleteItem(item)} disabled={!isEditor}>❌</button>
+                                                <button onClick={() => handleClickUpdate(item)} disabled={!isEditor}>⚙️</button>
                                             </td>
                                         </tr>
                                     )}
@@ -257,6 +260,7 @@ const TabelaAnalise = () => {
                                 objSetter={setNovoSubmit}
                                 funcoes={{ enviar, isItemCadastrado }}
                                 setExibirModal={setExibirModal}
+                                disabled={!isEditor}
                             />
                         </tbody>
                     </table>

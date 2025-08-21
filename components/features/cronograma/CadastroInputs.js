@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
 import { fetchData } from "../../../functions/crud";
 import styles from '../../../styles/modules/cronograma.module.css';
-import { AuthContext } from "../../../contexts/AuthContext";
 
 const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt }) => {
     const [elementosWBS, setElementosWBS] = useState([]);

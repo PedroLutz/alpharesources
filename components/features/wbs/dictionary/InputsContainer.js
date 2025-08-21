@@ -3,7 +3,7 @@ import styles from '../../../../styles/modules/wbs.module.css'
 import { handleFetch } from '../../../../functions/crud_s';
 import useAuth from "../../../../hooks/useAuth";
 
-const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, area_id }) => {
+const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, area_id, disabled }) => {
     const [elementosWBS, setElementosWBS] = useState([]);
     const [itensPorArea, setItensPorArea] = useState([]);
     const [areasUnicas, setAreasUnicas] = useState([]);
@@ -247,10 +247,10 @@ const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, area_id }) => {
             </td>
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
-                    <button onClick={handleSubmit}>Add new</button>
+                    <button onClick={handleSubmit} disabled={disabled}>Add new</button>
                 ) : (
                     <React.Fragment>
-                        <button onClick={handleSubmit}>✔️</button>
+                        <button onClick={handleSubmit} disabled={disabled}>✔️</button>
                         <button onClick={funcoes?.cancelar}>✖️</button>
                     </React.Fragment>
                 )}

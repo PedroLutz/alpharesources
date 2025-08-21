@@ -7,7 +7,6 @@ import { jsDateToEuDate, euDateToJsDate, euDateToIsoDate, cleanForm } from '../.
 import styles from '../../../styles/modules/cronograma.module.css';
 import CadastroInputs from './CadastroInputs';
 import chroma from 'chroma-js';
-import { AuthContext } from "../../../contexts/AuthContext";
 
 const Tabela = () => {
   const [cronogramas, setCronogramas] = useState([]);
