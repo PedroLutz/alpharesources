@@ -27,8 +27,12 @@ const PageWrapper = ({ children }) => {
                                 link: "/pags/communication/stakeholders"
                             },
                             {
-                                label: 'Engagement',
+                                label: 'Stakeholder Engagement',
                                 link: "/pags/communication/engagement"
+                            },
+                            {
+                                label: 'Stakeholder Group Engagement',
+                                link: "/pags/communication/engagementGroups"
                             }
                         ]
                     }

@@ -35,6 +35,24 @@ const Tabela = () => {
             dados: novoSubmit,
             fetchDados: fetchStakeholders
         });
+
+        const objEngajamento = {
+            grupo: novoSubmit.grupo,
+            dependencia: '',
+            influencia: '',
+            controle: '',
+            impacto: '',
+            engajamento: '',
+            alinhamento: '',
+            nivel_engajamento: '',
+            nivel_eng_desejado: ''
+        }
+
+        await handleSubmit({
+            route: 'comunicacao/engajamentoGrupos',
+            dados: objEngajamento
+        })
+
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     };
 
@@ -188,7 +206,7 @@ const Tabela = () => {
                             <CadastroInputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcoes={{enviar, isGrupoCadastrado}}
+                                funcoes={{ enviar, isGrupoCadastrado }}
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>

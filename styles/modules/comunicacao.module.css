@@ -78,6 +78,27 @@ ENGAJAMENTO
     width: 100%;
 }
 
+.tabelaEngajamento td input {
+    width: 100%;
+}
+
+.tabelaEngajamento th.eng_average,
+.tabelaEngajamento td.eng_average{
+    width: 3rem;
+    font-size: 0.7rem;
+}
+
+.tabelaEngajamento th.eng_mapping,
+.tabelaEngajamento td.eng_mapping{
+    width: 9rem;
+}
+
+.tabelaEngajamento th.eng_camposMenores,
+.tabelaEngajamento td.eng_camposMenores {
+    width: 5rem;
+    font-size: 0.7rem;
+}
+
 .tabelaEngajamento td.eng_poderId,
 .tabelaEngajamento td.eng_interesseId {
     width: 4rem;
@@ -147,7 +168,9 @@ RESPONSIVIDADE
         width: 100%;
     }
 
-    .tabelaEngajamento th.eng_engajamentoId {
+    .tabelaEngajamento th.eng_engajamentoId,
+    .tabelaEngajamento th.eng_camposMenores,
+    .tabelaEngajamento td.eng_camposMenores {
         font-size: 0.6rem;
         width: 5rem;
     }

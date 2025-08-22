@@ -3,12 +3,14 @@ import { verificarAuth } from '../../../../lib/verifica_auth';
 import StakeholderGroupModel from '../../../../models/comunicacao/StakeholderGroup';
 import StakeholderModel from '../../../../models/comunicacao/Stakeholder';
 import EngajamentoModel from '../../../../models/comunicacao/Engajamento';
+import EngajamentoGrupoModel from '../../../../models/comunicacao/EngajamentoGrupo';
 import InformacaoModel from '../../../../models/comunicacao/Informacao';
 import mongoose from 'mongoose';
 
 const { StakeholderGroup, StakeholderGroupSchema } = StakeholderGroupModel;
 const { Stakeholder } = StakeholderModel;
 const { Engajamento } = EngajamentoModel;
+const { EngajamentoGrupo } = EngajamentoGrupoModel;
 const { Informacao } = InformacaoModel;
 
 export default async (req, res) => {
@@ -71,6 +73,12 @@ export default async (req, res) => {
         )
 
         await Informacao.updateMany(
+          { grupo: grupoOriginal.grupo },
+          { $set: { grupo: updateFields.grupo } },
+          { session }
+        )
+
+        await EngajamentoGrupo.updateMany(
           { grupo: grupoOriginal.grupo },
           { $set: { grupo: updateFields.grupo } },
           { session }
