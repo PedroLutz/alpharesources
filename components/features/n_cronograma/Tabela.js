@@ -3,6 +3,7 @@ import Loading from '../../ui/Loading';
 import Modal from '../../ui/Modal';
 import { Chart } from 'react-google-charts';
 import { fetchData, handleDelete, handleUpdate, handleSubmit } from '../../../functions/crud';
+import { handleFetch } from '../../../functions/crud_s';
 import { cleanForm, jsDateToEuDate, euDateToIsoDate, euDateToJsDate } from '../../../functions/general';
 import styles from '../../../styles/modules/cronograma.module.css';
 import CadastroInputs from './CadastroInputs';
@@ -23,12 +24,10 @@ const Tabela = () => {
   const [loading, setLoading] = useState(true);
   const [cores, setCores] = useState({});
   const camposVazios = {
-    item: '',
-    area: '',
+    item_id: '',
     inicio: '',
     termino: '',
-    dp_item: '',
-    dp_area: '',
+    dp_item_id: '',
   }
   const camposSubmit = {
     id: '',
@@ -127,57 +126,75 @@ const Tabela = () => {
     return createGanttData();
   }, [cronogramas, etis]);
 
+  const checkAreaDisponivel = (area_id, isDp) => {
+    if(cronogramas.length == 0){
+      return !isDp;
+    }
+    return cronogramas.some((c) => {
+      isDp ? c.wbs_item.wbs_area.id == area_id
+           : c.wbs_item.wbs_area.id != area_id
+      }
+    );
+  }
+
+  const checkItemDisponivel = (item_id, isDp) => {
+    if(cronogramas.length == 0){
+      return !isDp;
+    }
+    return cronogramas.some((c) => {
+      isDp ? c.wbs_item.id == item_id
+           : c.wbs_item.id != item_id
+      }
+    );
+  }
 
   //funcao para puxar os dados de cronograma, ETIs e cores, tratando-os e armazenando-os em estados
   const fetchCronogramas = async () => {
     try {
-      const data = await fetchData('cronograma/get/planos');
-      const dataETIs = await fetchData('riscos/analise/get/etis_per_item');
-      const dataCores = await fetchData('wbs/get/cores');
-
-      data.cronogramaPlanos.forEach((item) => {
-        item.inicio = jsDateToEuDate(item.inicio);
-        item.termino = jsDateToEuDate(item.termino);
-      });
-      data.cronogramaPlanos.sort((a, b) => {
-        if (a.area < b.area) return -1;
-        if (a.area > b.area) return 1;
-        return 0;
-      });
-
-      const cronogramaComContingencias = data.cronogramaPlanos.map(item => ({ ...item }));;
-      cronogramaComContingencias.forEach((item) => {
-        if (dataETIs.resultadosAgrupados[item.item]) {
-          const termino = euDateToJsDate(item.termino)
-          const terminoConvertido = adicionarDias(termino, Math.floor(dataETIs.resultadosAgrupados[item.item]));
-          item.termino = jsDateToEuDate(terminoConvertido);
-        }
+      const data = await handleFetch({
+        table: 'gantt',
+        query: 'all',
+        token
       })
+      setCronogramas(data.data);
+      setTabela(data.data);
+      // const dataETIs = await fetchData('riscos/analise/get/etis_per_item');
+
+      data.data.forEach((item) => {
+        item.start = jsDateToEuDate(item.start);
+        item.end = jsDateToEuDate(item.end);
+      });
+
+      // const cronogramaComContingencias = data.cronogramaPlanos.map(item => ({ ...item }));;
+      // cronogramaComContingencias.forEach((item) => {
+      //   if (dataETIs.resultadosAgrupados[item.item]) {
+      //     const termino = euDateToJsDate(item.termino)
+      //     const terminoConvertido = adicionarDias(termino, Math.floor(dataETIs.resultadosAgrupados[item.item]));
+      //     item.termino = jsDateToEuDate(terminoConvertido);
+      //   }
+      // })
 
       //adicionar cores na tabela
-      var cores = {};
-      dataCores.areasECores.forEach((area) => {
-        cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
-      })
+      // var cores = {};
+      // dataCores.areasECores.forEach((area) => {
+      //   cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
+      // })
 
-      //adicionar cores no grafico (apenas as cores de areas que tem alguma coisa sendo executada)
-      var paleta = [];
-      for (const [key, value] of Object.entries(cores)) {
-        if (data.cronogramaPlanos.some((item) => item.area === key && item.termino !== null)) {
-          paleta.push({
-            "color": value ? chroma(value).darken().saturate(3).hex() : '#000000',
-            "dark": value ? chroma(value).hex() : '#000000',
-            "light": value ? chroma(value).darken().hex() : '#000000'
-          })
-        }
-      }
+      // var paleta = [];
+      // for (const [key, value] of Object.entries(cores)) {
+      //   if (data.cronogramaPlanos.some((item) => item.area === key && item.termino !== null)) {
+      //     paleta.push({
+      //       "color": value ? chroma(value).darken().saturate(3).hex() : '#000000',
+      //       "dark": value ? chroma(value).hex() : '#000000',
+      //       "light": value ? chroma(value).darken().hex() : '#000000'
+      //     })
+      //   }
+      // }
 
-      setCores(cores);
-      setPaleta(paleta);
-      setEtis(dataETIs.resultadosAgrupados);
-      setCronogramas(data.cronogramaPlanos);
-      setCronogramasCont(cronogramaComContingencias);
-      setTabela(data.cronogramaPlanos);
+      // setEtis(dataETIs.resultadosAgrupados);
+      // setCronogramas(data.cronogramaPlanos);
+      // setCronogramasCont(cronogramaComContingencias);
+      // setTabela(data.cronogramaPlanos);
     } finally {
       setLoading(false);
     }
@@ -195,7 +212,7 @@ const Tabela = () => {
 
   //useEffect que só executa as funcoes quando reload atualiza
   useEffect(() => {
-    if(reload == true){
+    if (reload == true) {
       setReload(false);
       fetchCronogramas();
     }
@@ -242,7 +259,7 @@ const Tabela = () => {
     await handleSubmit({
       route: 'cronograma',
       dados: formDataGantt,
-      
+
     });
     cleanForm(novoSubmit, setNovoSubmit, camposVazios);
   };
@@ -264,7 +281,7 @@ const Tabela = () => {
     setLinhaVisivel();
   };
 
-  
+
   //funcao que calcula o rowSpan do td da area de acordo com os itens 
   const calculateRowSpan = (itens, currentArea, currentIndex) => {
     let rowSpan = 1;
@@ -332,31 +349,31 @@ const Tabela = () => {
       >{!showContingencies ? `Show contingencies` : `Hide contingencies`}</button>
 
       {chartDataLoaded && (
-        <div style={{width: '90%', height: chartHeight}}>
+        <div style={{ width: '90%', height: chartHeight }}>
           <Chart
-          key={isMobile ? "mobile" : "desktop"}
-          height="100%"
-          width="100%"
-          chartType="Gantt"
-          loader={<div>Loading Chart</div>}
-          data={!showContingencies ? chartData : chartDataContingencies}
-          options={{
-            gantt: {
-              trackHeight: isMobile ? 20 : 30,
-              barHeight: isMobile ? 10 : null,
-              arrow: {
-                length: isMobile ? 0 : 8
+            key={isMobile ? "mobile" : "desktop"}
+            height="100%"
+            width="100%"
+            chartType="Gantt"
+            loader={<div>Loading Chart</div>}
+            data={!showContingencies ? chartData : chartDataContingencies}
+            options={{
+              gantt: {
+                trackHeight: isMobile ? 20 : 30,
+                barHeight: isMobile ? 10 : null,
+                arrow: {
+                  length: isMobile ? 0 : 8
+                },
+                sortTasks: false,
+                palette: paleta,
+                shadowEnabled: false,
+                criticalPathEnabled: false,
+                labelMaxWidth: isMobile ? 0 : 300
               },
-              sortTasks: false,
-              palette: paleta,
-              shadowEnabled: false,
-              criticalPathEnabled: false,
-              labelMaxWidth: isMobile ? 0 : 300
-            },
-          }}
-        />
+            }}
+          />
         </div>
-        
+
       )}
 
       <div className="centered-container">
@@ -382,7 +399,9 @@ const Tabela = () => {
                     tipo='cadastro'
                     funcoes={{
                       enviar,
-                      setLoading
+                      setLoading,
+                      checkAreaDisponivel,
+                      checkItemDisponivel,
                     }}
                     setExibirModal={setExibirModal}
                   />
@@ -406,6 +425,8 @@ const Tabela = () => {
                           funcoes={{
                             enviar: handleUpdateItem,
                             setLoading,
+                            checkAreaDisponivel,
+                            checkItemDisponivel,
                             cancelar: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
                           }}
                         />
@@ -416,14 +437,14 @@ const Tabela = () => {
                           <td>{item.dp_area || '-'}</td>
                           <td>{item.dp_item || '-'}</td>
                           <td className="botoes_acoes">
-                            
-                              <button onClick={() => setConfirmDeleteItem(item)}
-                                disabled={!isAdmin}>❌</button>
-                              <button onClick={() => {
-                                linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
-                              }}
-                                disabled={!isAdmin}>⚙️</button>
-                            
+
+                            <button onClick={() => setConfirmDeleteItem(item)}
+                              disabled={!isAdmin}>❌</button>
+                            <button onClick={() => {
+                              linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
+                            }}
+                              disabled={!isAdmin}>⚙️</button>
+
                           </td>
                         </React.Fragment>
                       )}

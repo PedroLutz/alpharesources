@@ -45,20 +45,6 @@ const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, area_id, disabl
         fetchElementos();
     }, []);
 
-    //esse useEffect só rorda quando a area do obj é alterada, e garante que, quando a area é alterada,
-    //o campo 'item' tenha seu valor apagado, evitando mistura de itens com areas a qual n pertecem
-    useEffect(() => {
-        if (isFirstRender.current) {
-            isFirstRender.current = false;
-            return;
-        }
-
-        objSetter({
-            ...obj,
-            item: ''
-        });
-    }, [obj.area]);
-
     const atualizarItensPorArea = (area) => {
         const itensDaArea = elementosWBS.filter(item => item.wbs_area.id == area);
         setItensPorArea(itensDaArea);

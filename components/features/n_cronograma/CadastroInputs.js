@@ -1,20 +1,26 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
-import { fetchData } from "../../../functions/crud";
+import { handleFetch } from "../../../functions/crud_s";
 import styles from '../../../styles/modules/cronograma.module.css';
+import useAuth from "../../../hooks/useAuth";
 
 const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt }) => {
     const [elementosWBS, setElementosWBS] = useState([]);
-    const [itensPorArea, setItensPorArea] = useState({ notDp: [], dp: [] });
+    const [areas, setAreas] = useState([]);
+    const [areasDp, setAreasDp] = useState([]);
+    const [areaSelecionada, setAreaSelecionada] = useState();
+    const [areaSelecionadaDp, setAreaSelecionadaDp] = useState();
+    const [itensDaArea, setItensDaArea] = useState([]);
+    const [itensDaAreaDp, setItensDaAreaDp] = useState([]);
     const camposRef = useRef({
         item: null,
         area: null,
-        inicio: null,
-        termino: null,
+        start: null,
+        end: null,
         dp_item: null,
         dp_area: null,
         situacao: null,
     });
-    const { isAdmin } = useContext(AuthContext);
+    const {token} = useAuth();
 
     //funcao para inserir os dados dos inputs para o objeto
     const handleChange = (e) => {
@@ -41,16 +47,16 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt }
         let camposConsiderados;
         if (tipo === 'update' || tipo === 'updatemonitoring') {
             camposConsiderados = {
-                inicio: obj.inicio,
-                termino: obj.termino,
+                start: obj.start,
+                end: obj.end,
                 situacao: obj.situacao
             }
         } else if (tipo === 'cadastro') {
             camposConsiderados = {
                 area: obj.area,
                 item: obj.item,
-                inicio: obj.inicio,
-                termino: obj.termino,
+                start: obj.start,
+                end: obj.end,
             }
         }
 
@@ -75,14 +81,14 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt }
                 dp_item: ''
             }
         }
-        if (obj.inicio === "1970-01-01" && obj.termino === "1970-01-01") {
+        if (obj.start === "1970-01-01" && obj.end === "1970-01-01") {
             objEnviado = {
                 ...obj,
-                inicio: '',
-                termino: ''
+                start: '',
+                end: ''
             }
         }
-        if (obj.inicio > obj.termino) {
+        if (obj.start > obj.end) {
             setExibirModal('datasErradas');
             return true;
         }
@@ -98,26 +104,58 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt }
         }
     }
 
-
-    //funcao para atualizar os itens no select apos a selecao de uma area (seja dp ou nao)
-    const handleAreaChange = (e, isDp) => {
-        const areaSelecionada = e.target.value;
-        const itensDaArea = elementosWBS
-            .filter(item => item.area === areaSelecionada).map(item => item.item);
-        if (!isDp) {
-            setItensPorArea({ ...itensPorArea, notDp: itensDaArea });
-        } else {
-            setItensPorArea({ ...itensPorArea, dp: itensDaArea });
+    const atualizarItensPorArea = (area, setter, isDp) => {
+            const itensDaArea = elementosWBS.filter(item => item.wbs_area.id == area 
+                && funcoes?.checkItemDisponivel(item.id, isDp));
+            setter(itensDaArea);
         }
-        handleChange(e);
-    };
+    
+        useEffect(() => {
+            if (areaSelecionada != '') {
+                atualizarItensPorArea(areaSelecionada, setItensDaArea, false);
+            }
+        }, [areaSelecionada, elementosWBS]);
+    
+        const handleAreaChange = (e, isDp) => {
+            const areaSelecionada = e.target.value;
+            if(isDp) {
+                objSetter({...obj, dp_item_id: ""});
+                atualizarItensPorArea(areaSelecionada, setItensDaAreaDp, isDp);
+                setAreaSelecionadaDp(areaSelecionada);
+            } else {
+                objSetter({...obj, item_id: ""});
+                atualizarItensPorArea(areaSelecionada, setItensDaArea, isDp);
+                setAreaSelecionada(areaSelecionada);
+            }
+        };
 
 
     //funcao para buscar os elementos da WBS para inserção nos selects
     const fetchElementos = async () => {
-        const data = await fetchData('wbs/get/all');
-        setElementosWBS(data.elementos);
-    };
+            const data = await handleFetch({
+                table: 'wbs_item',
+                query: 'with_areas',
+                token
+            })
+            const elementos = data.data;
+            setAreas([...new Map(
+                    elementos
+                    .filter(item => funcoes?.checkAreaDisponivel(item.wbs_area.id, false))
+                    .map(item => [
+                        item.wbs_area.id, 
+                        { id: item.wbs_area.id, name: item.wbs_area.name }])
+                ).values()
+            ]);
+            setAreasDp([...new Map(
+                    elementos
+                    .filter(item => funcoes?.checkAreaDisponivel(item.wbs_area.id, true))
+                    .map(item => [
+                        item.wbs_area.id, 
+                        { id: item.wbs_area.id, name: item.wbs_area.name }])
+                ).values()
+            ]);
+            setElementosWBS(elementos);
+    }
 
 
     //useEffect que roda apenas na primeira execucao
@@ -166,12 +204,12 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt }
                         <select
                             name="area"
                             onChange={(e) => handleAreaChange(e, false)}
-                            value={obj.area}
+                            value={areaSelecionada}
                             ref={el => (camposRef.current.area = el)}
                         >
                             <option value="" defaultValue>Area</option>
-                            {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
-                                <option key={index} value={area}>{area}</option>
+                            {areas.map((area, index) => (
+                                <option key={index} value={area.id}>{area.name}</option>
                             ))};
                         </select>
                     </td>
@@ -183,8 +221,8 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt }
                             ref={el => (camposRef.current.item = el)}
                         >
                             <option value="" defaultValue>Item</option>
-                            {itensPorArea.notDp.map((item, index) => (
-                                <option key={index} value={item}>{item}</option>
+                            {itensDaArea.map((item, index) => (
+                                <option key={index} value={item.id}>{item.name}</option>
                             ))}
                         </select>
                     </td>
@@ -193,19 +231,19 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt }
             <td>
                 <input
                     type="date"
-                    name="inicio"
+                    name="start"
                     onChange={handleChange}
-                    value={obj.inicio}
-                    ref={el => (camposRef.current.inicio = el)}
+                    value={obj.start}
+                    ref={el => (camposRef.current.start = el)}
                 />
             </td>
             <td>
                 <input
                     type="date"
-                    name="termino"
+                    name="end"
                     onChange={handleChange}
-                    value={obj.termino}
-                    ref={el => (camposRef.current.termino = el)}
+                    value={obj.end}
+                    ref={el => (camposRef.current.end = el)}
                 />
             </td>
             {tipo !== 'updatemonitoring' ? (
@@ -214,12 +252,12 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt }
                         <select
                             name="dp_area"
                             onChange={(e) => handleAreaChange(e, true)}
-                            value={obj.dp_area}
+                            value={areaSelecionadaDp}
                             ref={el => (camposRef.current.dp_area = el)}
                         >
                             <option value="" defaultValue>None</option>
-                            {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
-                                <option key={index} value={area}>{area}</option>
+                            {areasDp.map((area, index) => (
+                                <option key={index} value={area.id}>{area.name}</option>
                             ))};
                         </select>
                     </td>
@@ -231,8 +269,8 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt }
                             ref={el => (camposRef.current.dp_item = el)}
                         >
                             <option value="" defaultValue>None</option>
-                            {itensPorArea.dp.map((item, index) => (
-                                <option key={index} value={item}>{item}</option>
+                            {itensDaAreaDp.map((item, index) => (
+                                <option key={index} value={item.id}>{item.value}</option>
                             ))}
                         </select>
                     </td>
@@ -260,7 +298,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt }
             )}
             <td className={tipo !== 'cadastro' ? 'botoes_acoes' : undefined}>
                 {tipo === 'cadastro' ? (
-                    <button className={styles.botaoCadastro} disabled={!isAdmin} onClick={(e) => handleSubmit(e)}>Add new</button>
+                    <button className={styles.botaoCadastro} onClick={(e) => handleSubmit(e)}>Add new</button>
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>
