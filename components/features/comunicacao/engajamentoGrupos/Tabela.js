@@ -49,14 +49,14 @@ const Tabela = () => {
         const poder = ((engajamento.controle + engajamento.influencia + engajamento.dependencia)/3).toFixed(2);
         const interesse = ((engajamento.impacto + engajamento.engajamento + engajamento.alinhamento)/3).toFixed(2);
 
-        if(poder < 2.5){
-            if(interesse < 2.5){
+        if(poder < 3){
+            if(interesse < 3){
                 return "Monitor";
             } else {
                 return "Keep informed"
             }
         } else {
-            if(interesse < 2.5){
+            if(interesse < 3){
                 return "Keep satisfied";
             } else {
                 return "Close Management"
