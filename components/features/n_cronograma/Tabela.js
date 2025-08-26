@@ -23,12 +23,6 @@ const Tabela = () => {
   const [reload, setReload] = useState(false);
   const [loading, setLoading] = useState(true);
   const [cores, setCores] = useState({});
-  const camposVazios = {
-    item_id: '',
-    inicio: '',
-    termino: '',
-    dp_item_id: '',
-  }
   const camposSubmit = {
     id: '',
     item_id: '',
@@ -128,7 +122,7 @@ const Tabela = () => {
     }
     return cronogramas.some((c) => {
       return isDp ? c.wbs_item.wbs_area.id == area_id
-                  : (c.wbs_item.wbs_area.id != area_id || c.wbs_item.wbs_area.id == area_id && c.wbs_item.id != item_id)
+        : (c.wbs_item.wbs_area.id != area_id || c.wbs_item.wbs_area.id == area_id && c.wbs_item.id != item_id)
     }
     );
   }
@@ -159,6 +153,7 @@ const Tabela = () => {
         item.end = jsDateToEuDate(item.end);
       });
 
+      console.log(data.data);
       setCronogramas(data.data);
       setTabela(data.data);
 
@@ -235,23 +230,47 @@ const Tabela = () => {
 
   //funcao que cadastra o plano e o monitoramento, com os dados vazios
   const enviar = async () => {
+    var formDataDependency = {
+      dependency_id: cronogramas.find((c) => c.wbs_item.id == novoSubmit.dp_item).id,
+      user_id: user.id
+    }
+    delete novoSubmit.id;
+    delete novoSubmit.plano;
+    delete novoSubmit.dp_item;
+    delete novoSubmit.dp_area;
+    const formDataGantt = {
+      ...novoSubmit,
+      is_plan: true,
+      status: 'start',
+      start: null,
+      end: null,
+      user_id: user.id
+    }
     const formDataPlano = {
       ...novoSubmit,
       is_plan: true,
       status: 'start',
       user_id: user.id
     }
-    delete formDataPlano.id;
-    delete formDataPlano.plano;
-    delete formDataPlano.dp_item;
-    delete formDataPlano.dp_area;
-    await handleReq({
+    const success = await handleReq({
       table: 'gantt',
       route: 'create',
       token,
       data: formDataPlano,
       fetchData: fetchCronogramas
     })
+    formDataDependency = {
+      ...formDataDependency,
+      gantt_id: success.data.resultado[0].id
+    }
+    if (formDataDependency.dependency_id != "" && formDataDependency.dependency_id != null) {
+      await handleReq({
+        table: 'gantt_dependency',
+        route: 'create',
+        token,
+        data: formDataDependency,
+      })
+    }
     // const formDataPlano = {
     //   ...novoSubmit,
     //   plano: true,
@@ -282,7 +301,7 @@ const Tabela = () => {
   const handleUpdateItem = async () => {
     if (novosDados) {
       try {
-       await handleReq({
+        await handleReq({
           table: 'gantt',
           route: 'update',
           token,
@@ -452,8 +471,8 @@ const Tabela = () => {
                         <React.Fragment>
                           <td>{item.start}</td>
                           <td>{item.end}</td>
-                          <td>{item.gantt_dependency[0]?.id || '-'}</td>
-                          <td>{item.gantt_dependency[0]?.id || '-'}</td>
+                          <td>{item.gantt_dependency[0]?.dependency_id || '-'}</td>
+                          <td>{item.gantt_dependency[0]?.dependency_id || '-'}</td>
                           <td className="botoes_acoes">
 
                             <button onClick={() => setConfirmDeleteItem(item)}

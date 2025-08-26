@@ -119,7 +119,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
     const handleAreaChange = (e, isDp) => {
         const areaSelecionada = e.target.value;
         if (isDp) {
-            objSetter({ ...obj, dp_item_id: "" });
+            objSetter({ ...obj, dp_item: "" });
             atualizarItensPorArea(areaSelecionada, setItensDaAreaDp, isDp);
             setAreaSelecionadaDp(areaSelecionada);
         } else {

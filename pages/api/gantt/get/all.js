@@ -18,14 +18,14 @@ export default async function handler(req, res) {
         start,
         end,
         status,
-        gantt_dependency!gantt_dependency_duplicate_dependency_id_fkey (
-          dependency: dependency_id (
-            id
-          )
+        gantt_dependency!gantt_dependency_duplicate_gantt_id_fkey (
+      dependency_id
+    )
         )`)
     .order('wbs_item(wbs_area->name)', { ascending: true })
     .order('wbs_item(name)', { ascending: true })
 
+  console
   if (error) return res.status(400).json({ error: error.message })
 
   return res.status(200).json(data)
