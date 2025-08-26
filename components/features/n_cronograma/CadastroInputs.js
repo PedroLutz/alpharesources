@@ -3,7 +3,7 @@ import { handleFetch } from "../../../functions/crud_s";
 import styles from '../../../styles/modules/cronograma.module.css';
 import useAuth from "../../../hooks/useAuth";
 
-const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt }) => {
+const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, loading }) => {
     const [elementosWBS, setElementosWBS] = useState([]);
     const [areas, setAreas] = useState([]);
     const [areasDp, setAreasDp] = useState([]);
@@ -20,7 +20,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt }
         dp_area: null,
         situacao: null,
     });
-    const {token} = useAuth();
+    const { token } = useAuth();
 
     //funcao para inserir os dados dos inputs para o objeto
     const handleChange = (e) => {
@@ -105,56 +105,60 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt }
     }
 
     const atualizarItensPorArea = (area, setter, isDp) => {
-            const itensDaArea = elementosWBS.filter(item => item.wbs_area.id == area 
-                && funcoes?.checkItemDisponivel(item.id, isDp));
-            setter(itensDaArea);
+        const itensDaArea = elementosWBS.filter(item => item.wbs_area.id == area
+            && funcoes?.checkItemDisponivel(item.id, isDp));
+        setter(itensDaArea);
+    }
+
+    useEffect(() => {
+        if (areaSelecionada != '') {
+            atualizarItensPorArea(areaSelecionada, setItensDaArea, false);
         }
-    
-        useEffect(() => {
-            if (areaSelecionada != '') {
-                atualizarItensPorArea(areaSelecionada, setItensDaArea, false);
-            }
-        }, [areaSelecionada, elementosWBS]);
-    
-        const handleAreaChange = (e, isDp) => {
-            const areaSelecionada = e.target.value;
-            if(isDp) {
-                objSetter({...obj, dp_item_id: ""});
-                atualizarItensPorArea(areaSelecionada, setItensDaAreaDp, isDp);
-                setAreaSelecionadaDp(areaSelecionada);
-            } else {
-                objSetter({...obj, item_id: ""});
-                atualizarItensPorArea(areaSelecionada, setItensDaArea, isDp);
-                setAreaSelecionada(areaSelecionada);
-            }
-        };
+    }, [areaSelecionada, elementosWBS]);
+
+    const handleAreaChange = (e, isDp) => {
+        const areaSelecionada = e.target.value;
+        if (isDp) {
+            objSetter({ ...obj, dp_item_id: "" });
+            atualizarItensPorArea(areaSelecionada, setItensDaAreaDp, isDp);
+            setAreaSelecionadaDp(areaSelecionada);
+        } else {
+            objSetter({ ...obj, item_id: "" });
+            atualizarItensPorArea(areaSelecionada, setItensDaArea, isDp);
+            setAreaSelecionada(areaSelecionada);
+        }
+    };
 
 
     //funcao para buscar os elementos da WBS para inserção nos selects
     const fetchElementos = async () => {
+        var elementos
+        try {
             const data = await handleFetch({
                 table: 'wbs_item',
                 query: 'with_areas',
                 token
             })
-            const elementos = data.data;
+            elementos = data.data;
+        } finally {
             setAreas([...new Map(
-                    elementos
-                    .filter(item => funcoes?.checkAreaDisponivel(item.wbs_area.id, false))
+                elementos
+                    .filter(item => funcoes?.checkAreaDisponivel(item.wbs_area.id, item.id, false))
                     .map(item => [
-                        item.wbs_area.id, 
+                        item.wbs_area.id,
                         { id: item.wbs_area.id, name: item.wbs_area.name }])
-                ).values()
+            ).values()
             ]);
             setAreasDp([...new Map(
-                    elementos
-                    .filter(item => funcoes?.checkAreaDisponivel(item.wbs_area.id, true))
+                elementos
+                    .filter(item => funcoes?.checkAreaDisponivel(item.wbs_area.id, item.id, true))
                     .map(item => [
-                        item.wbs_area.id, 
+                        item.wbs_area.id,
                         { id: item.wbs_area.id, name: item.wbs_area.name }])
-                ).values()
+            ).values()
             ]);
             setElementosWBS(elementos);
+        }
     }
 
 
@@ -163,16 +167,38 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt }
         fetchElementos();
     }, []);
 
+    useEffect(() => {
+        if (loading == false) {
+            setAreas([...new Map(
+                elementosWBS
+                    .filter(item => funcoes?.checkAreaDisponivel(item.wbs_area.id, item.id, false))
+                    .map(item => [
+                        item.wbs_area.id,
+                        { id: item.wbs_area.id, name: item.wbs_area.name }])
+            ).values()
+            ]);
+            setAreasDp([...new Map(
+                elementosWBS
+                    .filter(item => funcoes?.checkAreaDisponivel(item.wbs_area.id, item.id, true))
+                    .map(item => [
+                        item.wbs_area.id,
+                        { id: item.wbs_area.id, name: item.wbs_area.name }])
+            ).values()
+            ]);
+        }
+
+    }, [loading, elementosWBS])
+
     //useEffect que so executa quando obj.dp_area atualiza que apaga
     //o valor de dp_item caso dp_area for vazio
     useEffect(() => {
-        if (obj.dp_area == '') {
+        if (areaSelecionadaDp == '') {
             objSetter({
                 ...obj,
                 dp_item: ''
             })
         }
-    }, [obj.dp_area]);
+    }, [areaSelecionadaDp]);
 
 
     //so executa quando o tipo for cadastro pq a atualizacao n altera nem a area nem o item
@@ -181,18 +207,18 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt }
         if (tipo == 'cadastro') {
             objSetter({
                 ...obj,
-                item: ''
+                item_id: ''
             })
         }
-    }, [obj.area]);
+    }, [areaSelecionada]);
 
 
     //funcao que valida os dados e executa ou nao a funcao de submit
     const handleSubmit = async () => {
         funcoes?.setLoading(true);
-        const isInvalido = await validaDados();
+        // const isInvalido = await validaDados();
         funcoes?.setLoading(false);
-        if (isInvalido) return;
+        // if (isInvalido) return;
         funcoes?.enviar();
     }
 
@@ -215,9 +241,9 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt }
                     </td>
                     <td>
                         <select
-                            name="item"
+                            name="item_id"
                             onChange={handleChange}
-                            value={obj.item}
+                            value={obj.item_id}
                             ref={el => (camposRef.current.item = el)}
                         >
                             <option value="" defaultValue>Item</option>
@@ -270,7 +296,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt }
                         >
                             <option value="" defaultValue>None</option>
                             {itensDaAreaDp.map((item, index) => (
-                                <option key={index} value={item.id}>{item.value}</option>
+                                <option key={index} value={item.id}>{item.name}</option>
                             ))}
                         </select>
                     </td>
@@ -290,7 +316,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt }
                         value={obj.situacao}
                         ref={el => (camposRef.current.situacao = el)}
                     >
-                        <option value="iniciar">Starting</option>
+                        <option value="start">Starting</option>
                         <option value="em andamento">Executing</option>
                         <option value="concluida">Completed</option>
                     </select>

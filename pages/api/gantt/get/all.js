@@ -13,16 +13,16 @@ export default async function handler(req, res) {
     .from('gantt')
     .select(`
         id,
-        wbs_item ( id, wbs_area (id, name), name),
+        wbs_item ( id, wbs_area (id, color, name), name),
         is_plan,
         start,
         end,
         status,
         gantt_dependency!gantt_dependency_duplicate_dependency_id_fkey (
-      dependency: dependency_id (
-        id
-      )
-    )`)
+          dependency: dependency_id (
+            id
+          )
+        )`)
     .order('wbs_item(wbs_area->name)', { ascending: true })
     .order('wbs_item(name)', { ascending: true })
 

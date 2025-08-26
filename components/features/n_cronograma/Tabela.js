@@ -3,7 +3,7 @@ import Loading from '../../ui/Loading';
 import Modal from '../../ui/Modal';
 import { Chart } from 'react-google-charts';
 import { fetchData, handleDelete, handleUpdate, handleSubmit } from '../../../functions/crud';
-import { handleFetch } from '../../../functions/crud_s';
+import { handleFetch, handleReq } from '../../../functions/crud_s';
 import { cleanForm, jsDateToEuDate, euDateToIsoDate, euDateToJsDate } from '../../../functions/general';
 import styles from '../../../styles/modules/cronograma.module.css';
 import CadastroInputs from './CadastroInputs';
@@ -38,8 +38,8 @@ const Tabela = () => {
     status: '',
     user_id: ''
   }
-  const [novosDados, setNovosDados] = useState(camposVazios);
-  const [novoSubmit, setNovoSubmit] = useState(camposVazios);
+  const [novosDados, setNovosDados] = useState(camposSubmit);
+  const [novoSubmit, setNovoSubmit] = useState(camposSubmit);
   const [paleta, setPaleta] = useState([]);
   const [etis, setEtis] = useState([]);
   const [showContingencies, setShowContingencies] = useState(false);
@@ -50,32 +50,28 @@ const Tabela = () => {
   //funcao que recebe o item a ser atualizado e insere os campos relevantes em novosDados
   const handleUpdateClick = (item) => {
     setNovosDados({
-      _id: item._id,
-      plano: true,
-      inicio: euDateToIsoDate(item.inicio),
-      termino: euDateToIsoDate(item.termino),
-      dp_item: item.dp_item || undefined,
-      dp_area: item.dp_area || undefined,
-      situacao: item.situacao,
+      id: item.id,
+      item_id: item.wbs_item.id,
+      is_plan: true,
+      start: euDateToIsoDate(item.start),
+      end: euDateToIsoDate(item.end),
+      status: item.status
     });
   };
 
 
   //funcao que deleta o item tanto no plano quanto no monitoramento
-  const handleConfirmDelete = async () => {
+  const handleConfirmDelete = async (id) => {
+    setLoading(true);
     setConfirmDeleteItem(null);
-    if (confirmDeleteItem) {
-      var getDeleteSuccess = false;
-      try {
-        getDeleteSuccess = await handleDelete({
-          route: 'cronograma',
-          item: confirmDeleteItem,
-          fetchDados: fetchCronogramas
-        });
-      } finally {
-        setDeleteSuccess(getDeleteSuccess);
-      }
-    }
+    await handleReq({
+      table: "gantt",
+      route: 'delete',
+      token,
+      data: { id },
+      fetchData: fetchCronogramas
+    });
+    setLoading(false);
   };
 
 
@@ -96,13 +92,13 @@ const Tabela = () => {
     const ganttDataContingency = [['Task ID', 'Task Name', 'Resource', 'Start Date', 'End Date', 'Duration', 'Percent Complete', 'Dependencies']];
 
     cronogramas.forEach((item) => {
-      if (item.plano) {
+      if (item.is_plan) {
         var dependencies = ''
-        const taskID = `${item.area}_${item.item}`;
-        const taskName = item.item;
-        const resource = item.area;
-        const startDate = euDateToJsDate(item.inicio);
-        const endDate = euDateToJsDate(item.termino);
+        const taskID = `${item.id}`;
+        const taskName = item.wbs_item.name;
+        const resource = item.wbs_item.wbs_area.name;
+        const startDate = euDateToJsDate(item.start);
+        const endDate = euDateToJsDate(item.end);
         if (!item.dp_area && !item.dp_item) {
           dependencies = null;
         } else {
@@ -126,25 +122,25 @@ const Tabela = () => {
     return createGanttData();
   }, [cronogramas, etis]);
 
-  const checkAreaDisponivel = (area_id, isDp) => {
-    if(cronogramas.length == 0){
+  const checkAreaDisponivel = (area_id, item_id, isDp) => {
+    if (cronogramas.length == 0) {
       return !isDp;
     }
     return cronogramas.some((c) => {
-      isDp ? c.wbs_item.wbs_area.id == area_id
-           : c.wbs_item.wbs_area.id != area_id
-      }
+      return isDp ? c.wbs_item.wbs_area.id == area_id
+                  : (c.wbs_item.wbs_area.id != area_id || c.wbs_item.wbs_area.id == area_id && c.wbs_item.id != item_id)
+    }
     );
   }
 
   const checkItemDisponivel = (item_id, isDp) => {
-    if(cronogramas.length == 0){
+    if (cronogramas.length == 0) {
       return !isDp;
     }
     return cronogramas.some((c) => {
-      isDp ? c.wbs_item.id == item_id
-           : c.wbs_item.id != item_id
-      }
+      return isDp ? c.wbs_item.id == item_id
+        : c.wbs_item.id != item_id
+    }
     );
   }
 
@@ -156,14 +152,15 @@ const Tabela = () => {
         query: 'all',
         token
       })
-      setCronogramas(data.data);
-      setTabela(data.data);
       // const dataETIs = await fetchData('riscos/analise/get/etis_per_item');
 
       data.data.forEach((item) => {
         item.start = jsDateToEuDate(item.start);
         item.end = jsDateToEuDate(item.end);
       });
+
+      setCronogramas(data.data);
+      setTabela(data.data);
 
       // const cronogramaComContingencias = data.cronogramaPlanos.map(item => ({ ...item }));;
       // cronogramaComContingencias.forEach((item) => {
@@ -240,38 +237,57 @@ const Tabela = () => {
   const enviar = async () => {
     const formDataPlano = {
       ...novoSubmit,
-      plano: true,
-      situacao: 'concluida'
-    };
+      is_plan: true,
+      status: 'start',
+      user_id: user.id
+    }
+    delete formDataPlano.id;
+    delete formDataPlano.plano;
+    delete formDataPlano.dp_item;
+    delete formDataPlano.dp_area;
+    await handleReq({
+      table: 'gantt',
+      route: 'create',
+      token,
+      data: formDataPlano,
+      fetchData: fetchCronogramas
+    })
+    // const formDataPlano = {
+    //   ...novoSubmit,
+    //   plano: true,
+    //   situacao: 'concluida'
+    // };
 
-    const formDataGantt = {
-      ...novoSubmit,
-      plano: false,
-      inicio: null,
-      termino: null,
-      situacao: 'iniciar'
-    };
-    await handleSubmit({
-      route: 'cronograma',
-      dados: formDataPlano,
-      fetchDados: fetchCronogramas
-    });
-    await handleSubmit({
-      route: 'cronograma',
-      dados: formDataGantt,
+    // const formDataGantt = {
+    //   ...novoSubmit,
+    //   plano: false,
+    //   inicio: null,
+    //   termino: null,
+    //   situacao: 'iniciar'
+    // };
+    // await handleSubmit({
+    //   route: 'cronograma',
+    //   dados: formDataPlano,
+    //   fetchDados: fetchCronogramas
+    // });
+    // await handleSubmit({
+    //   route: 'cronograma',
+    //   dados: formDataGantt,
 
-    });
-    cleanForm(novoSubmit, setNovoSubmit, camposVazios);
+    // });
+    cleanForm(novoSubmit, setNovoSubmit, camposSubmit);
   };
 
   //funcao que trata os dados e atualiza o plano
   const handleUpdateItem = async () => {
     if (novosDados) {
       try {
-        await handleUpdate({
-          route: 'cronograma',
-          dados: novosDados,
-          fetchDados: fetchCronogramas
+       await handleReq({
+          table: 'gantt',
+          route: 'update',
+          token,
+          data: novosDados,
+          fetchData: fetchCronogramas
         });
       } catch (error) {
         console.error("Update failed:", error);
@@ -286,7 +302,7 @@ const Tabela = () => {
   const calculateRowSpan = (itens, currentArea, currentIndex) => {
     let rowSpan = 1;
     for (let i = currentIndex + 1; i < itens.length; i++) {
-      if (itens[i].area === currentArea) {
+      if (itens[i].wbs_item.wbs_area.name === currentArea) {
         rowSpan++;
       } else {
         break;
@@ -315,9 +331,9 @@ const Tabela = () => {
       {confirmDeleteItem && (
         <div className="overlay">
           <div className="modal">
-            <p>Are you sure you want to delete "{confirmDeleteItem.area} - {confirmDeleteItem.item}"?</p>
+            <p>Are you sure you want to delete "{confirmDeleteItem.wbs_item.wbs_area.name} - {confirmDeleteItem.wbs_item.name}"?</p>
             <div style={{ display: 'flex', gap: '10px' }}>
-              <button className="botao-padrao" onClick={handleConfirmDelete}>Confirm</button>
+              <button className="botao-padrao" onClick={() => handleConfirmDelete(confirmDeleteItem.id)}>Confirm</button>
               <button className="botao-padrao" onClick={() => setConfirmDeleteItem(null)}>Cancel</button>
             </div>
           </div>
@@ -365,7 +381,7 @@ const Tabela = () => {
                   length: isMobile ? 0 : 8
                 },
                 sortTasks: false,
-                palette: paleta,
+                // palette: paleta,
                 shadowEnabled: false,
                 criticalPathEnabled: false,
                 labelMaxWidth: isMobile ? 0 : 300
@@ -403,47 +419,49 @@ const Tabela = () => {
                       checkAreaDisponivel,
                       checkItemDisponivel,
                     }}
+                    loading={loading}
                     setExibirModal={setExibirModal}
                   />
                 </tr>
-                {tabela.filter((item) => item.plano).map((item, index) => (
-                  <tr key={index} style={{ backgroundColor: cores[item.area] }}>
+                {tabela.filter((item) => item.is_plan).map((item, index) => (
+                  <tr key={index} style={{ backgroundColor: item.wbs_item.wbs_area.color }}>
                     <React.Fragment>
-                      {index === 0 || cronogramas[index - 1].area !== item.area ? (
-                        <td rowSpan={calculateRowSpan(cronogramas, item.area, index)}
-                        >{item.area}</td>
+                      {index === 0 || cronogramas[index - 1].wbs_item.wbs_area.name !== item.wbs_item.wbs_area.name ? (
+                        <td rowSpan={calculateRowSpan(cronogramas, item.wbs_item.wbs_area.name, index)}
+                        >{item.wbs_item.wbs_area.name}</td>
                       ) : null}
                       <td>
-                        {item.item}
+                        {item.wbs_item.name}
                       </td>
-                      {linhaVisivel === item._id ? (
+                      {linhaVisivel === item.id ? (
                         <CadastroInputs
                           tipo="update"
                           obj={novosDados}
                           objSetter={setNovosDados}
                           setExibirModal={setExibirModal}
+                          loading={loading}
                           funcoes={{
                             enviar: handleUpdateItem,
                             setLoading,
                             checkAreaDisponivel,
                             checkItemDisponivel,
-                            cancelar: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
+                            cancelar: () => setLinhaVisivel()
                           }}
                         />
                       ) : (
                         <React.Fragment>
-                          <td>{item.inicio}</td>
-                          <td>{item.termino}</td>
-                          <td>{item.dp_area || '-'}</td>
-                          <td>{item.dp_item || '-'}</td>
+                          <td>{item.start}</td>
+                          <td>{item.end}</td>
+                          <td>{item.gantt_dependency[0]?.id || '-'}</td>
+                          <td>{item.gantt_dependency[0]?.id || '-'}</td>
                           <td className="botoes_acoes">
 
                             <button onClick={() => setConfirmDeleteItem(item)}
-                              disabled={!isAdmin}>❌</button>
+                            >❌</button>
                             <button onClick={() => {
-                              linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
+                              setLinhaVisivel(item.id); handleUpdateClick(item)
                             }}
-                              disabled={!isAdmin}>⚙️</button>
+                            >⚙️</button>
 
                           </td>
                         </React.Fragment>
