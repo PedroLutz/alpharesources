@@ -55,22 +55,29 @@ const Tabela = () => {
   };
 
   //funcao que deleta o item tanto no plano quanto no monitoramento
-  const handleConfirmDelete = async (id) => {
+  const handleConfirmDelete = async (confirmDeleteItem) => {
     setLoading(true);
     setConfirmDeleteItem(null);
     await handleReq({
       table: "gantt",
       route: 'delete',
       token,
-      data: { id },
+      data: { id: confirmDeleteItem.id },
       fetchData: fetchCronogramas
+    });
+    await handleReq({
+      table: "gantt",
+      route: 'delete',
+      subroute: 'monitorByName',
+      token,
+      data: { item_id: confirmDeleteItem.wbs_item.id }
     });
     await handleReq({
       table: "gantt_dependency",
       route: 'delete',
       subroute: 'byGanttId',
       token,
-      data: { id },
+      data: { id: confirmDeleteItem.id },
       fetchData: fetchCronogramas
     });
     setLoading(false);
@@ -155,18 +162,20 @@ const Tabela = () => {
     try {
       const data = await handleFetch({
         table: 'gantt',
-        query: 'all',
+        query: 'plans',
         token
       })
       // const dataETIs = await fetchData('riscos/analise/get/etis_per_item');
 
-      data.data.forEach((item) => {
-        item.start = jsDateToEuDate(item.start);
-        item.end = jsDateToEuDate(item.end);
-      });
+      // data.data.forEach((item) => {
+      //   item.start = jsDateToEuDate(item.start);
+      //   item.end = jsDateToEuDate(item.end);
+      // });
 
-      setCronogramas(data.data);
-      setTabela(data.data);
+      console.log(data.data);
+
+      // setCronogramas(data.data);
+      // setTabela(data.data);
 
       // const cronogramaComContingencias = data.cronogramaPlanos.map(item => ({ ...item }));;
       // cronogramaComContingencias.forEach((item) => {
@@ -252,9 +261,9 @@ const Tabela = () => {
     }
     delete novoSubmit.id;
     delete novoSubmit.dp_item;
-    const formDataGantt = {
+    const formDataMonitor = {
       ...novoSubmit,
-      is_plan: true,
+      is_plan: false,
       status: 'start',
       start: null,
       end: null,
@@ -273,6 +282,12 @@ const Tabela = () => {
       data: formDataPlano,
       fetchData: fetchCronogramas
     })
+    await handleReq({
+      table: 'gantt',
+      route: 'create',
+      token,
+      data: formDataMonitor,
+    })
     formDataDependency = {
       ...formDataDependency,
       gantt_id: success.data.resultado[0].id
@@ -285,18 +300,6 @@ const Tabela = () => {
         data: formDataDependency,
       })
     }
-    // const formDataGantt = {
-    //   ...novoSubmit,
-    //   plano: false,
-    //   inicio: null,
-    //   termino: null,
-    //   situacao: 'iniciar'
-    // };
-    // await handleSubmit({
-    //   route: 'cronograma',
-    //   dados: formDataGantt,
-
-    // });
     cleanForm(novoSubmit, setNovoSubmit, camposSubmit);
     setLoading(false);
   };
@@ -384,7 +387,7 @@ const Tabela = () => {
           <div className="modal">
             <p>Are you sure you want to delete "{confirmDeleteItem.wbs_item.wbs_area.name} - {confirmDeleteItem.wbs_item.name}"?</p>
             <div style={{ display: 'flex', gap: '10px' }}>
-              <button className="botao-padrao" onClick={() => handleConfirmDelete(confirmDeleteItem.id)}>Confirm</button>
+              <button className="botao-padrao" onClick={() => handleConfirmDelete(confirmDeleteItem)}>Confirm</button>
               <button className="botao-padrao" onClick={() => setConfirmDeleteItem(null)}>Cancel</button>
             </div>
           </div>
