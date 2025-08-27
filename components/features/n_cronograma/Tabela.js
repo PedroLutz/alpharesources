@@ -9,6 +9,7 @@ import styles from '../../../styles/modules/cronograma.module.css';
 import CadastroInputs from './CadastroInputs';
 import chroma from 'chroma-js';
 import useAuth from '../../../hooks/useAuth';
+import { update } from 'lodash';
 
 const Tabela = () => {
   const { user, token } = useAuth();
@@ -22,7 +23,6 @@ const Tabela = () => {
   const [linhaVisivel, setLinhaVisivel] = useState({});
   const [reload, setReload] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [cores, setCores] = useState({});
   const camposSubmit = {
     id: '',
     item_id: '',
@@ -49,10 +49,10 @@ const Tabela = () => {
       is_plan: true,
       start: euDateToIsoDate(item.start),
       end: euDateToIsoDate(item.end),
+      dp_item: item.gantt_dependency[0] ? item.gantt_dependency[0].dependency_id : null,
       status: item.status
     });
   };
-
 
   //funcao que deleta o item tanto no plano quanto no monitoramento
   const handleConfirmDelete = async (id) => {
@@ -61,6 +61,14 @@ const Tabela = () => {
     await handleReq({
       table: "gantt",
       route: 'delete',
+      token,
+      data: { id },
+      fetchData: fetchCronogramas
+    });
+    await handleReq({
+      table: "gantt_dependency",
+      route: 'delete',
+      subroute: 'byGanttId',
       token,
       data: { id },
       fetchData: fetchCronogramas
@@ -131,11 +139,15 @@ const Tabela = () => {
     if (cronogramas.length == 0) {
       return !isDp;
     }
-    return cronogramas.some((c) => {
-      return isDp ? c.wbs_item.id == item_id
-        : c.wbs_item.id != item_id
+    if (isDp) {
+      return cronogramas.some(c => c.wbs_item.id == item_id);
+    } else {
+      return !cronogramas.some(c => c.wbs_item.id == item_id);
     }
-    );
+  }
+
+  const findGanttById = (id) => {
+    return cronogramas.find((c) => c.id == id);
   }
 
   //funcao para puxar os dados de cronograma, ETIs e cores, tratando-os e armazenando-os em estados
@@ -153,7 +165,6 @@ const Tabela = () => {
         item.end = jsDateToEuDate(item.end);
       });
 
-      console.log(data.data);
       setCronogramas(data.data);
       setTabela(data.data);
 
@@ -167,22 +178,23 @@ const Tabela = () => {
       // })
 
       //adicionar cores na tabela
-      // var cores = {};
-      // dataCores.areasECores.forEach((area) => {
-      //   cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
-      // })
+      var cores = {};
+      data.data.forEach((c) => {
+        cores = { ...cores, [c.wbs_item.wbs_area.name]: c.wbs_item.wbs_area.color ? c.wbs_item.wbs_area.color : '' }
+      })
 
-      // var paleta = [];
-      // for (const [key, value] of Object.entries(cores)) {
-      //   if (data.cronogramaPlanos.some((item) => item.area === key && item.termino !== null)) {
-      //     paleta.push({
-      //       "color": value ? chroma(value).darken().saturate(3).hex() : '#000000',
-      //       "dark": value ? chroma(value).hex() : '#000000',
-      //       "light": value ? chroma(value).darken().hex() : '#000000'
-      //     })
-      //   }
-      // }
+      var paleta = [];
+      for (const [key, value] of Object.entries(cores)) {
+        if (data.data.some((item) => item.wbs_item.wbs_area.name === key && item.end !== null)) {
+          paleta.push({
+            "color": value ? chroma(value).darken().saturate(3).hex() : '#000000',
+            "dark": value ? chroma(value).hex() : '#000000',
+            "light": value ? chroma(value).darken().hex() : '#000000'
+          })
+        }
+      }
 
+      setPaleta(paleta);
       // setEtis(dataETIs.resultadosAgrupados);
       // setCronogramas(data.cronogramaPlanos);
       // setCronogramasCont(cronogramaComContingencias);
@@ -230,14 +242,16 @@ const Tabela = () => {
 
   //funcao que cadastra o plano e o monitoramento, com os dados vazios
   const enviar = async () => {
-    var formDataDependency = {
-      dependency_id: cronogramas.find((c) => c.wbs_item.id == novoSubmit.dp_item).id,
-      user_id: user.id
+    setLoading(true);
+    var formDataDependency;
+    if (novoSubmit.dp_item) {
+      formDataDependency = {
+        dependency_id: cronogramas.find((c) => c.wbs_item.id == novoSubmit.dp_item).id,
+        user_id: user.id
+      }
     }
     delete novoSubmit.id;
-    delete novoSubmit.plano;
     delete novoSubmit.dp_item;
-    delete novoSubmit.dp_area;
     const formDataGantt = {
       ...novoSubmit,
       is_plan: true,
@@ -271,12 +285,6 @@ const Tabela = () => {
         data: formDataDependency,
       })
     }
-    // const formDataPlano = {
-    //   ...novoSubmit,
-    //   plano: true,
-    //   situacao: 'concluida'
-    // };
-
     // const formDataGantt = {
     //   ...novoSubmit,
     //   plano: false,
@@ -286,33 +294,57 @@ const Tabela = () => {
     // };
     // await handleSubmit({
     //   route: 'cronograma',
-    //   dados: formDataPlano,
-    //   fetchDados: fetchCronogramas
-    // });
-    // await handleSubmit({
-    //   route: 'cronograma',
     //   dados: formDataGantt,
 
     // });
     cleanForm(novoSubmit, setNovoSubmit, camposSubmit);
+    setLoading(false);
   };
 
   //funcao que trata os dados e atualiza o plano
   const handleUpdateItem = async () => {
+    const updatedData = { ...novosDados };
+    delete updatedData?.dependency_id;
+    delete updatedData?.dp_item;
     if (novosDados) {
       try {
         await handleReq({
           table: 'gantt',
           route: 'update',
           token,
-          data: novosDados,
+          data: updatedData,
           fetchData: fetchCronogramas
         });
+
+        if (novosDados.dp_item != null) {
+          await handleReq({
+            table: "gantt_dependency",
+            route: 'delete',
+            subroute: 'byGanttId',
+            token,
+            data: { id: novosDados.id },
+            fetchData: fetchCronogramas
+          });
+
+          const formDataDependency = {
+            gantt_id: novosDados.id,
+            dependency_id: cronogramas.find((c) => c.wbs_item.id == novosDados.dp_item).id,
+            user_id: user.id
+          }
+          await handleReq({
+            table: 'gantt_dependency',
+            route: 'create',
+            token,
+            data: formDataDependency,
+            fetchData: fetchCronogramas
+          })
+        }
+
       } catch (error) {
         console.error("Update failed:", error);
       }
     }
-    cleanForm(novosDados, setNovosDados, camposVazios);
+    cleanForm(novosDados, setNovosDados, camposSubmit);
     setLinhaVisivel();
   };
 
@@ -400,7 +432,7 @@ const Tabela = () => {
                   length: isMobile ? 0 : 8
                 },
                 sortTasks: false,
-                // palette: paleta,
+                palette: paleta,
                 shadowEnabled: false,
                 criticalPathEnabled: false,
                 labelMaxWidth: isMobile ? 0 : 300
@@ -429,7 +461,7 @@ const Tabela = () => {
               <tbody>
                 <tr>
                   <CadastroInputs
-                    obj={{ ...novoSubmit, plano: true }}
+                    obj={{ ...novoSubmit, is_plan: true }}
                     objSetter={setNovoSubmit}
                     tipo='cadastro'
                     funcoes={{
@@ -437,6 +469,7 @@ const Tabela = () => {
                       setLoading,
                       checkAreaDisponivel,
                       checkItemDisponivel,
+                      findGanttById,
                     }}
                     loading={loading}
                     setExibirModal={setExibirModal}
@@ -464,6 +497,7 @@ const Tabela = () => {
                             setLoading,
                             checkAreaDisponivel,
                             checkItemDisponivel,
+                            findGanttById,
                             cancelar: () => setLinhaVisivel()
                           }}
                         />
@@ -471,10 +505,9 @@ const Tabela = () => {
                         <React.Fragment>
                           <td>{item.start}</td>
                           <td>{item.end}</td>
-                          <td>{item.gantt_dependency[0]?.dependency_id || '-'}</td>
-                          <td>{item.gantt_dependency[0]?.dependency_id || '-'}</td>
+                          <td>{item.gantt_dependency[0]?.dependency_id ? tabela.find(t => t.id == item.gantt_dependency[0]?.dependency_id).wbs_item.wbs_area.name : '-'}</td>
+                          <td>{item.gantt_dependency[0]?.dependency_id ? tabela.find(t => t.id == item.gantt_dependency[0]?.dependency_id).wbs_item.name : '-'}</td>
                           <td className="botoes_acoes">
-
                             <button onClick={() => setConfirmDeleteItem(item)}
                             >❌</button>
                             <button onClick={() => {

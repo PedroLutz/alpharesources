@@ -11,7 +11,7 @@ const handleReq = async (o) => {
   const method = routeToMethod[o.route];
   if (!method) throw new Error(`Invalid route: ${o.route}`);
 
-  let url = `/api/${o.table}/${o.route}`;
+  let url = `/api/${o.table}/${o.route}${o.subroute ? `/${o.subroute}` : ''}`;
   let options = {
     method,
     headers: { 

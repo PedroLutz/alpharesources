@@ -7,8 +7,8 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
     const [elementosWBS, setElementosWBS] = useState([]);
     const [areas, setAreas] = useState([]);
     const [areasDp, setAreasDp] = useState([]);
-    const [areaSelecionada, setAreaSelecionada] = useState();
-    const [areaSelecionadaDp, setAreaSelecionadaDp] = useState();
+    const [areaSelecionada, setAreaSelecionada] = useState('');
+    const [areaSelecionadaDp, setAreaSelecionadaDp] = useState('');
     const [itensDaArea, setItensDaArea] = useState([]);
     const [itensDaAreaDp, setItensDaAreaDp] = useState([]);
     const camposRef = useRef({
@@ -129,6 +129,29 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
         }
     };
 
+    useEffect(() => {
+        if (!obj?.dp_item) return;
+        if (elementosWBS.length === 0) return;
+
+        const area = funcoes?.findGanttById(obj.dp_item)?.wbs_item?.wbs_area?.id;
+        if (area == null) return;
+
+        setAreaSelecionadaDp(area);
+    }, [obj?.dp_item, elementosWBS]);
+
+    const isFirstRender = useRef(true);
+
+    useEffect(() => {
+        if (areaSelecionadaDp === '') return;
+        atualizarItensPorArea(areaSelecionadaDp, setItensDaAreaDp, true);
+        if(obj.dp_item !== '' && isFirstRender.current){
+            objSetter({
+                ...obj,
+                dp_item: funcoes?.findGanttById(obj.dp_item)?.wbs_item?.id
+            })
+            isFirstRender.current = false;
+        }
+    }, [areaSelecionadaDp, elementosWBS]);
 
     //funcao para buscar os elementos da WBS para inserção nos selects
     const fetchElementos = async () => {
@@ -139,7 +162,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
                 query: 'with_areas',
                 token
             })
-            elementos = data.data;
+            elementos = data?.data ?? [];
         } finally {
             setAreas([...new Map(
                 elementos
@@ -185,20 +208,11 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
                         { id: item.wbs_area.id, name: item.wbs_area.name }])
             ).values()
             ]);
+            setItensDaArea([]);
+            setItensDaAreaDp([]);
         }
 
     }, [loading, elementosWBS])
-
-    //useEffect que so executa quando obj.dp_area atualiza que apaga
-    //o valor de dp_item caso dp_area for vazio
-    useEffect(() => {
-        if (areaSelecionadaDp == '') {
-            objSetter({
-                ...obj,
-                dp_item: ''
-            })
-        }
-    }, [areaSelecionadaDp]);
 
 
     //so executa quando o tipo for cadastro pq a atualizacao n altera nem a area nem o item
@@ -220,6 +234,8 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
         funcoes?.setLoading(false);
         // if (isInvalido) return;
         funcoes?.enviar();
+        setAreaSelecionada('');
+        setAreaSelecionadaDp('');
     }
 
     return (
@@ -236,7 +252,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
                             <option value="" defaultValue>Area</option>
                             {areas.map((area, index) => (
                                 <option key={index} value={area.id}>{area.name}</option>
-                            ))};
+                            ))}
                         </select>
                     </td>
                     <td>
