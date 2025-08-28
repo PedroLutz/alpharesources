@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
 import { handleFetch } from "../../../functions/crud_s";
 import styles from '../../../styles/modules/cronograma.module.css';
+import { cleanForm, jsDateToEuDate, euDateToIsoDate, euDateToJsDate } from '../../../functions/general';
 import useAuth from "../../../hooks/useAuth";
 
-const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, loading }) => {
+const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, loading, disabled }) => {
     const [elementosWBS, setElementosWBS] = useState([]);
     const [areas, setAreas] = useState([]);
     const [areasDp, setAreasDp] = useState([]);
@@ -32,16 +33,6 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
         e.target.classList.remove('campo-vazio');
     };
 
-    const checarValidezDosDados = async (item) => {
-        const response = await fetch('/api/cronograma/checks/checkData', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(item)
-        });
-        const data = await response.json();
-        return [data.invalido, data.problema];
-    };
-
     //funcao para verificar entre diversos casos para validar os dados
     const validaDados = async () => {
         let camposConsiderados;
@@ -53,8 +44,8 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
             }
         } else if (tipo === 'cadastro') {
             camposConsiderados = {
-                area: obj.area,
-                item: obj.item,
+                area: areaSelecionada,
+                item: obj.item_id,
                 start: obj.start,
                 end: obj.end,
             }
@@ -74,13 +65,6 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
             return true;
         }
         var objEnviado = obj;
-        if (obj.dp_area == undefined && obj.dp_item == undefined) {
-            objEnviado = {
-                ...obj,
-                dp_area: '',
-                dp_item: ''
-            }
-        }
         if (obj.start === "1970-01-01" && obj.end === "1970-01-01") {
             objEnviado = {
                 ...obj,
@@ -90,16 +74,21 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
         }
         if (obj.start > obj.end) {
             setExibirModal('datasErradas');
+            camposRef.current.end.classList.add('campo-vazio');
             return true;
         }
-
-        const [isInvalido, problema] = await checarValidezDosDados(objEnviado);
-        if (isInvalido) {
-            setExibirModal(problema);
+        
+        const depData = funcoes?.findGanttById(objEnviado.dp_item);
+        if(euDateToIsoDate(depData?.gantt_data[0]?.end) > objEnviado.start){
+            camposRef.current.dp_item.classList.add('campo-vazio');
+            camposRef.current.dp_area.classList.add('campo-vazio');
+            setExibirModal('dpNotOkay');
             return true;
         }
-        if (obj.dp_area && !obj.dp_item) {
+        if (areaSelecionadaDp && !obj.dp_item) {
             setExibirModal('depFaltando');
+            camposRef.current.dp_item.classList.add('campo-vazio');
+            camposRef.current.dp_area.classList.add('campo-vazio');
             return true;
         }
     }
@@ -122,10 +111,12 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
             objSetter({ ...obj, dp_item: "" });
             atualizarItensPorArea(areaSelecionada, setItensDaAreaDp, isDp);
             setAreaSelecionadaDp(areaSelecionada);
+            camposRef.current.dp_area.classList.remove('campo-vazio');
         } else {
             objSetter({ ...obj, item_id: "" });
             atualizarItensPorArea(areaSelecionada, setItensDaArea, isDp);
             setAreaSelecionada(areaSelecionada);
+            camposRef.current.area.classList.remove('campo-vazio');
         }
     };
 
@@ -230,9 +221,9 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
     //funcao que valida os dados e executa ou nao a funcao de submit
     const handleSubmit = async () => {
         funcoes?.setLoading(true);
-        // const isInvalido = await validaDados();
+        const isInvalido = await validaDados();
         funcoes?.setLoading(false);
-        // if (isInvalido) return;
+        if (isInvalido) return;
         funcoes?.enviar();
         setAreaSelecionada('');
         setAreaSelecionadaDp('');
@@ -340,10 +331,10 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
             )}
             <td className={tipo !== 'cadastro' ? 'botoes_acoes' : undefined}>
                 {tipo === 'cadastro' ? (
-                    <button className={styles.botaoCadastro} onClick={(e) => handleSubmit(e)}>Add new</button>
+                    <button className={styles.botaoCadastro} onClick={(e) => handleSubmit(e)} disabled={disabled}>Add new</button>
                 ) : (
                     <React.Fragment>
-                        <button onClick={handleSubmit}>✔️</button>
+                        <button onClick={handleSubmit} disabled={disabled}>✔️</button>
                         <button onClick={funcoes?.cancelar}>✖️</button>
                     </React.Fragment>
                 )}

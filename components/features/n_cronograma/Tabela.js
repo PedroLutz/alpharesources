@@ -1,18 +1,19 @@
-import React, { useEffect, useState, useContext, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import Loading from '../../ui/Loading';
 import Modal from '../../ui/Modal';
 import { Chart } from 'react-google-charts';
-import { fetchData, handleDelete, handleUpdate, handleSubmit } from '../../../functions/crud';
 import { handleFetch, handleReq } from '../../../functions/crud_s';
 import { cleanForm, jsDateToEuDate, euDateToIsoDate, euDateToJsDate } from '../../../functions/general';
 import styles from '../../../styles/modules/cronograma.module.css';
 import CadastroInputs from './CadastroInputs';
 import chroma from 'chroma-js';
 import useAuth from '../../../hooks/useAuth';
-import { update } from 'lodash';
+import usePerm from '../../../hooks/usePerm';
 
 const Tabela = () => {
   const { user, token } = useAuth();
+  const {isEditor} = usePerm();
+
   const [cronogramas, setCronogramas] = useState([]);
   const [cronogramasCont, setCronogramasCont] = useState([]);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
@@ -44,13 +45,14 @@ const Tabela = () => {
   //funcao que recebe o item a ser atualizado e insere os campos relevantes em novosDados
   const handleUpdateClick = (item) => {
     setNovosDados({
-      id: item.id,
+      id: item.gantt_data[0].id,
       item_id: item.wbs_item.id,
       is_plan: true,
-      start: euDateToIsoDate(item.start),
-      end: euDateToIsoDate(item.end),
-      dp_item: item.gantt_dependency[0] ? item.gantt_dependency[0].dependency_id : null,
-      status: item.status
+      gantt_id: item.id,
+      start: euDateToIsoDate(item?.gantt_data[0]?.start),
+      end: euDateToIsoDate(item?.gantt_data[0]?.end),
+      dp_item: item.gantt_dependency[0] ? item?.gantt_dependency[0]?.dependency_id : "",
+      status: item.gantt_data.status
     });
   };
 
@@ -64,13 +66,6 @@ const Tabela = () => {
       token,
       data: { id: confirmDeleteItem.id },
       fetchData: fetchCronogramas
-    });
-    await handleReq({
-      table: "gantt",
-      route: 'delete',
-      subroute: 'monitorByName',
-      token,
-      data: { item_id: confirmDeleteItem.wbs_item.id }
     });
     await handleReq({
       table: "gantt_dependency",
@@ -101,17 +96,17 @@ const Tabela = () => {
     const ganttDataContingency = [['Task ID', 'Task Name', 'Resource', 'Start Date', 'End Date', 'Duration', 'Percent Complete', 'Dependencies']];
 
     cronogramas.forEach((item) => {
-      if (item.is_plan) {
+      if (item.gantt_data[0].is_plan) {
         var dependencies = ''
         const taskID = `${item.id}`;
         const taskName = item.wbs_item.name;
         const resource = item.wbs_item.wbs_area.name;
-        const startDate = euDateToJsDate(item.start);
-        const endDate = euDateToJsDate(item.end);
-        if (!item.dp_area && !item.dp_item) {
+        const startDate = euDateToJsDate(item.gantt_data[0].start);
+        const endDate = euDateToJsDate(item.gantt_data[0].end);
+        if (!item.gantt_dependency[0]) {
           dependencies = null;
         } else {
-          dependencies = `${item.dp_area}_${item.dp_item}`;
+          dependencies = `${item.gantt_dependency[0].dependency_id}`;
         }
         ganttData.push([taskID, taskName, resource, startDate, endDate, 10, 100, dependencies]);
         ganttDataContingency.push([taskID, taskName, resource, startDate, adicionarDias(endDate, Math.floor(etis[taskName])), 10, 100, dependencies]);
@@ -167,15 +162,13 @@ const Tabela = () => {
       })
       // const dataETIs = await fetchData('riscos/analise/get/etis_per_item');
 
-      // data.data.forEach((item) => {
-      //   item.start = jsDateToEuDate(item.start);
-      //   item.end = jsDateToEuDate(item.end);
-      // });
+      data.data.forEach((item) => {
+        item.gantt_data[0].start = jsDateToEuDate(item?.gantt_data[0]?.start);
+        item.gantt_data[0].end = jsDateToEuDate(item?.gantt_data[0]?.end);
+      });
 
-      console.log(data.data);
-
-      // setCronogramas(data.data);
-      // setTabela(data.data);
+      setCronogramas(data.data);
+      setTabela(data.data);
 
       // const cronogramaComContingencias = data.cronogramaPlanos.map(item => ({ ...item }));;
       // cronogramaComContingencias.forEach((item) => {
@@ -259,8 +252,13 @@ const Tabela = () => {
         user_id: user.id
       }
     }
+    const formDataGantt = {
+      item_id: novoSubmit.item_id,
+      user_id: user.id
+    }
     delete novoSubmit.id;
     delete novoSubmit.dp_item;
+    delete novoSubmit.item_id;
     const formDataMonitor = {
       ...novoSubmit,
       is_plan: false,
@@ -279,14 +277,20 @@ const Tabela = () => {
       table: 'gantt',
       route: 'create',
       token,
-      data: formDataPlano,
+      data: formDataGantt,
+    })
+    await handleReq({
+      table: 'gantt_data',
+      route: 'create',
+      token,
+      data: { ...formDataPlano, gantt_id: success.data.resultado[0].id },
       fetchData: fetchCronogramas
     })
     await handleReq({
-      table: 'gantt',
+      table: 'gantt_data',
       route: 'create',
       token,
-      data: formDataMonitor,
+      data: { ...formDataMonitor, gantt_id: success.data.resultado[0].id },
     })
     formDataDependency = {
       ...formDataDependency,
@@ -298,42 +302,50 @@ const Tabela = () => {
         route: 'create',
         token,
         data: formDataDependency,
+        fetchData: fetchCronogramas
       })
     }
     cleanForm(novoSubmit, setNovoSubmit, camposSubmit);
+    await fetchCronogramas();
     setLoading(false);
   };
 
   //funcao que trata os dados e atualiza o plano
   const handleUpdateItem = async () => {
-    const updatedData = { ...novosDados };
+    setLoading(true);
+    const updatedData = {
+      ...novosDados
+    };
+
     delete updatedData?.dependency_id;
     delete updatedData?.dp_item;
+    delete updatedData?.item_id;
     if (novosDados) {
       try {
         await handleReq({
-          table: 'gantt',
+          table: 'gantt_data',
           route: 'update',
           token,
           data: updatedData,
           fetchData: fetchCronogramas
         });
 
-        if (novosDados.dp_item != null) {
-          await handleReq({
-            table: "gantt_dependency",
-            route: 'delete',
-            subroute: 'byGanttId',
-            token,
-            data: { id: novosDados.id },
-            fetchData: fetchCronogramas
-          });
+        await handleReq({
+          table: "gantt_dependency",
+          route: 'delete',
+          subroute: 'byGanttId',
+          token,
+          data: { id: novosDados.gantt_id },
+          fetchData: fetchCronogramas
+        });
 
+        if (novosDados.dp_item != "") {
           const formDataDependency = {
-            gantt_id: novosDados.id,
+            gantt_id: novosDados.gantt_id,
             dependency_id: cronogramas.find((c) => c.wbs_item.id == novosDados.dp_item).id,
             user_id: user.id
           }
+
           await handleReq({
             table: 'gantt_dependency',
             route: 'create',
@@ -349,6 +361,7 @@ const Tabela = () => {
     }
     cleanForm(novosDados, setNovosDados, camposSubmit);
     setLinhaVisivel();
+    setLoading(false);
   };
 
 
@@ -476,9 +489,10 @@ const Tabela = () => {
                     }}
                     loading={loading}
                     setExibirModal={setExibirModal}
+                    disabled={!isEditor}
                   />
                 </tr>
-                {tabela.filter((item) => item.is_plan).map((item, index) => (
+                {tabela.filter((item) => item?.gantt_data[0]?.is_plan).map((item, index) => (
                   <tr key={index} style={{ backgroundColor: item.wbs_item.wbs_area.color }}>
                     <React.Fragment>
                       {index === 0 || cronogramas[index - 1].wbs_item.wbs_area.name !== item.wbs_item.wbs_area.name ? (
@@ -503,11 +517,12 @@ const Tabela = () => {
                             findGanttById,
                             cancelar: () => setLinhaVisivel()
                           }}
+                          disabled={!isEditor}
                         />
                       ) : (
                         <React.Fragment>
-                          <td>{item.start}</td>
-                          <td>{item.end}</td>
+                          <td>{item?.gantt_data[0].start}</td>
+                          <td>{item?.gantt_data[0].end}</td>
                           <td>{item.gantt_dependency[0]?.dependency_id ? tabela.find(t => t.id == item.gantt_dependency[0]?.dependency_id).wbs_item.wbs_area.name : '-'}</td>
                           <td>{item.gantt_dependency[0]?.dependency_id ? tabela.find(t => t.id == item.gantt_dependency[0]?.dependency_id).wbs_item.name : '-'}</td>
                           <td className="botoes_acoes">

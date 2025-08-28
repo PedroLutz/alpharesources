@@ -18,7 +18,6 @@ export default async function handler(req, res) {
       wbs_area (id, color, name),
       name
     ),
-
     gantt_data!inner (
       id,
       is_plan,
