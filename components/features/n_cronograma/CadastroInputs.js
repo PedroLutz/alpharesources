@@ -4,7 +4,7 @@ import styles from '../../../styles/modules/cronograma.module.css';
 import { cleanForm, jsDateToEuDate, euDateToIsoDate, euDateToJsDate } from '../../../functions/general';
 import useAuth from "../../../hooks/useAuth";
 
-const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, loading, disabled }) => {
+const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, loaded, disabled }) => {
     const [elementosWBS, setElementosWBS] = useState([]);
     const [areas, setAreas] = useState([]);
     const [areasDp, setAreasDp] = useState([]);
@@ -78,7 +78,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
             return true;
         }
         
-        const depData = funcoes?.findGanttById(objEnviado.dp_item);
+        const depData = funcoes?.findGanttByItemId(objEnviado.dp_item);
         if(euDateToIsoDate(depData?.gantt_data[0]?.end) > objEnviado.start){
             camposRef.current.dp_item.classList.add('campo-vazio');
             camposRef.current.dp_area.classList.add('campo-vazio');
@@ -88,7 +88,6 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
         if (areaSelecionadaDp && !obj.dp_item) {
             setExibirModal('depFaltando');
             camposRef.current.dp_item.classList.add('campo-vazio');
-            camposRef.current.dp_area.classList.add('campo-vazio');
             return true;
         }
     }
@@ -105,6 +104,64 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
         }
     }, [areaSelecionada, elementosWBS]);
 
+    //useEffect que roda apenas na primeira execucao
+    useEffect(() => {
+        fetchElementos();
+    }, []);
+
+    useEffect(() => {
+        if (loaded == true) {
+            setAreas([...new Map(
+                elementosWBS
+                    .filter(item => funcoes?.checkAreaDisponivel(item.wbs_area.id, item.id, false))
+                    .map(item => [
+                        item.wbs_area.id,
+                        { id: item.wbs_area.id, name: item.wbs_area.name }])
+            ).values()
+            ]);
+            setAreasDp([...new Map(
+                elementosWBS
+                    .filter(item => funcoes?.checkAreaDisponivel(item.wbs_area.id, item.id, true))
+                    .map(item => [
+                        item.wbs_area.id,
+                        { id: item.wbs_area.id, name: item.wbs_area.name }])
+            ).values()
+            ]);
+            setItensDaArea([]);
+            setItensDaAreaDp([]);
+        }
+
+    }, [loaded, elementosWBS]);
+
+    var teste;
+
+    useEffect(() => { 
+        if(obj?.dependency_id !== ""){ 
+            const depItem = funcoes?.findGanttById(obj.dependency_id); 
+            if(depItem) { 
+                const areaSelecionada = depItem.wbs_item.wbs_area.id; 
+                setAreaSelecionadaDp(areaSelecionada); 
+                atualizarItensPorArea(areaSelecionada, setItensDaAreaDp, true);
+                objSetter({
+                    ...obj,
+                    dp_item: funcoes?.findGanttById(obj.dependency_id).wbs_item.id
+                })
+            }
+        } 
+    }, [obj?.dependency_id, elementosWBS]);
+
+
+    //so executa quando o tipo for cadastro pq a atualizacao n altera nem a area nem o item
+    //ent n pode mexer no obj
+    useEffect(() => {
+        if (tipo == 'cadastro') {
+            objSetter({
+                ...obj,
+                item_id: ''
+            })
+        }
+    }, [areaSelecionada]);
+
     const handleAreaChange = (e, isDp) => {
         const areaSelecionada = e.target.value;
         if (isDp) {
@@ -118,31 +175,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
             setAreaSelecionada(areaSelecionada);
             camposRef.current.area.classList.remove('campo-vazio');
         }
-    };
-
-    useEffect(() => {
-        if (!obj?.dp_item) return;
-        if (elementosWBS.length === 0) return;
-
-        const area = funcoes?.findGanttById(obj.dp_item)?.wbs_item?.wbs_area?.id;
-        if (area == null) return;
-
-        setAreaSelecionadaDp(area);
-    }, [obj?.dp_item, elementosWBS]);
-
-    const isFirstRender = useRef(true);
-
-    useEffect(() => {
-        if (areaSelecionadaDp === '') return;
-        atualizarItensPorArea(areaSelecionadaDp, setItensDaAreaDp, true);
-        if(obj.dp_item !== '' && isFirstRender.current){
-            objSetter({
-                ...obj,
-                dp_item: funcoes?.findGanttById(obj.dp_item)?.wbs_item?.id
-            })
-            isFirstRender.current = false;
-        }
-    }, [areaSelecionadaDp, elementosWBS]);
+    }; 
 
     //funcao para buscar os elementos da WBS para inserção nos selects
     const fetchElementos = async () => {
@@ -176,57 +209,18 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
     }
 
 
-    //useEffect que roda apenas na primeira execucao
-    useEffect(() => {
-        fetchElementos();
-    }, []);
-
-    useEffect(() => {
-        if (loading == false) {
-            setAreas([...new Map(
-                elementosWBS
-                    .filter(item => funcoes?.checkAreaDisponivel(item.wbs_area.id, item.id, false))
-                    .map(item => [
-                        item.wbs_area.id,
-                        { id: item.wbs_area.id, name: item.wbs_area.name }])
-            ).values()
-            ]);
-            setAreasDp([...new Map(
-                elementosWBS
-                    .filter(item => funcoes?.checkAreaDisponivel(item.wbs_area.id, item.id, true))
-                    .map(item => [
-                        item.wbs_area.id,
-                        { id: item.wbs_area.id, name: item.wbs_area.name }])
-            ).values()
-            ]);
-            setItensDaArea([]);
-            setItensDaAreaDp([]);
-        }
-
-    }, [loading, elementosWBS])
-
-
-    //so executa quando o tipo for cadastro pq a atualizacao n altera nem a area nem o item
-    //ent n pode mexer no obj
-    useEffect(() => {
-        if (tipo == 'cadastro') {
-            objSetter({
-                ...obj,
-                item_id: ''
-            })
-        }
-    }, [areaSelecionada]);
-
-
     //funcao que valida os dados e executa ou nao a funcao de submit
     const handleSubmit = async () => {
         funcoes?.setLoading(true);
         const isInvalido = await validaDados();
-        funcoes?.setLoading(false);
-        if (isInvalido) return;
+        if (isInvalido) {funcoes?.setLoading(false); return;}
         funcoes?.enviar();
         setAreaSelecionada('');
         setAreaSelecionadaDp('');
+        Object.values(camposRef.current).forEach(el => {
+            if (el) el.classList.remove('campo-vazio')
+        })
+        funcoes?.setLoading(false);
     }
 
     return (

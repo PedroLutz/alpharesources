@@ -24,6 +24,7 @@ const Tabela = () => {
   const [linhaVisivel, setLinhaVisivel] = useState({});
   const [reload, setReload] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loaded, setLoaded] = useState(false);
   const camposSubmit = {
     id: '',
     item_id: '',
@@ -51,7 +52,7 @@ const Tabela = () => {
       gantt_id: item.id,
       start: euDateToIsoDate(item?.gantt_data[0]?.start),
       end: euDateToIsoDate(item?.gantt_data[0]?.end),
-      dp_item: item.gantt_dependency[0] ? item?.gantt_dependency[0]?.dependency_id : "",
+      dependency_id: item.gantt_dependency[0] ? item?.gantt_dependency[0]?.dependency_id : "",
       status: item.gantt_data.status
     });
   };
@@ -118,9 +119,6 @@ const Tabela = () => {
 
   //funcao que executa na primeira render e depois so quando cronogramas ou etis atualiza
   //armazenando os dados diretamente nas constantes
-
-  //useMemo ARMAZENA VALOR
-  //useEffect REALIZA FUNCOES
   const [chartData, chartDataContingencies] = useMemo(() => {
     if (cronogramas.length === 0) return [[], []];
     return createGanttData();
@@ -152,8 +150,13 @@ const Tabela = () => {
     return cronogramas.find((c) => c.id == id);
   }
 
+  const findGanttByItemId = (id) => {
+    return cronogramas.find((c) => c.wbs_item.id == id);
+  }
+
   //funcao para puxar os dados de cronograma, ETIs e cores, tratando-os e armazenando-os em estados
   const fetchCronogramas = async () => {
+    setLoaded(false);
     try {
       const data = await handleFetch({
         table: 'gantt',
@@ -203,14 +206,13 @@ const Tabela = () => {
       // setTabela(data.cronogramaPlanos);
     } finally {
       setLoading(false);
+      setLoaded(true);
     }
   };
 
   const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',
-    'dadosUsados': 'This item is already registered in the timelines!',
     'depFaltando': 'Please select the dependencies correctly!',
-    'dpNotRegistered': "The item you've selected as predecessor is not registered!",
     'dpNotOkay': "The predecessor must finish before the successor starts!",
     'datasErradas': 'The finishing date must be after the starting date!'
   };
@@ -486,8 +488,9 @@ const Tabela = () => {
                       checkAreaDisponivel,
                       checkItemDisponivel,
                       findGanttById,
+                      findGanttByItemId
                     }}
-                    loading={loading}
+                    loaded={loaded}
                     setExibirModal={setExibirModal}
                     disabled={!isEditor}
                   />
@@ -508,13 +511,14 @@ const Tabela = () => {
                           obj={novosDados}
                           objSetter={setNovosDados}
                           setExibirModal={setExibirModal}
-                          loading={loading}
+                          loaded={loaded}
                           funcoes={{
                             enviar: handleUpdateItem,
                             setLoading,
                             checkAreaDisponivel,
                             checkItemDisponivel,
                             findGanttById,
+                            findGanttByItemId,
                             cancelar: () => setLinhaVisivel()
                           }}
                           disabled={!isEditor}
