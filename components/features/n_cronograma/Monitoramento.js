@@ -3,7 +3,7 @@ import Loading from '../../ui/Loading';
 import Modal from '../../ui/Modal';
 import { Chart } from 'react-google-charts';
 import { handleFetch, handleReq } from '../../../functions/crud_s';
-import { cleanForm, jsDateToEuDate, euDateToIsoDate, euDateToJsDate } from '../../../functions/general';
+import { cleanForm, jsDateToEuDate, isoDateToJsDate } from '../../../functions/general';
 import styles from '../../../styles/modules/cronograma.module.css';
 import CadastroInputs from './CadastroInputs';
 import chroma from 'chroma-js';
@@ -36,6 +36,10 @@ const Tabela = () => {
     const [itemSelecionado, setItemSelecionado] = useState('');
     const [mostrarTabela, setMostrarTabela] = useState(false);
     const [confirmUpdateTask, setConfirmUpdateTask] = useState();
+    const [chartHeight, setChartHeight] = useState('');
+    const [chartDataLoaded, setChartDataLoaded] = useState(false);
+    const [paleta, setPaleta] = useState([]);
+    const [report, setReport] = useState([]);
 
     const handleUpdateClick = (item) => {
         setNovosDados({
@@ -60,7 +64,26 @@ const Tabela = () => {
                 token
             })
             setCronogramas(data.data);
+
+            var cores = {};
+            data.data.forEach((c) => {
+                cores = { ...cores, [c.wbs_item.wbs_area.name]: c.wbs_item.wbs_area.color ? c.wbs_item.wbs_area.color : '' }
+            })
+
+            var paleta = [];
+            for (const [key, value] of Object.entries(cores)) {
+                if (data.data.some((item) => item.wbs_item.wbs_area.name === key && item.end !== null)) {
+                    paleta.push({
+                        "color": value ? chroma(value).darken().saturate(3).hex() : '#000000',
+                        "dark": value ? chroma(value).hex() : '#000000',
+                        "light": value ? chroma(value).darken().hex() : '#000000'
+                    })
+                }
+            }
+
+            setPaleta(paleta);
         } finally {
+            generateReport();
             setLoaded(true);
             setLoading(false);
         }
@@ -69,15 +92,6 @@ const Tabela = () => {
     useEffect(() => {
         fetchCronogramas();
     }, [])
-
-    // useEffect(() => {
-    //     if (chartData.length > 1) {
-    //         const linhaHeight = isMobile ? 20 : 30;
-    //         const novaAltura = ((chartData.length * linhaHeight) + 50) + 'px';
-    //         setChartHeight(novaAltura);
-    //         setChartDataLoaded(true);
-    //     }
-    // }, [chartData]);
 
     const handleResize = () => {
         if (window.innerWidth < 1024) {
@@ -124,6 +138,45 @@ const Tabela = () => {
         setLinhaVisivel();
         setLoading(false);
     };
+
+    const createGanttData = () => {
+        const ganttData = [['Task ID', 'Task Name', 'Resource', 'Start Date', 'End Date', 'Duration', 'Percent Complete', 'Dependencies']];
+
+        cronogramas.forEach((item) => {
+            if (!item.gantt_data[0].is_plan && item.gantt_data[0].start && item.gantt_data[0].end) {
+                var dependencies = ''
+                const taskID = `${item.id}`;
+                const taskName = item.wbs_item.name;
+                const resource = item.wbs_item.wbs_area.name;
+                const startDate = isoDateToJsDate(item.gantt_data[0].start);
+                const endDate = isoDateToJsDate(item.gantt_data[0].end);
+                if (!item.gantt_dependency[0]) {
+                    dependencies = null;
+                } else {
+                    dependencies = `${item.gantt_dependency[0].dependency_id}`;
+                }
+                ganttData.push([taskID, taskName, resource, startDate, endDate, 10, 100, dependencies]);
+            }
+        });
+
+        return ganttData;
+    };
+
+    //funcao que executa na primeira render e depois so quando cronogramas ou etis atualiza
+    //armazenando os dados diretamente nas constantes
+    const chartData = useMemo(() => {
+        if (cronogramas.length === 0) return [[], []];
+        return createGanttData();
+    }, [cronogramas]);
+
+    useEffect(() => {
+        if (chartData.length > 1) {
+            const linhaHeight = isMobile ? 20 : 30;
+            const novaAltura = ((chartData.length * linhaHeight) + 50) + 'px';
+            setChartHeight(novaAltura);
+            setChartDataLoaded(true);
+        }
+    }, [chartData]);
 
     const handleAtualizarTarefa = async (status) => {
         if (itemSelecionado === '') {
@@ -240,6 +293,116 @@ const Tabela = () => {
         'tarefaNaoIniciada': "You can't update a task you haven't started yet!"
     };
 
+    const generateReport = async () => {
+    const responsePlano = await handleFetch({
+                table: "gantt",
+                query: "startAndEndPlans",
+                token
+            });
+    const responseGantt = await handleFetch({
+                table: "gantt",
+                query: "startAndEndMonitors",
+                token
+            });
+    const responseSituacoesGantt = await handleFetch({
+                table: "gantt",
+                query: "monitorsAndStatus",
+                token
+            });
+    const dadosPlano = responsePlano.data;
+    const dadosGantt = responseGantt.data;
+    const dadosSituacoesGantt = responseSituacoesGantt.data;
+
+    var objSituacao = {}
+    dadosSituacoesGantt.ganttPorArea.forEach((dado) => { 
+      if(dado.itens.filter((item) => item?.status === "executing").length === 0 &&
+         dado.itens.filter((item) => item?.status === "start").length === 0){
+          objSituacao = {...objSituacao, [dado.area] : "Complete"}
+      } 
+      else if (dado.itens.filter((item) => item?.status === "executing").length === 0 &&
+                  dado.itens.filter((item) => item?.status === "start").length > 0 && 
+                  dado.itens.filter((item) => item?.status === 'complete').length > 0){
+        objSituacao = {...objSituacao, [dado.area] : "Hold"}
+      } 
+      else if (dado.itens.filter((item) => item?.status === "executing").length > 0){
+        objSituacao = {...objSituacao, [dado.area] : "Executing"}
+      } 
+      else if (dado.itens.filter((item) => item?.status === "executing").length === 0 &&
+                dado.itens.filter((item) => item?.status === "complete").length === 0){
+        objSituacao = {...objSituacao, [dado.area] : "To Begin"}
+      }
+    })
+
+    var duplas = [];
+    dadosPlano.forEach((dado) => {
+        console.log(dado)
+      const gantt = dadosGantt.find(o => o.id === dado.id);
+      duplas.push([dado, gantt])
+    })
+    
+    let arrayAnalise = [];
+    duplas.forEach((dupla) => {
+        console.log(dupla)
+      const area = dupla[0].wbs_item.wbs_area.name;
+      const planoUltimo = dupla[0].ultimo;
+      const ganttUltimo = dupla[1].ultimo;
+      const hoje = new Date().toISOString();
+      var obj = { area: area, state: objSituacao[area] }
+
+
+      //executing
+      if (objSituacao[area] === "Executing") {
+        if (planoUltimo.termino >= hoje) {
+          obj = { ...obj, status: 'On Schedule' }
+        } else {
+          obj = { ...obj, status: 'Overdue' }
+        }
+        arrayAnalise.push(obj);
+      }
+
+      //hold
+      if (objSituacao[area] === "Hold") {
+        if (planoUltimo.termino >= hoje) {
+          obj = { ...obj, status: 'On Schedule' }
+        } else {
+          obj = { ...obj, status: 'Overdue' }
+        }
+        arrayAnalise.push(obj);
+      }
+
+      //complete
+      if (objSituacao[area] === "Complete") {
+        if (planoUltimo.termino >= ganttUltimo.termino) {
+          obj = { ...obj, status: 'On Schedule' }
+        } else {
+          obj = { ...obj, status: 'Overdue' }
+        }
+        arrayAnalise.push(obj);
+      }
+
+      //to begin
+      if (objSituacao[area] === "To Begin") {
+        if (planoUltimo.termino >= hoje) {
+          obj = { ...obj, status: 'On Schedule' }
+        } else {
+          obj = { ...obj, status: 'Overdue' }
+        }
+        arrayAnalise.push(obj);
+      }
+    })
+    setReport(arrayAnalise)
+  }
+
+    const chartEvents = [
+  {
+    eventName: "error",
+    callback: ({ eventArgs }) => {
+      setChartDataLoaded(false);
+    },
+  },
+];
+
+
     return (
         <div className='centered-container'>
             {loading && <Loading />}
@@ -256,8 +419,8 @@ const Tabela = () => {
             {confirmUpdateTask && (
                 <Modal objeto={{
                     titulo: confirmUpdateTask.complete ?
-                    `Are you sure you want to complete "${findGanttByItemId(confirmUpdateTask.item).wbs_item.wbs_area.name} - ${findGanttByItemId(confirmUpdateTask.item).wbs_item.name}"?` :
-                    `Are you sure you want to reset the dates of "${findGanttByItemId(confirmUpdateTask.item).wbs_item.wbs_area.name} - ${findGanttByItemId(confirmUpdateTask.item).wbs_item.name}"?`,
+                        `Are you sure you want to complete "${findGanttByItemId(confirmUpdateTask.item).wbs_item.wbs_area.name} - ${findGanttByItemId(confirmUpdateTask.item).wbs_item.name}"?` :
+                        `Are you sure you want to reset the dates of "${findGanttByItemId(confirmUpdateTask.item).wbs_item.wbs_area.name} - ${findGanttByItemId(confirmUpdateTask.item).wbs_item.name}"?`,
                     botao1: {
                         funcao: () => { handleAtualizarTarefa(confirmUpdateTask.delete ? 'complete' : 'reset'); setConfirmUpdateTask(null) }, texto: 'Confirm'
                     },
@@ -269,6 +432,44 @@ const Tabela = () => {
 
             <h2 className='smallTitle'>Timeline Monitoring</h2>
 
+            {chartDataLoaded ? (
+                <div style={{ width: '90%', height: chartHeight }}>
+                    <Chart
+                        key={isMobile ? "mobile" : "desktop"}
+                        height="100%"
+                        width="100%"
+                        chartType="Gantt"
+                        loader={<div>Loading Chart</div>}
+                        data={chartData}
+                        chartEvents={chartEvents}
+                        options={{
+                            gantt: {
+                                trackHeight: isMobile ? 20 : 30,
+                                barHeight: isMobile ? 10 : null,
+                                arrow: {
+                                    length: isMobile ? 0 : 8
+                                },
+                                sortTasks: false,
+                                palette: paleta,
+                                shadowEnabled: false,
+                                criticalPathEnabled: false,
+                                labelMaxWidth: isMobile ? 0 : 300
+                            },
+                        }}
+                    />
+                </div>
+            ) : (
+                <div className={styles.quickUpdate} style={{marginBottom: '1rem'}}>
+                    <h4>Error while loading Gantt Chart!</h4>
+                    <div>
+                        Possible causes:<br/><br/>
+                        • None of the tasks have both start and end dates <br/>
+                        • A task might have dates, but the task it depends <br/> on does not<br/><br/>
+                        Please check your data to see if any of these cases apply. <br/>
+                        If not, please contact the developer. Thanks!
+                        </div>
+                </div>
+            )}
             <div className={styles.quickUpdate}>
                 <h4>Quick update</h4>
                 <div>
@@ -316,12 +517,12 @@ const Tabela = () => {
                         Check execution
                     </button>
                     <button onClick={() => {
-                        itemSelecionado ? setConfirmUpdateTask({item: itemSelecionado, complete: true}) : setExibirModal('semtarefa')
+                        itemSelecionado ? setConfirmUpdateTask({ item: itemSelecionado, complete: true }) : setExibirModal('semtarefa')
                     }} disabled={!isEditor}>
                         Complete task
                     </button>
                     <button onClick={() => {
-                        itemSelecionado ? setConfirmUpdateTask({item: itemSelecionado, complete: false}) : setExibirModal('semtarefa')
+                        itemSelecionado ? setConfirmUpdateTask({ item: itemSelecionado, complete: false }) : setExibirModal('semtarefa')
                     }} disabled={!isEditor}>
                         Reset dates
                     </button>
@@ -338,6 +539,7 @@ const Tabela = () => {
             </button>
 
             {mostrarTabela && (
+                <div>
                 <div className={styles.tabelaCronograma_container}>
                     <div className={styles.tabelaCronograma_wrapper}>
                         <table className={`${styles.tabelaCronograma} tabela`}>
@@ -395,6 +597,42 @@ const Tabela = () => {
                         </table>
                     </div>
                 </div>
+
+                <div className={`${styles.areaAnalysis}`}>
+            <table className='tabela'>
+              <thead>
+                <tr>
+                  <th>Area</th>
+                  <th>State</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {report.map((area, index) => (
+                  <tr key={index}>
+                    <td>{area.area}</td>
+                    <td
+                      style={{
+                        backgroundColor:
+                          area.state === 'To Begin' ? '#ffc6c6' : (
+                            area.state === 'Complete' ? '#d8ffc6' : (
+                              area.state === 'Hold' ? '#e1e1e1' : '#cdf2ff'
+                            )
+                          ),
+                      }}>{area.state}</td>
+                    <td
+                      style={{
+                        backgroundColor:
+                          area.status === 'Overdue' ? '#ffc6c6' : '#d8ffc6'
+                      }}>{area.status}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>   
+
+            </div>
+                
             )}
 
         </div>

@@ -3,7 +3,7 @@ import Loading from '../../ui/Loading';
 import Modal from '../../ui/Modal';
 import { Chart } from 'react-google-charts';
 import { handleFetch, handleReq } from '../../../functions/crud_s';
-import { cleanForm, jsDateToEuDate, euDateToIsoDate, euDateToJsDate } from '../../../functions/general';
+import { cleanForm, jsDateToEuDate, euDateToIsoDate, isoDateToJsDate } from '../../../functions/general';
 import styles from '../../../styles/modules/cronograma.module.css';
 import CadastroInputs from './CadastroInputs';
 import chroma from 'chroma-js';
@@ -102,8 +102,8 @@ const Tabela = () => {
         const taskID = `${item.id}`;
         const taskName = item.wbs_item.name;
         const resource = item.wbs_item.wbs_area.name;
-        const startDate = euDateToJsDate(item.gantt_data[0].start);
-        const endDate = euDateToJsDate(item.gantt_data[0].end);
+        const startDate = isoDateToJsDate(item.gantt_data[0].start);
+        const endDate = isoDateToJsDate(item.gantt_data[0].end);
         if (!item.gantt_dependency[0]) {
           dependencies = null;
         } else {
