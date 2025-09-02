@@ -165,11 +165,6 @@ const Tabela = () => {
       })
       // const dataETIs = await fetchData('riscos/analise/get/etis_per_item');
 
-      data.data.forEach((item) => {
-        item.gantt_data[0].start = jsDateToEuDate(item?.gantt_data[0]?.start);
-        item.gantt_data[0].end = jsDateToEuDate(item?.gantt_data[0]?.end);
-      });
-
       setCronogramas(data.data);
       setTabela(data.data);
 
@@ -525,8 +520,8 @@ const Tabela = () => {
                         />
                       ) : (
                         <React.Fragment>
-                          <td>{item?.gantt_data[0].start}</td>
-                          <td>{item?.gantt_data[0].end}</td>
+                          <td>{jsDateToEuDate(item?.gantt_data[0]?.start)}</td>
+                          <td>{jsDateToEuDate(item?.gantt_data[0]?.end)}</td>
                           <td>{item.gantt_dependency[0]?.dependency_id ? tabela.find(t => t.id == item.gantt_dependency[0]?.dependency_id).wbs_item.wbs_area.name : '-'}</td>
                           <td>{item.gantt_dependency[0]?.dependency_id ? tabela.find(t => t.id == item.gantt_dependency[0]?.dependency_id).wbs_item.name : '-'}</td>
                           <td className="botoes_acoes">

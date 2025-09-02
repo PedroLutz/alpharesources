@@ -19,7 +19,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
         end: null,
         dp_item: null,
         dp_area: null,
-        situacao: null,
+        status: null,
     });
     const { token } = useAuth();
 
@@ -77,11 +77,18 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
             camposRef.current.end.classList.add('campo-vazio');
             return true;
         }
-        
-        const depData = funcoes?.findGanttByItemId(objEnviado.dp_item);
-        if(euDateToIsoDate(depData?.gantt_data[0]?.end) > objEnviado.start){
-            camposRef.current.dp_item.classList.add('campo-vazio');
-            camposRef.current.dp_area.classList.add('campo-vazio');
+
+        var depData;
+        if(tipo != 'updatemonitoring'){
+            depData = funcoes?.findGanttByItemId(objEnviado.dp_item)
+        } else {
+            depData = funcoes?.findGanttById(objEnviado.dependency_id);
+        }
+        if (depData?.gantt_data[0]?.end > objEnviado.start) {
+            camposRef.current.dp_item?.classList.add('campo-vazio');
+            camposRef.current.dp_area?.classList.add('campo-vazio');
+            camposRef.current.start?.classList.add('campo-vazio');
+            camposRef.current.end?.classList.add('campo-vazio');
             setExibirModal('dpNotOkay');
             return true;
         }
@@ -133,21 +140,19 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
 
     }, [loaded, elementosWBS]);
 
-    var teste;
-
-    useEffect(() => { 
-        if(obj?.dependency_id !== ""){ 
-            const depItem = funcoes?.findGanttById(obj.dependency_id); 
-            if(depItem) { 
-                const areaSelecionada = depItem.wbs_item.wbs_area.id; 
-                setAreaSelecionadaDp(areaSelecionada); 
+    useEffect(() => {
+        if (obj?.dependency_id !== "" && tipo !== 'updatemonitoring') {
+            const depItem = funcoes?.findGanttById(obj.dependency_id);
+            if (depItem) {
+                const areaSelecionada = depItem.wbs_item.wbs_area.id;
+                setAreaSelecionadaDp(areaSelecionada);
                 atualizarItensPorArea(areaSelecionada, setItensDaAreaDp, true);
                 objSetter({
                     ...obj,
                     dp_item: funcoes?.findGanttById(obj.dependency_id).wbs_item.id
                 })
             }
-        } 
+        }
     }, [obj?.dependency_id, elementosWBS]);
 
 
@@ -175,7 +180,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
             setAreaSelecionada(areaSelecionada);
             camposRef.current.area.classList.remove('campo-vazio');
         }
-    }; 
+    };
 
     //funcao para buscar os elementos da WBS para inserção nos selects
     const fetchElementos = async () => {
@@ -188,22 +193,25 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
             })
             elementos = data?.data ?? [];
         } finally {
-            setAreas([...new Map(
-                elementos
-                    .filter(item => funcoes?.checkAreaDisponivel(item.wbs_area.id, item.id, false))
-                    .map(item => [
-                        item.wbs_area.id,
-                        { id: item.wbs_area.id, name: item.wbs_area.name }])
-            ).values()
-            ]);
-            setAreasDp([...new Map(
-                elementos
-                    .filter(item => funcoes?.checkAreaDisponivel(item.wbs_area.id, item.id, true))
-                    .map(item => [
-                        item.wbs_area.id,
-                        { id: item.wbs_area.id, name: item.wbs_area.name }])
-            ).values()
-            ]);
+            if (tipo != 'updatemonitoring') {
+                setAreas([...new Map(
+                    elementos
+                        .filter(item => funcoes?.checkAreaDisponivel(item.wbs_area.id, item.id, false))
+                        .map(item => [
+                            item.wbs_area.id,
+                            { id: item.wbs_area.id, name: item.wbs_area.name }])
+                ).values()
+                ]);
+                setAreasDp([...new Map(
+                    elementos
+                        .filter(item => funcoes?.checkAreaDisponivel(item.wbs_area.id, item.id, true))
+                        .map(item => [
+                            item.wbs_area.id,
+                            { id: item.wbs_area.id, name: item.wbs_area.name }])
+                ).values()
+                ]);
+            }
+
             setElementosWBS(elementos);
         }
     }
@@ -213,7 +221,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
     const handleSubmit = async () => {
         funcoes?.setLoading(true);
         const isInvalido = await validaDados();
-        if (isInvalido) {funcoes?.setLoading(false); return;}
+        if (isInvalido) { funcoes?.setLoading(false); return; }
         funcoes?.enviar();
         setAreaSelecionada('');
         setAreaSelecionadaDp('');
@@ -304,22 +312,22 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
                 </React.Fragment>
             ) : (
                 <React.Fragment>
-                    <td>{obj.dp_area || '-'}</td>
-                    <td>{obj.dp_item || '-'}</td>
+                    <td>{obj.dependency_id ? funcoes?.findGanttById(obj.dependency_id).wbs_item.wbs_area.name : '-'}</td>
+                    <td>{obj.dependency_id ? funcoes?.findGanttById(obj.dependency_id).wbs_item .name : '-'}</td>
                 </React.Fragment>
             )}
 
             {gantt && (
                 <td>
                     <select
-                        name="situacao"
+                        name="status"
                         onChange={handleChange}
-                        value={obj.situacao}
-                        ref={el => (camposRef.current.situacao = el)}
+                        value={obj.status}
+                        ref={el => (camposRef.current.status = el)}
                     >
                         <option value="start">Starting</option>
-                        <option value="em andamento">Executing</option>
-                        <option value="concluida">Completed</option>
+                        <option value="executing">Executing</option>
+                        <option value="complete">Completed</option>
                     </select>
                 </td>
             )}
