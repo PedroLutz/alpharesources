@@ -239,7 +239,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
                         <select
                             name="area"
                             onChange={(e) => handleAreaChange(e, false)}
-                            value={areaSelecionada}
+                            value={areaSelecionada || ''}
                             ref={el => (camposRef.current.area = el)}
                         >
                             <option value="" defaultValue>Area</option>
@@ -252,7 +252,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
                         <select
                             name="item_id"
                             onChange={handleChange}
-                            value={obj.item_id}
+                            value={obj.item_id || ''}
                             ref={el => (camposRef.current.item = el)}
                         >
                             <option value="" defaultValue>Item</option>
@@ -268,7 +268,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
                     type="date"
                     name="start"
                     onChange={handleChange}
-                    value={obj.start}
+                    value={obj.start || ''}
                     ref={el => (camposRef.current.start = el)}
                 />
             </td>
@@ -277,7 +277,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
                     type="date"
                     name="end"
                     onChange={handleChange}
-                    value={obj.end}
+                    value={obj.end || ''}
                     ref={el => (camposRef.current.end = el)}
                 />
             </td>
@@ -287,7 +287,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
                         <select
                             name="dp_area"
                             onChange={(e) => handleAreaChange(e, true)}
-                            value={areaSelecionadaDp}
+                            value={areaSelecionadaDp || ''}
                             ref={el => (camposRef.current.dp_area = el)}
                         >
                             <option value="" defaultValue>None</option>
@@ -300,7 +300,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
                         <select
                             name="dp_item"
                             onChange={handleChange}
-                            value={obj.dp_item}
+                            value={obj.dp_item || ''}
                             ref={el => (camposRef.current.dp_item = el)}
                         >
                             <option value="" defaultValue>None</option>
@@ -322,7 +322,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
                     <select
                         name="status"
                         onChange={handleChange}
-                        value={obj.status}
+                        value={obj.status || 'start'}
                         ref={el => (camposRef.current.status = el)}
                     >
                         <option value="start">Starting</option>

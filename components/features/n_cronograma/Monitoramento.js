@@ -294,113 +294,132 @@ const Tabela = () => {
     };
 
     const generateReport = async () => {
-    const responsePlano = await handleFetch({
-                table: "gantt",
-                query: "startAndEndPlans",
-                token
-            });
-    const responseGantt = await handleFetch({
-                table: "gantt",
-                query: "startAndEndMonitors",
-                token
-            });
-    const responseSituacoesGantt = await handleFetch({
-                table: "gantt",
-                query: "monitorsAndStatus",
-                token
-            });
-    const dadosPlano = responsePlano.data;
-    const dadosGantt = responseGantt.data;
-    const dadosSituacoesGantt = responseSituacoesGantt.data;
+        const responsePlano = await handleFetch({
+            table: "gantt",
+            query: "startAndEndPlans",
+            token
+        });
+        const responseGantt = await handleFetch({
+            table: "gantt",
+            query: "startAndEndMonitors",
+            token
+        });
+        const responseSituacoesGantt = await handleFetch({
+            table: "gantt",
+            query: "monitorsAndStatus",
+            token
+        });
+        const dadosPlano = responsePlano.data;
+        const dadosGantt = responseGantt.data;
+        const dadosSituacoesGantt = responseSituacoesGantt.data;
 
-    var objSituacao = {}
-    dadosSituacoesGantt.ganttPorArea.forEach((dado) => { 
-      if(dado.itens.filter((item) => item?.status === "executing").length === 0 &&
-         dado.itens.filter((item) => item?.status === "start").length === 0){
-          objSituacao = {...objSituacao, [dado.area] : "Complete"}
-      } 
-      else if (dado.itens.filter((item) => item?.status === "executing").length === 0 &&
-                  dado.itens.filter((item) => item?.status === "start").length > 0 && 
-                  dado.itens.filter((item) => item?.status === 'complete').length > 0){
-        objSituacao = {...objSituacao, [dado.area] : "Hold"}
-      } 
-      else if (dado.itens.filter((item) => item?.status === "executing").length > 0){
-        objSituacao = {...objSituacao, [dado.area] : "Executing"}
-      } 
-      else if (dado.itens.filter((item) => item?.status === "executing").length === 0 &&
-                dado.itens.filter((item) => item?.status === "complete").length === 0){
-        objSituacao = {...objSituacao, [dado.area] : "To Begin"}
-      }
-    })
+        var primeiroEUltimoPlanos = [];
+        var primeiroEUltimoGantts = [];
+        const areas = new Map(dadosPlano.map(item => [item.wbs_item.wbs_area.id, {id: item.wbs_item.wbs_area.id, name: item.wbs_item.wbs_area.name}]).values())
+        areas.forEach((area) => {
+            {
+                const primeiroInicio = dadosPlano.filter(dado => dado.wbs_item.wbs_area.id == area.id)
+                            .reduce((min, obj) => obj.gantt_data[0].start < min.gantt_data[0].start ? obj : min);
+                const ultimoTermino = dadosPlano.filter(dado => dado.wbs_item.wbs_area.id == area.id)
+                            .reduce((max, obj) => obj.gantt_data[0].end > max.gantt_data[0].end ? obj : max);
+                primeiroEUltimoPlanos.push({primeiro: primeiroInicio, ultimo: ultimoTermino});
+                
+            }
+            {
+                const primeiroInicio = dadosGantt.filter(dado => dado.wbs_item.wbs_area.id == area.id)
+                            .reduce((min, obj) => obj.gantt_data[0].start < min.gantt_data[0].start ? obj : min);
+                const ultimoTermino = dadosGantt.filter(dado => dado.wbs_item.wbs_area.id == area.id)
+                            .reduce((max, obj) => obj.gantt_data[0].end > max.gantt_data[0].end ? obj : max);
+                primeiroEUltimoGantts.push({primeiro: primeiroInicio, ultimo: ultimoTermino});
+            }
+        })
 
-    var duplas = [];
-    dadosPlano.forEach((dado) => {
-        console.log(dado)
-      const gantt = dadosGantt.find(o => o.id === dado.id);
-      duplas.push([dado, gantt])
-    })
-    
-    let arrayAnalise = [];
-    duplas.forEach((dupla) => {
-        console.log(dupla)
-      const area = dupla[0].wbs_item.wbs_area.name;
-      const planoUltimo = dupla[0].ultimo;
-      const ganttUltimo = dupla[1].ultimo;
-      const hoje = new Date().toISOString();
-      var obj = { area: area, state: objSituacao[area] }
+        var objSituacao = {}
+        dadosSituacoesGantt.ganttPorArea.forEach((dado) => {
+            if (dado.itens.filter((item) => item?.status === "executing").length === 0 &&
+                dado.itens.filter((item) => item?.status === "start").length === 0) {
+                objSituacao = { ...objSituacao, [dado.area]: "Complete" }
+            }
+            else if (dado.itens.filter((item) => item?.status === "executing").length === 0 &&
+                dado.itens.filter((item) => item?.status === "start").length > 0 &&
+                dado.itens.filter((item) => item?.status === 'complete').length > 0) {
+                objSituacao = { ...objSituacao, [dado.area]: "Hold" }
+            }
+            else if (dado.itens.filter((item) => item?.status === "executing").length > 0) {
+                objSituacao = { ...objSituacao, [dado.area]: "Executing" }
+            }
+            else if (dado.itens.filter((item) => item?.status === "executing").length === 0 &&
+                dado.itens.filter((item) => item?.status === "complete").length === 0) {
+                objSituacao = { ...objSituacao, [dado.area]: "To Begin" }
+            }
+        })
+
+        var duplas = [];
+        primeiroEUltimoPlanos.forEach((dado) => {
+            const gantt = primeiroEUltimoGantts.find(o => o.primeiro.id === dado.primeiro.id);
+            duplas.push([dado, gantt])
+        })
+
+        let arrayAnalise = [];
+        duplas.forEach((dupla) => {
+            const area = dupla[0].ultimo.wbs_item.wbs_area.name;
+            const planoUltimo = dupla[0].ultimo;
+            const ganttUltimo = dupla[1].ultimo;
+            const hoje = new Date().toISOString();
+            var obj = { area: area, state: objSituacao[area] }
 
 
-      //executing
-      if (objSituacao[area] === "Executing") {
-        if (planoUltimo.termino >= hoje) {
-          obj = { ...obj, status: 'On Schedule' }
-        } else {
-          obj = { ...obj, status: 'Overdue' }
-        }
-        arrayAnalise.push(obj);
-      }
+            //executing
+            if (objSituacao[area] === "Executing") {
+                if (planoUltimo.gantt_data[0].end >= hoje) {
+                    obj = { ...obj, status: 'On Schedule' }
+                } else {
+                    obj = { ...obj, status: 'Overdue' }
+                }
+                arrayAnalise.push(obj);
+            }
 
-      //hold
-      if (objSituacao[area] === "Hold") {
-        if (planoUltimo.termino >= hoje) {
-          obj = { ...obj, status: 'On Schedule' }
-        } else {
-          obj = { ...obj, status: 'Overdue' }
-        }
-        arrayAnalise.push(obj);
-      }
+            //hold
+            if (objSituacao[area] === "Hold") {
+                if (planoUltimo.gantt_data[0].end >= hoje) {
+                    obj = { ...obj, status: 'On Schedule' }
+                } else {
+                    obj = { ...obj, status: 'Overdue' }
+                }
+                arrayAnalise.push(obj);
+            }
 
-      //complete
-      if (objSituacao[area] === "Complete") {
-        if (planoUltimo.termino >= ganttUltimo.termino) {
-          obj = { ...obj, status: 'On Schedule' }
-        } else {
-          obj = { ...obj, status: 'Overdue' }
-        }
-        arrayAnalise.push(obj);
-      }
+            //complete
+            if (objSituacao[area] === "Complete") {
+                if (planoUltimo.gantt_data[0].end >= ganttUltimo.gantt_data[0].end) {
+                    obj = { ...obj, status: 'On Schedule' }
+                } else {
+                    obj = { ...obj, status: 'Overdue' }
+                }
+                arrayAnalise.push(obj);
+            }
 
-      //to begin
-      if (objSituacao[area] === "To Begin") {
-        if (planoUltimo.termino >= hoje) {
-          obj = { ...obj, status: 'On Schedule' }
-        } else {
-          obj = { ...obj, status: 'Overdue' }
-        }
-        arrayAnalise.push(obj);
-      }
-    })
-    setReport(arrayAnalise)
-  }
+            //to begin
+            if (objSituacao[area] === "To Begin") {
+                if (planoUltimo.gantt_data[0].end >= hoje) {
+                    obj = { ...obj, status: 'On Schedule' }
+                } else {
+                    obj = { ...obj, status: 'Overdue' }
+                }
+                arrayAnalise.push(obj);
+            }
+        })
+        setReport(arrayAnalise)
+    }
 
     const chartEvents = [
-  {
-    eventName: "error",
-    callback: ({ eventArgs }) => {
-      setChartDataLoaded(false);
-    },
-  },
-];
+        {
+            eventName: "error",
+            callback: ({ eventArgs }) => {
+                setChartDataLoaded(false);
+            },
+        },
+    ];
 
 
     return (
@@ -459,15 +478,15 @@ const Tabela = () => {
                     />
                 </div>
             ) : (
-                <div className={styles.quickUpdate} style={{marginBottom: '1rem'}}>
+                <div className={styles.quickUpdate} style={{ marginBottom: '1rem' }}>
                     <h4>Error while loading Gantt Chart!</h4>
                     <div>
-                        Possible causes:<br/><br/>
-                        • None of the tasks have both start and end dates <br/>
-                        • A task might have dates, but the task it depends <br/> on does not<br/><br/>
-                        Please check your data to see if any of these cases apply. <br/>
+                        Possible causes:<br /><br />
+                        • None of the tasks have both start and end dates <br />
+                        • A task might have dates, but the task it depends <br /> on does not<br /><br />
+                        Please check your data to see if any of these cases apply. <br />
                         If not, please contact the developer. Thanks!
-                        </div>
+                    </div>
                 </div>
             )}
             <div className={styles.quickUpdate}>
@@ -540,99 +559,99 @@ const Tabela = () => {
 
             {mostrarTabela && (
                 <div>
-                <div className={styles.tabelaCronograma_container}>
-                    <div className={styles.tabelaCronograma_wrapper}>
-                        <table className={`${styles.tabelaCronograma} tabela`}>
+                    <div className={styles.tabelaCronograma_container}>
+                        <div className={styles.tabelaCronograma_wrapper}>
+                            <table className={`${styles.tabelaCronograma} tabela`}>
+                                <thead>
+                                    <tr>
+                                        <th>Area</th>
+                                        <th>Task</th>
+                                        <th>Start</th>
+                                        <th>End</th>
+                                        <th>Dependency: Area</th>
+                                        <th>Dependency: Item</th>
+                                        <th>Situation</th>
+                                        <th>Options</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {cronogramas.map((item, index) => (
+                                        <tr key={index} style={{ backgroundColor: item.wbs_item.wbs_area.color }}>
+                                            {index === 0 || cronogramas[index - 1].wbs_item.wbs_area.name !== item.wbs_item.wbs_area.name ? (
+                                                <td rowSpan={calculateRowSpan(cronogramas, item.wbs_item.wbs_area.name, index)}
+                                                >{item.wbs_item.wbs_area.name}</td>
+                                            ) : null}
+                                            <td>{item.wbs_item.name}</td>
+                                            {linhaVisivel === item.id ? (
+                                                <CadastroInputs
+                                                    tipo="updatemonitoring"
+                                                    gantt={true}
+                                                    obj={novosDados}
+                                                    objSetter={setNovosDados}
+                                                    funcoes={{
+                                                        enviar: handleUpdateItem,
+                                                        cancelar: () => setLinhaVisivel(),
+                                                        setLoading,
+                                                        findGanttById,
+                                                        findGanttByItemId
+                                                    }}
+                                                    setExibirModal={setExibirModal} />
+                                            ) : (
+                                                <React.Fragment>
+                                                    <td>{jsDateToEuDate(item.gantt_data[0].start) || '-'}</td>
+                                                    <td>{jsDateToEuDate(item.gantt_data[0].end) || '-'}</td>
+                                                    <td>{item.gantt_dependency[0]?.dependency_id ? cronogramas.find(t => t.id == item.gantt_dependency[0]?.dependency_id).wbs_item.wbs_area.name : '-'}</td>
+                                                    <td>{item.gantt_dependency[0]?.dependency_id ? cronogramas.find(t => t.id == item.gantt_dependency[0]?.dependency_id).wbs_item.name : '-'}</td>
+                                                    <td>{labelsSituacao[item.gantt_data[0].status] || '-'}</td>
+                                                    <td className='botoes_acoes'>
+                                                        <button onClick={() => {
+                                                            setLinhaVisivel(item.id); handleUpdateClick(item)
+                                                        }} disabled={!isEditor}>⚙️</button>
+                                                    </td>
+                                                </React.Fragment>
+                                            )}
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div className={`${styles.areaAnalysis}`}>
+                        <table className='tabela'>
                             <thead>
                                 <tr>
                                     <th>Area</th>
-                                    <th>Task</th>
-                                    <th>Start</th>
-                                    <th>End</th>
-                                    <th>Dependency: Area</th>
-                                    <th>Dependency: Item</th>
-                                    <th>Situation</th>
-                                    <th>Options</th>
+                                    <th>State</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {cronogramas.map((item, index) => (
-                                    <tr key={index} style={{ backgroundColor: item.wbs_item.wbs_area.color }}>
-                                        {index === 0 || cronogramas[index - 1].wbs_item.wbs_area.name !== item.wbs_item.wbs_area.name ? (
-                                            <td rowSpan={calculateRowSpan(cronogramas, item.wbs_item.wbs_area.name, index)}
-                                            >{item.wbs_item.wbs_area.name}</td>
-                                        ) : null}
-                                        <td>{item.wbs_item.name}</td>
-                                        {linhaVisivel === item.id ? (
-                                            <CadastroInputs
-                                                tipo="updatemonitoring"
-                                                gantt={true}
-                                                obj={novosDados}
-                                                objSetter={setNovosDados}
-                                                funcoes={{
-                                                    enviar: handleUpdateItem,
-                                                    cancelar: () => setLinhaVisivel(),
-                                                    setLoading,
-                                                    findGanttById,
-                                                    findGanttByItemId
-                                                }}
-                                                setExibirModal={setExibirModal} />
-                                        ) : (
-                                            <React.Fragment>
-                                                <td>{jsDateToEuDate(item.gantt_data[0].start) || '-'}</td>
-                                                <td>{jsDateToEuDate(item.gantt_data[0].end) || '-'}</td>
-                                                <td>{item.gantt_dependency[0]?.dependency_id ? cronogramas.find(t => t.id == item.gantt_dependency[0]?.dependency_id).wbs_item.wbs_area.name : '-'}</td>
-                                                <td>{item.gantt_dependency[0]?.dependency_id ? cronogramas.find(t => t.id == item.gantt_dependency[0]?.dependency_id).wbs_item.name : '-'}</td>
-                                                <td>{labelsSituacao[item.gantt_data[0].status] || '-'}</td>
-                                                <td className='botoes_acoes'>
-                                                    <button onClick={() => {
-                                                        setLinhaVisivel(item.id); handleUpdateClick(item)
-                                                    }} disabled={!isEditor}>⚙️</button>
-                                                </td>
-                                            </React.Fragment>
-                                        )}
+                                {report.map((area, index) => (
+                                    <tr key={index}>
+                                        <td>{area.area}</td>
+                                        <td
+                                            style={{
+                                                backgroundColor:
+                                                    area.state === 'To Begin' ? '#ffc6c6' : (
+                                                        area.state === 'Complete' ? '#d8ffc6' : (
+                                                            area.state === 'Hold' ? '#e1e1e1' : '#cdf2ff'
+                                                        )
+                                                    ),
+                                            }}>{area.state}</td>
+                                        <td
+                                            style={{
+                                                backgroundColor:
+                                                    area.status === 'Overdue' ? '#ffc6c6' : '#d8ffc6'
+                                            }}>{area.status}</td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     </div>
+
                 </div>
 
-                <div className={`${styles.areaAnalysis}`}>
-            <table className='tabela'>
-              <thead>
-                <tr>
-                  <th>Area</th>
-                  <th>State</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {report.map((area, index) => (
-                  <tr key={index}>
-                    <td>{area.area}</td>
-                    <td
-                      style={{
-                        backgroundColor:
-                          area.state === 'To Begin' ? '#ffc6c6' : (
-                            area.state === 'Complete' ? '#d8ffc6' : (
-                              area.state === 'Hold' ? '#e1e1e1' : '#cdf2ff'
-                            )
-                          ),
-                      }}>{area.state}</td>
-                    <td
-                      style={{
-                        backgroundColor:
-                          area.status === 'Overdue' ? '#ffc6c6' : '#d8ffc6'
-                      }}>{area.status}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>   
-
-            </div>
-                
             )}
 
         </div>

@@ -50,8 +50,8 @@ const Tabela = () => {
       item_id: item.wbs_item.id,
       is_plan: true,
       gantt_id: item.id,
-      start: euDateToIsoDate(item?.gantt_data[0]?.start),
-      end: euDateToIsoDate(item?.gantt_data[0]?.end),
+      start: item?.gantt_data[0]?.start,
+      end: item?.gantt_data[0]?.end,
       dependency_id: item.gantt_dependency[0] ? item?.gantt_dependency[0]?.dependency_id : "",
       status: item.gantt_data.status
     });
