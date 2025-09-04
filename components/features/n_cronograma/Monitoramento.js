@@ -9,7 +9,6 @@ import CadastroInputs from './CadastroInputs';
 import chroma from 'chroma-js';
 import useAuth from '../../../hooks/useAuth';
 import usePerm from '../../../hooks/usePerm';
-import { set } from 'mongoose';
 
 const Tabela = () => {
     const { user, token } = useAuth();
