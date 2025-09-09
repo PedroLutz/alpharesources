@@ -1,4 +1,4 @@
-import Tabela from '../../../components/features/n_cronograma/Monitoramento';
+import Tabela from '../../../components/features/cronograma/Monitoramento';
 import PageWrapper from '../../../components/layout/CronogramaWrapper';
 
 function CadastroPage() {

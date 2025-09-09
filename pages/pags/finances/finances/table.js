@@ -1,4 +1,4 @@
-import Tabela from '../../../../components/features/recursos/financas/Tabela';
+import Tabela from '../../../../components/features/n_recursos/financas/Tabela';
 import PageWrapper from '../../../../components/layout/ResourcesWrapper';
 
 function TabelaPage() {

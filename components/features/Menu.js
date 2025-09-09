@@ -41,7 +41,7 @@ const Menu = () => {
                 </span>
                 {/*Item Cronograma*/}
                 <span>
-                    <Link href="/pags/timeline/timeline_plan">
+                    <Link href="/pags/timeline/monitoring">
                         <div>
                             <img src={'/images/timeline_logo.png'} alt="Planning Logo" className={logoItem} />
                         </div>

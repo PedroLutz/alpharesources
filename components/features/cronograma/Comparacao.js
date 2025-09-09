@@ -1,18 +1,19 @@
 import { useEffect, useState, useMemo } from 'react';
 import { Chart } from 'react-google-charts';
 import Loading from '../../ui/Loading';
-import { fetchData } from '../../../functions/crud';
+import { handleFetch } from '../../../functions/crud_s';
 import { jsDateToEuDate, euDateToJsDate } from '../../../functions/general';
+import useAuth from '../../../hooks/useAuth';
 import chroma from 'chroma-js';
 
 const Tabela = () => {
+    const { user, token } = useAuth();
     const [cronogramas, setCronogramas] = useState([]);
     const [planosCronogramas, setPlanosCronogramas] = useState([]);
     const [chartHeight, setChartHeight] = useState('100px');
     const [chartDataLoaded, setChartDataLoaded] = useState(false);
     const [loading, setLoading] = useState(true);
     const [reload, setReload] = useState(false);
-    const [cores, setCores] = useState({});
     const [paleta, setPaleta] = useState([]);
     const [isMobile, setIsMobile] = useState(false);
 
@@ -29,41 +30,45 @@ const Tabela = () => {
     //trata as cores e cria a paleta para o grafico
     const fetchCronogramas = async () => {
         try {
-            const data = await fetchData('cronograma/get/gantts');
-            data.cronogramaGantts.forEach((item) => {
-                item.inicio = jsDateToEuDate(item.inicio);
-                item.termino = jsDateToEuDate(item.termino);
+            const data = await handleFetch({
+                table: "gantt",
+                query: "monitors",
+                token
             });
-            setCronogramas(data.cronogramaGantts);
-
-            const data2 = await fetchData('cronograma/get/planos');
-            data2.cronogramaPlanos.forEach((item) => {
-                item.inicio = jsDateToEuDate(item.inicio);
-                item.termino = jsDateToEuDate(item.termino);
+            data.data.forEach((item) => {
+                item.gantt_data[0].start = jsDateToEuDate(item?.gantt_data[0].start);
+                item.gantt_data[0].end = jsDateToEuDate(item?.gantt_data[0].end);
             });
-            setPlanosCronogramas(data2.cronogramaPlanos);
+            setCronogramas(data.data);
 
-            const dataCores = await fetchData('wbs/get/cores');
+            const data2 = await handleFetch({
+                table: "gantt",
+                query: "plans",
+                token
+            });
+            data2.data.forEach((item) => {
+                item.gantt_data[0].start = jsDateToEuDate(item?.gantt_data[0].start);
+                item.gantt_data[0].end = jsDateToEuDate(item?.gantt_data[0].end);
+            });
+            setPlanosCronogramas(data2.data);
 
             //adicionar cores na tabela
             var cores = {};
-            dataCores.areasECores.forEach((area) => {
-                cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
-            })
+                        data.data.forEach((c) => {
+                            cores = { ...cores, [c.wbs_item.wbs_area.name]: c.wbs_item.wbs_area.color ? c.wbs_item.wbs_area.color : '' }
+                        })
+            
+                        var paleta = [];
+                        for (const [key, value] of Object.entries(cores)) {
+                            if (data.data.some((item) => item.wbs_item.wbs_area.name === key && item.end !== null)) {
+                                paleta.push({
+                                    "color": value ? chroma(value).darken().saturate(3).hex() : '#000000',
+                                    "dark": value ? chroma(value).hex() : '#000000',
+                                    "light": value ? chroma(value).darken().hex() : '#000000'
+                                })
+                            }
+                        }
 
-            //adicionar cores no grafico (apenas as cores de areas que tem alguma coisa sendo executada)
-            var paleta = [];
-            for (const [key, value] of Object.entries(cores)) {
-                if (data.cronogramaGantts.some((item) => item.area === key && item.termino !== null)) {
-                    paleta.push({
-                        "color": value ? chroma(value).darken().saturate(3).hex() : '#000000',
-                        "dark": value ? chroma(value).hex() : '#000000',
-                        "light": value ? chroma(value).darken().hex() : '#000000'
-                    })
-                }
-            }
-
-            setCores(cores);
             setPaleta(paleta);
         } finally {
             setLoading(false);
@@ -81,38 +86,38 @@ const Tabela = () => {
     const createGanttData = () => {
         const ganttData = [['Task ID', 'Task Name', 'Resource', 'Start Date', 'End Date', 'Duration', 'Percent Complete', 'Dependencies']];
         cronogramas.forEach((item) => {
-            console.log(item)
-            if (!item.plano) {
-                if (euDateToJsDate(item.inicio) < euDateToJsDate(item.termino) &&
-                    euDateToJsDate(item.inicio) != null &&
-                    euDateToJsDate(item.termino) != null) {
+            if (!item.gantt_data[0].is_plan) {
+                if (euDateToJsDate(item.gantt_data[0].start) < euDateToJsDate(item.gantt_data[0].end) &&
+                    euDateToJsDate(item.gantt_data[0].start) != null &&
+                    euDateToJsDate(item.gantt_data[0].end) != null) {
 
-                    const planoDoGantt = planosCronogramas.find(plan => plan.item === item.item && plan.area === item.area);
+                    const planoDoGantt = planosCronogramas.find(plan => plan.id === item.id);
+                    console.log(planoDoGantt, item)
                     if (planoDoGantt) {
                         var dependencies2 = '';
-                        const taskID2 = `${planoDoGantt.area}_${planoDoGantt.item}2`;
-                        const taskName2 = planoDoGantt.item;
-                        const resource2 = item.area;
-                        const startDate2 = euDateToJsDate(planoDoGantt.inicio);
-                        const endDate2 = euDateToJsDate(planoDoGantt.termino);
-                        if (!planoDoGantt.dp_area && !planoDoGantt.dp_item) {
+                        const taskID2 = `${planoDoGantt.gantt_data[0].id}`;
+                        const taskName2 = planoDoGantt.wbs_item.name;
+                        const resource2 = planoDoGantt.wbs_item.wbs_area.name;
+                        const startDate2 = euDateToJsDate(planoDoGantt.gantt_data[0].start);
+                        const endDate2 = euDateToJsDate(planoDoGantt.gantt_data[0].end);
+                        if (!planoDoGantt.gantt_dependency[0]) {
                             dependencies2 = null;
                         } else {
-                            dependencies2 = `${planoDoGantt.dp_area}_${planoDoGantt.dp_item}2`;
+                            dependencies2 = `${planosCronogramas.find(plan => plan.id == planoDoGantt.gantt_dependency[0].dependency_id).gantt_data[0].id}`;
                         }
                         ganttData.push([taskID2, taskName2, resource2, startDate2, endDate2, 0, 100, dependencies2]);
                     }
 
                     var dependencies = '';
-                    const taskID = `${item.area}_${item.item}`;
-                    const taskName = item.item;
-                    const resource = item.area;
-                    const startDate = euDateToJsDate(item.inicio);
-                    const endDate = euDateToJsDate(item.termino);
-                    if (!item.dp_area && !item.dp_item) {
+                    const taskID = `${item.gantt_data[0].id}`;
+                    const taskName = item.wbs_item.name;
+                    const resource = item.wbs_item.wbs_area.name;
+                    const startDate = euDateToJsDate(item.gantt_data[0].start);
+                    const endDate = euDateToJsDate(item.gantt_data[0].end);
+                    if (!item.gantt_dependency[0]) {
                         dependencies = null;
                     } else {
-                        dependencies = `${item.dp_area}_${item.dp_item}`;
+                        dependencies = `${cronogramas.find(c => c.id == item.gantt_dependency[0].dependency_id).gantt_data[0].id}`;
                     }
                     ganttData.push([taskID, taskName, resource, startDate, endDate, 0, 100, dependencies]);
 
@@ -181,10 +186,10 @@ const Tabela = () => {
                 }}>
                     <tbody style={{ borderColor: 'black', borderStyle: 'solid', borderWidth: '0.01rem' }}>
                         {cronogramas.filter(item =>
-                            (item.inicio != item.termino)
-                            && (item.inicio != null)
-                            && (item.termino != null)
-                            && (item.situacao != 'iniciar'))
+                            (item.gantt_data[0].start != item.gantt_data[0].end)
+                            && (item.gantt_data[0].start != null)
+                            && (item.gantt_data[0].end != null)
+                            && (item.gantt_data[0].status != 'start'))
                             .map((item, index) => (
                                 <tr key={index}
                                     style={{
@@ -193,11 +198,11 @@ const Tabela = () => {
                                         borderStyle: 'solid',
                                         borderWidth: '0.01rem',
                                         borderRightWidth: '0rem',
-                                        backgroundColor: cores[item.area]
+                                        backgroundColor: item.wbs_item.wbs_area.color
                                     }}>
-                                    <td style={{ fontSize: tamanhoDaFonte(item.item.length), minWidth: '6rem', maxWidth: '8rem' }}>{item.item}</td>
+                                    <td style={{ fontSize: tamanhoDaFonte(item.wbs_item.name.length), minWidth: '6rem', maxWidth: '8rem' }}>{item.wbs_item.name}</td>
                                 </tr>
-                            ))}
+                            ))} 
                     </tbody>
                 </table>
                 <div className="centered-container" style={{
@@ -214,10 +219,10 @@ const Tabela = () => {
                         width: '100%'
                     }}>
                         <tbody>
-                            {cronogramas.filter(item => (item.inicio != item.termino)
-                                && (item.inicio != null)
-                                && (item.termino != null)
-                                && (item.situacao != 'iniciar')).map((item, index) => (
+                            {cronogramas.filter(item => (item.gantt_data[0].start != item.gantt_data[0].end)
+                                && (item.gantt_data[0].start != null)
+                                && (item.gantt_data[0].end != null)
+                                && (item.gantt_data[0].status != 'start')).map((item, index) => (
                                     <tr key={index}
                                         style={{ height: '30px', borderColor: 'black', borderStyle: 'solid', borderWidth: '0.1rem', borderLeftWidth: '0rem' }}>
                                         <td></td>

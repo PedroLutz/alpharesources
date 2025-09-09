@@ -1,15 +1,19 @@
-import React, { useEffect, useState, useContext, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import Loading from '../../ui/Loading';
 import Modal from '../../ui/Modal';
 import { Chart } from 'react-google-charts';
-import { fetchData, handleDelete, handleUpdate, handleSubmit } from '../../../functions/crud';
-import { cleanForm, jsDateToEuDate, euDateToIsoDate, euDateToJsDate } from '../../../functions/general';
+import { handleFetch, handleReq } from '../../../functions/crud_s';
+import { cleanForm, jsDateToEuDate, euDateToIsoDate, isoDateToJsDate } from '../../../functions/general';
 import styles from '../../../styles/modules/cronograma.module.css';
 import CadastroInputs from './CadastroInputs';
 import chroma from 'chroma-js';
-import { AuthContext } from "../../../contexts/AuthContext";
+import useAuth from '../../../hooks/useAuth';
+import usePerm from '../../../hooks/usePerm';
 
 const Tabela = () => {
+  const { user, token } = useAuth();
+  const {isEditor} = usePerm();
+
   const [cronogramas, setCronogramas] = useState([]);
   const [cronogramasCont, setCronogramasCont] = useState([]);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
@@ -20,18 +24,18 @@ const Tabela = () => {
   const [linhaVisivel, setLinhaVisivel] = useState({});
   const [reload, setReload] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [cores, setCores] = useState({});
-  const camposVazios = {
-    item: '',
-    area: '',
-    inicio: '',
-    termino: '',
-    dp_item: '',
-    dp_area: '',
+  const [loaded, setLoaded] = useState(false);
+  const camposSubmit = {
+    id: '',
+    item_id: '',
+    is_plan: '',
+    start: '',
+    end: '',
+    status: '',
+    user_id: ''
   }
-  const [novosDados, setNovosDados] = useState(camposVazios);
-  const [novoSubmit, setNovoSubmit] = useState(camposVazios);
-  const { isAdmin } = useContext(AuthContext);
+  const [novosDados, setNovosDados] = useState(camposSubmit);
+  const [novoSubmit, setNovoSubmit] = useState(camposSubmit);
   const [paleta, setPaleta] = useState([]);
   const [etis, setEtis] = useState([]);
   const [showContingencies, setShowContingencies] = useState(false);
@@ -42,32 +46,37 @@ const Tabela = () => {
   //funcao que recebe o item a ser atualizado e insere os campos relevantes em novosDados
   const handleUpdateClick = (item) => {
     setNovosDados({
-      _id: item._id,
-      plano: true,
-      inicio: euDateToIsoDate(item.inicio),
-      termino: euDateToIsoDate(item.termino),
-      dp_item: item.dp_item || undefined,
-      dp_area: item.dp_area || undefined,
-      situacao: item.situacao,
+      id: item.gantt_data[0].id,
+      item_id: item.wbs_item.id,
+      is_plan: true,
+      gantt_id: item.id,
+      start: item?.gantt_data[0]?.start,
+      end: item?.gantt_data[0]?.end,
+      dependency_id: item.gantt_dependency[0] ? item?.gantt_dependency[0]?.dependency_id : "",
+      status: item.gantt_data.status
     });
   };
 
-
   //funcao que deleta o item tanto no plano quanto no monitoramento
-  const handleConfirmDelete = async () => {
+  const handleConfirmDelete = async (confirmDeleteItem) => {
+    setLoading(true);
     setConfirmDeleteItem(null);
-    if (confirmDeleteItem) {
-      var getDeleteSuccess = false;
-      try {
-        getDeleteSuccess = await handleDelete({
-          route: 'cronograma',
-          item: confirmDeleteItem,
-          fetchDados: fetchCronogramas
-        });
-      } finally {
-        setDeleteSuccess(getDeleteSuccess);
-      }
-    }
+    await handleReq({
+      table: "gantt",
+      route: 'delete',
+      token,
+      data: { id: confirmDeleteItem.id },
+      fetchData: fetchCronogramas
+    });
+    await handleReq({
+      table: "gantt_dependency",
+      route: 'delete',
+      subroute: 'byGanttId',
+      token,
+      data: { id: confirmDeleteItem.id },
+      fetchData: fetchCronogramas
+    });
+    setLoading(false);
   };
 
 
@@ -88,17 +97,17 @@ const Tabela = () => {
     const ganttDataContingency = [['Task ID', 'Task Name', 'Resource', 'Start Date', 'End Date', 'Duration', 'Percent Complete', 'Dependencies']];
 
     cronogramas.forEach((item) => {
-      if (item.plano) {
+      if (item.gantt_data[0].is_plan) {
         var dependencies = ''
-        const taskID = `${item.area}_${item.item}`;
-        const taskName = item.item;
-        const resource = item.area;
-        const startDate = euDateToJsDate(item.inicio);
-        const endDate = euDateToJsDate(item.termino);
-        if (!item.dp_area && !item.dp_item) {
+        const taskID = `${item.id}`;
+        const taskName = item.wbs_item.name;
+        const resource = item.wbs_item.wbs_area.name;
+        const startDate = isoDateToJsDate(item.gantt_data[0].start);
+        const endDate = isoDateToJsDate(item.gantt_data[0].end);
+        if (!item.gantt_dependency[0]) {
           dependencies = null;
         } else {
-          dependencies = `${item.dp_area}_${item.dp_item}`;
+          dependencies = `${item.gantt_dependency[0].dependency_id}`;
         }
         ganttData.push([taskID, taskName, resource, startDate, endDate, 10, 100, dependencies]);
         ganttDataContingency.push([taskID, taskName, resource, startDate, adicionarDias(endDate, Math.floor(etis[taskName])), 10, 100, dependencies]);
@@ -110,51 +119,73 @@ const Tabela = () => {
 
   //funcao que executa na primeira render e depois so quando cronogramas ou etis atualiza
   //armazenando os dados diretamente nas constantes
-
-  //useMemo ARMAZENA VALOR
-  //useEffect REALIZA FUNCOES
   const [chartData, chartDataContingencies] = useMemo(() => {
     if (cronogramas.length === 0) return [[], []];
     return createGanttData();
   }, [cronogramas, etis]);
 
+  const checkAreaDisponivel = (area_id, item_id, isDp) => {
+    if (cronogramas.length == 0) {
+      return !isDp;
+    }
+    return cronogramas.some((c) => {
+      return isDp ? c.wbs_item.wbs_area.id == area_id
+        : (c.wbs_item.wbs_area.id != area_id || c.wbs_item.wbs_area.id == area_id && c.wbs_item.id != item_id)
+    }
+    );
+  }
+
+  const checkItemDisponivel = (item_id, isDp) => {
+    if (cronogramas.length == 0) {
+      return !isDp;
+    }
+    if (isDp) {
+      return cronogramas.some(c => c.wbs_item.id == item_id);
+    } else {
+      return !cronogramas.some(c => c.wbs_item.id == item_id);
+    }
+  }
+
+  const findGanttById = (id) => {
+    return cronogramas.find((c) => c.id == id);
+  }
+
+  const findGanttByItemId = (id) => {
+    return cronogramas.find((c) => c.wbs_item.id == id);
+  }
 
   //funcao para puxar os dados de cronograma, ETIs e cores, tratando-os e armazenando-os em estados
   const fetchCronogramas = async () => {
+    setLoaded(false);
     try {
-      const data = await fetchData('cronograma/get/planos');
-      const dataETIs = await fetchData('riscos/analise/get/etis_per_item');
-      const dataCores = await fetchData('wbs/get/cores');
-
-      data.cronogramaPlanos.forEach((item) => {
-        item.inicio = jsDateToEuDate(item.inicio);
-        item.termino = jsDateToEuDate(item.termino);
-      });
-      data.cronogramaPlanos.sort((a, b) => {
-        if (a.area < b.area) return -1;
-        if (a.area > b.area) return 1;
-        return 0;
-      });
-
-      const cronogramaComContingencias = data.cronogramaPlanos.map(item => ({ ...item }));;
-      cronogramaComContingencias.forEach((item) => {
-        if (dataETIs.resultadosAgrupados[item.item]) {
-          const termino = euDateToJsDate(item.termino)
-          const terminoConvertido = adicionarDias(termino, Math.floor(dataETIs.resultadosAgrupados[item.item]));
-          item.termino = jsDateToEuDate(terminoConvertido);
-        }
+      const data = await handleFetch({
+        table: 'gantt',
+        query: 'plans',
+        token
       })
+      // const dataETIs = await fetchData('riscos/analise/get/etis_per_item');
+
+      setCronogramas(data.data);
+      setTabela(data.data);
+
+      // const cronogramaComContingencias = data.cronogramaPlanos.map(item => ({ ...item }));;
+      // cronogramaComContingencias.forEach((item) => {
+      //   if (dataETIs.resultadosAgrupados[item.item]) {
+      //     const termino = euDateToJsDate(item.termino)
+      //     const terminoConvertido = adicionarDias(termino, Math.floor(dataETIs.resultadosAgrupados[item.item]));
+      //     item.termino = jsDateToEuDate(terminoConvertido);
+      //   }
+      // })
 
       //adicionar cores na tabela
       var cores = {};
-      dataCores.areasECores.forEach((area) => {
-        cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
+      data.data.forEach((c) => {
+        cores = { ...cores, [c.wbs_item.wbs_area.name]: c.wbs_item.wbs_area.color ? c.wbs_item.wbs_area.color : '' }
       })
 
-      //adicionar cores no grafico (apenas as cores de areas que tem alguma coisa sendo executada)
       var paleta = [];
       for (const [key, value] of Object.entries(cores)) {
-        if (data.cronogramaPlanos.some((item) => item.area === key && item.termino !== null)) {
+        if (data.data.some((item) => item.wbs_item.wbs_area.name === key && item.end !== null)) {
           paleta.push({
             "color": value ? chroma(value).darken().saturate(3).hex() : '#000000',
             "dark": value ? chroma(value).hex() : '#000000',
@@ -163,22 +194,20 @@ const Tabela = () => {
         }
       }
 
-      setCores(cores);
       setPaleta(paleta);
-      setEtis(dataETIs.resultadosAgrupados);
-      setCronogramas(data.cronogramaPlanos);
-      setCronogramasCont(cronogramaComContingencias);
-      setTabela(data.cronogramaPlanos);
+      // setEtis(dataETIs.resultadosAgrupados);
+      // setCronogramas(data.cronogramaPlanos);
+      // setCronogramasCont(cronogramaComContingencias);
+      // setTabela(data.cronogramaPlanos);
     } finally {
       setLoading(false);
+      setLoaded(true);
     }
   };
 
   const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',
-    'dadosUsados': 'This item is already registered in the timelines!',
     'depFaltando': 'Please select the dependencies correctly!',
-    'dpNotRegistered': "The item you've selected as predecessor is not registered!",
     'dpNotOkay': "The predecessor must finish before the successor starts!",
     'datasErradas': 'The finishing date must be after the starting date!'
   };
@@ -186,7 +215,7 @@ const Tabela = () => {
 
   //useEffect que só executa as funcoes quando reload atualiza
   useEffect(() => {
-    if(reload == true){
+    if (reload == true) {
       setReload(false);
       fetchCronogramas();
     }
@@ -212,55 +241,132 @@ const Tabela = () => {
 
   //funcao que cadastra o plano e o monitoramento, com os dados vazios
   const enviar = async () => {
+    setLoading(true);
+    var formDataDependency;
+    if (novoSubmit.dp_item) {
+      formDataDependency = {
+        dependency_id: cronogramas.find((c) => c.wbs_item.id == novoSubmit.dp_item).id,
+        user_id: user.id
+      }
+    }
+    const formDataGantt = {
+      item_id: novoSubmit.item_id,
+      user_id: user.id
+    }
+    delete novoSubmit.id;
+    delete novoSubmit.dp_item;
+    delete novoSubmit.item_id;
+    const formDataMonitor = {
+      ...novoSubmit,
+      is_plan: false,
+      status: 'start',
+      start: null,
+      end: null,
+      user_id: user.id
+    }
     const formDataPlano = {
       ...novoSubmit,
-      plano: true,
-      situacao: 'concluida'
-    };
-
-    const formDataGantt = {
-      ...novoSubmit,
-      plano: false,
-      inicio: null,
-      termino: null,
-      situacao: 'iniciar'
-    };
-    await handleSubmit({
-      route: 'cronograma',
-      dados: formDataPlano,
-      fetchDados: fetchCronogramas
-    });
-    await handleSubmit({
-      route: 'cronograma',
-      dados: formDataGantt,
-      
-    });
-    cleanForm(novoSubmit, setNovoSubmit, camposVazios);
+      is_plan: true,
+      status: 'start',
+      user_id: user.id
+    }
+    const success = await handleReq({
+      table: 'gantt',
+      route: 'create',
+      token,
+      data: formDataGantt,
+    })
+    await handleReq({
+      table: 'gantt_data',
+      route: 'create',
+      token,
+      data: { ...formDataPlano, gantt_id: success.data.resultado[0].id },
+      fetchData: fetchCronogramas
+    })
+    await handleReq({
+      table: 'gantt_data',
+      route: 'create',
+      token,
+      data: { ...formDataMonitor, gantt_id: success.data.resultado[0].id },
+    })
+    formDataDependency = {
+      ...formDataDependency,
+      gantt_id: success.data.resultado[0].id
+    }
+    if (formDataDependency.dependency_id != "" && formDataDependency.dependency_id != null) {
+      await handleReq({
+        table: 'gantt_dependency',
+        route: 'create',
+        token,
+        data: formDataDependency,
+        fetchData: fetchCronogramas
+      })
+    }
+    cleanForm(novoSubmit, setNovoSubmit, camposSubmit);
+    await fetchCronogramas();
+    setLoading(false);
   };
 
   //funcao que trata os dados e atualiza o plano
   const handleUpdateItem = async () => {
+    setLoading(true);
+    const updatedData = {
+      ...novosDados
+    };
+
+    delete updatedData?.dependency_id;
+    delete updatedData?.dp_item;
+    delete updatedData?.item_id;
     if (novosDados) {
       try {
-        await handleUpdate({
-          route: 'cronograma',
-          dados: novosDados,
-          fetchDados: fetchCronogramas
+        await handleReq({
+          table: 'gantt_data',
+          route: 'update',
+          token,
+          data: updatedData,
+          fetchData: fetchCronogramas
         });
+
+        await handleReq({
+          table: "gantt_dependency",
+          route: 'delete',
+          subroute: 'byGanttId',
+          token,
+          data: { id: novosDados.gantt_id },
+          fetchData: fetchCronogramas
+        });
+
+        if (novosDados.dp_item != "") {
+          const formDataDependency = {
+            gantt_id: novosDados.gantt_id,
+            dependency_id: cronogramas.find((c) => c.wbs_item.id == novosDados.dp_item).id,
+            user_id: user.id
+          }
+
+          await handleReq({
+            table: 'gantt_dependency',
+            route: 'create',
+            token,
+            data: formDataDependency,
+            fetchData: fetchCronogramas
+          })
+        }
+
       } catch (error) {
         console.error("Update failed:", error);
       }
     }
-    cleanForm(novosDados, setNovosDados, camposVazios);
+    cleanForm(novosDados, setNovosDados, camposSubmit);
     setLinhaVisivel();
+    setLoading(false);
   };
 
-  
+
   //funcao que calcula o rowSpan do td da area de acordo com os itens 
   const calculateRowSpan = (itens, currentArea, currentIndex) => {
     let rowSpan = 1;
     for (let i = currentIndex + 1; i < itens.length; i++) {
-      if (itens[i].area === currentArea) {
+      if (itens[i].wbs_item.wbs_area.name === currentArea) {
         rowSpan++;
       } else {
         break;
@@ -289,9 +395,9 @@ const Tabela = () => {
       {confirmDeleteItem && (
         <div className="overlay">
           <div className="modal">
-            <p>Are you sure you want to delete "{confirmDeleteItem.area} - {confirmDeleteItem.item}"?</p>
+            <p>Are you sure you want to delete "{confirmDeleteItem.wbs_item.wbs_area.name} - {confirmDeleteItem.wbs_item.name}"?</p>
             <div style={{ display: 'flex', gap: '10px' }}>
-              <button className="botao-padrao" onClick={handleConfirmDelete}>Confirm</button>
+              <button className="botao-padrao" onClick={() => handleConfirmDelete(confirmDeleteItem)}>Confirm</button>
               <button className="botao-padrao" onClick={() => setConfirmDeleteItem(null)}>Cancel</button>
             </div>
           </div>
@@ -323,31 +429,31 @@ const Tabela = () => {
       >{!showContingencies ? `Show contingencies` : `Hide contingencies`}</button>
 
       {chartDataLoaded && (
-        <div style={{width: '90%', height: chartHeight}}>
+        <div style={{ width: '90%', height: chartHeight }}>
           <Chart
-          key={isMobile ? "mobile" : "desktop"}
-          height="100%"
-          width="100%"
-          chartType="Gantt"
-          loader={<div>Loading Chart</div>}
-          data={!showContingencies ? chartData : chartDataContingencies}
-          options={{
-            gantt: {
-              trackHeight: isMobile ? 20 : 30,
-              barHeight: isMobile ? 10 : null,
-              arrow: {
-                length: isMobile ? 0 : 8
+            key={isMobile ? "mobile" : "desktop"}
+            height="100%"
+            width="100%"
+            chartType="Gantt"
+            loader={<div>Loading Chart</div>}
+            data={!showContingencies ? chartData : chartDataContingencies}
+            options={{
+              gantt: {
+                trackHeight: isMobile ? 20 : 30,
+                barHeight: isMobile ? 10 : null,
+                arrow: {
+                  length: isMobile ? 0 : 8
+                },
+                sortTasks: false,
+                palette: paleta,
+                shadowEnabled: false,
+                criticalPathEnabled: false,
+                labelMaxWidth: isMobile ? 0 : 300
               },
-              sortTasks: false,
-              palette: paleta,
-              shadowEnabled: false,
-              criticalPathEnabled: false,
-              labelMaxWidth: isMobile ? 0 : 300
-            },
-          }}
-        />
+            }}
+          />
         </div>
-        
+
       )}
 
       <div className="centered-container">
@@ -368,53 +474,64 @@ const Tabela = () => {
               <tbody>
                 <tr>
                   <CadastroInputs
-                    obj={{ ...novoSubmit, plano: true }}
+                    obj={{ ...novoSubmit, is_plan: true }}
                     objSetter={setNovoSubmit}
                     tipo='cadastro'
                     funcoes={{
                       enviar,
-                      setLoading
+                      setLoading,
+                      checkAreaDisponivel,
+                      checkItemDisponivel,
+                      findGanttById,
+                      findGanttByItemId
                     }}
+                    loaded={loaded}
                     setExibirModal={setExibirModal}
+                    disabled={!isEditor}
                   />
                 </tr>
-                {tabela.filter((item) => item.plano).map((item, index) => (
-                  <tr key={index} style={{ backgroundColor: cores[item.area] }}>
+                {tabela.filter((item) => item?.gantt_data[0]?.is_plan).map((item, index) => (
+                  <tr key={index} style={{ backgroundColor: item.wbs_item.wbs_area.color }}>
                     <React.Fragment>
-                      {index === 0 || cronogramas[index - 1].area !== item.area ? (
-                        <td rowSpan={calculateRowSpan(cronogramas, item.area, index)}
-                        >{item.area}</td>
+                      {index === 0 || cronogramas[index - 1].wbs_item.wbs_area.name !== item.wbs_item.wbs_area.name ? (
+                        <td rowSpan={calculateRowSpan(cronogramas, item.wbs_item.wbs_area.name, index)}
+                        >{item.wbs_item.wbs_area.name}</td>
                       ) : null}
                       <td>
-                        {item.item}
+                        {item.wbs_item.name}
                       </td>
-                      {linhaVisivel === item._id ? (
+                      {linhaVisivel === item.id ? (
                         <CadastroInputs
                           tipo="update"
                           obj={novosDados}
                           objSetter={setNovosDados}
                           setExibirModal={setExibirModal}
+                          loaded={loaded}
                           funcoes={{
                             enviar: handleUpdateItem,
                             setLoading,
-                            cancelar: () => linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id)
+                            checkAreaDisponivel,
+                            checkItemDisponivel,
+                            findGanttById,
+                            findGanttByItemId,
+                            cancelar: () => setLinhaVisivel()
                           }}
+                          disabled={!isEditor}
                         />
                       ) : (
                         <React.Fragment>
-                          <td>{item.inicio}</td>
-                          <td>{item.termino}</td>
-                          <td>{item.dp_area || '-'}</td>
-                          <td>{item.dp_item || '-'}</td>
+                          <td>{jsDateToEuDate(item?.gantt_data[0]?.start)}</td>
+                          <td>{jsDateToEuDate(item?.gantt_data[0]?.end)}</td>
+                          <td>{item.gantt_dependency[0]?.dependency_id ? tabela.find(t => t.id == item.gantt_dependency[0]?.dependency_id).wbs_item.wbs_area.name : '-'}</td>
+                          <td>{item.gantt_dependency[0]?.dependency_id ? tabela.find(t => t.id == item.gantt_dependency[0]?.dependency_id).wbs_item.name : '-'}</td>
                           <td className="botoes_acoes">
-                            
-                              <button onClick={() => setConfirmDeleteItem(item)}
-                                disabled={!isAdmin}>❌</button>
-                              <button onClick={() => {
-                                linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
-                              }}
-                                disabled={!isAdmin}>⚙️</button>
-                            
+                            <button onClick={() => setConfirmDeleteItem(item)}
+                            >❌</button>
+                            <button onClick={() => {
+                              setLinhaVisivel(item.id); handleUpdateClick(item)
+                            }}
+                            >⚙️</button>
+
                           </td>
                         </React.Fragment>
                       )}

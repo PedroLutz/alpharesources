@@ -1,4 +1,4 @@
-import Tabela from '../../../components/features/n_cronograma/Comparacao';
+import Tabela from '../../../components/features/cronograma/Comparacao';
 import PageWrapper from '../../../components/layout/CronogramaWrapper';
 
 function CadastroPage() {
