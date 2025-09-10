@@ -1,5 +1,5 @@
 import PageWrapper from '../../../components/layout/ResourcesWrapper';
-import Tabela from '../../../components/features/recursos/recurso/Tabela';
+import Tabela from '../../../components/features/n_recursos/recurso/Tabela';
 
 function TabelaPage() {
   return (

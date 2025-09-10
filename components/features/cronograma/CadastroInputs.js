@@ -184,7 +184,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
 
     //funcao para buscar os elementos da WBS para inserção nos selects
     const fetchElementos = async () => {
-        var elementos
+        var elementos;
         try {
             const data = await handleFetch({
                 table: 'wbs_item',

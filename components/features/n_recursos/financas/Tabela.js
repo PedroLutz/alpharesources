@@ -1,9 +1,8 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState } from 'react';
 import Loading from '../../../ui/Loading';
 import Modal from '../../../ui/Modal';
 import CadastroInputs from './CadastroInputs';
 import styles from '../../../../styles/modules/financas.module.css'
-import { handleSubmit, fetchData, handleDelete, handleUpdate, handlePseudoDelete } from '../../../../functions/crud';
 import { jsDateToEuDate, euDateToIsoDate, cleanForm } from '../../../../functions/general';
 import useAuth from '../../../../hooks/useAuth';
 import usePerm from '../../../../hooks/usePerm';
@@ -22,7 +21,6 @@ const Tabela = () => {
     const [lancamentos, setLancamentos] = useState([]);
     const [deleteItem, setDeleteItem] = useState();
     const [confirmItemAction, setConfirmItemAction] = useState({ action: '', item: null });
-    const [limparLixo, setLimparLixo] = useState(false);
     const [exibirModal, setExibirModal] = useState(null);
     const [loading, setLoading] = useState(true);
     const [linhaVisivel, setLinhaVisivel] = useState({});
