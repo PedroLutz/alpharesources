@@ -1,0 +1,316 @@
+import React, { useEffect, useState, useContext } from "react"
+import styles from '../../../../styles/modules/custoBeneficio.module.css'
+import Inputs from "./Inputs";
+import Modal from "../../../ui/Modal";
+import Loading from "../../../ui/Loading";
+import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../../functions/crud";
+import { handleFetch, handleReq } from '../../../../functions/crud_s';
+import { cleanForm } from "../../../../functions/general";
+import useAuth from '../../../../hooks/useAuth';
+import usePerm from '../../../../hooks/usePerm';
+
+const Tabela = () => {
+    const camposVazios = {
+        identification: "",
+        description: "",
+        cost: "",
+        cost_ranking: "",
+        impact: "",
+        urgency: "",
+        area_impact: "",
+        explanation: "",
+        edge: ""
+    }
+    const [novoSubmit, setNovoSubmit] = useState(camposVazios);
+    const [novosDados, setNovosDados] = useState(camposVazios);
+    const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
+    const [custoBeneficios, setCustoBeneficios] = useState([]);
+    const [exibirModal, setExibirModal] = useState(null);
+    const [linhaVisivel, setLinhaVisivel] = useState();
+    const [loading, setLoading] = useState(true);
+    const { user, token } = useAuth();
+    const { isEditor } = usePerm();
+
+
+    //funcao que envia os dados de novoSubmit para cadastro
+    const enviar = async () => {
+        await handleReq({
+            table: 'cost_benefit',
+            route: 'create',
+            token,
+            data: {
+                ...novoSubmit,
+                user_id: user.id,
+            },
+            fetchData: fetchCustoBeneficios
+        });
+        cleanForm(novoSubmit, setNovoSubmit, camposVazios);
+    };
+
+    //funcao que trata os dados e os envia para atualizacao
+    const handleUpdateItem = async () => {
+        setLoading(true);
+        delete novosDados.mediaBeneficios;
+        try {
+            await handleReq({
+                table: 'cost_benefit',
+                route: 'update',
+                token,
+                data: novosDados,
+                fetchData: fetchCustoBeneficios
+            });
+        } catch (error) {
+            console.error("Update failed:", error);
+        }
+        setLoading(false);
+        setLinhaVisivel();
+        setNovosDados(camposVazios);
+    };
+
+    //funcao que envia o id para ser deletado
+    const handleConfirmDelete = async () => {
+        if (confirmDeleteItem) {
+            await handleReq({
+                table: 'cost_benefit',
+                route: 'delete',
+                token,
+                data: { id: confirmDeleteItem.id },
+                fetchData: fetchCustoBeneficios
+            });
+            setExibirModal(`deleteSuccess`);
+        }
+        setConfirmDeleteItem(null);
+    };
+
+
+    //funcao que busca os dados
+    const fetchCustoBeneficios = async () => {
+        try {
+            const data = await handleFetch({
+                table: 'cost_benefit',
+                query: 'all',
+                token
+            })
+            data.data.forEach((cb) => {
+                cb.mediaBeneficios = parseFloat((cb.area_impact
+                    + cb.impact
+                    + cb.urgency
+                    + cb.edge)
+                    / 4).toFixed(2)
+            })
+            setCustoBeneficios(data.data);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    //useEffect que so executa no primeiro render
+    useEffect(() => {
+        fetchCustoBeneficios();
+    }, []);
+
+    const modalLabels = {
+        'inputsVazios': 'Fill out all fields before adding new data!',
+        'deleteSuccess': 'Deletion Successful!',
+        'deleteFail': 'Deletion Failed!',
+        'valorNegativo': 'No fields can have negative values!',
+        'maiorQueCinco': 'Classifications must be between 1 and 5!'
+    };
+
+    const getCustosBeneficios = (cus, ben) => {
+        let custoBen = []
+        if (custoBeneficios) {
+            custoBeneficios.forEach((cb) => {
+                if (cb.cost_ranking === cus && cb.mediaBeneficios > ben - 1 && cb.mediaBeneficios <= ben) {
+                    custoBen.push(cb.identification)
+                }
+            })
+        }
+        return (
+            <ul>
+                {custoBen.map((identificacao, index) => (
+                    <li key={index} style={{ fontSize: '0.65rem', textAlign: 'left' }}>{identificacao}</li>
+                ))}
+            </ul>
+        );
+    }
+
+    return (
+        <div className="centered-container">
+            {loading && <Loading />}
+            <h2 className='smallTitle'>Cost-Benefit Analysis</h2>
+
+            {exibirModal != null && (
+                <Modal objeto={{
+                    titulo: modalLabels[exibirModal],
+                    botao1: {
+                        funcao: () => setExibirModal(null), texto: 'Okay'
+                    },
+                }} />
+            )}
+
+            {confirmDeleteItem && (
+                <Modal objeto={{
+                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.identification}"?`,
+                    alerta: true,
+                    botao1: {
+                        funcao: handleConfirmDelete, texto: 'Confirm'
+                    },
+                    botao2: {
+                        funcao: () => setConfirmDeleteItem(null), texto: 'Cancel'
+                    }
+                }} />
+            )}
+
+            <div className={styles.tabela_cb_container}>
+                <div className={styles.tabela_cb_wrapper}>
+                    <table className={`tabela ${styles.tabela_cb}`}>
+                        <thead>
+                            <tr>
+                                <th>Identification</th>
+                                <th>Description</th>
+                                <th>Cost</th>
+                                <th>Cost Ranking</th>
+                                <th>Impact</th>
+                                <th>Urgency</th>
+                                <th>Competitive Edge</th>
+                                <th>Affected Areas</th>
+                                <th>Benefit average</th>
+                                <th>Cost-Benefit index</th>
+                                <th>Explanation</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {custoBeneficios.map((custoBeneficio, index) => (
+                                <React.Fragment key={index}>
+                                    {linhaVisivel === custoBeneficio.id ? (
+                                        <Inputs tipo="update"
+                                            obj={novosDados}
+                                            objSetter={setNovosDados}
+                                            funcoes={{
+                                                enviar: handleUpdateItem,
+                                                cancelar: () => linhaVisivel === custoBeneficio._id ? setLinhaVisivel() : setLinhaVisivel(custoBeneficio._id)
+                                            }}
+                                            setExibirModal={setExibirModal}
+                                        />
+                                    ) : (
+                                        <tr>
+                                            <td>{custoBeneficio.identification}</td>
+                                            <td className={styles.tdDescricao}>{custoBeneficio.description}</td>
+                                            <td className={styles.tdCusto}>R${parseFloat(custoBeneficio.cost).toFixed(2)}</td>
+                                            <td className={styles.tdEscala}>{custoBeneficio.cost_ranking}</td>
+                                            <td className={styles.tdImpacto}>{custoBeneficio.impact}</td>
+                                            <td className={styles.tdUrgencia}>{custoBeneficio.urgency}</td>
+                                            <td className={styles.tdDiferencial}>{custoBeneficio.edge}</td>
+                                            <td className={styles.tdAreas}>{custoBeneficio.area_impact}</td>
+                                            <td className={styles.tdMediaBeneficios}>{
+                                                parseFloat((custoBeneficio.area_impact
+                                                    + custoBeneficio.impact
+                                                    + custoBeneficio.urgency
+                                                    + custoBeneficio.edge)
+                                                    / 4).toFixed(2)}</td>
+                                            <td className={styles.tdIndice}>{
+                                                parseFloat(((custoBeneficio.area_impact + custoBeneficio.impact
+                                                    + custoBeneficio.urgency + custoBeneficio.edge)
+                                                    / 4) / custoBeneficio.cost_ranking).toFixed(2)}</td>
+                                            <td className={styles.tdExplicacao}>{custoBeneficio.explanation}</td>
+                                            <td className='botoes_acoes'>
+                                                <button onClick={() => setConfirmDeleteItem(custoBeneficio)} disabled={!isEditor}>❌</button>
+                                                <button onClick={() => {
+                                                    setLinhaVisivel(custoBeneficio.id); setNovosDados(custoBeneficio);
+                                                }
+                                                } disabled={!isEditor}>⚙️</button>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </React.Fragment>
+                            ))}
+                            <Inputs
+                                obj={novoSubmit}
+                                objSetter={setNovoSubmit}
+                                funcoes={{
+                                    enviar: enviar
+                                }}
+                                setExibirModal={setExibirModal}
+                            />
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div className={styles.tabela_cb_container} style={{ marginTop: '3rem' }}>
+                <h2 className='smallTitle'>Cost-Benefit Matrix</h2>
+                <p>Benefit average</p>
+                <div className={styles.tabela_cb_wrapper}>
+                    <table className={`${styles.tabela_cb} tabela`} style={{ width: '75rem' }}>
+                        <thead style={{ background: 'transparent' }}>
+                            <tr>
+                                <th style={{ borderColor: 'transparent', backgroundColor: 'transparent', width: '1rem', color: 'white' }}></th>
+                                <th style={{ borderColor: 'transparent', borderBottomColor: 'black', borderRightColor: 'black', backgroundColor: 'transparent', width: '1rem', color: 'white' }}></th>
+                                <th>1</th>
+                                <th>2</th>
+                                <th>3</th>
+                                <th>4</th>
+                                <th>5</th>
+                            </tr>
+                        </thead>
+                        <tbody >
+                            <tr>
+                                <td rowSpan={5}
+                                    style={{ border: 'transparent', width: '0.2rem', fontSize: '1rem', margin: '0rem', padding: '0rem' }}
+                                ><div style={{
+                                    writingMode: 'sideways-lr',
+                                    display: 'inline-block',
+                                }}>
+                                        Cost ranking
+                                    </div></td>
+                                <th>5</th>
+                                <td style={{ backgroundColor: '#a5d68f' }}>{getCustosBeneficios(5, 1) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffe990' }}>{getCustosBeneficios(5, 2) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffb486' }}>{getCustosBeneficios(5, 3) || '-'}</td>
+                                <td style={{ backgroundColor: '#ff9595' }}>{getCustosBeneficios(5, 4) || '-'}</td>
+                                <td style={{ backgroundColor: '#ff9595' }}>{getCustosBeneficios(5, 5) || '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>4</th>
+                                <td style={{ backgroundColor: '#78bf9d' }}>{getCustosBeneficios(4, 1) || '-'}</td>
+                                <td style={{ backgroundColor: '#a5d68f' }}>{getCustosBeneficios(4, 2) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffe990' }}>{getCustosBeneficios(4, 3) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffb486' }}>{getCustosBeneficios(4, 4) || '-'}</td>
+                                <td style={{ backgroundColor: '#ff9595' }}>{getCustosBeneficios(4, 5) || '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>3</th>
+                                <td style={{ backgroundColor: '#78bf9d' }}>{getCustosBeneficios(3, 1) || '-'}</td>
+                                <td style={{ backgroundColor: '#a5d68f' }}>{getCustosBeneficios(3, 2) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffe990' }}>{getCustosBeneficios(3, 3) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffb486' }}>{getCustosBeneficios(3, 4) || '-'}</td>
+                                <td style={{ backgroundColor: '#ff9595' }}>{getCustosBeneficios(3, 5) || '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>2</th>
+                                <td style={{ backgroundColor: '#78bf9d' }}>{getCustosBeneficios(2, 1) || '-'}</td>
+                                <td style={{ backgroundColor: '#a5d68f' }}>{getCustosBeneficios(2, 2) || '-'}</td>
+                                <td style={{ backgroundColor: '#a5d68f' }}>{getCustosBeneficios(2, 3) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffe990' }}>{getCustosBeneficios(2, 4) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffb486' }}>{getCustosBeneficios(2, 5) || '-'}</td>
+                            </tr>
+                            <tr>
+                                <th>1</th>
+                                <td style={{ backgroundColor: '#78bf9d' }}>{getCustosBeneficios(1, 1) || '-'}</td>
+                                <td style={{ backgroundColor: '#78bf9d' }}>{getCustosBeneficios(1, 2) || '-'}</td>
+                                <td style={{ backgroundColor: '#a5d68f' }}>{getCustosBeneficios(1, 3) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffe990' }}>{getCustosBeneficios(1, 4) || '-'}</td>
+                                <td style={{ backgroundColor: '#ffe990' }}>{getCustosBeneficios(1, 5) || '-'}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    )
+};
+
+export default Tabela;

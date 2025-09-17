@@ -29,6 +29,7 @@
     "react-datepicker": "^8.4.0",
     "react-dom": "^18.2.0",
     "react-google-charts": "^4.0.1",
+    "react-select": "^5.10.2",
     "vercel": "^32.3.0"
   },
   "devDependencies": {

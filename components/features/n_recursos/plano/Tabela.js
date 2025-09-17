@@ -3,9 +3,8 @@ import CadastroInputs from "./CadastroInputs";
 import styles from '../../../../styles/modules/planoAquisicao.module.css'
 import Modal from "../../../ui/Modal";
 import Loading from "../../../ui/Loading";
-import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../../functions/crud";
 import { handleFetch, handleReq } from '../../../../functions/crud_s';
-import { cleanForm, jsDateToEuDate, euDateToIsoDate, isoDateToEuDate } from "../../../../functions/general";
+import { cleanForm, isoDateToEuDate } from "../../../../functions/general";
 import useAuth from '../../../../hooks/useAuth';
 import usePerm from '../../../../hooks/usePerm';
 
@@ -99,7 +98,6 @@ const PlanoAquisicao = () => {
 
     //funcao que trata e envia os dados para atualizacao no banco
     const handleUpdateItem = async (obj) => {
-        console.log(obj)
         setLoading(true);
         delete obj.date_diference;
         delete obj.value_diference;
@@ -132,7 +130,7 @@ const PlanoAquisicao = () => {
                 data: { id: confirmDeleteItem.id },
                 fetchData: fetchPlanos
             });
-            setExibirModal(`deleteSuccess`)
+            setExibirModal(`deleteSuccess`);
         }
         setConfirmDeleteItem(null);
     };
