@@ -5,7 +5,7 @@ import Modal from "../../../ui/Modal";
 import Loading from "../../../ui/Loading";
 import useAuth from '../../../../hooks/useAuth';
 import usePerm from '../../../../hooks/usePerm';
-import { cleanForm, jsDateToEuDate, isoDateToEuDate } from "../../../../functions/general";
+import { cleanForm, isoDateToEuDate } from "../../../../functions/general";
 import { handleFetch, handleReq } from '../../../../functions/crud_s';
 
 const Tabela = () => {

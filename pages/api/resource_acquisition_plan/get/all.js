@@ -1,10 +1,13 @@
 'use client';
-import client from "../../../../lib/supabaseClient";
+import { createServerClient } from "../../../../lib/supabaseServerClient";
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
+
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  const client = createServerClient(token);
 
   const { data, error } = await client
     .from('resource_acquisition_plan')
@@ -13,14 +16,13 @@ export default async function handler(req, res) {
         resource (
             id,
             wbs_item (
-            id,
-            wbs_area (
-                id,
-                name
+              wbs_area (
+                  id,
+                  name,
+                  color
+              )
             ),
-            name
-            ),
-            resource,
+            resource
         ),
         method_a,
         plan_a,
@@ -29,13 +31,14 @@ export default async function handler(req, res) {
         expected_date,
         critical_date,
         method_b,
+        plan_b,
         value_b,
+        details_b,
         plan_real,
         date_real,
         value_real`)
-    .order('resource.wbs_item.wbs_area.name', { ascending: true })
-    .order('resource.wbs_item.name', { ascending: true })
-    .order('resource.name', { ascending: true })
+    .order('resource(wbs_item->wbs_area->name)', { ascending: true })
+    .order('resource(resource)', { ascending: true })
 
   if (error) return res.status(400).json({ error: error.message })
 

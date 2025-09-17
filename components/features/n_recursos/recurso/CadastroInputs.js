@@ -48,21 +48,6 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEdito
         fetchElementos();
     }, []);
 
-
-    //useEffect que so roda quando obj.area atualiza, que reseta o valor de item
-    useEffect(() => {
-        if (isFirstRender.current) {
-            isFirstRender.current = false;
-            return;
-        }
-
-        objSetter({
-            ...obj,
-            item: ''
-        });
-    }, [obj.area]);
-
-
     const atualizarItensPorArea = (area) => {
         var itensDaArea;
         if(area != -1) {
