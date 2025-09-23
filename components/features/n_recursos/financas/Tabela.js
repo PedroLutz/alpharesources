@@ -6,7 +6,7 @@ import styles from '../../../../styles/modules/financas.module.css'
 import { jsDateToEuDate, euDateToIsoDate, cleanForm } from '../../../../functions/general';
 import useAuth from '../../../../hooks/useAuth';
 import usePerm from '../../../../hooks/usePerm';
-import { handleFetch, handleReq } from '../../../../functions/crud_s';
+import { handleFetch, handleReq, handlePostFetch } from '../../../../functions/crud_s';
 
 const labelsTipo = {
     income: 'Income',
@@ -46,6 +46,44 @@ const Tabela = () => {
                 query: 'all',
                 token
             })
+
+            const monthly_summary = await handlePostFetch({
+                table: "financial_release",
+                query: 'monthly_summary',
+                token,
+                data: { uid: user.id },
+            });
+
+            const area_summary = await handlePostFetch({
+                table: "financial_release",
+                query: 'area_summary',
+                token,
+                data: { uid: user.id },
+            });
+
+            const total_summary = await handlePostFetch({
+                table: "financial_release",
+                query: 'total_summary',
+                token,
+                data: { uid: user.id },
+            });
+
+            const min_max = await handlePostFetch({
+                table: "financial_release",
+                query: 'min_max',
+                token,
+                data: { uid: user.id },
+            })
+
+            const plan_monthly_summary = await handlePostFetch({
+                table: "resource_acquisition_plan",
+                query: 'monthly_summary',
+                token,
+                data: { uid: user.id },
+            })
+
+            console.log(monthly_summary, area_summary, total_summary, min_max, plan_monthly_summary);
+
             var balance = 0;
             const lancamentos = data.data;
             lancamentos.forEach((item) => {
