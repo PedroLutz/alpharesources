@@ -88,7 +88,7 @@ const Tabela = () => {
                     + cb.impacto
                     + cb.urgencia
                     + cb.diferencial)
-                    / 5).toFixed(2)
+                    / 4).toFixed(2)
             })
             setCustoBeneficios(data.custoBeneficios);
         } finally {
@@ -201,11 +201,11 @@ const Tabela = () => {
                                                     + custoBeneficio.impacto
                                                     + custoBeneficio.urgencia
                                                     + custoBeneficio.diferencial)
-                                                    / 5).toFixed(2)}</td>
+                                                    / 4).toFixed(2)}</td>
                                             <td className={styles.tdIndice}>{
                                                 parseFloat(((custoBeneficio.areas_afetadas + custoBeneficio.impacto
                                                     + custoBeneficio.urgencia + custoBeneficio.diferencial)
-                                                    / 5) / custoBeneficio.escala_custo).toFixed(2)}</td>
+                                                    / 4) / custoBeneficio.escala_custo).toFixed(2)}</td>
                                             <td className={styles.tdExplicacao}>{custoBeneficio.explicacao}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(custoBeneficio)} disabled={!isAdmin}>❌</button>
