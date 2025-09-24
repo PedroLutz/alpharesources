@@ -30,6 +30,7 @@
     "react-dom": "^18.2.0",
     "react-google-charts": "^4.0.1",
     "react-select": "^5.10.2",
+    "supabase": "^2.45.5",
     "vercel": "^32.3.0"
   },
   "devDependencies": {

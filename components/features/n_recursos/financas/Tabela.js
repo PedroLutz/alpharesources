@@ -47,43 +47,6 @@ const Tabela = () => {
                 token
             })
 
-            const monthly_summary = await handlePostFetch({
-                table: "financial_release",
-                query: 'monthly_summary',
-                token,
-                data: { uid: user.id },
-            });
-
-            const area_summary = await handlePostFetch({
-                table: "financial_release",
-                query: 'area_summary',
-                token,
-                data: { uid: user.id },
-            });
-
-            const total_summary = await handlePostFetch({
-                table: "financial_release",
-                query: 'total_summary',
-                token,
-                data: { uid: user.id },
-            });
-
-            const min_max = await handlePostFetch({
-                table: "financial_release",
-                query: 'min_max',
-                token,
-                data: { uid: user.id },
-            })
-
-            const plan_monthly_summary = await handlePostFetch({
-                table: "resource_acquisition_plan",
-                query: 'monthly_summary',
-                token,
-                data: { uid: user.id },
-            })
-
-            console.log(monthly_summary, area_summary, total_summary, min_max, plan_monthly_summary);
-
             var balance = 0;
             const lancamentos = data.data;
             lancamentos.forEach((item) => {
@@ -135,6 +98,7 @@ const Tabela = () => {
         const value = isExpense ? -parseFloat(novoSubmit.value) : parseFloat(novoSubmit.value);
         const updatedNovoSubmit = {
             ...novoSubmit,
+            area_id: novoSubmit.area_id != -1 ? novoSubmit.area_id : null,
             value: value,
             user_id: user.id
         };
@@ -254,7 +218,7 @@ const Tabela = () => {
                                                     <b>R${Math.abs(item.value).toFixed(2)}</b>
                                                 </td>
                                                 <td className={styles.tdData}>{item.date}</td>
-                                                <td className={styles.tdArea}>{item.wbs_area.name}</td>
+                                                <td className={styles.tdArea}>{item?.wbs_area?.name || 'Others'}</td>
                                                 <td className={styles.tdOrigem}>{item.origin}</td>
                                                 <td className={styles.tdDestino}>{item.destination}</td>
                                                 <td className={styles.tdBalanco}>

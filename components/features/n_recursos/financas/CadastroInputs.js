@@ -127,7 +127,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal, isEdito
                     {areas.map((area, index) => (
                         <option key={area.id} value={area.id}>{area.name}</option>
                     ))};
-                    <option value="Others">Others</option>
+                    <option value={-1}>Others</option>
                 </select>
             </td>
             <td className={styles.tdOrigem}>

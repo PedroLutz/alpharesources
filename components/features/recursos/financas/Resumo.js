@@ -217,7 +217,7 @@ const Resumo = () => {
     const data = await fetchData('wbs/get/cores');
     var cores = {};
     data.areasECores.forEach((area) => {
-      cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
+      cores = { ...cores, [area._id]: area.cor[0] || '' }
     })
     setCores(cores);
   }
@@ -383,10 +383,10 @@ const Resumo = () => {
                 ...estiloGraph,
                 title: 'Costs per area',
                 slices: DespesasPorAreaGraph.slice(1).map((row) => ({
-                  color: cores[row[0]] || '#ccc', // usa a cor correta para cada área
+                  color: cores[row[0]] || '#ccc',
                 })),
                 pieSliceTextStyle: {
-                  color: 'black', // Define a cor das porcentagens como preta
+                  color: 'black',
                 },
               }}
 
