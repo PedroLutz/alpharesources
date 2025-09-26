@@ -6,7 +6,7 @@ import styles from '../../../../styles/modules/financas.module.css'
 import { jsDateToEuDate, euDateToIsoDate, cleanForm } from '../../../../functions/general';
 import useAuth from '../../../../hooks/useAuth';
 import usePerm from '../../../../hooks/usePerm';
-import { handleFetch, handleReq, handlePostFetch } from '../../../../functions/crud_s';
+import { handleFetch, handleReq } from '../../../../functions/crud_s';
 
 const labelsTipo = {
     income: 'Income',

@@ -10,29 +10,12 @@ export default async function handler(req, res) {
   const client = createServerClient(token);
 
   const { data, error } = await client
-    .from('risk')
+    .from('member')
     .select(`
         id,
-        wbs_item (
-            id,
-            wbs_area (
-                id,
-                name,
-                color
-            ),
-            name
-        ),
-        member (
-            name
-        ),
-        risk,
-        is_negative,
-        effect,
-        cause,
-        trigger`)
-    .order('wbs_item(wbs_area->name)', { ascending: true })
-    .order('wbs_item(name)', { ascending: true })
-    .order('risk', { ascending: true })
+        name
+    `)
+    .order('name', { ascending: true })
 
   if (error) return res.status(400).json({ error: error.message })
 

@@ -1,10 +1,13 @@
 'use client';
-import client from "../../../../lib/supabaseClient";
+import { createServerClient } from "../../../../lib/supabaseServerClient";
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
+
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  const client = createServerClient(token);
 
   const { data, error } = await client
     .from('member')
@@ -12,7 +15,7 @@ export default async function handler(req, res) {
         id,
         name,
         softskills,
-        hardskills,
+        hardskills
     `)
     .order('name', { ascending: true })
 

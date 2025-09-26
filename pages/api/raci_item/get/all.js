@@ -10,22 +10,11 @@ export default async function handler(req, res) {
     .from('raci_item')
     .select(`
         id,
-        wbs_item (
-            id,
-            wbs_area (
-                id,
-                name
-            ),
-            name
-        ),
-        member (
-            id,
-            name
-        ),
+        item_id,
+        member_id,
         responsibility`)
-    .order('wbs_item.wbs_area.name', { ascending: true })
-    .order('wbs_item.name', { ascending: true })
-    .order('member.name', { ascending: true })
+    .order('item_id', { ascending: true })
+    .order('member_id', { ascending: true });
 
   if (error) return res.status(400).json({ error: error.message })
 
