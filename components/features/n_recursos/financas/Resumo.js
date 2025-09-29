@@ -358,7 +358,7 @@ const Resumo = () => {
             cores = { ...cores, [area.name]: area.color || ''}
         })
         setCores(cores);
-  }
+    }
 
     useEffect(() => {
         fetchCores();

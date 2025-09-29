@@ -1,20 +1,34 @@
 'use client';
-import client from "../../../../lib/supabaseClient";
+import { createServerClient } from "../../../../lib/supabaseServerClient";
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const { data, error } = await client
-    .from('raci_item')
+  const token = req.headers.authorization?.replace('Bearer ', '');
+    const client = createServerClient(token);
+
+    const { data, error } = await client
+    .from('wbs_item')
     .select(`
+      item_id:id,
+      item_name:name,
+      wbs_area (
         id,
-        item_id,
-        member_id,
-        responsibility`)
-    .order('item_id', { ascending: true })
-    .order('member_id', { ascending: true });
+        name,
+        color
+      ),
+      raci_item (
+        responsibility,
+        member (
+          id,
+          name
+        )
+      )
+    `)
+    .order("wbs_area(name)", {ascending: true})
+    .order("name", {ascending: true})
 
   if (error) return res.status(400).json({ error: error.message })
 

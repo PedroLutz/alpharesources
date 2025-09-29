@@ -3,11 +3,15 @@ import styles from '../../../../styles/modules/responsabilidades.module.css'
 import Loading from '../../../ui/Loading';
 import Modal from '../../../ui/Modal';
 import CadastroInputs from './CadastroInputs';
-import { fetchData, handleDelete, handleUpdate, handleSubmit } from '../../../../functions/crud';
 import { cleanForm } from '../../../../functions/general';
-import { AuthContext } from '../../../../contexts/AuthContext';
+import useAuth from '../../../../hooks/useAuth';
+import usePerm from '../../../../hooks/usePerm';
+import { handleFetch, handlePostFetch, handleReq } from '../../../../functions/crud_s';
 
 const Tabela = () => {
+  const { user, token } = useAuth();
+  const { isEditor } = usePerm();
+
   const [itensRaci, setItensRaci] = useState([]);
   const [nomesMembros, setNomesMembros] = useState([]);
   const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
@@ -17,144 +21,140 @@ const Tabela = () => {
   const [linhaVisivel, setLinhaVisivel] = useState({});
   const [reload, setReload] = useState(false);
   const [cores, setCores] = useState({});
+  const [loaded, setLoaded] = useState(false);
   const camposVazios = {
-    area: "",
-    item: "",
+    item_id: "",
   }
   const [novoSubmit, setNovoSubmit] = useState(camposVazios);
   const [novosDados, setNovosDados] = useState(camposVazios);
-  const { isAdmin } = useContext(AuthContext);
+  const [oldDados, setOldDados] = useState(camposVazios);
 
   const handleUpdateClick = (item) => {
-    const responsabilidadesArray = item.responsabilidades.split(", ");
-    var objTemp = {
-      _id: item._id,
-      area: item.area,
-      item: item.item
-    };
-    inputNames.forEach((membro, index) => {
-      const responsabilidade = responsabilidadesArray[index % responsabilidadesArray.length];
-      objTemp = {
-        ...objTemp,
-        [`${getCleanName(membro)}`]: responsabilidade
-      }
-    });
-    setNovosDados(objTemp);
+    let obj = { item_id: item.item_id };
+    item?.raci?.forEach((r) => {
+      obj["input" + r.member_id] = r.responsibility;
+    })
+    setNovosDados(obj);
+    setOldDados(item);
   };
 
   const fetchCores = async () => {
-    const data = await fetchData('wbs/get/cores');
+    const data = await handleFetch({
+      table: "wbs_area",
+      query: 'colors',
+      token
+    });
     var cores = {};
-    data.areasECores.forEach((area) => {
-      cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
+    data.data.forEach((area) => {
+      cores = { ...cores, [area.name]: area.color || '' }
     })
     setCores(cores);
   }
 
   const fetchItensRaci = async () => {
-    const data = await fetchData('responsabilidades/raci/get');
-    setItensRaci(data.itensRaci);
+    const data = await handlePostFetch({
+      table: "raci_item",
+      query: 'all_ordered',
+      token,
+      data: { uid: user.id },
+    })
+    setItensRaci(data.data);
   };
+
+  const validarDados = (obj) => {
+    if (!Object.values(obj).some(v => v == "accountable")) {
+      setExibirModal('semAprovador');
+      return false;
+    }
+    if (!Object.values(obj).some(v => v == "responsible")) {
+      setExibirModal('semResponsavel');
+      return false;
+    }
+    if (Object.values(obj).reduce((acc, cur) => {
+      if (cur == 'accountable') acc++;
+      return acc;
+    }, 0) > 1) {
+      setExibirModal('muitoAprovador');
+      return false;
+    }
+    return true;
+  }
 
   const enviar = async () => {
-    var itemJaUsado = false;
-    itensRaci.forEach((item) => {
-      if (Object.values(item).indexOf(novoSubmit.area) > -1) {
-        if (Object.values(item).indexOf(novoSubmit.item) > -1) {
-          itemJaUsado = true;
+    if(!validarDados(novoSubmit)) return;
+    try {
+      for (let key in novoSubmit) {
+        if (key != 'item_id') {
+          const responsibility = novoSubmit[key];
+          const member_id = key.split("input")[1];
+          await handleReq({
+            table: 'raci_item',
+            route: 'create',
+            token,
+            data: { item_id: novoSubmit.item_id, member_id, responsibility, user_id: user.id },
+          });
         }
       }
-    })
-    if (itemJaUsado) {
-      setExibirModal('itemJaUsado')
-      return;
+      nomesMembros.forEach((membro) => {
+        setNovoSubmit((prevState) => ({
+          ...prevState,
+          ['input' + membro.id]: ''
+        }));
+      });
+    } finally {
+      cleanForm(novoSubmit, setNovoSubmit, camposVazios);
+      setReload(true);
     }
-    const updatedFormData = {
-      ...novoSubmit,
-      responsabilidades: inputNames.map(inputName => novoSubmit["input" + getCleanName(inputName)]).join(', ')
-    };
-
-    if (!updatedFormData.responsabilidades.includes("A")) {
-      setExibirModal('semAprovador');
-      return;
-    }
-    if (!updatedFormData.responsabilidades.includes("R")) {
-      setExibirModal('semResponsavel');
-      return;
-    }
-    if ((updatedFormData.responsabilidades.match(/A/g) || []).length > 1) {
-      setExibirModal('muitoAprovador');
-      return;
-    }
-    await handleSubmit({
-      route: 'responsabilidades/raci',
-      dados: updatedFormData,
-      fetchDados: fetchItensRaci
-    });
-    cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-    inputNames.forEach((inputName) => {
-      setNovoSubmit((prevState) => ({
-        ...prevState,
-        ['input' + getCleanName(inputName)]: ''
-      }));
-    });
   };
+
+  const checkItemDisponivel = (item_id) => {
+    if (itensRaci.length == 0) {
+      return true;
+    }
+    return !itensRaci.some(c => c.item_id == item_id && c.raci.length != 0);
+  }
+
+  const checkAreaDisponivel = (area_id, item_id) => {
+    if (itensRaci.length === 0) return true;
+
+    const itensDaArea = itensRaci.filter(c => c.area_id === area_id).map(c => c.item_id);
+
+    if (itensDaArea.length === 0) {
+      return true;
+    }
+
+    if (!itensDaArea.includes(item_id)) {
+      return true;
+    }
+
+    return false;
+  };
+
 
   const fetchNomesMembros = async () => {
-    const data = await fetchData('responsabilidades/membros/get/nomes');
-    setNomesMembros(data.nomes);
-  };
-
-  const inputNames = useMemo(() => {
-    const firstNames = new Map();
-    const fullNames = [];
-    const inputNames = [];
-
-    nomesMembros.forEach((membro) => {
-      const nomeCompleto = membro.nome;
-      const firstName = nomeCompleto.split(' ')[0];
-      const lastName = nomeCompleto.split(' ')[1];
-      const corrigirNomeCompleto = () => {
-        let index = fullNames.findIndex(x => x.includes(firstName));
-        let otherLastName = fullNames[index].split(' ')[1];
-        inputNames[index] = `${firstName} ${otherLastName}`;
-      };
-
-      if (firstNames.has(firstName)) {
-        const existingHeader = firstNames.get(firstName);
-        inputNames.push(`${existingHeader} ${lastName}`);
-        fullNames.push(`${firstName} ${lastName}`);
-        corrigirNomeCompleto();
-      } else {
-        firstNames.set(firstName, nomeCompleto.split(' ')[0]);
-        inputNames.push(firstName);
-        fullNames.push(`${firstName} ${lastName}`);
-      };
+    const data = await handleFetch({
+      table: "member",
+      query: 'names',
+      token
     });
-    return inputNames;
-  }, [nomesMembros]);
+    setNomesMembros(data.data);
+  };
 
   const generateFormData = () => {
     var objTemp = novoSubmit;
-    inputNames.forEach((membro) => {
+    nomesMembros.forEach((membro) => {
       objTemp = {
         ...objTemp,
-        [`input${getCleanName(membro)}`]: ''
+        [`input${membro.id}`]: ''
       }
     });
     setNovoSubmit(objTemp);
   };
 
-  const getCleanName = (str) => {
-    const removeAccents = (str) => {
-      return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    };
-    return removeAccents(str.split(" ").join(""));
-  };
-
   useEffect(() => {
     if (reload === true) {
       const recarregar = async () => {
+        setLoaded(false);
         setLoading(true);
         try {
           await Promise.all([
@@ -167,6 +167,7 @@ const Tabela = () => {
         } finally {
           setLoading(false);
           setReload(false);
+          setLoaded(false);
         }
       };
 
@@ -199,22 +200,21 @@ const Tabela = () => {
 
   const handleConfirmDelete = async () => {
     if (confirmDeleteItem) {
-      var getDeleteSuccess = false;
-      try {
-        getDeleteSuccess = await handleDelete({
-          route: 'responsabilidades/raci',
-          item: confirmDeleteItem,
-          fetchDados: fetchItensRaci
-        });
-      } finally {
-        if (getDeleteSuccess) {
-          setExibirModal(`deleteSuccess`)
-        } else {
-          setExibirModal(`deleteFail`)
+      try{
+        for (const item of confirmDeleteItem?.raci ?? []) {
+          await handleReq({
+            table: "raci_item",
+            route: 'delete',
+            token,
+            data: { id: item.id },
+          });
         }
+      } finally {
+        setExibirModal("deleteSuccess");
+        setConfirmDeleteItem(null);
+        setReload(true);
       }
     }
-    setConfirmDeleteItem(null);
   };
 
   const [tableHeaders, tableNames] = useMemo(() => {
@@ -223,7 +223,7 @@ const Tabela = () => {
     const headers = [];
 
     nomesMembros.forEach((membro) => {
-      const nomeCompleto = membro.nome;
+      const nomeCompleto = membro.name;
       const firstName = nomeCompleto.split(' ')[0];
       const lastName = nomeCompleto.split(' ')[1];
       const corrigirNomeCompleto = () => {
@@ -249,7 +249,7 @@ const Tabela = () => {
   const calculateRowSpan = (itensRaci, currentArea, currentIndex) => {
     let rowSpan = 1;
     for (let i = currentIndex + 1; i < itensRaci.length; i++) {
-      if (itensRaci[i].area === currentArea) {
+      if (itensRaci[i].area_name === currentArea) {
         rowSpan++;
       } else {
         break;
@@ -269,21 +269,31 @@ const Tabela = () => {
   };
 
   const handleUpdateItem = async () => {
+    if(!validarDados(novosDados)) return;
     setLoading(true);
-    const responsabilidadesString = Object.keys(novosDados)
-      .filter(key => key.startsWith('input'))
-      .map(key => novosDados[key]).join(', ');
-    const { area, item } = novosDados;
-    const updatedItem = { _id: novosDados._id, area, item, responsabilidades: responsabilidadesString };
-    try {
-      await handleUpdate({
-        route: 'responsabilidades/raci/update?id',
-        dados: updatedItem,
-        fetchDados: fetchItensRaci
-      });
-    } catch (error) {
-      console.error("Update failed:", error);
+    for (let key in novosDados) {
+      if (key != 'item_id' && key != 'id') {
+        const responsibility = novosDados[key];
+        const member_id = key.split("input")[1];
+        const dadoOriginal = oldDados?.raci?.find(i => i.member_id == member_id) || undefined;
+        if (dadoOriginal !== undefined && dadoOriginal?.responsibility != responsibility) {
+          await handleReq({
+            table: 'raci_item',
+            route: 'update',
+            token,
+            data: { id: dadoOriginal.id, item_id: novosDados.item_id, member_id, responsibility, user_id: user.id },
+          });
+        } else {
+          await handleReq({
+            table: 'raci_item',
+            route: 'create',
+            token,
+            data: { item_id: novosDados.item_id, member_id, responsibility, user_id: user.id },
+          });
+        }
+      }
     }
+    setReload(true);
     setLoading(false);
     setLinhaVisivel();
     setNovosDados(camposVazios);
@@ -306,7 +316,6 @@ const Tabela = () => {
                     {tableHeaders.map((membro, index) => (
                       <th key={index} className='notLast'>{membro}</th>
                     ))}
-
                   </React.Fragment>
                 ) : (
                   <React.Fragment>
@@ -327,46 +336,53 @@ const Tabela = () => {
                     objSetter={setNovoSubmit}
                     funcoes={{
                       enviar,
-                      getCleanName
+                      checkItemDisponivel,
+                      checkAreaDisponivel
                     }}
                     setExibirModal={setExibirModal}
+                    isEditor={isEditor}
+                    loaded={loaded}
                     tipo='cadastro' />
                 </tr>
               )}
               {itensRaci.map((item, index) => (
-                <tr key={index} style={{ backgroundColor: cores[item.area] }}>
-                  {index === 0 || itensRaci[index - 1].area !== item.area ? (
-                    <td rowSpan={calculateRowSpan(itensRaci, item.area, index)}
-                      className={styles.raciTdArea}>{item.area}</td>
+                <tr key={index} style={{ backgroundColor: item?.area_color }}>
+                  {index === 0 || itensRaci[index - 1].area_name !== item?.area_name ? (
+                    <td rowSpan={calculateRowSpan(itensRaci, item?.area_name, index)}
+                      className={styles.raciTdArea}>{item?.area_name}</td>
                   ) : null}
-                  <td className={styles.raciTdItem}>{item.item}</td>
-                  {linhaVisivel === item._id ? (
+                  <td className={styles.raciTdItem}>{item.item_name}</td>
+                  {linhaVisivel === item.item_id ? (
                     <React.Fragment>
                       <CadastroInputs
                         obj={novosDados}
                         objSetter={setNovosDados}
                         funcoes={{
                           enviar: handleUpdateItem,
-                          cancelar: () => linhaVisivel === item._id ? setLinhaVisivel(null) : setLinhaVisivel(item._id),
-                          getCleanName
+                          cancelar: () => setLinhaVisivel(null),
+                          checkItemDisponivel,
+                          checkAreaDisponivel
                         }}
                         setExibirModal={setExibirModal}
+                        loaded={loaded}
+                        isEditor={isEditor}
                         tipo='update' />
                     </React.Fragment>
                   ) : (
                     <React.Fragment>
-                      {tableHeaders.map((membro, index) => (
-                        <td key={index} className='notLast'>{item.responsabilidades.split(', ')[tableHeaders.indexOf(membro)] || '-'}</td>
-                      ))}
+                      {nomesMembros.map((membro, index) => {
+                        const membroObj = item.raci?.find(m => m.member_id === membro.id)
+                        return <td key={index}>{membroObj?.responsibility[0].toUpperCase() || "-"}</td>
+                      })}
                       {verOpcoes && (
                         <td className="botoes_acoes lastMaior">
 
                           <button type="button"
                             onClick={() => setConfirmDeleteItem(item)}
-                            disabled={!isAdmin}>❌</button>
+                            disabled={!isEditor}>❌</button>
                           <button onClick={() => {
-                            linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); handleUpdateClick(item)
-                          }} disabled={!isAdmin}>⚙️</button>
+                            setLinhaVisivel(item.item_id); handleUpdateClick(item)
+                          }} disabled={!isEditor}>⚙️</button>
 
                         </td>
                       )}
@@ -384,7 +400,7 @@ const Tabela = () => {
 
       {confirmDeleteItem && (
         <Modal objeto={{
-          titulo: `Are you sure you want to delete "${confirmDeleteItem.area} - ${confirmDeleteItem.item}"?`,
+          titulo: `Are you sure you want to delete "${confirmDeleteItem.area_name} - ${confirmDeleteItem.item_name}"?`,
           alerta: true,
           botao1: {
             funcao: handleConfirmDelete, texto: 'Confirm'

@@ -1,41 +1,95 @@
 import React, { useState, useRef, useEffect, useContext, useMemo } from 'react';
-import { fetchData } from '../../../../functions/crud';
-import { AuthContext } from '../../../../contexts/AuthContext';
+import { handleFetch } from '../../../../functions/crud_s';
 import styles from '../../../../styles/modules/responsabilidades.module.css'
+import useAuth from '../../../../hooks/useAuth';
 
-const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
+const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal, isEditor, loaded }) => {
     const [elementosWBS, setElementosWBS] = useState([]);
     const [nomesMembros, setNomesMembros] = useState([])
     const [itensPorArea, setItensPorArea] = useState([]);
+    const [areaSelecionada, setAreaSelecionada] = useState('');
+    const [areas, setAreas] = useState([]);
+    const { user, token } = useAuth();
+
     const camposRef = useRef({
         area: null,
         item: null,
         responsabilidades: null
     });
-    const {isAdmin} = useContext(AuthContext)
 
-    const fetchElementos = async () => {
-        const data = await fetchData('wbs/get/all');
-        setElementosWBS(data.elementos);
-    };
+    const atualizarItensPorArea = (area, setter) => {
+        const itensDaArea = elementosWBS.filter(item => item.wbs_area.id == area
+            && funcoes?.checkItemDisponivel(item.id));
+        setter(itensDaArea);
+    }
 
     useEffect(() => {
-        if(tipo === 'cadastro'){
+        if (areaSelecionada != '') {
+            atualizarItensPorArea(areaSelecionada, setItensPorArea);
+        }
+    }, [areaSelecionada, elementosWBS]);
+
+    //useEffect que roda apenas na primeira execucao
+    useEffect(() => {
+        fetchElementos();
+    }, []);
+
+    useEffect(() => {
+        if (loaded == true) {
+            setAreas([...new Map(
+                elementosWBS
+                    .filter(item => funcoes?.checkAreaDisponivel(item.wbs_area.id, item.id) )
+                    .map(item => [
+                        item.wbs_area.id,
+                        { id: item.wbs_area.id, name: item.wbs_area.name }])
+            ).values()
+            ]);
+            setItensPorArea([]);
+        }
+    }, [loaded, elementosWBS]);
+
+
+    //so executa quando o tipo for cadastro pq a atualizacao n altera nem a area nem o item
+    //ent n pode mexer no obj
+    useEffect(() => {
+        if (tipo == 'cadastro') {
             objSetter({
                 ...obj,
-                item: ''
-            });
+                item_id: ''
+            })
         }
-    }, [obj.area]);
-
+    }, [areaSelecionada]);
 
     const handleAreaChange = (e) => {
         const areaSelecionada = e.target.value;
-        const itensDaArea = elementosWBS.filter(item => item.area === areaSelecionada).map(item => item.item);
-        setItensPorArea(itensDaArea);
-
-        handleChange(e);
+        objSetter({ ...obj, item_id: "" });
+        atualizarItensPorArea(areaSelecionada, setItensPorArea);
+        setAreaSelecionada(areaSelecionada);
+        camposRef.current.area.classList.remove('campo-vazio');
     };
+
+    //funcao para buscar os elementos da WBS para inserção nos selects
+    const fetchElementos = async () => {
+        var elementos;
+        try {
+            const data = await handleFetch({
+                table: 'wbs_item',
+                query: 'with_areas',
+                token
+            })
+            elementos = data?.data ?? [];
+        } finally {
+            setAreas([...new Map(
+                elementos
+                    .filter(item => funcoes?.checkAreaDisponivel(item.wbs_area.id, item.id))
+                    .map(item => [
+                        item.wbs_area.id,
+                        { id: item.wbs_area.id, name: item.wbs_area.name }])
+            ).values()
+            ]);
+            setElementosWBS(elementos);
+        }
+    }
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -65,43 +119,21 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
 
     const handleSubmit = async () => {
         const isInvalido = validaDados();
-        if(isInvalido == true) return;
+        if (isInvalido == true) return;
         funcoes?.enviar();
+        setAreaSelecionada('');
+        setItensPorArea([]);
     };
 
     const fetchNomesMembros = async () => {
-        const data = await fetchData('responsabilidades/membros/get/nomes');
-        setNomesMembros(data.nomes);
-    };
-
-    const inputNames = useMemo(() => {
-        const firstNames = new Map();
-        const fullNames = [];
-        const inputNames = [];
-
-        nomesMembros.forEach((membro) => {
-            const nomeCompleto = membro.nome;
-            const firstName = nomeCompleto.split(' ')[0];
-            const lastName = nomeCompleto.split(' ')[1];
-            const corrigirNomeCompleto = () => {
-                let index = fullNames.findIndex(x => x.includes(firstName));
-                let otherLastName = fullNames[index].split(' ')[1];
-                inputNames[index] = `${firstName} ${otherLastName}`;
-            };
-
-            if (firstNames.has(firstName)) {
-                const existingHeader = firstNames.get(firstName);
-                inputNames.push(`${existingHeader} ${lastName}`);
-                fullNames.push(`${firstName} ${lastName}`);
-                corrigirNomeCompleto();
-            } else {
-                firstNames.set(firstName, nomeCompleto.split(' ')[0]);
-                inputNames.push(firstName);
-                fullNames.push(`${firstName} ${lastName}`);
-            };
+        const data = await handleFetch({
+            table: "member",
+            query: 'names',
+            token
         });
-        return inputNames;
-    }, [nomesMembros]);
+        setNomesMembros(data.data);
+    };
+   
 
     useEffect(() => {
         fetchNomesMembros();
@@ -114,53 +146,52 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
                 <td className={styles.raciTdArea}>
                     <select
                         name="area"
-                        onChange={handleAreaChange}
-                        value={obj.area}
+                        onChange={(e) => handleAreaChange(e, false)}
+                        value={areaSelecionada || ''}
                         ref={el => (camposRef.current.area = el)}
-
                     >
                         <option value="" defaultValue>Area</option>
-                        {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
-                            <option key={index} value={area}>{area}</option>
-                        ))};
+                        {areas.map((area, index) => (
+                            <option key={index} value={area.id}>{area.name}</option>
+                        ))}
                     </select>
                 </td>
             )}
             {tipo !== 'update' && (
                 <td className={styles.raciTdItem}>
                     <select
-                        value={obj.item}
-                        name='item'
+                        name="item_id"
                         onChange={handleChange}
+                        value={obj.item_id || ''}
                         ref={el => (camposRef.current.item = el)}
                     >
                         <option value="" defaultValue>Item</option>
                         {itensPorArea.map((item, index) => (
-                            <option key={index} value={item}>{item}</option>
+                            <option key={index} value={item.id}>{item.name}</option>
                         ))}
                     </select>
                 </td>
             )}
-            {inputNames.map((membro, index) => (
+            {nomesMembros.map((membro, index) => (
                 <td key={index} className="mini-input column">
                     <select
-                        id={funcoes?.getCleanName(membro)}
-                        name={funcoes?.getCleanName(membro)}
+                        id={`input${membro.id}`}
+                        name={`input${membro.id}`}
                         onChange={handleChange}
-                        value={obj[funcoes?.getCleanName(membro)]}
-                        ref={el => (camposRef.current[funcoes?.getCleanName(membro)] = el)}
+                        value={obj[`input${membro.id}`]}
+                        ref={el => (camposRef.current[`input${membro.id}`] = el)}
                     >
                         <option value="" defaultValue>RACI</option>
-                        <option value="R">R</option>
-                        <option value="A">A</option>
-                        <option value="C">C</option>
-                        <option value="I">I</option>
+                        <option value="responsible">R</option>
+                        <option value="accountable">A</option>
+                        <option value="consulted">C</option>
+                        <option value="informated">I</option>
                     </select>
                 </td>
             ))}
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
-                    <button onClick={handleSubmit} disabled={!isAdmin}>Add new</button>
+                    <button onClick={handleSubmit} disabled={!isEditor}>Add new</button>
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>
