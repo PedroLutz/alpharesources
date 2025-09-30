@@ -9,7 +9,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal, isEdito
     const [itensPorArea, setItensPorArea] = useState([]);
     const [areaSelecionada, setAreaSelecionada] = useState('');
     const [areas, setAreas] = useState([]);
-    const { user, token } = useAuth();
+    const { token } = useAuth();
 
     const camposRef = useRef({
         area: null,

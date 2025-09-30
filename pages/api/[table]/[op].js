@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   const token = req.headers.authorization?.replace('Bearer ', '');
   const client = createServerClient(token);
 
-  if (!['create', 'update', 'delete'].includes(op)) {
+  if (!['create', 'createReturn', 'update', 'delete'].includes(op)) {
     return res.status(400).json({ error: 'operação inválida' })
   }
 
@@ -15,6 +15,12 @@ export default async function handler(req, res) {
     let resultado;
 
     if (op === 'create') {
+      const { data, error } = await client.from(table).insert(body);
+      if (error) throw error
+      resultado = data
+    }
+
+    if (op === 'createReturn') {
       const { data, error } = await client.from(table).insert(body).select('id');
       if (error) throw error
       resultado = data

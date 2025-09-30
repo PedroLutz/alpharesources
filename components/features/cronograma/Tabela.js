@@ -272,7 +272,7 @@ const Tabela = () => {
     }
     const success = await handleReq({
       table: 'gantt',
-      route: 'create',
+      route: 'createReturn',
       token,
       data: formDataGantt,
     })

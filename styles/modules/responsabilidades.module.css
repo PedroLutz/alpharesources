@@ -159,6 +159,7 @@
 
 .funcoesTdDescricao textarea,
 .funcoesTdHabilidade textarea {
+    height: 100%;
     width: 18rem;
 }
 
@@ -174,6 +175,39 @@
 
 .tabelaFuncoes td:not(:global(.botoes_acoes)) button {
     height: 4rem;
+}
+
+.tabelaFuncoes td.areaTd select,
+.tabelaFuncoes td.areaTd button {
+    height: 1.5rem;
+}
+
+.tabelaFuncoes td.areaTd div.areaDiv{
+    display: block;
+    max-height: 2.5rem;
+    overflow-y: scroll
+}
+
+.tabelaFuncoes td.areaTd {
+    vertical-align: top;
+}
+
+.tabelaFuncoes td.areaTd button{
+    border-style: none;
+}
+
+.tabelaFuncoes td.areaTd button:hover{
+    background-color: transparent;
+}
+
+.tabelaFuncoes div.areaContainer {
+    margin-top: 0.2rem;
+    font-size: smaller;
+    border-style: solid;
+    border-width: 0.1rem;
+    border-radius: 1rem;
+    border-color: rgb(167, 167, 167);
+    background-color: rgb(233, 233, 233);
 }
 
 /*

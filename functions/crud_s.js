@@ -4,6 +4,7 @@ const handleReq = async (o) => {
   
   const routeToMethod = {
     'create': 'POST',
+    'createReturn': 'POST',
     'post': 'POST',
     'update': 'PUT',
     'delete': 'DELETE',
