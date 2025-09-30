@@ -118,6 +118,7 @@ const Tabela = () => {
                 query: 'all',
                 token,
                 })
+            data.data.forEach((d) => d.wbs_area.sort((a, b) => a.name > b.name))
             setFuncoes(data.data);
         } finally {
             setLoading(false);

@@ -9,29 +9,14 @@ export default async function handler(req, res) {
   const token = req.headers.authorization?.replace('Bearer ', '');
   const client = createServerClient(token);
 
+
   const { data, error } = await client
-    .from('skill')
+    .from('role')
     .select(`
         id,
-        role (
-            id,
-            role,
-            member (
-                id,
-                name
-            ),
-            wbs_area(
-              id,
-              name
-            )
-        ),
-        skill,
-        cur_level,
-        min_level,
-        action
+        role
         `)
-    .order('role(role)', { ascending: true })
-    .order('skill', { ascending: true })
+    .order('role', { ascending: true })
 
   if (error) return res.status(400).json({ error: error.message })
 
