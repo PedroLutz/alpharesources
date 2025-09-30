@@ -1,4 +1,4 @@
-import Tabela from '../../../components/features/n_responsabilidades/funcoes/Tabela';
+import Tabela from '../../../components/features/responsabilidades/funcoes/Tabela';
 import PageWrapper from '../../../components/layout/ResponsabilidadeWrapper';
 
 function CadastroPage() {

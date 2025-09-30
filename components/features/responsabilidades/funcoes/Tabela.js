@@ -1,50 +1,97 @@
-import React, { useEffect, useState, useContext } from "react"
+import React, { useEffect, useState } from "react"
 import styles from '../../../../styles/modules/responsabilidades.module.css'
 import Inputs from "./Inputs";
 import Modal from "../../../ui/Modal";
 import Loading from "../../../ui/Loading";
-import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../../functions/crud";
+import { handleFetch, handleReq } from '../../../../functions/crud_s';
 import { cleanForm } from "../../../../functions/general";
-import { AuthContext } from "../../../../contexts/AuthContext";
+import useAuth from '../../../../hooks/useAuth';
+import usePerm from '../../../../hooks/usePerm';
 
 const Tabela = () => {
+    const { user, token } = useAuth();
+    const user_id = user.id;
+    const { isEditor } = usePerm();
+
     const camposVazios = {
-        funcao: '',
-        descricao: '',
-        habilidades: '',
-        responsavel: '',
-        area: '',
+        role: '',
+        description: '',
+        skills: '',
+        member_id: '',
+        areas: []
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
+    const [oldDados, setOldDados] = useState(camposVazios);
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
     const [funcoes, setFuncoes] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
-    const { isAdmin } = useContext(AuthContext);
 
     const enviar = async () => {
-        await handleSubmit({
-            route: 'responsabilidades/funcoes',
-            dados: novoSubmit,
-            fetchDados: fetchFuncoes
+        const success = await handleReq({
+            table: 'role',
+            route: 'createReturn',
+            token,
+            data: { role: novoSubmit.role, 
+                    description: novoSubmit.description, 
+                    skills: novoSubmit.skills, 
+                    member_id: novoSubmit.member_id,
+                    user_id },
         });
+        
+        for(let area in novoSubmit.areas){
+            await handleReq({
+            table: 'rel_area_role',
+            route: 'create',
+            token,
+            data: { role_id: success?.data?.resultado[0].id, 
+                    area_id: novoSubmit.areas[area],
+                    user_id },
+            });
+        }
+        setReload(true);
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     };
 
+    const handleUpdateClick = (item) => {
+        setLinhaVisivel(item.id)
+        setOldDados(item);
+        const obj = {...item, areas: []};
+        delete obj.wbs_area;
+        delete obj.member;
+        obj.member_id = item?.member?.id;
+        item?.wbs_area?.forEach(a => {
+            obj.areas.push(a.id);
+        })
+        setNovosDados(obj);
+    }
+
     const handleUpdateItem = async () => {
         setLoading(true);
-        try {
-            await handleUpdate({
-                route: 'responsabilidades/funcoes/update?id',
-                dados: novosDados,
-                fetchDados: fetchFuncoes
-            });
-        } catch (error) {
-            console.error("Update failed:", error);
+        for(const area of oldDados?.wbs_area){
+            if(!novosDados?.areas?.some(a => a == area.id)){
+                await handleReq({
+                    table: "rel_area_role",
+                    route: 'delete',
+                    token,
+                    data: { role_id: oldDados.id, area_id: area.id}
+                })
+            }
         }
+        for(const area of novosDados?.areas){
+            if(!oldDados?.wbs_area?.some(a => a.id == area)){
+                await handleReq({
+                    table: "rel_area_role",
+                    route: 'create',
+                    token,
+                    data: { role_id: oldDados.id, area_id: area, user_id}
+                })
+            }
+        }
+        setReload(true);
         setLoading(false);
         setNovosDados(camposVazios);
         setLinhaVisivel();
@@ -52,28 +99,27 @@ const Tabela = () => {
 
     const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
-            var getDeleteSuccess = false;
-            try {
-                getDeleteSuccess = await handleDelete({
-                    route: 'responsabilidades/funcoes',
-                    item: confirmDeleteItem,
-                    fetchDados: fetchFuncoes
-                });
-            } finally {
-                if (getDeleteSuccess) {
-                    setExibirModal(`deleteSuccess`)
-                } else {
-                    setExibirModal(`deleteFail`)
-                }
-            }
+            await handleReq({
+                table: "role",
+                route: 'delete',
+                token,
+                data: { id: confirmDeleteItem.id },
+                fetchData: fetchFuncoes
+            });
         }
-        setConfirmDeleteItem(null);
+        setExibirModal("deleteSuccess");
+        setConfirmDeleteItem(null)
     };
 
     const fetchFuncoes = async () => {
         try {
-            const data = await fetchData('responsabilidades/funcoes/get/all');
-            setFuncoes(data.funcoes);
+            const data = await handleFetch({
+                table: "role",
+                query: 'all',
+                token,
+                })
+            data.data.forEach((d) => d.wbs_area.sort((a, b) => a.name > b.name))
+            setFuncoes(data.data);
         } finally {
             setLoading(false);
         }
@@ -98,7 +144,7 @@ const Tabela = () => {
     };
 
     const isFuncaoCadastrada = (funcao) => {
-        return funcoes.some((f) => f.funcao.trim().toLowerCase() == funcao.trim().toLowerCase());
+        return funcoes.some((f) => f.role.trim().toLowerCase() == funcao.trim().toLowerCase());
     }
 
     return (
@@ -117,7 +163,7 @@ const Tabela = () => {
 
             {confirmDeleteItem && (
                 <Modal objeto={{
-                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.funcao}"?`,
+                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.role}"?`,
                     alerta: true,
                     botao1: {
                         funcao: handleConfirmDelete, texto: 'Confirm'
@@ -144,29 +190,28 @@ const Tabela = () => {
                         <tbody>
                             {funcoes.map((funcao, index) => (
                                 <React.Fragment key={index}>
-                                    {linhaVisivel === funcao._id ? (
+                                    {linhaVisivel === funcao.id ? (
                                         <Inputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
                                             funcoes={{
                                                 enviar: handleUpdateItem,
-                                                cancelar: () => { linhaVisivel === funcao._id ? setLinhaVisivel() : setLinhaVisivel(item._id) }
+                                                cancelar: () => setLinhaVisivel()
                                             }}
                                             setExibirModal={setExibirModal}
+                                            isEditor={isEditor}
                                         />
                                     ) : (
                                         <tr>
-                                            <td>{funcao.funcao}</td>
-                                            <td className={styles.funcoesTdDescricao}>{funcao.descricao}</td>
-                                            <td className={styles.funcoesTdHabilidade}>{funcao.habilidades}</td>
-                                            <td>{funcao.responsavel}</td>
-                                            <td>{funcao.area}</td>
+                                            <td>{funcao.role}</td>
+                                            <td className={styles.funcoesTdDescricao}>{funcao.description}</td>
+                                            <td className={styles.funcoesTdHabilidade}>{funcao.skills}</td>
+                                            <td>{funcao.member.name}</td>
+                                            <td>{funcao.wbs_area.map(a => a.name).join(", ")}</td>
                                             <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(funcao)} disabled={!isAdmin}>❌</button>
-                                                <button onClick={() => {
-                                                    setLinhaVisivel(funcao._id); setNovosDados(funcao);
-                                                }
-                                                } disabled={!isAdmin}>⚙️</button>
+                                                <button onClick={() => setConfirmDeleteItem(funcao)} disabled={!isEditor}>❌</button>
+                                                <button onClick={() => {handleUpdateClick(funcao)}
+                                                } disabled={!isEditor}>⚙️</button>
                                             </td>
                                         </tr>
                                     )}
@@ -180,6 +225,7 @@ const Tabela = () => {
                                     enviar: enviar
                                 }}
                                 setExibirModal={setExibirModal}
+                                isEditor={isEditor}
                             />
                         </tbody>
                     </table>

@@ -1,20 +1,24 @@
-import React, { useEffect, useState, useContext } from "react"
+import React, { useEffect, useState } from "react"
 import styles from '../../../../styles/modules/responsabilidades.module.css'
 import Inputs from "./Inputs";
 import Modal from "../../../ui/Modal";
 import Loading from "../../../ui/Loading";
-import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../../functions/crud";
+import { handleFetch, handleReq } from '../../../../functions/crud_s';
 import { cleanForm } from "../../../../functions/general";
-import { AuthContext } from "../../../../contexts/AuthContext";
+import useAuth from '../../../../hooks/useAuth';
+import usePerm from '../../../../hooks/usePerm';
 
 const Tabela = () => {
+    const { user, token } = useAuth();
+    const user_id = user.id;
+    const { isEditor } = usePerm();
+
     const camposVazios = {
-        funcao: '',
-        area: '',
-        habilidade: '',
-        nivel_atual: '',
-        nivel_min: '',
-        acao: ''
+        role_id: '',
+        skill: '',
+        cur_level: '',
+        min_level: '',
+        action: '',
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
@@ -24,13 +28,13 @@ const Tabela = () => {
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [isUpdating, setIsUpdating] = useState(false);
-    const { isAdmin } = useContext(AuthContext);
 
     const enviar = async () => {
-        await handleSubmit({
-            route: 'responsabilidades/habilidades',
-            dados: novoSubmit,
+        await handleReq({
+            table: 'skill',
+            route: 'create',
+            token,
+            data: { ...novoSubmit, user_id },
             fetchDados: fetchHabilidades
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
@@ -39,57 +43,52 @@ const Tabela = () => {
 
     const handleUpdateItem = async () => {
         setLoading(true);
-        delete novosDados.responsavel;
         try {
-            await handleUpdate({
-                route: 'responsabilidades/habilidades/update?id',
-                dados: novosDados,
-                fetchDados: fetchHabilidades
-            });
+            await handleReq({
+                table: "skill",
+                route: 'update',
+                token,
+                data: { id: novosDados.id,
+                        role_id: novosDados.role_id, 
+                        skill: novosDados.skill,
+                        cur_level: novosDados.cur_level,
+                        min_level: novosDados.min_level,
+                        action: novosDados.action
+                    },
+            })
         } catch (error) {
             console.error("Update failed:", error);
         }
+        setReload(true);
         setLoading(false);
-        setIsUpdating(false);
         setLinhaVisivel();
         setNovosDados(camposVazios);
     };
 
     const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
-            var getDeleteSuccess = false;
-            try {
-                getDeleteSuccess = await handleDelete({
-                    route: 'responsabilidades/habilidades',
-                    item: confirmDeleteItem,
-                    fetchDados: fetchHabilidades
-                });
-            } finally {
-                if (getDeleteSuccess) {
-                    setExibirModal(`deleteSuccess`)
-                } else {
-                    setExibirModal(`deleteFail`)
-                }
-            }
+            await handleReq({
+                table: "skill",
+                route: 'delete',
+                token,
+                data: { id: confirmDeleteItem.id },
+                fetchDados: fetchHabilidades
+            });
         }
-        setConfirmDeleteItem(null);
+        setReload(true);
+        setExibirModal("deleteSuccess");
+        setConfirmDeleteItem(null)
     };
 
     const fetchHabilidades = async () => {
         try {
-            const data = await fetchData('responsabilidades/habilidades/get/all');
-            const data2 = await fetchData('responsabilidades/funcoes/get/funcoesEMembros');
-
-            data.habilidades.forEach((habilidade) => {
-                if (data2.funcoes.length > 0) {
-                    const responsavelPelaFuncao = data2.funcoes.find((funcao) => habilidade.funcao === funcao.funcao).responsavel;
-                    habilidade.responsavel = responsavelPelaFuncao;
-                } else {
-                    habilidade.responsavel = ''
-                }
-
+            const data = await handleFetch({
+                table: 'skill',
+                query: 'all',
+                token
             })
-            setHabilidades(data.habilidades);
+            data.data.forEach((d) => d.role.wbs_area.sort((a, b) => a.name > b.name))
+            setHabilidades(data.data);
         } finally {
             setLoading(false);
         }
@@ -115,10 +114,34 @@ const Tabela = () => {
         'habilidadeRepetida': 'You have already registered this skill!'
     };
 
+    const compareArraysOfObjects = (arr1, arr2) => {
+        function compareObjects(o1, o2){
+                const keys1 = Object.keys(o1);
+                const keys2 = Object.keys(o2);
+
+                if(keys1.length != keys2.length) return false;
+
+                return keys1.every(key => o1[key] === o2[key]);
+            }
+
+        if(arr1.length !== arr2.length) return false;
+        return arr1.every((value, i) => compareObjects(value, arr2[i]));
+    }
+
     const calculateRowSpan = (currentArea, currentIndex, parametro) => {
         let rowSpan = 1;
         for (let i = currentIndex + 1; i < habilidades.length; i++) {
-            if (habilidades[i][parametro] === currentArea) {
+
+            let comparedData = habilidades[i][parametro];
+            if(parametro.includes(".")){
+                comparedData = parametro.split('.').reduce((acc, key) => acc?.[key], habilidades[i]);
+            }
+
+            
+            
+            let comparison = comparedData === currentArea;
+            if(parametro === 'role.wbs_area') comparison = compareArraysOfObjects(comparedData, currentArea);
+            if (comparison) {
                 rowSpan++;
             } else {
                 break;
@@ -143,7 +166,7 @@ const Tabela = () => {
 
             {confirmDeleteItem && (
                 <Modal objeto={{
-                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.habilidade}"?`,
+                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.skill}"?`,
                     alerta: true,
                     botao1: {
                         funcao: handleConfirmDelete, texto: 'Confirm'
@@ -171,74 +194,65 @@ const Tabela = () => {
                         </thead>
                         <tbody>
                             {habilidades.map((habilidade, index) => (
-                                <React.Fragment key={index}>
-                                    {linhaVisivel === habilidade._id ? (
+                                <tr key={index}>
+                                    
+                                        {index === 0 || !compareArraysOfObjects(habilidades[index - 1].role?.wbs_area, habilidade.role?.wbs_area) ? (
+                                            <td rowSpan={calculateRowSpan(habilidade?.role?.wbs_area, index, 'role.wbs_area')}
+                                            >{habilidade?.role?.wbs_area?.reduce((acc, cur) => {
+                                                if (acc == "") return acc + cur.name;
+                                                return acc + ", " + cur.name;
+                                            }, "")}</td>
+                                        ) : null}
+                                    
+                                    {index === 0 || habilidades[index - 1].role?.role !== habilidade?.role?.role ? (
+                                            <td rowSpan={calculateRowSpan(habilidade?.role?.role, index, 'role.role')}
+                                            >{habilidade?.role?.role}</td>
+                                        ) : null}
+
+                                    {index === 0 || habilidades[index - 1]?.role?.member?.name !== habilidade?.role?.member?.name ? (
+                                            <td rowSpan={calculateRowSpan(habilidade?.role?.member?.name, index, 'role.member.name')}
+                                            >{habilidade?.role?.member?.name}</td>
+                                        ) : null}
+                                    {linhaVisivel === habilidade.id ? (
                                         <Inputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
                                             funcoes={{
                                                 enviar: handleUpdateItem,
-                                                cancelar: () => { linhaVisivel === habilidade._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false) }
+                                                cancelar: () => setLinhaVisivel()
                                             }}
                                             setExibirModal={setExibirModal}
+                                            isEditor={isEditor}
                                         />
                                     ) : (
-                                        <tr>
-                                            {!isUpdating || isUpdating[0] !== habilidade.area ? (
-                                                <React.Fragment>
-                                                    {index === 0 || habilidades[index - 1].area !== habilidade.area ? (
-                                                        <td rowSpan={calculateRowSpan(habilidade.area, index, 'area')}
-                                                        >{habilidade.area}</td>
-                                                    ) : null}
-                                                </React.Fragment>
-                                            ) : (
-                                                <td>{habilidade.area}</td>
-                                            )}
-                                            {!isUpdating || isUpdating[1] !== habilidade.funcao ? (
-                                                <React.Fragment>
-                                                    {index === 0 || habilidades[index - 1].funcao !== habilidade.funcao ? (
-                                                        <td rowSpan={calculateRowSpan(habilidade.funcao, index, 'funcao')}
-                                                        >{habilidade.funcao}</td>
-                                                    ) : null}
-                                                </React.Fragment>
-                                            ) : (
-                                                <td>{habilidade.funcao}</td>
-                                            )}
-                                            {!isUpdating || isUpdating[2] !== habilidade.responsavel ? (
-                                                <React.Fragment>
-                                                    {index === 0 || habilidades[index - 1].responsavel !== habilidade.responsavel ? (
-                                                        <td rowSpan={calculateRowSpan(habilidade.responsavel, index, 'responsavel')}
-                                                        >{habilidade.responsavel}</td>
-                                                    ) : null}
-                                                </React.Fragment>
-                                            ) : (
-                                                <td>{habilidade.responsavel}</td>
-                                            )}
-                                            
-                                            <td>{habilidade.habilidade}</td>
-                                            <td>{habilidade.nivel_atual}</td>
-                                            <td>{habilidade.nivel_min}</td>
-                                            <td className={styles.habilidadeTdAcao}>{habilidade.acao}</td>
+                                        <React.Fragment>
+                                            <td>{habilidade.skill}</td>
+                                            <td>{habilidade.cur_level}</td>
+                                            <td>{habilidade.min_level}</td>
+                                            <td className={styles.habilidadeTdAcao}>{habilidade.action}</td>
                                             <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(habilidade)} disabled={!isAdmin}>❌</button>
+                                                <button onClick={() => setConfirmDeleteItem(habilidade)} disabled={!isEditor}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(habilidade._id); setNovosDados(habilidade);
-                                                    setIsUpdating([habilidade.area, habilidade.funcao, habilidade.responsavel])
+                                                    setLinhaVisivel(habilidade.id); setNovosDados(habilidade);
                                                 }
-                                                } disabled={!isAdmin}>⚙️</button>
+                                                } disabled={!isEditor}>⚙️</button>
                                             </td>
-                                        </tr>
+                                        </React.Fragment>
                                     )}
-                                </React.Fragment>
+                                </tr>
                             ))}
-                            <Inputs
-                                obj={novoSubmit}
-                                objSetter={setNovoSubmit}
-                                funcoes={{
-                                    enviar
-                                }}
-                                setExibirModal={setExibirModal}
-                            />
+                            <tr>
+                                <Inputs
+                                    obj={novoSubmit}
+                                    objSetter={setNovoSubmit}
+                                    funcoes={{
+                                        enviar
+                                    }}
+                                    setExibirModal={setExibirModal}
+                                    isEditor={isEditor}
+                                />
+                            </tr>
+
                         </tbody>
                     </table>
                 </div>

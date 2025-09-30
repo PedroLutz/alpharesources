@@ -1,14 +1,12 @@
-import React, { useRef, useContext } from "react"
+import { useRef } from "react"
 import styles from '../../../../styles/modules/responsabilidades.module.css'
-import { AuthContext } from "../../../../contexts/AuthContext";
 
-const CadastroInputs = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
+const CadastroInputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, isEditor }) => {
     const camposRef = useRef({
-        nome: null,
+        name: null,
         softskills: null,
         hardskills: null
     })
-    const { isAdmin } = useContext(AuthContext)
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -21,8 +19,8 @@ const CadastroInputs = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
     };
 
     const validaDados = () => {
-        if(funcoes?.isMembroCadastrado?.(obj.nome) ?? false){
-            camposRef.current.nome.classList.add('campo-vazio');
+        if(funcoes?.isMembroCadastrado?.(obj.name) ?? false){
+            camposRef.current.name.classList.add('campo-vazio');
             setExibirModal('membroRepetido');
             return true;
         }
@@ -55,10 +53,10 @@ const CadastroInputs = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
             <div className={styles.membrosConteudo}><b>Name: </b>
                 <input
                     className={styles.membrosInputNome}
-                    value={obj.nome}
-                    name='nome'
+                    value={obj.name}
+                    name='name'
                     onChange={handleChange}
-                    ref={el => (camposRef.current.nome = el)} />
+                    ref={el => (camposRef.current.name = el)} />
             </div>
             <div className={styles.membrosConteudo}>
                 <b>Softskills: </b>
@@ -80,7 +78,7 @@ const CadastroInputs = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
             </div>
             <div className={styles.membrosBotoesAcoes}>
                 {tipo !== 'update' ? (
-                    <button className={styles.membrosBotaoAddNew} onClick={(e) => handleSubmit(e)} disabled={!isAdmin}>Add new</button>
+                    <button className={styles.membrosBotaoAddNew} onClick={(e) => handleSubmit(e)} disabled={!isEditor}>Add new</button>
                 ) : (
                     <div className={styles.membrosBotoesAcoes}>
                         <button onClick={handleSubmit}>✔️</button>
