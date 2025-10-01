@@ -143,8 +143,8 @@ AUDIT --------------------------
 ANALISE --------------------------
 */
 
-.tabelaAnalise td:first-child input,
-.tabelaAnalise td:first-child select {
+.tabelaAnalise td.riskTd input,
+.tabelaAnalise td.riskTd select {
     width: 10rem;
 }
 
@@ -153,11 +153,11 @@ ANALISE --------------------------
     height: 2.8rem;
 }
 
-.tabelaAnalise td:nth-child(2) input {
+.tabelaAnalise td.ocurrenceTd input {
     width: 3.5rem;
 }
 
-.tabelaAnalise td:nth-child(7) input {
+.tabelaAnalise td.financialImpactTd input {
     width: 4.2rem;
 }
 
@@ -166,7 +166,7 @@ ANALISE --------------------------
     width: 100%;
 }
 
-.tabelaAnalise th:not(:first-child):not(:last-child) {
+.tabelaAnalise th:not(.riskTd):not(:last-child) {
     word-wrap: break-word;
     width: 2rem;
     font-size: 0.7rem;

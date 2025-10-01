@@ -137,8 +137,6 @@ const Tabela = () => {
                 comparedData = parametro.split('.').reduce((acc, key) => acc?.[key], habilidades[i]);
             }
 
-            
-            
             let comparison = comparedData === currentArea;
             if(parametro === 'role.wbs_area') comparison = compareArraysOfObjects(comparedData, currentArea);
             if (comparison) {

@@ -1,10 +1,13 @@
 'use client';
-import client from "../../../../lib/supabaseClient";
+import { createServerClient } from "../../../../lib/supabaseServerClient";
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
+
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  const client = createServerClient(token);
 
   const { data, error } = await client
     .from('risk_analysis')
@@ -17,19 +20,22 @@ export default async function handler(req, res) {
                 id,
                 wbs_area (
                     id,
-                    name
+                    name,
+                    color
                 ),
                 name
-            ),
-        occurence,
+            )
+        ),
+        ocurrence,
+        impact,
         action,
         urgency,
         financial_impact,
         schedule_impact
         )`)
-    .order('risk.wbs_item.wbs_area.name', { ascending: true })
-    .order('risk.wbs_item.name', { ascending: true })
-    .order('risk.name', { ascending: true })
+    .order('risk(wbs_item->wbs_area->name)', { ascending: true })
+    .order('risk(wbs_item->name)', { ascending: true })
+    .order('risk(risk)', { ascending: true })
 
   if (error) return res.status(400).json({ error: error.message })
 
