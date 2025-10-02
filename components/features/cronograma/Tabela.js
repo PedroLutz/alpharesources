@@ -3,7 +3,7 @@ import Loading from '../../ui/Loading';
 import Modal from '../../ui/Modal';
 import { Chart } from 'react-google-charts';
 import { handleFetch, handleReq } from '../../../functions/crud_s';
-import { cleanForm, jsDateToEuDate, euDateToIsoDate, isoDateToJsDate } from '../../../functions/general';
+import { cleanForm, jsDateToEuDate, euDateToIsoDate, isoDateToJsDate, euDateToJsDate } from '../../../functions/general';
 import styles from '../../../styles/modules/cronograma.module.css';
 import CadastroInputs from './CadastroInputs';
 import chroma from 'chroma-js';
@@ -110,7 +110,10 @@ const Tabela = () => {
           dependencies = `${item.gantt_dependency[0].dependency_id}`;
         }
         ganttData.push([taskID, taskName, resource, startDate, endDate, 10, 100, dependencies]);
-        ganttDataContingency.push([taskID, taskName, resource, startDate, adicionarDias(endDate, Math.floor(etis[taskName])), 10, 100, dependencies]);
+
+        const risco = etis.find(e => e.risk.wbs_item.id == item.wbs_item.id);
+        var eti = risco ? risco?.schedule_impact * (risco?.ocurrence / 5) : 0;
+        ganttDataContingency.push([taskID, taskName, resource, startDate, adicionarDias(endDate, Math.floor(eti)), 10, 100, dependencies]);
       }
     });
 
@@ -163,20 +166,22 @@ const Tabela = () => {
         query: 'plans',
         token
       })
-      // const dataETIs = await fetchData('riscos/analise/get/etis_per_item');
+      const dataETIs = await handleFetch({
+        table: 'risk_analysis',
+        query: 'etis_per_item',
+        token
+      })
 
-      setCronogramas(data.data);
-      setTabela(data.data);
-
-      // const cronogramaComContingencias = data.cronogramaPlanos.map(item => ({ ...item }));;
-      // cronogramaComContingencias.forEach((item) => {
-      //   if (dataETIs.resultadosAgrupados[item.item]) {
-      //     const termino = euDateToJsDate(item.termino)
-      //     const terminoConvertido = adicionarDias(termino, Math.floor(dataETIs.resultadosAgrupados[item.item]));
-      //     item.termino = jsDateToEuDate(terminoConvertido);
-      //   }
-      // })
-
+      const cronogramaComContingencias = structuredClone(data.data);
+      cronogramaComContingencias.forEach((item) => {
+        const riscoAnalise = dataETIs.data.find((e) => e.risk?.wbs_item?.id == item.wbs_item?.id);
+        if(riscoAnalise){
+          const eti = riscoAnalise?.schedule_impact * (riscoAnalise?.ocurrence / 5);
+          const termino = item.gantt_data[0]?.end;
+          const terminoConvertido = adicionarDias(termino, Math.floor(eti));
+          item.gantt_data[0].end = euDateToIsoDate(jsDateToEuDate(terminoConvertido));
+        }
+      })
       //adicionar cores na tabela
       var cores = {};
       data.data.forEach((c) => {
@@ -195,10 +200,10 @@ const Tabela = () => {
       }
 
       setPaleta(paleta);
-      // setEtis(dataETIs.resultadosAgrupados);
-      // setCronogramas(data.cronogramaPlanos);
-      // setCronogramasCont(cronogramaComContingencias);
-      // setTabela(data.cronogramaPlanos);
+      setEtis(dataETIs.data);
+      setCronogramas(data.data)
+      setTabela(data.data);
+      setCronogramasCont(cronogramaComContingencias);
     } finally {
       setLoading(false);
       setLoaded(true);

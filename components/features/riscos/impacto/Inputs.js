@@ -117,6 +117,7 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEditor, 
         const isInvalido = validaDados();
         if (isInvalido == true) return;
         funcoes?.enviar();
+        setAreaSelecionada('');
     }
 
     return (

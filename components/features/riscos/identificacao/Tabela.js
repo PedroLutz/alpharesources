@@ -66,7 +66,7 @@ const TabelaRiscos = () => {
         }
         setNovosDados(obj);
         setLinhaVisivel(item.id);
-        setIsUptading([item.area, item.item, index]);
+        setIsUptading([item?.wbs_item?.wbs_area?.id, item?.wbs_item?.id, index]);
     }
 
     const handleUpdateItem = async () => {
@@ -225,7 +225,7 @@ const TabelaRiscos = () => {
                                                     ) : null}
                                                 </React.Fragment>
                                             ) : (
-                                                <td className={styles.riscoTdArea}>{item?.wbs_item?.wbs_area?.name}</td>
+                                                <td className={styles.riscoTdArea}>{item?.wbs_item?.wbs_area?.name || 'Others'}</td>
                                             )}
                                             {!isUpdating || isUpdating[1] !== item?.wbs_item?.id ? (
                                                 <React.Fragment>
@@ -236,7 +236,7 @@ const TabelaRiscos = () => {
                                                     ) : null}
                                                 </React.Fragment>
                                             ) : (
-                                                <td className={styles.riscoTdItem}>{item?.wbs_item?.name}</td>
+                                                <td className={styles.riscoTdItem}>{item?.wbs_item?.name || 'Others'}</td>
                                             )}
                                             <td>{item.risk}</td>
                                             <td>{capitalizeFirstLetter(item.classification)}</td>

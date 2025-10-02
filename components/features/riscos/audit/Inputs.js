@@ -4,6 +4,7 @@ import styles from '../../../../styles/modules/risco.module.css'
 import { handleFetch } from "../../../../functions/crud_s";
 import useAuth from "../../../../hooks/useAuth";
 import usePerm from "../../../../hooks/usePerm";
+import { set } from "mongoose";
 
 const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea }) => {
     const [riscos, setRiscos] = useState([])
@@ -125,6 +126,7 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea })
         const isInvalido = validaDados();
         if (isInvalido == true) return;
         funcoes?.enviar();
+        setAreaSelecionada('');
     }
 
     return (

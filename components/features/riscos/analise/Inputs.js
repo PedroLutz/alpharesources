@@ -85,7 +85,7 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEditor, 
     };
 
     const validaDados = () => {
-        if(funcoes?.isRiscoCadastrado?.(obj.risk) ?? false){
+        if(funcoes?.isRiscoCadastrado?.(obj?.risk?.id) ?? false){
             camposRef.current.risco.classList.add('campo-vazio');
             setExibirModal('riscoRepetido');
             return true;
@@ -127,6 +127,7 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEditor, 
         const isInvalido = validaDados();
         if(isInvalido) return;
         funcoes?.enviar();
+        setAreaSelecionada('');
     }
 
     return (
