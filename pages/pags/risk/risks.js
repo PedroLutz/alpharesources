@@ -1,4 +1,4 @@
-import Tabela from '../../../components/features/n_riscos/identificacao/Tabela';
+import Tabela from '../../../components/features/riscos/identificacao/Tabela';
 import PageWrapper from '../../../components/layout/RiscoWrapper';
 
 function TabelaPage() {

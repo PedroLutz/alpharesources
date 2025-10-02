@@ -1,21 +1,26 @@
-import React, { useEffect, useState, useContext } from "react"
+import React, { useEffect, useState } from "react"
 import styles from '../../../../styles/modules/risco.module.css'
 import CadastroInputs from "./Inputs";
 import Modal from "../../../ui/Modal";
 import Loading from "../../../ui/Loading";
-import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../../functions/crud";
+import { handleReq, handleFetch } from "../../../../functions/crud_s";
 import { cleanForm } from "../../../../functions/general";
-import { AuthContext } from "../../../../contexts/AuthContext";
+import useAuth from "../../../../hooks/useAuth";
+import usePerm from "../../../../hooks/usePerm";
 
 const TabelaAnalise = () => {
+    const { user, token } = useAuth();
+    const user_id = user.id;
+    const { isEditor } = usePerm();
+
     const camposVazios = {
-        risco: "",
-        ocorrencia: "",
-        impacto: "",
-        acao: "",
-        urgencia: "",
-        impactoFinanceiro: "",
-        impactoCronograma: ""
+        risk_id: "",
+        ocurrence: "",
+        action: "",
+        urgency: "",
+        impact: "",
+        financial_impact: "",
+        schedule_impact: ""
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
@@ -25,27 +30,32 @@ const TabelaAnalise = () => {
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
-    const { isAdmin } = useContext(AuthContext)
+    const [seeArea, setSeeArea] = useState(false);
 
     const enviar = async () => {
-        await handleSubmit({
-            route: 'riscos/analise',
-            dados: novoSubmit,
-            fetchDados: fetchAnalises
+        await handleReq({
+            table: 'risk_analysis',
+            route: 'create',
+            token,
+            data: {
+                ...novoSubmit,
+                user_id
+            },
+            fetchData: fetchAnalises
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     };
 
     const isRiscoCadastrado = (risco) => {
-        return analises.some((r) => r.risco.trim().toLowerCase() === risco.trim().toLowerCase());
+        return analises.some((r) => r.risk.name.trim().toLowerCase() === risco.trim().toLowerCase());
     }
 
     const getRiscosMapeados = (occ, imp) => {
         let riscos = []
         if (analises) {
             analises.forEach((analise) => {
-                if (analise.ocorrencia === occ && analise.impacto === imp) {
-                    riscos.push(analise.risco)
+                if (analise.ocurrence === occ && analise.impact === imp) {
+                    riscos.push(analise.risk.risk)
                 }
             })
         }
@@ -58,47 +68,64 @@ const TabelaAnalise = () => {
         );
     }
 
+    const handleUpdateClick = (item) => {
+        setLinhaVisivel(item.id);
+        setIsUpdating(item.risk.risk);
+        setNovosDados({
+            id: item.id,
+            risk_id: item.risk.id,
+            action: item.action,
+            ocurrence: item.ocurrence,
+            urgency: item.urgency,
+            impact: item.impact,
+            financial_impact: item.financial_impact,
+            schedule_impact: item.schedule_impact
+        })
+        setSeeArea(false);
+    }
+
     const handleUpdateItem = async () => {
-            setLoading(true);      
-            try {
-                await handleUpdate({
-                    route: 'riscos/analise/update?id',
-                    dados: novosDados,
-                    fetchDados: fetchAnalises
-                });
-            } catch (error) {
-                console.error("Update failed:", error);
-            }
-            setLoading(false);
-            setIsUpdating(false);
-            setNovosDados(camposVazios);
-            setLinhaVisivel();
+        setLoading(true);
+        try {
+            await handleReq({
+                table: 'risk_analysis',
+                route: 'update',
+                token,
+                data: novosDados,
+                fetchData: fetchAnalises
+            });
+        } catch (error) {
+            console.error("Update failed:", error);
+        }
+        setIsUpdating(false);
+        setLinhaVisivel();
+        setLoading(false);
+        setNovosDados(camposVazios);
     };
 
     const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
-            var getDeleteSuccess = false;
-            try {
-                getDeleteSuccess = await handleDelete({
-                    route: 'riscos/analise',
-                    item: confirmDeleteItem,
-                    fetchDados: fetchAnalises
-                });
-            } finally {
-                if (getDeleteSuccess) {
-                    setExibirModal(`deleteSuccess`)
-                } else {
-                    setExibirModal(`deleteFail`)
-                }
-            }
+            await handleReq({
+                table: "risk_analysis",
+                route: 'delete',
+                token,
+                data: { id: confirmDeleteItem.id },
+                fetchData: fetchAnalises
+            });
         }
-        setConfirmDeleteItem(null);
+        setExibirModal("deleteSuccess");
+        setConfirmDeleteItem(null)
     };
 
     const fetchAnalises = async () => {
+        setLoading(true);
         try {
-            const data = await fetchData('riscos/analise/get/all');
-            setAnalises(data.riscoAnalises);
+            const data = await handleFetch({
+                table: 'risk_analysis',
+                query: 'all',
+                token
+            });
+            setAnalises(data.data);
         } finally {
             setLoading(false);
         }
@@ -117,10 +144,14 @@ const TabelaAnalise = () => {
         'riscoRepetido': 'You have already analysed this risk!'
     };
 
-    const calculateRowSpan = (itens, currentArea, currentIndex) => {
+    const calculateRowSpan = (currentArea, currentIndex, parametro) => {
         let rowSpan = 1;
-        for (let i = currentIndex + 1; i < itens.length; i++) {
-            if (itens[i].risco === currentArea) {
+        for (let i = currentIndex + 1; i < analises.length; i++) {
+            let comparedData = analises[i][parametro];
+            if (parametro.includes(".")) {
+                comparedData = parametro.split('.').reduce((acc, key) => acc?.[key], analises[i]);
+            }
+            if (comparedData === currentArea) {
                 rowSpan++;
             } else {
                 break;
@@ -130,13 +161,17 @@ const TabelaAnalise = () => {
     };
 
     const calculaRPN = (item) => {
-        return item.ocorrencia * item.impacto * item.acao * item.urgencia;
+        return item.ocurrence * item.impact * item.action * item.urgency;
     }
 
     return (
         <div className="centered-container">
             {loading && <Loading />}
             <h2 className="smallTitle">Risk Analysis</h2>
+            <button className="botao-bonito" style={{ marginBottom: '1rem', width: 'fit-content' }}
+                onClick={() => { !isUpdating && setSeeArea(!seeArea) }}
+            >See areas and items</button>
+
             {exibirModal != null && (
                 <Modal objeto={{
                     titulo: modalLabels[exibirModal],
@@ -148,7 +183,7 @@ const TabelaAnalise = () => {
 
             {confirmDeleteItem && (
                 <Modal objeto={{
-                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.risco}"?`,
+                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.risk.risk}"?`,
                     alerta: true,
                     botao1: {
                         funcao: handleConfirmDelete, texto: 'Confirm'
@@ -164,7 +199,13 @@ const TabelaAnalise = () => {
                     <table className={`${styles.tabelaAnalise} tabela`}>
                         <thead>
                             <tr>
-                                <th style={{ width: '10rem'}}>Risk</th>
+                                {seeArea && (
+                                    <React.Fragment>
+                                        <th>Area</th>
+                                        <th>Item</th>
+                                    </React.Fragment>
+                                )}
+                                <th className={styles.analiseRiskTd} style={{ width: '10rem' }}>Risk</th>
                                 <th>Occurrence</th>
                                 <th>Impact</th>
                                 <th>Action</th>
@@ -181,48 +222,62 @@ const TabelaAnalise = () => {
 
                             {analises.map((item, index) => (
                                 <React.Fragment key={index}>
-                                    {linhaVisivel === item._id ? (
+                                    {linhaVisivel === item.id ? (
                                         <CadastroInputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
                                             funcoes={{
                                                 enviar: handleUpdateItem,
-                                                cancelar: () => { linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false) },
+                                                cancelar: () => { setLinhaVisivel(); setIsUpdating(false) },
                                             }}
                                             setExibirModal={setExibirModal}
+                                            isEditor={isEditor}
+                                            seeArea={seeArea}
                                         />
                                     ) : (
-                                        <tr>
-                                            {!isUpdating || isUpdating !== item.risco ? (
+                                        <tr style={{ backgroundColor: item?.risk?.wbs_item?.wbs_area?.color || 'white' }}>
+                                            {seeArea && (
                                                 <React.Fragment>
-                                                    {index === 0 || analises[index - 1].risco !== item.risco ? (
-                                                        <td rowSpan={calculateRowSpan(analises, item.risco, index)}
-                                                        >{item.risco}</td>
+                                                    {index === 0 || analises[index - 1].risk?.wbs_item?.wbs_area?.name !== item?.risk?.wbs_item?.wbs_area?.name ? (
+                                                        <td rowSpan={calculateRowSpan(item?.risk?.wbs_item?.wbs_area?.name, index, 'risk.wbs_item.wbs_area.name')}
+                                                        >{item?.risk?.wbs_item?.wbs_area?.name}</td>
+                                                    ) : null}
+                                                    {index === 0 || analises[index - 1].risk?.wbs_item?.name !== item?.risk?.wbs_item?.name ? (
+                                                        <td rowSpan={calculateRowSpan(item?.risk?.wbs_item?.name, index, 'risk.wbs_item.name')}
+                                                        >{item?.risk?.wbs_item?.name}</td>
+                                                    ) : null}
+                                                </React.Fragment>
+                                            )}
+                                            {!isUpdating || isUpdating !== item?.risk?.risk ? (
+                                                <React.Fragment>
+                                                    {index === 0 || analises[index - 1].risk?.risk !== item?.risk?.risk ? (
+                                                        <td className={styles.riskTd} rowSpan={calculateRowSpan(item?.risk?.risk, index, 'risk.risk')}
+                                                        >{item?.risk?.risk}</td>
                                                     ) : null}
                                                 </React.Fragment>
                                             ) : (
-                                                <td>{item.risco}</td>
+                                                <td className={styles.analiseRiskTd}>{item?.risk?.risk}</td>
                                             )}
-                                            <td>{item.ocorrencia}</td>
-                                            <td>{item.impacto}</td>
-                                            <td>{item.acao}</td>
-                                            <td>{item.urgencia}</td>
+                                            <td className={styles.analiseOcurrenceTd}>{item.ocurrence}</td>
+                                            <td>{item.impact}</td>
+                                            <td>{item.action}</td>
+                                            <td>{item.urgency}</td>
                                             <td style={{
                                                 backgroundColor: calculaRPN(item) >= 150 ? '#f7b2b2' : (calculaRPN(item) >= 50 ? '#f7dcb2' : '#d2f5c6')
                                             }}>{calculaRPN(item)}</td>
-                                            <td>{item.impactoFinanceiro != 0 ? `R$${(Number(item.impactoFinanceiro)).toFixed(2)}` : '-'}</td>
-                                            <td>{item.impactoFinanceiro != 0 ? `R$${(item.impactoFinanceiro * (item.ocorrencia / 5)).toFixed(2)}` : '-'}</td>
-                                            <td>{(item.impactoCronograma != 0 && item.impactoCronograma != null) ? 
-                                                `${item.impactoCronograma} days` : '-'}</td>
-                                            <td>{(item.impactoCronograma != 0 && item.impactoCronograma != null) ? 
-                                                `${(item.impactoCronograma * (item.ocorrencia / 5)).toFixed()} days` : '-'}
+                                            <td>{item.financial_impact != 0 ? `R$${(Number(item.financial_impact)).toFixed(2)}` : '-'}</td>
+                                            <td>{item.financial_impact != 0 ? `R$${(item.financial_impact * (item.ocurrence / 5)).toFixed(2)}` : '-'}</td>
+                                            <td>{(item.schedule_impact != 0 && item.schedule_impact != null) ?
+                                                `${item.schedule_impact} days` : '-'}</td>
+                                            <td>{(item.schedule_impact != 0 && item.schedule_impact != null) ?
+                                                `${(item.schedule_impact * (item.ocurrence / 5)).toFixed()} days` : '-'}
                                             </td>
                                             <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(item)} disabled={!isAdmin}>❌</button>
+                                                <button onClick={() => setConfirmDeleteItem(item)} disabled={!isEditor}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(item._id); setNovosDados(item); setIsUpdating(item.risco)
+                                                    handleUpdateClick(item)
                                                 }
-                                                } disabled={!isAdmin}>⚙️</button>
+                                                } disabled={!isEditor}>⚙️</button>
                                             </td>
                                         </tr>
                                     )}
@@ -231,8 +286,10 @@ const TabelaAnalise = () => {
                             <CadastroInputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcoes={{enviar, isRiscoCadastrado}}
+                                funcoes={{ enviar, isRiscoCadastrado }}
                                 setExibirModal={setExibirModal}
+                                isEditor={isEditor}
+                                seeArea={seeArea}
                             />
                         </tbody>
                     </table>
@@ -242,8 +299,8 @@ const TabelaAnalise = () => {
             <div className={styles.tabelaRisco_container}>
                 <p>Impact</p>
                 <div className={styles.tabelaRisco_wrapper}>
-                    <table className={`${styles.tabelaAnalise} tabela`} style={{ width: '75rem' }}>
-                        <thead style={{background: 'transparent'}}>
+                    <table className={`${styles.tabelaAnalise} tabela`}>
+                        <thead style={{ background: 'transparent' }}>
                             <tr>
                                 <th style={{ borderColor: 'transparent', backgroundColor: 'transparent', width: '1rem', color: 'white' }}></th>
                                 <th style={{ borderColor: 'transparent', borderBottomColor: 'black', borderRightColor: 'black', backgroundColor: 'transparent', width: '1rem', color: 'white' }}></th>

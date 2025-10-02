@@ -48,21 +48,21 @@ RISCO --------------------------
 PLANO --------------------------
 */
 
-.tabelaPlano td:first-child,
-.tabelaPlano td:first-child select {
+.tabelaPlano td.planoTdRisk,
+.tabelaPlano td.planoTdRisk select {
     width: 10rem;
 }
 
-.tabelaPlano td:nth-child(2) {
+.tabelaPlano td.planoTdStrategy {
     width: 8rem;
 }
 
-.tabelaPlano td:nth-child(2) select {
+.tabelaPlano td.planoTdStrategy select {
     width: 10rem;
 }
 
-.tabelaPlano td:nth-child(2) select,
-.tabelaPlano td:nth-child(3) textarea,
+.tabelaPlano td.planoTdStrategy select,
+.tabelaPlano td.planoTdResponse textarea,
 .tabelaPlano td:not(:global(.botoes_acoes)) button {
     height: 3.5rem;
 }
@@ -80,7 +80,7 @@ IMPACTO --------------------------
     text-align: left;
 }
 
-.tabelaImpacto td:not(:first-child) select,
+.tabelaImpacto td:not(.impactoTdRisco) select,
 .tabelaImpacto td textarea,
 .tabelaImpacto td input,
 .tabelaImpacto td:not(:global(.botoes_acoes)) button {
@@ -104,24 +104,21 @@ IMPACTO --------------------------
 AUDIT --------------------------
 */
 
+.tabelaAudit td.auditTdText {
+    text-align: justify;
+    font-size: 0.7rem;
+}
 
-
-.tabelaAudit td:first-child select {
+.tabelaAudit td.auditTdRisk select {
     width: 12rem;
 }
 
-.tabelaAudit td:nth-child(3),
-.tabelaAudit td:nth-child(4) {
+.tabelaAudit td.auditTdValues {
     width: 4.5rem;
 }
 
-.tabelaAudit td:nth-child(3) input,
-.tabelaAudit td:nth-child(4) input {
+.tabelaAudit td.auditTdValues input{
     width: 3.7rem;
-}
-
-.tabelaAudit td input {
-    width: 3rem;
 }
 
 .tabelaAudit td textarea,
@@ -143,8 +140,8 @@ AUDIT --------------------------
 ANALISE --------------------------
 */
 
-.tabelaAnalise td.riskTd input,
-.tabelaAnalise td.riskTd select {
+.tabelaAnalise td.analiseRiskTd input,
+.tabelaAnalise td.analiseRiskTd select {
     width: 10rem;
 }
 
@@ -153,11 +150,11 @@ ANALISE --------------------------
     height: 2.8rem;
 }
 
-.tabelaAnalise td.ocurrenceTd input {
+.tabelaAnalise td.analiseOcurrenceTd input {
     width: 3.5rem;
 }
 
-.tabelaAnalise td.financialImpactTd input {
+.tabelaAnalise td.analiseFinancialImpactTd input {
     width: 4.2rem;
 }
 
@@ -200,7 +197,7 @@ ANALISE --------------------------
     }
 
     /* --------- IMPACTO ------- */
-    .tabelaImpacto td:not(:first-child) select,
+    .tabelaImpacto td:not(.impactoTdRisco) select,
     .tabelaImpacto td textarea,
     .tabelaImpacto td input,
     .tabelaImpacto td:not(:global(.botoes_acoes)) button {
@@ -217,15 +214,16 @@ ANALISE --------------------------
     }
 
     /* ---------PLANO --------- */
-    .tabelaPlano td:nth-child(2) select,
-    .tabelaPlano td:nth-child(3) textarea,
+    .tabelaPlano td.planoTdStrategy select,
+    .tabelaPlano td.planoTdResponse textarea,
     .tabelaPlano td:not(:global(.botoes_acoes)) button {
         height: 3rem;
     }
 
     /* ---------AUDIT--------- */
     .tabelaAudit th.auditThImpacto,
-    .tabelaAudit td.auditTdComparacao {
+    .tabelaAudit td.auditTdComparacao,
+    .tabelaAudit td.auditTdText {
         font-size: 0.6rem;
     }
 

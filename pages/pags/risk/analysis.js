@@ -1,5 +1,5 @@
 import PageWrapper from '../../../components/layout/RiscoWrapper';
-import Tabela from '../../../components/features/n_riscos/analise/Tabela';
+import Tabela from '../../../components/features/riscos/analise/Tabela';
 
 function TabelaPage() {
   return (

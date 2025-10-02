@@ -1,23 +1,28 @@
-import React, { useEffect, useState, useContext } from "react"
+import React, { useEffect, useState } from "react"
 import styles from '../../../../styles/modules/risco.module.css'
 import CadastroInputs from "./Inputs";
 import Modal from "../../../ui/Modal";
 import Loading from "../../../ui/Loading";
-import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../../functions/crud";
+import { handleReq, handleFetch } from "../../../../functions/crud_s";
 import { cleanForm } from "../../../../functions/general";
-import { AuthContext } from "../../../../contexts/AuthContext";
+import usePerm from "../../../../hooks/usePerm";
+import useAuth from "../../../../hooks/useAuth";
 
 const TabelaAnalise = () => {
+    const { isEditor } = usePerm();
+    const { user, token } = useAuth();
+    const user_id = user.id;
+
     const camposVazios = {
-        risco: '',
-        resposta: '',
-        impacto: '',
-        acao: '',
-        urgencia: '',
-        impactoFinanceiro: '',
-        impactoCronograma: '',
-        descricaoImpacto: '',
-        descricaoAvaliacao: ''
+        risk_id: '',
+        response: '',
+        impact: '',
+        action: '',
+        urgency: '',
+        financial_impact: '',
+        schedule_impact: '',
+        impact_description: '',
+        evaluation_description: ''
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
@@ -27,67 +32,79 @@ const TabelaAnalise = () => {
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
-    const { isAdmin } = useContext(AuthContext)
+    const [seeArea, setSeeArea] = useState(false);
 
     const enviar = async () => {
-        await handleSubmit({
-            route: 'riscos/audit',
-            dados: novoSubmit,
-            fetchDados: fetchAudits
+        await handleReq({
+            table: 'risk_audit',
+            route: 'create',
+            token,
+            data: {
+                ...novoSubmit,
+                user_id
+            },
+            fetchData: fetchAudits
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     };
 
-    const handleUpdateItem = async () => {
-        setLoading(true);
-        var updatedItem = {_id: novosDados._id};
-        //tem q recriar o obj pq o obj que novosDados recebe tem um monte
-        //de campos usados pra comparação q n devem ser updateados
-        for(const key in camposVazios){
-            updatedItem = {
-                ...updatedItem,
-                [key]: novosDados[key]
+    const handleUpdateClick = async (item) => {
+        setLinhaVisivel(item.id);
+        var obj = {};
+        for (const key in camposVazios) {
+            if (key == 'risk_id') {
+                obj[key] = item.risk?.id
+            } else {
+                obj[key] = item[key];
             }
         }
+        obj.id = item.id;
+        setNovosDados(obj);
+        setIsUpdating(item.risk?.id)
+    }
+
+    const handleUpdateItem = async () => {
+        setLoading(true);
         try {
-            await handleUpdate({
-                route: 'riscos/audit/update?id',
-                dados: updatedItem,
-                fetchDados: fetchAudits
+            await handleReq({
+                table: 'risk_audit',
+                route: 'update',
+                token,
+                data: novosDados,
+                fetchData: fetchAudits
             });
         } catch (error) {
             console.error("Update failed:", error);
         }
-        setLoading(false);
         setIsUpdating(false);
-        setNovosDados(camposVazios);
         setLinhaVisivel();
+        setLoading(false);
+        setNovosDados(camposVazios);
     };
 
     const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
-            var getDeleteSuccess = false;
-            try {
-                getDeleteSuccess = await handleDelete({
-                    route: 'riscos/audit',
-                    item: confirmDeleteItem,
-                    fetchDados: fetchAudits
-                });
-            } finally {
-                if (getDeleteSuccess) {
-                    setExibirModal(`deleteSuccess`)
-                } else {
-                    setExibirModal(`deleteFail`)
-                }
-            }
+            await handleReq({
+                table: "risk_audit",
+                route: 'delete',
+                token,
+                data: { id: confirmDeleteItem.id },
+                fetchData: fetchAudits
+            });
         }
-        setConfirmDeleteItem(null);
+        setExibirModal("deleteSuccess");
+        setConfirmDeleteItem(null)
     };
 
     const fetchAudits = async () => {
+        setLoading(true);
         try {
-            const data = await fetchData('riscos/audit/get/all');
-            setAudits(data.riscoAudits);
+            const data = await handleFetch({
+                table: 'risk_audit',
+                query: 'all',
+                token
+            });
+            setAudits(data.data);
         } finally {
             setLoading(false);
         }
@@ -105,10 +122,14 @@ const TabelaAnalise = () => {
         'maiorQueCinco': 'Classifications must be between 1 and 5!'
     };
 
-    const calculateRowSpan = (itens, currentArea, currentIndex) => {
+    const calculateRowSpan = (currentArea, currentIndex, parametro) => {
         let rowSpan = 1;
-        for (let i = currentIndex + 1; i < itens.length; i++) {
-            if (itens[i].risco === currentArea) {
+        for (let i = currentIndex + 1; i < audits.length; i++) {
+            let comparedData = audits[i][parametro];
+            if (parametro.includes(".")) {
+                comparedData = parametro.split('.').reduce((acc, key) => acc?.[key], audits[i]);
+            }
+            if (comparedData === currentArea) {
                 rowSpan++;
             } else {
                 break;
@@ -121,6 +142,9 @@ const TabelaAnalise = () => {
         <div className="centered-container">
             {loading && <Loading />}
             <h2>Risk Audit</h2>
+            <button className="botao-bonito" style={{ marginBottom: '1rem', width: 'fit-content' }}
+                onClick={() => { !isUpdating && setSeeArea(!seeArea) }}
+            >See areas and items</button>
             {exibirModal != null && (
                 <Modal objeto={{
                     titulo: modalLabels[exibirModal],
@@ -132,7 +156,7 @@ const TabelaAnalise = () => {
 
             {confirmDeleteItem && (
                 <Modal objeto={{
-                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.risco}"?`,
+                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.risk.risk}"?`,
                     alerta: true,
                     botao1: {
                         funcao: handleConfirmDelete, texto: 'Confirm'
@@ -148,6 +172,12 @@ const TabelaAnalise = () => {
                     <table className={`${styles.tabelaAudit} tabela`}>
                         <thead>
                             <tr>
+                                {seeArea && (
+                                    <React.Fragment>
+                                        <th>Area</th>
+                                        <th>Item</th>
+                                    </React.Fragment>
+                                )}
                                 <th>Risk</th>
                                 <th>Impact description</th>
                                 <th className={styles.auditThImpacto}>Financial impact</th>
@@ -164,57 +194,70 @@ const TabelaAnalise = () => {
 
                             {audits.map((item, index) => (
                                 <React.Fragment key={index}>
-                                    {linhaVisivel === item._id ? (
+                                    {linhaVisivel === item.id ? (
                                         <CadastroInputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
                                             funcoes={{
                                                 enviar: handleUpdateItem,
-                                                cancelar: () => { linhaVisivel === item._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false) }
+                                                cancelar: () => { setLinhaVisivel(); setIsUpdating(false) }
                                             }}
                                             setExibirModal={setExibirModal}
+                                            seeArea={seeArea}
                                         />
                                     ) : (
-                                        <tr>
-                                            {!isUpdating || isUpdating !== item.risco ? (
+                                        <tr style={{ backgroundColor: item?.risk?.wbs_item?.wbs_area?.color || 'white' }}>
+                                            {seeArea && (
                                                 <React.Fragment>
-                                                    {index === 0 || audits[index - 1].risco !== item.risco ? (
-                                                        <td rowSpan={calculateRowSpan(audits, item.risco, index)}
-                                                        >{item.risco}</td>
+                                                    {index === 0 || impactos[index - 1].risk?.wbs_item?.wbs_area?.id !== item?.risk?.wbs_item?.wbs_area?.id ? (
+                                                        <td rowSpan={calculateRowSpan(item?.risk?.wbs_item?.wbs_area?.id, index, 'risk.wbs_item.wbs_area.id')}
+                                                        >{item?.risk?.wbs_item?.wbs_area?.name}</td>
+                                                    ) : null}
+                                                    {index === 0 || impactos[index - 1].risk?.wbs_item?.id !== item?.risk?.wbs_item?.id ? (
+                                                        <td rowSpan={calculateRowSpan(item?.risk?.wbs_item?.id, index, 'risk.wbs_item.id')}
+                                                        >{item?.risk?.wbs_item?.name}</td>
+                                                    ) : null}
+                                                </React.Fragment>
+                                            )}
+                                            {!isUpdating || isUpdating !== item.risk?.id ? (
+                                                <React.Fragment>
+                                                    {index === 0 || audits[index - 1].risk?.id !== item.risk?.id ? (
+                                                        <td rowSpan={calculateRowSpan(item.risk?.id, index, 'risk.id')}
+                                                        >{item.risk?.risk}</td>
                                                     ) : null}
                                                 </React.Fragment>
                                             ) : (
-                                                <td>{item.risco}</td>
+                                                <td>{item.risk?.risk}</td>
                                             )}
-                                            <td>{item.descricaoImpacto}</td>
+                                            <td className={styles.auditTdText}>{item.impact_description}</td>
                                             <td className={styles.auditTdComparacao}>
-                                                Plan: R${Number(item.impactoFinanceiroPlano).toFixed(2)}<br />
-                                                Actual: R${Number(item.impactoFinanceiro).toFixed(2)}
+                                                Plan: R${Number(item?.risk?.risk_analysis?.financial_impact || '0').toFixed(2)}<br />
+                                                Actual: R${Number(item.financial_impact).toFixed(2)}
                                             </td>
                                             <td className={styles.auditTdComparacao}>
-                                                Plan: <br />{item.impactoCronogramaPlano} days<br />
-                                                Actual: <br />{item.impactoCronograma} days
+                                                Plan: <br />{item?.risk?.risk_analysis?.schedule_impact || '-'} days<br />
+                                                Actual: <br />{item.schedule_impact} days
                                             </td>
-                                            <td>{item.resposta}</td>
+                                            <td className={styles.auditTdText}>{item.response}</td>
                                             <td className={styles.auditTdComparacao}>
-                                                Plan: {item.impactoPlano}<br />
-                                                Actual: {item.impacto}<br />
-                                            </td>
-                                            <td className={styles.auditTdComparacao}>
-                                                Plan: {item.acaoPlano}<br />
-                                                Actual: {item.acao}<br />
+                                                Plan: {item?.risk?.risk_analysis?.impact || '-'}<br />
+                                                Actual: {item.impact}<br />
                                             </td>
                                             <td className={styles.auditTdComparacao}>
-                                                Plan: {item.urgenciaPlano}<br />
-                                                Actual: {item.urgencia}<br />
+                                                Plan: {item?.risk?.risk_analysis?.action || '-'}<br />
+                                                Actual: {item.action}<br />
                                             </td>
-                                            <td>{item.descricaoAvaliacao}</td>
+                                            <td className={styles.auditTdComparacao}>
+                                                Plan: {item?.risk?.risk_analysis?.urgency || '-'}<br />
+                                                Actual: {item.urgency}<br />
+                                            </td>
+                                            <td className={styles.auditTdText}>{item.evaluation_description}</td>
                                             <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(item)} disabled={!isAdmin}>❌</button>
+                                                <button onClick={() => setConfirmDeleteItem(item)} disabled={!isEditor}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(item._id); setNovosDados(item); setIsUpdating(item.risco)
+                                                    handleUpdateClick(item)
                                                 }
-                                                } disabled={!isAdmin}>⚙️</button>
+                                                } disabled={!isEditor}>⚙️</button>
                                             </td>
                                         </tr>
                                     )}
@@ -223,8 +266,9 @@ const TabelaAnalise = () => {
                             <CadastroInputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcoes={{enviar}}
+                                funcoes={{ enviar }}
                                 setExibirModal={setExibirModal}
+                                seeArea={seeArea}
                             />
                         </tbody>
                     </table>

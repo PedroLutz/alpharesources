@@ -1,30 +1,43 @@
-import { useEffect, useState, useRef, useContext } from "react";
+import { useEffect, useState, useRef } from "react";
 import React from "react";
-import { fetchData } from "../../../../functions/crud";
-import { AuthContext } from "../../../../contexts/AuthContext";
+import { handleFetch } from "../../../../functions/crud_s";
+import useAuth from "../../../../hooks/useAuth";
+import styles from '../../../../styles/modules/risco.module.css'
 
-const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
+const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEditor, seeArea }) => {
+    const { token } = useAuth();
+
     const [riscos, setRiscos] = useState([])
     const [riscosPorArea, setRiscosPorArea] = useState([]);
+    const [areas, setAreas] = useState([]);
     const [areaSelecionada, setAreaSelecionada] = useState('');
     const camposRef = useRef({
-        risco: null,
-        ocorrencia: null,
-        impacto: null,
-        acao: null,
-        urgencia: null,
-        impactoFinanceiro: null,
-        impactoCronograma: null
+        risk_id: null,
+        ocurrence: null,
+        impact: null,
+        action: null,
+        urgency: null,
+        financial_impact: null,
+        schedule_impact: null
     })
-    const {isAdmin} = useContext(AuthContext);
 
     const fetchRiscos = async () => {
-        const data = await fetchData('riscos/risco/get/riscosAreas');
-        setRiscos(data.riscos);
-        var todosOsRiscos = [];
-        data.riscos.forEach((risco) => {
-            todosOsRiscos.push([risco.risco])
+        const data = await handleFetch({
+            table: 'risk',
+            query: 'risks_and_areas',
+            token
         })
+        setRiscos(data.data);
+        var todosOsRiscos = [];
+        var areas = [];
+        data.data.forEach((risco) => {
+            todosOsRiscos.push({id: risco.id, risk: risco.risk})
+            if(risco?.wbs_item) {
+                if(!areas.some(a=> a.id == risco?.wbs_item?.wbs_area?.id)) 
+                    areas.push({id: risco?.wbs_item?.wbs_area?.id ,name: risco?.wbs_item?.wbs_area?.name});
+            }
+        })
+        setAreas(areas);
         setRiscosPorArea(todosOsRiscos);
     };
 
@@ -39,7 +52,7 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
 
         objSetter({
             ...obj,
-            risco: ''
+            risk_id: ''
         });
     }, [areaSelecionada]);
 
@@ -50,7 +63,12 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     const handleAreaChange = (e) => {
         setAreaSelecionada(e.target.value);
         const areaSelect = e.target.value;
-        const itensDaArea = riscos.filter(item => item.area === areaSelect).map(item => item.risco);
+        const itensDaArea = riscos.filter(
+            item => {
+                if(areaSelect == -1) return item?.wbs_item == undefined;
+                if(areaSelect == "") return true;
+                return item?.wbs_item?.wbs_area?.id == areaSelect}
+        ).map(item => ({id: item.id, risk: item.risk}));
         setRiscosPorArea(itensDaArea);
     };
 
@@ -67,12 +85,12 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     };
 
     const validaDados = () => {
-        if(funcoes?.isRiscoCadastrado?.(obj.risco) ?? false){
+        if(funcoes?.isRiscoCadastrado?.(obj.risk) ?? false){
             camposRef.current.risco.classList.add('campo-vazio');
             setExibirModal('riscoRepetido');
             return true;
         }
-        const campos = { ocorrencia: obj.ocorrencia, impacto: obj.impacto, urgencia: obj.urgencia, acao: obj.acao };
+        const campos = { ocurrence: obj.ocurrence, impact: obj.impact, urgency: obj.urgency, action: obj.action };
 
         for (const [key, value] of Object.entries(campos)) {
             if (value < 0) {
@@ -87,6 +105,7 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
             }
         }
         
+        console.log(obj)
         const camposVazios = Object.entries(obj)
             .filter(([key, value]) => value === null || value === "")
             .map(([key]) => key);
@@ -112,7 +131,13 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
 
     return (
         <tr>
-            <td>
+            {seeArea && (
+                <React.Fragment>
+                    <td>-</td>
+                    <td>-</td>
+                </React.Fragment>
+            )}
+            <td className={styles.analiseRiskTd}>
                 <div>
                     <select
                         name="area"
@@ -120,92 +145,92 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                         value={areaSelecionada}
                     >
                         <option value="" defaultValue>Area</option>
-                        {[...new Set(riscos.map(item => item.area))].map((area, index) => (
-                            <option key={index} value={area}>{area}</option>
+                        {areas.map((area, index) => (
+                            <option key={index} value={area.id}>{area.name}</option>
                         ))};
-                        <option value="Others">Others</option>
+                        <option value={-1}>Others</option>
                     </select>
                 </div>
 
                 <select
                     style={{ marginTop: '0.3rem' }}
-                    value={obj.risco}
-                    name='risco'
+                    value={obj.risk_id}
+                    name='risk_id'
                     onChange={(e) => handleChange(e, false)}
-                    ref={el => (camposRef.current.risco = el)}
+                    ref={el => (camposRef.current.risk_id = el)}
                 >
                     <option value="" defaultValue>Risk</option>
                     {riscosPorArea.map((item, index) => (
-                        <option key={index} value={item}>{item}</option>
+                        <option key={index} value={item.id}>{item.risk}</option>
                     ))}
                 </select>
             </td>
-            <td>
+            <td className={styles.analiseOcurrenceTd}>
                 <input
-                    name="ocorrencia"
+                    name="ocurrence"
                     onChange={(e) => handleChange(e, true)}
-                    value={obj.ocorrencia}
+                    value={obj.ocurrence}
                     min={1}
                     max={5}
-                    ref={el => (camposRef.current.ocorrencia = el)}
+                    ref={el => (camposRef.current.ocurrence = el)}
                 />
             </td>
             <td>
                 <input
-                    name="impacto"
+                    name="impact"
                     onChange={(e) => handleChange(e, true)}
-                    value={obj.impacto}
+                    value={obj.impact}
                     min={1}
                     max={5}
-                    ref={el => (camposRef.current.impacto = el)}
+                    ref={el => (camposRef.current.impact = el)}
                 />
             </td>
             <td>
                 <input
-                    name="acao"
+                    name="action"
                     onChange={(e) => handleChange(e, true)}
-                    value={obj.acao}
+                    value={obj.action}
                     min={1}
                     max={5}
-                    ref={el => (camposRef.current.acao = el)}
+                    ref={el => (camposRef.current.action = el)}
                 />
             </td>
             <td>
                 <input
-                    name="urgencia"
+                    name="urgency"
                     onChange={(e) => handleChange(e, true)}
-                    value={obj.urgencia}
+                    value={obj.urgency}
                     min={1}
                     max={5}
-                    ref={el => (camposRef.current.urgencia = el)}
+                    ref={el => (camposRef.current.urgency = el)}
+                />
+            </td>
+            <td>-</td>
+            <td className={styles.analiseFinancialImpactTd}>
+                <input
+                    name="financial_impact"
+                    onChange={(e) => handleChange(e, true)}
+                    value={obj.financial_impact}
+                    min={1}
+                    max={5}
+                    ref={el => (camposRef.current.financial_impact = el)}
                 />
             </td>
             <td>-</td>
             <td>
                 <input
-                    name="impactoFinanceiro"
+                    name="schedule_impact"
                     onChange={(e) => handleChange(e, true)}
-                    value={obj.impactoFinanceiro}
+                    value={obj.schedule_impact}
                     min={1}
                     max={5}
-                    ref={el => (camposRef.current.impactoFinanceiro = el)}
-                />
-            </td>
-            <td>-</td>
-            <td>
-                <input
-                    name="impactoCronograma"
-                    onChange={(e) => handleChange(e, true)}
-                    value={obj.impactoCronograma}
-                    min={1}
-                    max={5}
-                    ref={el => (camposRef.current.impactoCronograma = el)}
+                    ref={el => (camposRef.current.schedule_impact = el)}
                 />
             </td>
             <td>-</td>
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
-                    <button onClick={handleSubmit} disabled={!isAdmin}>Add new</button>
+                    <button onClick={handleSubmit} disabled={!isEditor}>Add new</button>
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>

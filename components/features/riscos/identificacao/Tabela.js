@@ -3,21 +3,25 @@ import styles from '../../../../styles/modules/risco.module.css'
 import CadastroInputs from "./Inputs";
 import Modal from "../../../ui/Modal";
 import Loading from "../../../ui/Loading";
-import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../../functions/crud";
+import { handleReq, handleFetch } from "../../../../functions/crud_s";
 import { cleanForm } from "../../../../functions/general";
-import { AuthContext } from "../../../../contexts/AuthContext";
+import useAuth from "../../../../hooks/useAuth";
+import usePerm from "../../../../hooks/usePerm";
 
 const TabelaRiscos = () => {
+    const { user, token } = useAuth();
+    const user_id = user.id;
+    const { isEditor } = usePerm();
+
     const camposVazios = {
-        area: '',
-        item: '',
-        risco: '',
-        classificacao: '',
-        ehNegativo: '',
-        efeito: '',
-        causa: '',
-        gatilho: '',
-        dono: ''
+        item_id: '',
+        owner_id: '',
+        risk: '',
+        classification: '',
+        is_negative: '',
+        effect: '',
+        cause: '',
+        trigger: '',
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
@@ -27,38 +31,53 @@ const TabelaRiscos = () => {
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUptading] = useState(false);
-    const [cores, setCores] = useState({});
-    const { isAdmin } = useContext(AuthContext);
+    const [loaded, setLoaded] = useState(false);
 
     const enviar = async () => {
-        await handleSubmit({
-            route: 'riscos/risco',
-            dados: novoSubmit,
-            fetchDados: fetchRiscos
+        await handleReq({
+            table: 'risk',
+            route: 'create',
+            token,
+            data: {
+                ...novoSubmit,
+                item_id: novoSubmit.item_id != -1 ? novoSubmit.item_id : null,
+                user_id
+            },
+            fetchData: fetchRiscos
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     };
 
     const isRiscoCadastrado = (risco) => {
-        return riscos.some((r) => r.risco.trim().toLowerCase() === risco.trim().toLowerCase());
+        return riscos.some((r) => r.risk.trim().toLowerCase() === risco.trim().toLowerCase());
     }
 
-    const fetchCores = async () => {
-        const data = await fetchData('wbs/get/cores');
-        var cores = {};
-        data.areasECores.forEach((area) => {
-            cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
-        })
-        setCores(cores);
+    const handleUpdateClick = (item, index) => {
+        const obj = {
+            id: item.id,
+            item_id: item?.wbs_item?.id || -1,
+            owner_id: item?.member?.id,
+            risk: item?.risk,
+            classification: item?.classification,
+            is_negative: item.is_negative,
+            effect: item.effect,
+            cause: item.cause,
+            trigger: item.trigger
+        }
+        setNovosDados(obj);
+        setLinhaVisivel(item.id);
+        setIsUptading([item.area, item.item, index]);
     }
 
     const handleUpdateItem = async () => {
         setLoading(true);
         try {
-            await handleUpdate({
-                route: 'riscos/risco/update?id',
-                dados: novosDados,
-                fetchDados: fetchRiscos
+            await handleReq({
+                table: 'risk',
+                route: 'update',
+                token,
+                data: { ...novosDados, item_id: novosDados.item_id != -1 ? novosDados.item_id : null },
+                fetchData: fetchRiscos
             });
         } catch (error) {
             console.error("Update failed:", error);
@@ -71,37 +90,36 @@ const TabelaRiscos = () => {
 
     const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
-            var getDeleteSuccess = false;
-            try {
-                getDeleteSuccess = await handleDelete({
-                    route: 'riscos/risco',
-                    item: confirmDeleteItem,
-                    fetchDados: fetchRiscos
-                });
-            } finally {
-                if (getDeleteSuccess) {
-                    setExibirModal(`deleteSuccess`)
-                } else {
-                    setExibirModal(`deleteFail`)
-                }
-            }
+            await handleReq({
+                table: "risk",
+                route: 'delete',
+                token,
+                data: { id: confirmDeleteItem.id },
+                fetchData: fetchRiscos
+            });
         }
-        setConfirmDeleteItem(null);
+        setExibirModal("deleteSuccess");
+        setConfirmDeleteItem(null)
     };
 
     const fetchRiscos = async () => {
+        setLoaded(false);
         setLoading(true);
         try {
-            const data = await fetchData('riscos/risco/get/all');
-            setRiscos(data.riscos);
+            const data = await handleFetch({
+                table: 'risk',
+                query: 'all',
+                token
+            });
+            setRiscos(data.data);
         } finally {
             setLoading(false);
+            setLoaded(true);
         }
     };
 
     useEffect(() => {
         fetchRiscos();
-        fetchCores();
     }, [])
 
     const modalLabels = {
@@ -113,10 +131,14 @@ const TabelaRiscos = () => {
         'riscoRepetido': 'You have already registered this risk!'
     };
 
-    const calculateRowSpan = (itens, currentArea, currentIndex, parametro) => {
+    const calculateRowSpan = (currentArea, currentIndex, parametro) => {
         let rowSpan = 1;
-        for (let i = currentIndex + 1; i < itens.length; i++) {
-            if (itens[i][parametro] === currentArea) {
+        for (let i = currentIndex + 1; i < riscos.length; i++) {
+            let comparedData = riscos[i][parametro];
+            if (parametro.includes(".")) {
+                comparedData = parametro.split('.').reduce((acc, key) => acc?.[key], riscos[i]);
+            }
+            if (comparedData === currentArea) {
                 rowSpan++;
             } else {
                 break;
@@ -124,6 +146,13 @@ const TabelaRiscos = () => {
         }
         return rowSpan;
     };
+
+    function capitalizeFirstLetter(str) {
+        if (typeof str !== 'string' || str.length === 0) {
+            return str;
+        }
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
 
     return (
         <div className="centered-container">
@@ -140,7 +169,7 @@ const TabelaRiscos = () => {
 
             {confirmDeleteItem && (
                 <Modal objeto={{
-                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.risco}"?`,
+                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.risk}"?`,
                     alerta: true,
                     botao1: {
                         funcao: handleConfirmDelete, texto: 'Confirm'
@@ -171,57 +200,57 @@ const TabelaRiscos = () => {
                         <tbody>
                             {riscos.map((item, index) => (
                                 <React.Fragment key={index}>
-                                    {linhaVisivel === item._id ? (
+                                    {linhaVisivel === item.id ? (
                                         <CadastroInputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
                                             funcoes={{
                                                 enviar: handleUpdateItem,
                                                 cancelar: () => {
-                                                    linhaVisivel === item._id ?
-                                                        setLinhaVisivel() :
-                                                        setLinhaVisivel(item._id); setIsUptading(false);
+                                                    setLinhaVisivel(); setIsUptading(false);
                                                 },
                                             }}
+                                            isEditor={isEditor}
                                             setExibirModal={setExibirModal}
+                                            loaded={loaded}
                                         />
                                     ) : (
-                                        <tr style={{ backgroundColor: cores[item.area] }}>
-                                            {!isUpdating || isUpdating[0] !== item.area ? (
+                                        <tr style={{ backgroundColor: item?.wbs_item?.wbs_area?.color || 'white' }}>
+                                            {!isUpdating || isUpdating[0] !== item?.wbs_item?.wbs_area?.id ? (
                                                 <React.Fragment>
-                                                    {index === 0 || riscos[index - 1].area !== item.area ? (
-                                                        <td className={styles.riscoTdArea} 
-                                                        rowSpan={calculateRowSpan(riscos, item.area, index, 'area')}
-                                                        >{item.area}</td>
+                                                    {index === 0 || riscos[index - 1].wbs_item?.wbs_area?.id !== item.wbs_item?.wbs_area?.id ? (
+                                                        <td className={styles.riscoTdArea}
+                                                            rowSpan={calculateRowSpan(item.wbs_item?.wbs_area?.id, index, 'wbs_item.wbs_area.id')}
+                                                        >{item?.wbs_item?.wbs_area?.name || 'Others'}</td>
                                                     ) : null}
                                                 </React.Fragment>
                                             ) : (
-                                                <td className={styles.riscoTdArea}>{item.area}</td>
+                                                <td className={styles.riscoTdArea}>{item?.wbs_item?.wbs_area?.name}</td>
                                             )}
-                                            {!isUpdating || isUpdating[1] !== item.item ? (
+                                            {!isUpdating || isUpdating[1] !== item?.wbs_item?.id ? (
                                                 <React.Fragment>
-                                                    {index === 0 || riscos[index - 1].item !== item.item ? (
+                                                    {index === 0 || riscos[index - 1].wbs_item?.id !== item.wbs_item?.id ? (
                                                         <td className={styles.riscoTdItem}
-                                                        rowSpan={calculateRowSpan(riscos, item.item, index, 'item')}
-                                                        >{item.item}</td>
+                                                            rowSpan={calculateRowSpan(item.wbs_item?.id, index, 'wbs_item.id')}
+                                                        >{item?.wbs_item?.name || 'Others'}</td>
                                                     ) : null}
                                                 </React.Fragment>
                                             ) : (
-                                                <td className={styles.riscoTdItem}>{item.item}</td>
+                                                <td className={styles.riscoTdItem}>{item?.wbs_item?.name}</td>
                                             )}
-                                            <td>{item.risco}</td>
-                                            <td>{item.classificacao}</td>
-                                            <td>{item.ehNegativo ? 'Threat' : 'Opportunity'}</td>
-                                            <td>{item.efeito}</td>
-                                            <td>{item.causa}</td>
-                                            <td>{item.gatilho}</td>
-                                            <td>{item.dono}</td>
+                                            <td>{item.risk}</td>
+                                            <td>{capitalizeFirstLetter(item.classification)}</td>
+                                            <td>{item.is_negative ? 'Threat' : 'Opportunity'}</td>
+                                            <td>{item.effect}</td>
+                                            <td>{item.cause}</td>
+                                            <td>{item.trigger}</td>
+                                            <td>{item.member?.name}</td>
                                             <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(item)} disabled={!isAdmin}>❌</button>
+                                                <button onClick={() => setConfirmDeleteItem(item)} disabled={!isEditor}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(item._id); setNovosDados(item); setIsUptading([item.area, item.item, index])
+                                                    handleUpdateClick(item, index)
                                                 }
-                                                } disabled={!isAdmin}>⚙️</button>
+                                                } disabled={!isEditor}>⚙️</button>
                                             </td>
                                         </tr>
                                     )}
@@ -232,6 +261,8 @@ const TabelaRiscos = () => {
                                 objSetter={setNovoSubmit}
                                 funcoes={{ enviar, isRiscoCadastrado }}
                                 setExibirModal={setExibirModal}
+                                isEditor={isEditor}
+                                loaded={loaded}
                             />
                         </tbody>
                     </table>

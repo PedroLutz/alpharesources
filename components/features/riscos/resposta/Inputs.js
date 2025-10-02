@@ -1,28 +1,42 @@
 import { useEffect, useState, useRef, useContext } from "react";
 import React from "react";
-import { fetchData } from "../../../../functions/crud";
-import { AuthContext } from "../../../../contexts/AuthContext";
+import { handleFetch } from "../../../../functions/crud_s";
+import useAuth from "../../../../hooks/useAuth";
+import usePerm from "../../../../hooks/usePerm";
 import styles from '../../../../styles/modules/risco.module.css'
 
-const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
+const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea }) => {
+    const { token } = useAuth();
+    const { isEditor } = usePerm();
     const [riscos, setRiscos] = useState([])
     const [riscosPorArea, setRiscosPorArea] = useState([]);
     const [areaSelecionada, setAreaSelecionada] = useState('');
+    const [areas, setAreas] = useState([]);
     const [estrategias, setEstrategias] = useState([]);
     const camposRef = useRef({
         risco: null,
         estrategia: null,
         detalhamento: null
     })
-    const {isAdmin} = useContext(AuthContext)
 
     const fetchRiscos = async () => {
-        const data = await fetchData('riscos/risco/get/riscosAreas');
-        setRiscos(data.riscos);
-        var todosOsRiscos = [];
-        data.riscos.forEach((risco) => {
-            todosOsRiscos.push([risco.risco])
+        const data = await handleFetch({
+            table: 'risk',
+            query: 'risks_and_areas',
+            token
         })
+        setRiscos(data.data);
+        console.log(data.data)
+        var todosOsRiscos = [];
+        var areas = [];
+        data.data.forEach((risco) => {
+            todosOsRiscos.push({ id: risco.id, risk: risco.risk })
+            if (risco?.wbs_item) {
+                if (!areas.some(a => a.id == risco?.wbs_item?.wbs_area?.id))
+                    areas.push({ id: risco?.wbs_item?.wbs_area?.id, name: risco?.wbs_item?.wbs_area?.name });
+            }
+        })
+        setAreas(areas);
         setRiscosPorArea(todosOsRiscos);
     };
 
@@ -37,45 +51,58 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
 
         objSetter({
             ...obj,
-            risco: ''
+            risk_id: ''
         });
-        setEstrategias([])
     }, [areaSelecionada]);
 
     useEffect(() => {
         fetchRiscos();
     }, []);
 
+    const handleAreaChange = (e) => {
+        setAreaSelecionada(e.target.value);
+        const areaSelect = e.target.value;
+        const itensDaArea = riscos.filter(
+            item => {
+                if (areaSelect == -1) return item?.wbs_item == undefined;
+                if (areaSelect == "") return true;
+                return item?.wbs_item?.wbs_area?.id == areaSelect
+            }
+        ).map(item => ({ id: item.id, risk: item.risk }));
+        setRiscosPorArea(itensDaArea);
+    };
+
     useEffect(() => {
-        if (obj.risco) {
+        if (obj.risk_id) {
             generateEstrategias();
         }
-    }, [obj.risco, riscos]);
+    }, [obj.risk_id, riscos]);
 
     const generateEstrategias = () => {
-        if(!obj.risco){
+        if (!obj.risk_id) {
             return;
         }
-        const riscoEncontrado = riscos.find(o => o.risco === obj.risco);
+        const riscoEncontrado = riscos.find(o => o.id == obj.risk_id);
+        
         if (!riscoEncontrado) {
             return;
         }
-        const ehAmeaca = riscoEncontrado.ehNegativo;
-        if(ehAmeaca){ 
-            setEstrategias(["Avoid", "Mitigate", "Transfer", "Accept"]);
+        const ehAmeaca = riscoEncontrado.is_negative;
+        if (ehAmeaca) {
+            setEstrategias(["avoid", "mitigate", "transfer", "accept"]);
             return;
         } else {
-            setEstrategias(["Exploit", "Enhance", "Share", "Ignore"]);
+            setEstrategias(["exploit", "enhance", "share", "ignore"]);
             return;
         }
     }
 
-    const handleAreaChange = (e) => {
-        setAreaSelecionada(e.target.value);
-        const areaSelect = e.target.value;
-        const itensDaArea = riscos.filter(item => item.area === areaSelect).map(item => item.risco);
-        setRiscosPorArea(itensDaArea);
-    };
+    function capitalizeFirstLetter(str) {
+        if (typeof str !== 'string' || str.length === 0) {
+            return str;
+        }
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -105,64 +132,70 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
 
     const handleSubmit = () => {
         const isInvalido = validaDados();
-        if(isInvalido == true) return;
+        if (isInvalido == true) return;
         funcoes?.enviar();
     }
 
     return (
         <tr>
-            <td >
+            {seeArea && (
+                <React.Fragment>
+                    <td>-</td>
+                    <td>-</td>
+                </React.Fragment>
+            )}
+            <td className={styles.planoTdRisk}>
                 <div>
-                <select
-                    name="area"
-                    onChange={handleAreaChange}
-                    value={areaSelecionada}
-                >
-                    <option value="" defaultValue>Area</option>
-                    {[...new Set(riscos.map(item => item.area))].map((area, index) => (
-                        <option key={index} value={area}>{area}</option>
-                    ))};
-                    <option value="Others">Others</option>
-                </select>
+                    <select
+                        name="area"
+                        onChange={handleAreaChange}
+                        value={areaSelecionada}
+                    >
+                        <option value="" defaultValue>Area</option>
+                        {areas.map((area, index) => (
+                            <option key={index} value={area.id}>{area.name}</option>
+                        ))};
+                        <option value={-1}>Others</option>
+                    </select>
                 </div>
-                
+
                 <select
-                    style={{marginTop: '0.3rem'}}
-                    value={obj.risco}
-                    name='risco'
-                    onChange={(e) => handleChange(e, objSetter, obj)}
-                    ref={el => (camposRef.current.risco = el)}
+                    style={{ marginTop: '0.3rem' }}
+                    value={obj.risk_id}
+                    name='risk_id'
+                    onChange={(e) => handleChange(e, false)}
+                    ref={el => (camposRef.current.risk_id = el)}
                 >
                     <option value="" defaultValue>Risk</option>
                     {riscosPorArea.map((item, index) => (
-                        <option key={index} value={item}>{item}</option>
+                        <option key={index} value={item.id}>{item.risk}</option>
                     ))}
                 </select>
             </td>
-            <td>
+            <td className={styles.planoTdStrategy}>
                 <select
-                    name="estrategia"
+                    name="strategy"
                     onChange={handleChange}
-                    value={obj.estrategia}
-                    ref={el => (camposRef.current.estrategia = el)}
+                    value={obj.strategy}
+                    ref={el => (camposRef.current.strategy = el)}
                 >
                     <option defaultValue value="">Select</option>
                     {estrategias.map((item, index) => (
-                        <option key={index} value={item}>{item}</option>
+                        <option key={index} value={item}>{capitalizeFirstLetter(item)}</option>
                     ))}
                 </select>
             </td>
-            <td>
+            <td className={styles.planoTdResponse}>
                 <textarea
-                    name="detalhamento"
+                    name="details"
                     onChange={handleChange}
-                    value={obj.detalhamento}
-                    ref={el => (camposRef.current.detalhamento = el)}
+                    value={obj.details}
+                    ref={el => (camposRef.current.details = el)}
                 />
             </td>
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
-                    <button onClick={handleSubmit} disabled={!isAdmin}>Add new</button>
+                    <button onClick={handleSubmit} disabled={!isEditor}>Add new</button>
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>

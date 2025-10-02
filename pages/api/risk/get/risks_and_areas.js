@@ -20,7 +20,8 @@ export default async function handler(req, res) {
                 color
             )
         ),
-        risk
+        risk,
+        is_negative
         `)
     .order('wbs_item(wbs_area->name)', { ascending: true })
     .order('risk', { ascending: true })

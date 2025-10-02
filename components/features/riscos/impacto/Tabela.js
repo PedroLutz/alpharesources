@@ -1,18 +1,23 @@
-import React, { useEffect, useState, useContext } from "react"
+import React, { useEffect, useState } from "react"
 import styles from '../../../../styles/modules/risco.module.css'
 import CadastroInputs from "./Inputs";
 import Modal from "../../../ui/Modal";
 import Loading from "../../../ui/Loading";
-import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../../functions/crud";
+import { handleReq, handleFetch } from "../../../../functions/crud_s";
 import { cleanForm } from "../../../../functions/general";
-import { AuthContext } from "../../../../contexts/AuthContext";
+import useAuth from "../../../../hooks/useAuth";
+import usePerm from "../../../../hooks/usePerm";
 
 const TabelaAnalise = () => {
+    const { user, token } = useAuth();
+    const user_id = user.id;
+    const { isEditor } = usePerm();
+
     const camposVazios = {
-        risco: '',
-        areaImpacto: '',
-        valor: '',
-        descricao: ''
+        risk_id: '',
+        impact_area: '',
+        score: '',
+        description: ''
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
@@ -23,63 +28,82 @@ const TabelaAnalise = () => {
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
-    const { isAdmin } = useContext(AuthContext);
+    const [seeArea, setSeeArea] = useState(false);
 
     const enviar = async () => {
-        await handleSubmit({
-            route: 'riscos/impacto',
-            dados: novoSubmit,
-            fetchDados: fetchAnalises
+        await handleReq({
+            table: 'risk_impact',
+            route: 'create',
+            token,
+            data: {
+                ...novoSubmit,
+                user_id
+            },
+            fetchData: fetchImpactos
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     };
 
     const isImpactoCadastrado = (risco, areaImpacto) => {
-        return impactos.some((i) => i.risco.trim().toLowerCase() == risco.trim().toLowerCase() 
-        && i.areaImpacto.trim().toLowerCase() === areaImpacto.trim().toLowerCase());
+        return impactos.some((i) => i.risk?.id == risco
+            && i.impact_area.trim().toLowerCase() === areaImpacto.trim().toLowerCase());
+    }
+
+    const handleUpdateClick = (item) => {
+        setLinhaVisivel(item.id);
+        setIsUpdating(item.risk.id);
+        setNovosDados({
+            id: item.id,
+            risk_id: item.risk.id,
+            impact_area: item.impact_area,
+            score: item.score,
+            description: item.description
+        })
+        setSeeArea(false);
     }
 
     const handleUpdateItem = async () => {
         setLoading(true);
         try {
-            await handleUpdate({
-                route: 'riscos/impacto/update?id',
-                dados: novosDados,
-                fetchDados: fetchAnalises
+            await handleReq({
+                table: 'risk_impact',
+                route: 'update',
+                token,
+                data: novosDados,
+                fetchData: fetchImpactos
             });
         } catch (error) {
             console.error("Update failed:", error);
         }
-        setLoading(false);
         setIsUpdating(false);
-        setNovosDados(camposVazios);
         setLinhaVisivel();
+        setLoading(false);
+        setNovosDados(camposVazios);
     };
 
     const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
-            var getDeleteSuccess = false;
-            try {
-                getDeleteSuccess = await handleDelete({
-                    route: 'riscos/impacto',
-                    item: confirmDeleteItem,
-                    fetchDados: fetchAnalises
-                });
-            } finally {
-                if (getDeleteSuccess) {
-                    setExibirModal(`deleteSuccess`)
-                } else {
-                    setExibirModal(`deleteFail`)
-                }
-            }
+            await handleReq({
+                table: "risk_impact",
+                route: 'delete',
+                token,
+                data: { id: confirmDeleteItem.id },
+                fetchData: fetchImpactos
+            });
         }
-        setConfirmDeleteItem(null);
+        setExibirModal("deleteSuccess");
+        setConfirmDeleteItem(null)
     };
 
-    const fetchAnalises = async () => {
+    const fetchImpactos = async () => {
+        setLoading(true);
         try {
-            const data = await fetchData('riscos/impacto/get/all');
-            setImpactos(data.riscoImpactos);
+            const data = await handleFetch({
+                table: 'risk_impact',
+                query: 'all',
+                token
+            });
+            setImpactos(data.data);
         } finally {
             setLoading(false);
         }
@@ -87,7 +111,7 @@ const TabelaAnalise = () => {
 
     useEffect(() => {
         setReload(false);
-        fetchAnalises();
+        fetchImpactos();
     }, [reload]);
 
     const modalLabels = {
@@ -99,10 +123,14 @@ const TabelaAnalise = () => {
         'impactoRepetido': 'You have already registered the impact in this area for this risk!'
     };
 
-    const calculateRowSpan = (itens, currentArea, currentIndex) => {
+    const calculateRowSpan = (currentArea, currentIndex, parametro) => {
         let rowSpan = 1;
-        for (let i = currentIndex + 1; i < itens.length; i++) {
-            if (itens[i].risco === currentArea) {
+        for (let i = currentIndex + 1; i < impactos.length; i++) {
+            let comparedData = impactos[i][parametro];
+            if (parametro.includes(".")) {
+                comparedData = parametro.split('.').reduce((acc, key) => acc?.[key], impactos[i]);
+            }
+            if (comparedData === currentArea) {
                 rowSpan++;
             } else {
                 break;
@@ -111,10 +139,20 @@ const TabelaAnalise = () => {
         return rowSpan;
     };
 
+    function capitalizeFirstLetter(str) {
+        if (typeof str !== 'string' || str.length === 0) {
+            return str;
+        }
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
     return (
         <div className="centered-container">
             {loading && <Loading />}
             <h2 className="smallTitle">Risk Impact Analysis</h2>
+            <button className="botao-bonito" style={{ marginBottom: '1rem', width: 'fit-content' }}
+                onClick={() => { !isUpdating && setSeeArea(!seeArea) }}
+            >See areas and items</button>
             {exibirModal != null && (
                 <Modal objeto={{
                     titulo: modalLabels[exibirModal],
@@ -126,7 +164,7 @@ const TabelaAnalise = () => {
 
             {confirmDeleteItem && (
                 <Modal objeto={{
-                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.risco}"?`,
+                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.risk.risk}"?`,
                     alerta: true,
                     botao1: {
                         funcao: handleConfirmDelete, texto: 'Confirm'
@@ -142,6 +180,12 @@ const TabelaAnalise = () => {
                     <table className={`${styles.tabelaImpacto} tabela`}>
                         <thead>
                             <tr>
+                                {seeArea && (
+                                    <React.Fragment>
+                                        <th>Area</th>
+                                        <th>Item</th>
+                                    </React.Fragment>
+                                )}
                                 <th>Risk</th>
                                 <th>Area of impact</th>
                                 <th style={{ fontSize: '0.7rem', width: '3rem' }}>Score</th>
@@ -152,41 +196,51 @@ const TabelaAnalise = () => {
                         <tbody>
                             {impactos.map((item, index) => (
                                 <React.Fragment key={index}>
-                                    {linhaVisivel === item._id ? (
+                                    {linhaVisivel === item.id ? (
                                         <CadastroInputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
                                             funcoes={{
                                                 enviar: handleUpdateItem,
-                                                cancelar: () => { 
-                                                    linhaVisivel === item._id ? 
-                                                    setLinhaVisivel() : 
-                                                    setLinhaVisivel(item._id); setIsUpdating(false) 
-                                                }
+                                                cancelar: () => { setLinhaVisivel(); setIsUpdating(false) }
                                             }}
                                             setExibirModal={setExibirModal}
+                                            isEditor={isEditor}
+                                            seeArea={seeArea}
                                         />
                                     ) : (
-                                        <tr>
-                                            {!isUpdating || isUpdating !== item.risco ? (
+                                        <tr style={{ backgroundColor: item?.risk?.wbs_item?.wbs_area?.color || 'white' }}>
+                                            {seeArea && (
                                                 <React.Fragment>
-                                                    {index === 0 || impactos[index - 1].risco !== item.risco ? (
-                                                        <td rowSpan={calculateRowSpan(impactos, item.risco, index)}
-                                                        >{item.risco}</td>
+                                                    {index === 0 || impactos[index - 1].risk?.wbs_item?.wbs_area?.id !== item?.risk?.wbs_item?.wbs_area?.id ? (
+                                                        <td rowSpan={calculateRowSpan(item?.risk?.wbs_item?.wbs_area?.id, index, 'risk.wbs_item.wbs_area.id')}
+                                                        >{item?.risk?.wbs_item?.wbs_area?.name}</td>
+                                                    ) : null}
+                                                    {index === 0 || impactos[index - 1].risk?.wbs_item?.id !== item?.risk?.wbs_item?.id ? (
+                                                        <td rowSpan={calculateRowSpan(item?.risk?.wbs_item?.id, index, 'risk.wbs_item.id')}
+                                                        >{item?.risk?.wbs_item?.name}</td>
+                                                    ) : null}
+                                                </React.Fragment>
+                                            )}
+                                            {!isUpdating || isUpdating !== item?.risk?.id ? (
+                                                <React.Fragment>
+                                                    {index === 0 || impactos[index - 1].risk?.id !== item?.risk?.id ? (
+                                                        <td rowSpan={calculateRowSpan(item?.risk?.id, index, "risk.id")}
+                                                        >{item?.risk?.risk}</td>
                                                     ) : null}
                                                 </React.Fragment>
                                             ) : (
-                                                <td>{item.risco}</td>
+                                                <td>{item?.risk?.risk}</td>
                                             )}
-                                            <td>{item.areaImpacto}</td>
-                                            <td style={{ width: '3rem', textAlign: 'center' }}>{item.valor}</td>
-                                            <td className={styles.impactoTdDescricao}>{item.descricao}</td>
+                                            <td>{capitalizeFirstLetter(item.impact_area)}</td>
+                                            <td style={{ width: '3rem', textAlign: 'center' }}>{item.score}</td>
+                                            <td className={styles.impactoTdDescricao}>{item.description}</td>
                                             <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(item)} disabled={!isAdmin}>❌</button>
+                                                <button onClick={() => setConfirmDeleteItem(item)} disabled={!isEditor}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(item._id); setNovosDados(item); setIsUpdating(item.risco)
+                                                    handleUpdateClick(item)
                                                 }
-                                                } disabled={!isAdmin}>⚙️</button>
+                                                } disabled={!isEditor}>⚙️</button>
                                             </td>
                                         </tr>
                                     )}
@@ -195,8 +249,10 @@ const TabelaAnalise = () => {
                             <CadastroInputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcoes={{enviar, isImpactoCadastrado}}
+                                funcoes={{ enviar, isImpactoCadastrado }}
                                 setExibirModal={setExibirModal}
+                                isEditor={isEditor}
+                                seeArea={seeArea}
                             />
                         </tbody>
                     </table>
