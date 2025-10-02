@@ -110,10 +110,15 @@ const Tabela = () => {
           dependencies = `${item.gantt_dependency[0].dependency_id}`;
         }
         ganttData.push([taskID, taskName, resource, startDate, endDate, 10, 100, dependencies]);
-
-        const risco = etis.find(e => e.risk.wbs_item.id == item.wbs_item.id);
-        var eti = risco ? risco?.schedule_impact * (risco?.ocurrence / 5) : 0;
-        ganttDataContingency.push([taskID, taskName, resource, startDate, adicionarDias(endDate, Math.floor(eti)), 10, 100, dependencies]);
+        const riscosAnalise = etis.filter(e => e.risk.wbs_item.id == item.wbs_item.id);
+        var acrescimoDeData = 0;
+        if(riscosAnalise.length > 0){
+          riscosAnalise.forEach(e => {
+            const eti = e?.schedule_impact * (e?.ocurrence / 5) || 0;
+            acrescimoDeData+= eti;
+          })
+        }
+        ganttDataContingency.push([taskID, taskName, resource, startDate, adicionarDias(endDate, Math.floor(acrescimoDeData)), 10, 100, dependencies]);
       }
     });
 
@@ -174,11 +179,15 @@ const Tabela = () => {
 
       const cronogramaComContingencias = structuredClone(data.data);
       cronogramaComContingencias.forEach((item) => {
-        const riscoAnalise = dataETIs.data.find((e) => e.risk?.wbs_item?.id == item.wbs_item?.id);
-        if(riscoAnalise){
-          const eti = riscoAnalise?.schedule_impact * (riscoAnalise?.ocurrence / 5);
-          const termino = item.gantt_data[0]?.end;
-          const terminoConvertido = adicionarDias(termino, Math.floor(eti));
+        const riscosAnalise = dataETIs.data.filter((e) => e.risk?.wbs_item?.id == item.wbs_item?.id)
+        if(riscosAnalise.length > 0){
+          var acrescimoDeData = 0;
+          riscosAnalise.forEach(e => {
+            const eti = e?.schedule_impact * (e?.ocurrence / 5) || 0;
+            acrescimoDeData+= eti;
+          })
+          const termino = item.gantt_data[0].end;
+          const terminoConvertido = adicionarDias(termino, Math.floor(acrescimoDeData));
           item.gantt_data[0].end = euDateToIsoDate(jsDateToEuDate(terminoConvertido));
         }
       })
