@@ -40,10 +40,6 @@ const PageWrapper = ({ children }) => {
                             {
                                 label: 'Cost Breakdown Structure (CBS)',
                                 link: "/pags/resources/cbs"
-                            },
-                            {
-                                label: 'Report',
-                                link: "/pags/resources/report"
                             }
                         ]
                     },

@@ -15,7 +15,10 @@ export default async function handler(req, res) {
         id,
         risk (
             wbs_item (
-                id
+                id,
+                wbs_area (
+                  id
+                )
             )
         ),
         ocurrence,

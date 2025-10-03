@@ -1,12 +1,16 @@
-import React, { useEffect, useState, useContext } from "react"
+import React, { useEffect, useState, useMemo } from "react"
 import CadastroInputs from "./CadastroInputs";
 import styles from '../../../../styles/modules/planoAquisicao.module.css'
 import Modal from "../../../ui/Modal";
 import Loading from "../../../ui/Loading";
-import { handleFetch, handleReq } from '../../../../functions/crud_s';
+import { handleFetch, handleReq, handlePostFetch } from '../../../../functions/crud_s';
 import { cleanForm, isoDateToEuDate } from "../../../../functions/general";
+import stylesResumo from '../../../../styles/modules/resumo.module.css'
 import useAuth from '../../../../hooks/useAuth';
 import usePerm from '../../../../hooks/usePerm';
+import { Chart } from 'react-google-charts';
+
+const { grafico, pie_direita, pie_esquerda, pie_container, h3_resumo, custom_span } = stylesResumo;
 
 const PlanoAquisicao = () => {
     const camposVazios = {
@@ -33,9 +37,15 @@ const PlanoAquisicao = () => {
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [resumo, setResumo] = useState([]);
+    const [contingencia, setContingencia] = useState([]);
+    const [totalContingencia, setTotalContingencia] = useState(0);
     const { user, token } = useAuth();
     const { isEditor } = usePerm();
-
+    const [planosSoma_essencial, setPlanosSoma_essencial] = useState([]);
+    const [planosSoma_all, setPlanosSoma_all] = useState([]);
+    const [verReserves, setVerReserves] = useState(false);
+    const [cores, setCores] = useState([]);
 
     //funcao que envia os dados do novoSubmit para cadastro no banco
     const enviar = async (obj) => {
@@ -79,7 +89,7 @@ const PlanoAquisicao = () => {
                     item.date_diference = `Expected: ${(dataReal - dataEsperada) / (1000 * 60 * 60 * 24)} days,\n
                     Critical: ${(dataReal - dataLimite) / (1000 * 60 * 60 * 24)} days`
                 } else {
-                    item.date_diference = `-`   
+                    item.date_diference = `-`
                 }
                 if (item.value_real) {
                     item.value_diference = `Plan A: R$${Number(item.value_real - item.value_a).toFixed(2)},\n
@@ -87,13 +97,126 @@ const PlanoAquisicao = () => {
                 } else {
                     item.value_diference = `-`
                 }
-
             });
+            const dataResumo = await handlePostFetch({
+                table: 'resource_acquisition_plan',
+                query: 'area_summary',
+                data: { uid: user.id },
+                token
+            })
+
+            const dataContingencia = await handleFetch({
+                table: 'risk_analysis',
+                query: 'emvs_per_item',
+                token
+            })
+
+            const totalContin = dataContingencia.data.reduce((acc, cur) => acc += (cur.financial_impact * (cur.ocurrence / 5)), 0);
+
             setPlanos(data.data);
+            setResumo(dataResumo.data);
+            setContingencia(dataContingencia.data);
+            setTotalContingencia(totalContin);
         } finally {
             setLoading(false);
         }
     };
+
+    const fetchCores = async () => {
+        const data = await handleFetch({
+            table: "wbs_area",
+            query: 'colors',
+            token
+        });
+        var cores = {};
+        data.data.forEach((area) => {
+            cores = { ...cores, [area.name]: area.color || '' }
+        })
+        cores = { ...cores, Others: '#cccccc'};
+        setCores(cores);
+        console.log(cores)
+    }
+
+    const [planosPorArea_Essencial_graph, planosPorArea_all_graph, planosPorArea_reserve_graph] = useMemo(() => {
+        const essentialGraph = [['Area', 'Value']];
+        const allGraph = [['Area', 'Value']];
+        const reserveGraph = [['Area', 'Value']];
+        if (resumo == 0) return [essentialGraph, allGraph, reserveGraph];
+        var objEssential = {};
+        var objAll = {}
+        var objReserve = {};
+        var somaTotalEssential = 0;
+        var somaTotalAll = 0;
+        resumo.forEach((item) => {
+            var somaAtual;
+            const areaName = item.area_name || "Others";
+            if (item.is_essential) {
+                if (objEssential[areaName]) {
+                    somaAtual = objEssential[areaName];
+                } else {
+                    somaAtual = 0;
+                }
+                somaAtual += (item.total_a * 2 + item.total_b) / 3;
+                objEssential = {
+                    ...objEssential,
+                    [item.area_name]: somaAtual
+                }
+                somaTotalEssential += (item.total_a * 2 + item.total_b) / 3;
+            }
+            if (objAll[areaName]) {
+                somaAtual = objAll[areaName];
+            } else {
+                somaAtual = 0;
+            }
+            somaAtual += (item.total_a * 2 + item.total_b) / 3;
+            objAll = {
+                ...objAll,
+                [item.area_name]: somaAtual
+            }
+            objReserve = {
+                ...objReserve,
+                [item.area_name]: somaAtual
+            }
+            somaTotalAll += (item.total_a * 2 + item.total_b) / 3;
+
+        })
+        Object.keys(objEssential).forEach((key) => {
+            essentialGraph.push([key, parseFloat(objEssential[key].toFixed(2))])
+        })
+        Object.keys(objAll).forEach((key) => {
+            allGraph.push([key, parseFloat(objAll[key].toFixed(2))]);
+        })
+
+        contingencia.forEach(c => {
+            const areaName = c.risk?.wbs_item?.wbs_area.name || 'Others';
+            if (!objReserve[areaName]) objReserve[areaName] = 0;
+            objReserve[areaName] += (c.financial_impact * (c.ocurrence / 5));
+        });
+
+        Object.keys(objReserve).forEach((key) => {
+            reserveGraph.push([key, parseFloat(objReserve[key].toFixed(2))]);
+        })
+        setPlanosSoma_essencial(somaTotalEssential);
+        setPlanosSoma_all(somaTotalAll);
+        return [essentialGraph, allGraph, reserveGraph];
+    }, [resumo, contingencia]);
+
+    const estiloGraph = {
+        backgroundColor: 'transparent',
+        titleTextStyle: {
+            color: "black"
+        },
+        legend: {
+            textStyle: { color: 'black' }
+        },
+        hAxis: {
+            textStyle: { color: 'black' },
+            gridlines: { color: 'black' }
+        },
+        vAxis: {
+            textStyle: { color: 'black' },
+        },
+    }
 
 
     //funcao que trata e envia os dados para atualizacao no banco
@@ -138,6 +261,7 @@ const PlanoAquisicao = () => {
     //useEffect que so roda no primeiro render
     useEffect(() => {
         fetchPlanos();
+        fetchCores();
     }, []);
 
 
@@ -242,7 +366,7 @@ const PlanoAquisicao = () => {
                                             isEditor={isEditor}
                                         />
                                     ) : (
-                                        <tr style={{backgroundColor: plano.resource.wbs_item.wbs_area.color || 'white'}}>
+                                        <tr style={{ backgroundColor: plano.resource.wbs_item.wbs_area.color || 'white' }}>
                                             {!isUpdating || isUpdating !== plano.resource.resource ? (
                                                 <React.Fragment>
                                                     {index === 0 || planos[index - 1].recurso !== plano.resource.resource ? (
@@ -294,6 +418,64 @@ const PlanoAquisicao = () => {
                         </tbody>
                     </table>
                 </div>
+            </div>
+            <div className='centered-container' style={{ marginTop: '1rem' }}>
+                <button className='botao-bonito' style={{ width: '10rem', marginTop: '0.1rem' }} onClick={() => setVerReserves(!verReserves)}>
+                    {!verReserves ? `View reserves` : `View only resources`}
+                </button>
+            </div>
+
+            <div style={{ display: 'flex' }} className={pie_container}>
+                <div className={pie_esquerda}>
+                    <Chart
+                        width={'100%'}
+                        height={'400px'}
+                        chartType="PieChart"
+                        loader={<div>Loading graph</div>}
+                        data={planosPorArea_Essencial_graph}
+                        options={{
+                            ...estiloGraph,
+                            title: 'Essencial Scenario',
+                            slices: planosPorArea_Essencial_graph.slice(1).map((row, index) => ({
+                                color: cores[row[0]] || '#ffffff',
+                            })),
+                            pieSliceTextStyle: {
+                                color: 'black',
+                            },
+                        }}
+                        rootProps={{ 'data-testid': '1' }}
+                    />
+                </div>
+
+                <div className={pie_direita}>
+                    <Chart
+                        width={'100%'}
+                        height={'400px'}
+                        chartType="PieChart"
+                        loader={<div>Loading graph</div>}
+                        data={!verReserves ? planosPorArea_all_graph : planosPorArea_reserve_graph}
+                        options={{
+                            ...estiloGraph,
+                            title: 'Ideal Scenario',
+                            slices: planosPorArea_reserve_graph.slice(1).map((row, index) => ({
+                                color: cores[row[0]] || '#ccc',
+                            })),
+                            pieSliceTextStyle: {
+                                color: 'black',
+                            },
+                        }}
+                        rootProps={{ 'data-testid': '1' }}
+                    />
+                </div>
+            </div>
+
+            <div className="centered-container" style={{ flexDirection: "row" }}>
+                <span className={custom_span}>Essential Scenario: R${parseFloat((planosSoma_essencial)).toFixed(2)}</span>
+                {!verReserves ? (
+                    <span className={custom_span}>Ideal Scenario: R${parseFloat((planosSoma_all)).toFixed(2)}</span>
+                ) : (
+                    <span className={custom_span}>Ideal Scenario + Reserves: R${parseFloat(planosSoma_all * 1.05 + totalContingencia).toFixed(2)}</span>
+                )}
 
             </div>
         </div>

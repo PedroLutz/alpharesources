@@ -14,7 +14,7 @@ export default async function handler(req, res) {
   const { data, error } = await client
   .rpc('resource_acquisition_plan_area_summary_for_user', { uid });
 
-  if (error) return res.status(400).json({ error: error.message })
+  if (error){ console.log(error); return res.status(400).json({ error: error.message }) }
 
   return res.status(200).json(data)
 }
