@@ -4,20 +4,22 @@ import Inputs from "./Inputs";
 import Modal from "../../../ui/Modal";
 import Loading from "../../../ui/Loading";
 import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../../functions/crud";
+import { handleFetch, handleReq } from '../../../../functions/crud_s';
 import { cleanForm } from "../../../../functions/general";
-import { AuthContext } from "../../../../contexts/AuthContext";
+import useAuth from '../../../../hooks/useAuth';
+import usePerm from '../../../../hooks/usePerm';
 
 const Tabela = () => {
     const camposVazios = {
-        identificacao: "",
-        descricao: "",
-        custo: "",
-        escala_custo: "",
-        impacto: "",
-        urgencia: "",
-        diferencial: "",
-        areas_afetadas: "",
-        explicacao: ""
+        identification: "",
+        description: "",
+        cost: "",
+        cost_ranking: "",
+        impact: "",
+        urgency: "",
+        area_impact: "",
+        explanation: "",
+        edge: ""
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
@@ -26,15 +28,21 @@ const Tabela = () => {
     const [exibirModal, setExibirModal] = useState(null);
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [loading, setLoading] = useState(true);
-    const { isAdmin } = useContext(AuthContext)
+    const { user, token } = useAuth();
+    const { isEditor } = usePerm();
 
 
     //funcao que envia os dados de novoSubmit para cadastro
     const enviar = async () => {
-        await handleSubmit({
-            route: 'financas/custoBeneficio',
-            dados: novoSubmit,
-            fetchDados: fetchCustoBeneficios
+        await handleReq({
+            table: 'cost_benefit',
+            route: 'create',
+            token,
+            data: {
+                ...novoSubmit,
+                user_id: user.id,
+            },
+            fetchData: fetchCustoBeneficios
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     };
@@ -44,10 +52,12 @@ const Tabela = () => {
         setLoading(true);
         delete novosDados.mediaBeneficios;
         try {
-            await handleUpdate({
-                route: 'financas/custoBeneficio/update?id',
-                dados: novosDados,
-                fetchDados: fetchCustoBeneficios
+            await handleReq({
+                table: 'cost_benefit',
+                route: 'update',
+                token,
+                data: novosDados,
+                fetchData: fetchCustoBeneficios
             });
         } catch (error) {
             console.error("Update failed:", error);
@@ -60,20 +70,14 @@ const Tabela = () => {
     //funcao que envia o id para ser deletado
     const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
-            var getDeleteSuccess = false;
-            try {
-                getDeleteSuccess = await handleDelete({
-                    route: 'financas/custoBeneficio',
-                    item: confirmDeleteItem,
-                    fetchDados: fetchCustoBeneficios
-                });
-            } finally {
-                if (getDeleteSuccess) {
-                    setExibirModal(`deleteSuccess`)
-                } else {
-                    setExibirModal(`deleteFail`)
-                }
-            }
+            await handleReq({
+                table: 'cost_benefit',
+                route: 'delete',
+                token,
+                data: { id: confirmDeleteItem.id },
+                fetchData: fetchCustoBeneficios
+            });
+            setExibirModal(`deleteSuccess`);
         }
         setConfirmDeleteItem(null);
     };
@@ -82,15 +86,19 @@ const Tabela = () => {
     //funcao que busca os dados
     const fetchCustoBeneficios = async () => {
         try {
-            const data = await fetchData('financas/custoBeneficio/get/all');
-            data.custoBeneficios.forEach((cb) => {
-                cb.mediaBeneficios = parseFloat((cb.areas_afetadas
-                    + cb.impacto
-                    + cb.urgencia
-                    + cb.diferencial)
-                    / 5).toFixed(2)
+            const data = await handleFetch({
+                table: 'cost_benefit',
+                query: 'all',
+                token
             })
-            setCustoBeneficios(data.custoBeneficios);
+            data.data.forEach((cb) => {
+                cb.mediaBeneficios = parseFloat((cb.area_impact
+                    + cb.impact
+                    + cb.urgency
+                    + cb.edge)
+                    / 4).toFixed(2)
+            })
+            setCustoBeneficios(data.data);
         } finally {
             setLoading(false);
         }
@@ -113,8 +121,8 @@ const Tabela = () => {
         let custoBen = []
         if (custoBeneficios) {
             custoBeneficios.forEach((cb) => {
-                if (cb.escala_custo === cus && cb.mediaBeneficios > ben - 1 && cb.mediaBeneficios <= ben) {
-                    custoBen.push(cb.identificacao)
+                if (cb.cost_ranking === cus && cb.mediaBeneficios > ben - 1 && cb.mediaBeneficios <= ben) {
+                    custoBen.push(cb.identification)
                 }
             })
         }
@@ -143,7 +151,7 @@ const Tabela = () => {
 
             {confirmDeleteItem && (
                 <Modal objeto={{
-                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.identificacao}"?`,
+                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.identification}"?`,
                     alerta: true,
                     botao1: {
                         funcao: handleConfirmDelete, texto: 'Confirm'
@@ -176,43 +184,43 @@ const Tabela = () => {
                         <tbody>
                             {custoBeneficios.map((custoBeneficio, index) => (
                                 <React.Fragment key={index}>
-                                    {linhaVisivel === custoBeneficio._id ? (
+                                    {linhaVisivel === custoBeneficio.id ? (
                                         <Inputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
                                             funcoes={{
-                                                enviar: () => handleUpdateItem(),
+                                                enviar: handleUpdateItem,
                                                 cancelar: () => linhaVisivel === custoBeneficio._id ? setLinhaVisivel() : setLinhaVisivel(custoBeneficio._id)
                                             }}
                                             setExibirModal={setExibirModal}
                                         />
                                     ) : (
                                         <tr>
-                                            <td>{custoBeneficio.identificacao}</td>
-                                            <td className={styles.tdDescricao}>{custoBeneficio.descricao}</td>
-                                            <td className={styles.tdCusto}>R${parseFloat(custoBeneficio.custo).toFixed(2)}</td>
-                                            <td className={styles.tdEscala}>{custoBeneficio.escala_custo}</td>
-                                            <td className={styles.tdImpacto}>{custoBeneficio.impacto}</td>
-                                            <td className={styles.tdUrgencia}>{custoBeneficio.urgencia}</td>
-                                            <td className={styles.tdDiferencial}>{custoBeneficio.diferencial}</td>
-                                            <td className={styles.tdAreas}>{custoBeneficio.areas_afetadas}</td>
+                                            <td>{custoBeneficio.identification}</td>
+                                            <td className={styles.tdDescricao}>{custoBeneficio.description}</td>
+                                            <td className={styles.tdCusto}>R${parseFloat(custoBeneficio.cost).toFixed(2)}</td>
+                                            <td className={styles.tdEscala}>{custoBeneficio.cost_ranking}</td>
+                                            <td className={styles.tdImpacto}>{custoBeneficio.impact}</td>
+                                            <td className={styles.tdUrgencia}>{custoBeneficio.urgency}</td>
+                                            <td className={styles.tdDiferencial}>{custoBeneficio.edge}</td>
+                                            <td className={styles.tdAreas}>{custoBeneficio.area_impact}</td>
                                             <td className={styles.tdMediaBeneficios}>{
-                                                parseFloat((custoBeneficio.areas_afetadas
-                                                    + custoBeneficio.impacto
-                                                    + custoBeneficio.urgencia
-                                                    + custoBeneficio.diferencial)
-                                                    / 5).toFixed(2)}</td>
+                                                parseFloat((custoBeneficio.area_impact
+                                                    + custoBeneficio.impact
+                                                    + custoBeneficio.urgency
+                                                    + custoBeneficio.edge)
+                                                    / 4).toFixed(2)}</td>
                                             <td className={styles.tdIndice}>{
-                                                parseFloat(((custoBeneficio.areas_afetadas + custoBeneficio.impacto
-                                                    + custoBeneficio.urgencia + custoBeneficio.diferencial)
-                                                    / 5) / custoBeneficio.escala_custo).toFixed(2)}</td>
-                                            <td className={styles.tdExplicacao}>{custoBeneficio.explicacao}</td>
+                                                parseFloat(((custoBeneficio.area_impact + custoBeneficio.impact
+                                                    + custoBeneficio.urgency + custoBeneficio.edge)
+                                                    / 4) / custoBeneficio.cost_ranking).toFixed(2)}</td>
+                                            <td className={styles.tdExplicacao}>{custoBeneficio.explanation}</td>
                                             <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(custoBeneficio)} disabled={!isAdmin}>❌</button>
+                                                <button onClick={() => setConfirmDeleteItem(custoBeneficio)} disabled={!isEditor}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(custoBeneficio._id); setNovosDados(custoBeneficio);
+                                                    setLinhaVisivel(custoBeneficio.id); setNovosDados(custoBeneficio);
                                                 }
-                                                } disabled={!isAdmin}>⚙️</button>
+                                                } disabled={!isEditor}>⚙️</button>
                                             </td>
                                         </tr>
                                     )}
@@ -222,7 +230,7 @@ const Tabela = () => {
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
                                 funcoes={{
-                                    enviar: () => enviar()
+                                    enviar: enviar
                                 }}
                                 setExibirModal={setExibirModal}
                             />
@@ -236,7 +244,7 @@ const Tabela = () => {
                 <p>Benefit average</p>
                 <div className={styles.tabela_cb_wrapper}>
                     <table className={`${styles.tabela_cb} tabela`} style={{ width: '75rem' }}>
-                        <thead style={{background: 'transparent'}}>
+                        <thead style={{ background: 'transparent' }}>
                             <tr>
                                 <th style={{ borderColor: 'transparent', backgroundColor: 'transparent', width: '1rem', color: 'white' }}></th>
                                 <th style={{ borderColor: 'transparent', borderBottomColor: 'black', borderRightColor: 'black', backgroundColor: 'transparent', width: '1rem', color: 'white' }}></th>

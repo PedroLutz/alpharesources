@@ -238,13 +238,13 @@ const TabelaAnalise = () => {
                                         <tr style={{ backgroundColor: item?.risk?.wbs_item?.wbs_area?.color || 'white' }}>
                                             {seeArea && (
                                                 <React.Fragment>
-                                                    {index === 0 || analises[index - 1].risk?.wbs_item?.wbs_area?.name !== item?.risk?.wbs_item?.wbs_area?.name ? (
-                                                        <td rowSpan={calculateRowSpan(item?.risk?.wbs_item?.wbs_area?.name, index, 'risk.wbs_item.wbs_area.name')}
-                                                        >{item?.risk?.wbs_item?.wbs_area?.name}</td>
+                                                    {index === 0 || analises[index - 1].risk?.wbs_item?.wbs_area?.id !== item?.risk?.wbs_item?.wbs_area?.id ? (
+                                                        <td rowSpan={calculateRowSpan(item?.risk?.wbs_item?.wbs_area?.id, index, 'risk.wbs_item.wbs_area.id')}
+                                                        >{item?.risk?.wbs_item?.wbs_area?.name || "Others"}</td>
                                                     ) : null}
-                                                    {index === 0 || analises[index - 1].risk?.wbs_item?.name !== item?.risk?.wbs_item?.name ? (
-                                                        <td rowSpan={calculateRowSpan(item?.risk?.wbs_item?.name, index, 'risk.wbs_item.name')}
-                                                        >{item?.risk?.wbs_item?.name}</td>
+                                                    {index === 0 || analises[index - 1].risk?.wbs_item?.id !== item?.risk?.wbs_item?.id ? (
+                                                        <td rowSpan={calculateRowSpan(item?.risk?.wbs_item?.id, index, 'risk.wbs_item.id')}
+                                                        >{item?.risk?.wbs_item?.name || "Others"}</td>
                                                     ) : null}
                                                 </React.Fragment>
                                             )}

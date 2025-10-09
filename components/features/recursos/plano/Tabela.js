@@ -1,30 +1,33 @@
-import React, { useEffect, useState, useContext } from "react"
+import React, { useEffect, useState, useMemo } from "react"
 import CadastroInputs from "./CadastroInputs";
 import styles from '../../../../styles/modules/planoAquisicao.module.css'
 import Modal from "../../../ui/Modal";
 import Loading from "../../../ui/Loading";
-import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../../functions/crud";
-import { cleanForm, jsDateToEuDate, euDateToIsoDate } from "../../../../functions/general";
-import { AuthContext } from "../../../../contexts/AuthContext";
+import { handleFetch, handleReq, handlePostFetch } from '../../../../functions/crud_s';
+import { cleanForm, isoDateToEuDate } from "../../../../functions/general";
+import stylesResumo from '../../../../styles/modules/resumo.module.css'
+import useAuth from '../../../../hooks/useAuth';
+import usePerm from '../../../../hooks/usePerm';
+import { Chart } from 'react-google-charts';
+
+const { grafico, pie_direita, pie_esquerda, pie_container, h3_resumo, custom_span } = stylesResumo;
 
 const PlanoAquisicao = () => {
     const camposVazios = {
-        area: "",
-        ehEssencial: '',
-        recurso: "",
-        metodo_a: "",
-        plano_a: "",
-        detalhes_a: "",
-        valor_a: "",
-        data_esperada: "",
-        data_limite: "",
-        metodo_b: "",
-        plano_b: "",
-        detalhes_b: "",
-        valor_b: "",
-        plano_real: "",
-        data_real: "",
-        valor_real: ""
+        resource_id: '',
+        method_a: '',
+        plan_a: '',
+        details_a: '',
+        value_a: '',
+        expected_date: '',
+        critical_date: '',
+        plan_b: '',
+        method_b: '',
+        value_b: '',
+        details_b: '',
+        plan_real: '',
+        date_real: '',
+        value_real: ''
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
@@ -34,15 +37,29 @@ const PlanoAquisicao = () => {
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
-    const { isAdmin } = useContext(AuthContext)
-
+    const [resumo, setResumo] = useState([]);
+    const [contingencia, setContingencia] = useState([]);
+    const [totalContingencia, setTotalContingencia] = useState(0);
+    const { user, token } = useAuth();
+    const { isEditor } = usePerm();
+    const [planosSoma_essencial, setPlanosSoma_essencial] = useState([]);
+    const [planosSoma_all, setPlanosSoma_all] = useState([]);
+    const [verReserves, setVerReserves] = useState(false);
+    const [cores, setCores] = useState([]);
 
     //funcao que envia os dados do novoSubmit para cadastro no banco
-    const enviar = async () => {
-        await handleSubmit({
-            route: 'recursos/planoAquisicao',
-            dados: novoSubmit,
-            fetchDados: fetchPlanos
+    const enviar = async (obj) => {
+        await handleReq({
+            table: 'resource_acquisition_plan',
+            route: 'create',
+            token,
+            data: {
+                ...obj,
+                date_real: obj.date_real || null,
+                value_real: obj.value_real || null,
+                user_id: user.id,
+            },
+            fetchData: fetchPlanos
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     };
@@ -51,10 +68,7 @@ const PlanoAquisicao = () => {
     //funcao que recebe o item, insere em confirmUpdateItem e insere os dados corretamente em novosDados
     const handleUpdateClick = (item) => {
         setNovosDados({
-            ...item,
-            data_esperada: euDateToIsoDate(item.data_esperada),
-            data_limite: euDateToIsoDate(item.data_limite),
-            data_real: euDateToIsoDate(item.data_real)
+            ...item
         });
     };
 
@@ -62,45 +76,162 @@ const PlanoAquisicao = () => {
     //dado que busca e trata os dados dos planos
     const fetchPlanos = async () => {
         try {
-            const data = await fetchData('recursos/planoAquisicao/get/all');
-            data.planos.forEach((item) => {
-                const dataEsperada = new Date(item.data_esperada);
-                const dataLimite = new Date(item.data_limite);
-                const dataReal = new Date(item.data_real);
-                if (item.data_real) {
-                    item.data_diferenca = [`Expected: ${(dataReal - dataEsperada) / (1000 * 60 * 60 * 24)} days`,
-                    `Critical: ${(dataReal - dataLimite) / (1000 * 60 * 60 * 24)} days`]
+            const data = await handleFetch({
+                table: 'resource_acquisition_plan',
+                query: 'all',
+                token
+            })
+            data.data.forEach((item) => {
+                const dataEsperada = new Date(item.expected_date);
+                const dataLimite = new Date(item.critical_date);
+                const dataReal = new Date(item.date_real);
+                if (item.date_real) {
+                    item.date_diference = `Expected: ${(dataReal - dataEsperada) / (1000 * 60 * 60 * 24)} days,\n
+                    Critical: ${(dataReal - dataLimite) / (1000 * 60 * 60 * 24)} days`
                 } else {
-                    item.data_diferenca = `-`
+                    item.date_diference = `-`
                 }
-                if (item.plano_real) {
-                    item.valor_diferenca = [`Plan A: R$${Number(item.valor_real - item.valor_a).toFixed(2)}`,
-                    `Plan B: R$${Number(item.valor_real - item.valor_b).toFixed(2)}`]
+                if (item.value_real) {
+                    item.value_diference = `Plan A: R$${Number(item.value_real - item.value_a).toFixed(2)},\n
+                    Plan B: R$${Number(item.value_real - item.value_b).toFixed(2)}`
                 } else {
-                    item.valor_diferenca = `-`
+                    item.value_diference = `-`
                 }
-                item.data_esperada = jsDateToEuDate(item.data_esperada);
-                item.data_limite = jsDateToEuDate(item.data_limite);
-                item.data_real = jsDateToEuDate(item.data_real);
-
             });
-            setPlanos(data.planos);
+            const dataResumo = await handlePostFetch({
+                table: 'resource_acquisition_plan',
+                query: 'area_summary',
+                data: { uid: user.id },
+                token
+            })
+
+            const dataContingencia = await handleFetch({
+                table: 'risk_analysis',
+                query: 'emvs_per_item',
+                token
+            })
+
+            const totalContin = dataContingencia.data.reduce((acc, cur) => acc += (cur.financial_impact * (cur.ocurrence / 5)), 0);
+
+            setPlanos(data.data);
+            setResumo(dataResumo.data);
+            setContingencia(dataContingencia.data);
+            setTotalContingencia(totalContin);
         } finally {
             setLoading(false);
         }
     };
 
+    const fetchCores = async () => {
+        const data = await handleFetch({
+            table: "wbs_area",
+            query: 'colors',
+            token
+        });
+        var cores = {};
+        data.data.forEach((area) => {
+            cores = { ...cores, [area.name]: area.color || '' }
+        })
+        cores = { ...cores, Others: '#cccccc'};
+        setCores(cores);
+        console.log(cores)
+    }
+
+    const [planosPorArea_Essencial_graph, planosPorArea_all_graph, planosPorArea_reserve_graph] = useMemo(() => {
+        const essentialGraph = [['Area', 'Value']];
+        const allGraph = [['Area', 'Value']];
+        const reserveGraph = [['Area', 'Value']];
+        if (resumo == 0) return [essentialGraph, allGraph, reserveGraph];
+        var objEssential = {};
+        var objAll = {}
+        var objReserve = {};
+        var somaTotalEssential = 0;
+        var somaTotalAll = 0;
+        resumo.forEach((item) => {
+            var somaAtual;
+            const areaName = item.area_name || "Others";
+            if (item.is_essential) {
+                if (objEssential[areaName]) {
+                    somaAtual = objEssential[areaName];
+                } else {
+                    somaAtual = 0;
+                }
+                somaAtual += (item.total_a * 2 + item.total_b) / 3;
+                objEssential = {
+                    ...objEssential,
+                    [item.area_name]: somaAtual
+                }
+                somaTotalEssential += (item.total_a * 2 + item.total_b) / 3;
+            }
+            if (objAll[areaName]) {
+                somaAtual = objAll[areaName];
+            } else {
+                somaAtual = 0;
+            }
+            somaAtual += (item.total_a * 2 + item.total_b) / 3;
+            objAll = {
+                ...objAll,
+                [item.area_name]: somaAtual
+            }
+            objReserve = {
+                ...objReserve,
+                [item.area_name]: somaAtual
+            }
+            somaTotalAll += (item.total_a * 2 + item.total_b) / 3;
+
+        })
+        Object.keys(objEssential).forEach((key) => {
+            essentialGraph.push([key, parseFloat(objEssential[key].toFixed(2))])
+        })
+        Object.keys(objAll).forEach((key) => {
+            allGraph.push([key, parseFloat(objAll[key].toFixed(2))]);
+        })
+
+        contingencia.forEach(c => {
+            const areaName = c.risk?.wbs_item?.wbs_area.name || 'Others';
+            if (!objReserve[areaName]) objReserve[areaName] = 0;
+            objReserve[areaName] += (c.financial_impact * (c.ocurrence / 5));
+        });
+
+        Object.keys(objReserve).forEach((key) => {
+            reserveGraph.push([key, parseFloat(objReserve[key].toFixed(2))]);
+        })
+        setPlanosSoma_essencial(somaTotalEssential);
+        setPlanosSoma_all(somaTotalAll);
+        return [essentialGraph, allGraph, reserveGraph];
+    }, [resumo, contingencia]);
+
+    const estiloGraph = {
+        backgroundColor: 'transparent',
+        titleTextStyle: {
+            color: "black"
+        },
+        legend: {
+            textStyle: { color: 'black' }
+        },
+        hAxis: {
+            textStyle: { color: 'black' },
+            gridlines: { color: 'black' }
+        },
+        vAxis: {
+            textStyle: { color: 'black' },
+        },
+    }
+
 
     //funcao que trata e envia os dados para atualizacao no banco
-    const handleUpdateItem = async () => {
+    const handleUpdateItem = async (obj) => {
         setLoading(true);
-        delete novosDados.data_diferenca;
-        delete novosDados.valor_diferenca;
+        delete obj.date_diference;
+        delete obj.value_diference;
+        delete obj.resource;
         try {
-            await handleUpdate({
-                route: 'recursos/planoAquisicao/update?id',
-                dados: novosDados,
-                fetchDados: fetchPlanos
+            await handleReq({
+                table: 'resource_acquisition_plan',
+                route: 'update',
+                token,
+                data: obj,
+                fetchData: fetchPlanos
             });
         } catch (error) {
             console.error("Update failed:", error);
@@ -115,20 +246,14 @@ const PlanoAquisicao = () => {
     //funcao que envia os dados do item para delecao do banco
     const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
-            var getDeleteSuccess = false;
-            try {
-                getDeleteSuccess = await handleDelete({
-                    route: 'recursos/planoAquisicao',
-                    item: confirmDeleteItem,
-                    fetchDados: fetchPlanos
-                });
-            } finally {
-                if (getDeleteSuccess) {
-                    setExibirModal(`deleteSuccess`)
-                } else {
-                    setExibirModal(`deleteFail`)
-                }
-            }
+            await handleReq({
+                table: 'resource_acquisition_plan',
+                route: 'delete',
+                token,
+                data: { id: confirmDeleteItem.id },
+                fetchData: fetchPlanos
+            });
+            setExibirModal(`deleteSuccess`);
         }
         setConfirmDeleteItem(null);
     };
@@ -136,6 +261,7 @@ const PlanoAquisicao = () => {
     //useEffect que so roda no primeiro render
     useEffect(() => {
         fetchPlanos();
+        fetchCores();
     }, []);
 
 
@@ -152,7 +278,7 @@ const PlanoAquisicao = () => {
     const calculateRowSpan = (itens, currentArea, currentIndex) => {
         let rowSpan = 1;
         for (let i = currentIndex + 1; i < itens.length; i++) {
-            if (itens[i].recurso === currentArea) {
+            if (itens[i].resource.resource === currentArea) {
                 rowSpan++;
             } else {
                 break;
@@ -160,6 +286,13 @@ const PlanoAquisicao = () => {
         }
         return rowSpan;
     };
+
+    const methodLabels = {
+        purchase: 'Purchase',
+        rental: 'Rental',
+        borrowing: "Borrowing",
+        outsorcing: "Outsorcing",
+    }
 
     return (
         <div className="centered-container">
@@ -177,7 +310,7 @@ const PlanoAquisicao = () => {
 
             {confirmDeleteItem && (
                 <Modal objeto={{
-                    titulo: `Are you sure you want to PERMANENTLY delete the acquisition plan for "${confirmDeleteItem.recurso}"?`,
+                    titulo: `Are you sure you want to PERMANENTLY delete the acquisition plan for "${confirmDeleteItem.resource.resource}"?`,
                     alerta: true,
                     botao1: {
                         funcao: handleConfirmDelete, texto: 'Confirm'
@@ -221,56 +354,53 @@ const PlanoAquisicao = () => {
                         <tbody>
                             {planos.map((plano, index) => (
                                 <React.Fragment key={index}>
-                                    {linhaVisivel === plano._id ? (
+                                    {linhaVisivel === plano.id ? (
                                         <CadastroInputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
                                             funcoes={{
-                                                enviar: () => handleUpdateItem(),
+                                                enviar: handleUpdateItem,
                                                 cancelar: () => { linhaVisivel === plano._id ? setLinhaVisivel() : setLinhaVisivel(plano._id); setIsUpdating(false) }
                                             }}
                                             setExibirModal={setExibirModal}
+                                            isEditor={isEditor}
                                         />
                                     ) : (
-                                        <tr>
-                                            {!isUpdating || isUpdating !== plano.recurso ? (
+                                        <tr style={{ backgroundColor: plano.resource.wbs_item.wbs_area.color || 'white' }}>
+                                            {!isUpdating || isUpdating !== plano.resource.resource ? (
                                                 <React.Fragment>
-                                                    {index === 0 || planos[index - 1].recurso !== plano.recurso ? (
-                                                        <td rowSpan={calculateRowSpan(planos, plano.recurso, index)}
-                                                        >{plano.recurso}</td>
+                                                    {index === 0 || planos[index - 1].recurso !== plano.resource.resource ? (
+                                                        <td rowSpan={calculateRowSpan(planos, plano.resource.resource, index)}
+                                                        >{plano.resource.resource}</td>
                                                     ) : null}
                                                 </React.Fragment>
                                             ) : (
-                                                <td>{plano.recurso}</td>
+                                                <td>{plano.resource.resource}</td>
                                             )}
-                                            <td>{plano.metodo_a}</td>
-                                            <td>{plano.plano_a}</td>
-                                            <td>{plano.detalhes_a}</td>
-                                            <td>R${Number(plano.valor_a).toFixed(2)}</td>
-                                            <td>{plano.data_esperada}</td>
-                                            <td id={styles.tdCriticalDate}>{plano.data_limite}</td>
-                                            <td>{plano.metodo_b}</td>
-                                            <td>{plano.plano_b}</td>
-                                            <td>{plano.detalhes_b}</td>
-                                            <td>R${Number(plano.valor_b).toFixed(2)}</td>
-                                            <td>{plano.plano_real || '-'}</td>
-                                            <td>{plano.data_real != 'NaN/NaN/NaN' && plano.data_real != null ? plano.data_real : '-'}</td>
-                                            <td>{plano.valor_real != null ? `R$${Number(plano.valor_real).toFixed(2)}` : '-'}</td>
-                                            <td>
-                                                {plano.data_diferenca[0]}<br />
-                                                {plano.data_diferenca[1]}
-                                            </td>
-                                            <td>{plano.valor_diferenca[0]}<br />
-                                                {plano.valor_diferenca[1]}
+                                            <td>{methodLabels[plano.method_a]}</td>
+                                            <td>{plano.plan_a}</td>
+                                            <td>{plano.details_a}</td>
+                                            <td>R${Number(plano.value_a).toFixed(2)}</td>
+                                            <td>{isoDateToEuDate(plano.expected_date)}</td>
+                                            <td id={styles.tdCriticalDate}>{isoDateToEuDate(plano.critical_date)}</td>
+                                            <td>{methodLabels[plano.method_b]}</td>
+                                            <td>{plano.plan_b}</td>
+                                            <td>{plano.details_b}</td>
+                                            <td>R${Number(plano.value_b).toFixed(2)}</td>
+                                            <td>{plano.plan_real || '-'}</td>
+                                            <td>{plano.date_real != 'NaN/NaN/NaN' && plano.date_real != null ? isoDateToEuDate(plano.date_real) : '-'}</td>
+                                            <td>{plano.value_real != null ? `R$${Number(plano.value_real).toFixed(2)}` : '-'}</td>
+                                            <td>{plano.date_diference}</td>
+                                            <td>{plano.value_diference}
                                             </td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(plano)}
-                                                    disabled={!isAdmin}>❌</button>
+                                                    disabled={!isEditor}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(plano._id); handleUpdateClick(plano); setIsUpdating(plano.recurso)
+                                                    setLinhaVisivel(plano.id); handleUpdateClick(plano); setIsUpdating(plano.resource.resource)
                                                 }
                                                 }
-                                                    disabled={!isAdmin}>⚙️</button>
+                                                    disabled={!isEditor}>⚙️</button>
                                             </td>
                                         </tr>
                                     )}
@@ -280,13 +410,72 @@ const PlanoAquisicao = () => {
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
                                 funcoes={{
-                                    enviar: () => enviar()
+                                    enviar
                                 }}
                                 setExibirModal={setExibirModal}
+                                isEditor={isEditor}
                             />
                         </tbody>
                     </table>
                 </div>
+            </div>
+            <div className='centered-container' style={{ marginTop: '1rem' }}>
+                <button className='botao-bonito' style={{ width: '10rem', marginTop: '0.1rem' }} onClick={() => setVerReserves(!verReserves)}>
+                    {!verReserves ? `View reserves` : `View only resources`}
+                </button>
+            </div>
+
+            <div style={{ display: 'flex' }} className={pie_container}>
+                <div className={pie_esquerda}>
+                    <Chart
+                        width={'100%'}
+                        height={'400px'}
+                        chartType="PieChart"
+                        loader={<div>Loading graph</div>}
+                        data={planosPorArea_Essencial_graph}
+                        options={{
+                            ...estiloGraph,
+                            title: 'Essencial Scenario',
+                            slices: planosPorArea_Essencial_graph.slice(1).map((row, index) => ({
+                                color: cores[row[0]] || '#ffffff',
+                            })),
+                            pieSliceTextStyle: {
+                                color: 'black',
+                            },
+                        }}
+                        rootProps={{ 'data-testid': '1' }}
+                    />
+                </div>
+
+                <div className={pie_direita}>
+                    <Chart
+                        width={'100%'}
+                        height={'400px'}
+                        chartType="PieChart"
+                        loader={<div>Loading graph</div>}
+                        data={!verReserves ? planosPorArea_all_graph : planosPorArea_reserve_graph}
+                        options={{
+                            ...estiloGraph,
+                            title: 'Ideal Scenario',
+                            slices: planosPorArea_reserve_graph.slice(1).map((row, index) => ({
+                                color: cores[row[0]] || '#ccc',
+                            })),
+                            pieSliceTextStyle: {
+                                color: 'black',
+                            },
+                        }}
+                        rootProps={{ 'data-testid': '1' }}
+                    />
+                </div>
+            </div>
+
+            <div className="centered-container" style={{ flexDirection: "row" }}>
+                <span className={custom_span}>Essential Scenario: R${parseFloat((planosSoma_essencial)).toFixed(2)}</span>
+                {!verReserves ? (
+                    <span className={custom_span}>Ideal Scenario: R${parseFloat((planosSoma_all)).toFixed(2)}</span>
+                ) : (
+                    <span className={custom_span}>Ideal Scenario + Reserves: R${parseFloat(planosSoma_all * 1.05 + totalContingencia).toFixed(2)}</span>
+                )}
 
             </div>
         </div>

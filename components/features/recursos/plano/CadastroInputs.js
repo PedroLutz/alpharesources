@@ -1,39 +1,56 @@
 import { useEffect, useState, useRef, useContext } from "react";
 import React from "react";
 import { fetchData } from "../../../../functions/crud";
-import { AuthContext } from "../../../../contexts/AuthContext";
 import styles from '../../../../styles/modules/planoAquisicao.module.css'
+import { handleFetch } from '../../../../functions/crud_s';
+import useAuth from '../../../../hooks/useAuth';
 
-const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
+const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEditor }) => {
     const [areaSelecionada, setAreaSelecionada] = useState("");
+    const [recursoSelecionado, setRecursoSelecionado] = useState('');
+    const [areas, setAreas] = useState([]);
     const [recursos, setRecursos] = useState([]);
     const [recursosPorArea, setRecursosPorArea] = useState([]);
     const camposRef = useRef({
-        recurso: null,
-        metodo_a: null,
-        plano_a: null,
-        detalhes_a: null,
-        valor_a: null,
-        data_esperada: null,
-        data_limite: null,
-        metodo_b: null,
-        plano_b: null,
-        detalhes_b: null,
-        valor_b: null,
-        plano_real: null,
-        data_real: null,
-        valor_real: null
+        area: null,
+        resource_id: null,
+        method_a: null,
+        plan_a: null,
+        details_a: null,
+        value_a: null,
+        expected_date: null,
+        critical_date: null,
+        plan_b: null,
+        method_b: null,
+        value_b: null,
+        details_b: null,
+        plan_real: null,
+        date_real: null,
+        value_real: null
     });
-    const {isAdmin} = useContext(AuthContext);
     const isFirstRender = useRef(true);
+    const { token } = useAuth();
+
+    const fetchAreas = async () => {
+        const data = await handleFetch({
+            table: 'wbs_area',
+            query: 'all',
+            token
+        });
+        setAreas(data.data);
+    }
 
     //funcao para buscar os nome dos recursos
     const fetchRecursos = async () => {
-        const data = await fetchData('recursos/recurso/get/nomesRecursos');
-        setRecursos(data.recursos);
+        const data = await handleFetch({
+            table: 'resource',
+            query: 'resourcesAndAreas',
+            token
+        });
+        setRecursos(data.data);
         var todosOsRecursos = [];
-        data.recursos.forEach((recurso) => {
-            todosOsRecursos.push([recurso.recurso])
+        data.data.forEach((recurso) => {
+            todosOsRecursos.push(recurso)
         })
         setRecursosPorArea(todosOsRecursos);
     };
@@ -41,9 +58,50 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     //useEffect que usa apenas na primeira render
     useEffect(() => {
         fetchRecursos();
+        fetchAreas();
     }, []);
 
-    
+    const atualizarRecursosPorArea = (area) => {
+        var recursosDaArea;
+        if (area != -1) {
+            recursosDaArea = recursos.filter(item => item.wbs_item?.wbs_area?.id == area);
+        } else {
+            recursosDaArea = recursos.filter(item => item.wbs_item == null);
+        }
+        setRecursosPorArea(recursosDaArea);
+    }
+
+    useEffect(() => {
+        if (areaSelecionada != '') {
+            atualizarRecursosPorArea(areaSelecionada, setRecursosPorArea);
+        }
+    }, [areaSelecionada, recursos]);
+
+    useEffect(() => {
+        if (tipo == "update") {
+            if (obj?.resource?.id !== '') {
+                const item = recursos.find(item => item.id == obj?.resource?.id);
+                if (item) {
+                    const areaSelecionada = item?.wbs_area?.id || -1;
+                    setAreaSelecionada(areaSelecionada);
+                    atualizarRecursosPorArea(areaSelecionada, setRecursosPorArea);
+                    setRecursoSelecionado(item?.id);
+                }
+            } else {
+                setAreaSelecionada(-1);
+                atualizarRecursosPorArea(-1, setRecursosPorArea);
+            }
+        }
+    }, [obj?.resource?.id, recursos]);
+
+    const handleAreaChange = (e) => {
+        const areaSelecionada = e.target.value;
+        objSetter({ ...obj, resource_id: "" });
+        setAreaSelecionada(areaSelecionada);
+        atualizarRecursosPorArea(areaSelecionada, setRecursosPorArea);
+        camposRef.current.area.classList.remove('campo-vazio');
+    };
+
     //useEffect que so roda quando areaSelecionada eh atualizado, para apagar o valor de recurso no obj
     useEffect(() => {
         if (isFirstRender.current === true) {
@@ -53,60 +111,43 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
 
         objSetter({
             ...obj,
-            recurso: ''
+            resource_id: ''
         });
     }, [areaSelecionada]);
-
-    //funcao apenas quando area eh atualizada, e atualiza os recursos do select para serem apenas os da area
-    const handleAreaChange = (e) => {
-        setAreaSelecionada(e.target.value);
-        const areaSelect = e.target.value;
-        const itensDaArea = recursos.filter(item => item.area === areaSelect).map(item => item.recurso);
-        setRecursosPorArea(itensDaArea);
-    };
-
-
-    //funcao apenas quando recurso eh atualizado, inserindo no obj os dados de ehEssencial
-    const handleRecursoChange = (e) => {
-        const recursoSelecionado = e.target.value;
-        const dados = recursos.filter(item => item.recurso === recursoSelecionado)[0];
-        objSetter({
-            ...obj,
-            area: dados.area,
-            ehEssencial: dados.ehEssencial, 
-            recurso: recursoSelecionado
-        })
-        e.target.classList.remove('campo-vazio');
-    }
 
     //funcao geral para inserir os dados dos inputs no obj
     const handleChange = (e, isNumber) => {
         var { name, value } = e.target;
-        if(isNumber){
-            value = value.replace(/[^0-9.]/g, '');
+        if (name == "resource_id") {
+            setRecursoSelecionado(value);
+        } else {
+            if (isNumber) {
+                value = value.replace(/[^0-9.]/g, '');
+            }
+            objSetter({
+                ...obj,
+                [name]: value,
+            });
         }
-        objSetter({
-            ...obj,
-            [name]: value,
-        });
         e.target.classList.remove('campo-vazio');
     };
 
     //funcao para validar os dados do objeto
     const validaDados = () => {
-        if(obj.data_esperada > obj.data_limite){
-            camposRef.current.data_esperada.classList.add('campo-vazio');
-            camposRef.current.data_limite.classList.add('campo-vazio');
+        if (obj.expected_date > obj.critical_date) {
+            camposRef.current.expected_date.classList.add('campo-vazio');
+            camposRef.current.critical_date.classList.add('campo-vazio');
             setExibirModal('datasSemSentido');
             return true;
         }
-        const camposConsiderados = { ...obj };
-        delete camposConsiderados.plano_real;
-        delete camposConsiderados.valor_real;
-        delete camposConsiderados.data_real;
+        const camposConsiderados = { ...obj, resource_id: recursoSelecionado };
+        delete camposConsiderados.plan_real;
+        delete camposConsiderados.value_real;
+        delete camposConsiderados.date_real;
         const camposVazios = Object.entries(camposConsiderados)
-        .filter(([key, value]) => value === null || value === "")
-        .map(([key]) => key);
+            .filter(([key, value]) => value === null || value === "")
+            .map(([key]) => key);
+        console.log(camposVazios)
 
         if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
@@ -124,8 +165,13 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     //funcao que chama validaDados, e se os dados estao ok, chama as funcoes de submit
     const handleSubmit = async () => {
         const isInvalido = validaDados();
-        if(isInvalido) return;
-        funcoes?.enviar();
+        if (isInvalido) return;
+
+        const sentObj = {
+            ...obj,
+            resource_id: recursoSelecionado
+        }
+        funcoes?.enviar(sentObj);
     };
 
     return (
@@ -134,150 +180,151 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                 <select
                     name="area"
                     onChange={handleAreaChange}
-                    value={areaSelecionada}
+                    value={areaSelecionada || ""}
+                    ref={el => (camposRef.current.area = el)}
                 >
                     <option value="" defaultValue>Area</option>
-                    {[...new Set(recursos.map(item => item.area))].map((area, index) => (
-                        <option key={index} value={area}>{area}</option>
-                    ))};
-                    <option value="Others">Others</option>
+                    {areas.map((area, index) => (
+                        <option key={index} value={area.id}>{area.name}</option>
+                    ))}
+                    <option value={-1}>Others</option>
                 </select>
 
                 <select
                     style={{ marginTop: '0.3rem' }}
-                    value={obj.recurso}
-                    name='recurso'
-                    onChange={handleRecursoChange}
-                    ref={el => (camposRef.current.recurso = el)}
+                    value={recursoSelecionado || ""}
+                    name='resource_id'
+                    onChange={(e) => handleChange(e, false)}
+                    ref={el => (camposRef.current.resource_id = el)}
                 >
                     <option value="" defaultValue>Resource</option>
                     {recursosPorArea.map((item, index) => (
-                        <option key={index} value={item}>{item}</option>
+                        <option key={index} value={item.id}>{item.resource}</option>
                     ))}
                 </select>
             </td>
             <td>
                 <select
-                    value={obj.metodo_a}
-                    name='metodo_a'
+                    value={obj.method_a || ""}
+                    name='method_a'
                     onChange={(e) => handleChange(e, false)}
-                    ref={el => (camposRef.current.metodo_a = el)} >
+                    ref={el => (camposRef.current.method_a = el)} >
                     <option value="" defaultValue>Acquisition method</option>
-                    <option value="Purchase">Purchase</option>
-                    <option value="Rental">Rental</option>
-                    <option value="Borrowing">Borrowing</option>
-                    <option value="Outsourcing">Outsourcing</option>
+                    <option value="purchase">Purchase</option>
+                    <option value="rental">Rental</option>
+                    <option value="borrowing">Borrowing</option>
+                    <option value="outsourcing">Outsourcing</option>
                 </select>
             </td>
             <td>
                 <textarea type='text'
-                    value={obj.plano_a}
-                    name='plano_a'
+                    value={obj.plan_a || ""}
+                    name='plan_a'
                     placeholder='Supplier'
                     onChange={(e) => handleChange(e, false)}
-                    ref={el => (camposRef.current.plano_a = el)} />
+                    ref={el => (camposRef.current.plan_a = el)} />
             </td>
             <td>
                 <textarea type='text'
-                    value={obj.detalhes_a}
-                    name='detalhes_a'
+                    value={obj.details_a || ""}
+                    name='details_a'
                     placeholder='Details'
                     onChange={(e) => handleChange(e, false)}
-                    ref={el => (camposRef.current.detalhes_a = el)} />
+                    ref={el => (camposRef.current.details_a = el)} />
             </td>
             <td className={styles.tdValor}>
                 <input
-                    value={obj.valor_a}
-                    name='valor_a'
+                    value={obj.value_a || ""}
+                    name='value_a'
                     placeholder='Value'
                     onChange={(e) => handleChange(e, true)}
                     min="0"
-                    ref={el => (camposRef.current.valor_a = el)} />
+                    ref={el => (camposRef.current.value_a = el)} />
             </td>
             <td>
                 <input
-                    value={obj.data_esperada}
-                    name='data_esperada'
+                    value={obj.expected_date || undefined}
+                    name='expected_date'
                     type="date"
                     onChange={(e) => handleChange(e, false)}
-                    ref={el => (camposRef.current.data_esperada = el)} />
+                    ref={el => (camposRef.current.expected_date = el)} />
             </td>
             <td className={styles.tdCriticalDate}>
                 <input
-                    value={obj.data_limite}
-                    name='data_limite'
+                    value={obj.critical_date || undefined}
+                    name='critical_date'
                     type="date"
                     onChange={(e) => handleChange(e, false)}
-                    ref={el => (camposRef.current.data_limite = el)} />
+                    ref={el => (camposRef.current.critical_date = el)} />
             </td>
             <td>
                 <select
-                    value={obj.metodo_b}
-                    name='metodo_b'
+                    value={obj.method_b || ""}
+                    name='method_b'
                     onChange={(e) => handleChange(e, false)}
-                    ref={el => (camposRef.current.metodo_b = el)} >
+                    ref={el => (camposRef.current.method_b = el)} >
                     <option value="" defaultValue>Acquisition method</option>
-                    <option value="Purchase">Purchase</option>
-                    <option value="Rental">Rental</option>
-                    <option value="Borrowing">Borrowing</option>
-                    <option value="Outsourcing">Outsourcing</option>
+                    <option value="purchase">Purchase</option>
+                    <option value="rental">Rental</option>
+                    <option value="borrowing">Borrowing</option>
+                    <option value="outsourcing">Outsourcing</option>
                 </select>
             </td>
             <td>
                 <textarea type='text'
-                    value={obj.plano_b}
-                    name='plano_b'
+                    value={obj.plan_b || ""}
+                    name='plan_b'
                     placeholder='Supplier'
                     onChange={(e) => handleChange(e, false)}
-                    ref={el => (camposRef.current.plano_b = el)} />
+                    ref={el => (camposRef.current.plan_b = el)} />
             </td>
             <td>
                 <textarea type='text'
-                    value={obj.detalhes_b}
-                    name='detalhes_b'
+                    value={obj.details_b || ""}
+                    name='details_b'
                     placeholder='Details'
                     onChange={(e) => handleChange(e, false)}
-                    ref={el => (camposRef.current.detalhes_b = el)} />
+                    ref={el => (camposRef.current.details_b = el)} />
             </td>
             <td className={styles.tdValor}>
                 <input
-                    value={obj.valor_b}
-                    name='valor_b'
+                    value={obj.value_b || ""}
+                    name='value_b'
                     placeholder='Value'
                     onChange={(e) => handleChange(e, true)}
                     min="0"
-                    ref={el => (camposRef.current.valor_b = el)} />
+                    ref={el => (camposRef.current.value_b = el)} />
             </td>
             <td>
                 <textarea type='text'
-                    value={obj.plano_real}
-                    name='plano_real'
+                    value={obj.plan_real || ""}
+                    name='plan_real'
                     placeholder='Actual strategy'
                     onChange={(e) => handleChange(e, false)}
-                    ref={el => (camposRef.current.plano_real = el)} />
+                    ref={el => (camposRef.current.plan_real = el)} />
             </td>
             <td>
                 <input
-                    value={obj.data_real}
-                    name='data_real'
+                    value={obj.date_real || ""}
+                    name='date_real'
                     type="date"
                     onChange={(e) => handleChange(e, false)}
-                    ref={el => (camposRef.current.data_real = el)} />
+                    ref={el => (camposRef.current.date_real = el)} />
             </td>
             <td className={styles.tdValor}>
                 <input type='number'
-                    value={obj.valor_real}
-                    name='valor_real'
+                    value={obj.value_real || ""}
+                    name='value_real'
                     placeholder='Value'
                     onChange={(e) => handleChange(e, true)}
                     min="0"
-                    ref={el => (camposRef.current.valor_real = el)} />
+                    ref={el => (camposRef.current.value_real = el)} />
             </td>
             <td>-</td>
             <td>-</td>
-            <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
+            <td className={tipo === 'update' ? 'botoes_acoes' : ''}>
                 {tipo !== 'update' ? (
-                    <button onClick={(e) => handleSubmit(e)} disabled={!isAdmin}>Add new</button>
+                    <button onClick={(e) => handleSubmit(e)} disabled={!isEditor}>Add new</button>
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>

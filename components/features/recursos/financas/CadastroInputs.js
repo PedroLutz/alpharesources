@@ -1,25 +1,29 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
 import styles from '../../../../styles/modules/financas.module.css'
-import { fetchData } from '../../../../functions/crud';
-import { AuthContext } from '../../../../contexts/AuthContext';
+import { handleFetch } from "../../../../functions/crud_s";
+import useAuth from "../../../../hooks/useAuth";
 
-const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
-    const [elementosWBS, setElementosWBS] = useState([]);
+const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal, isEditor }) => {
+    const [areas, setAreas] = useState([]);
     const camposRef = useRef({
-        tipo: null,
-        descricao: null,
-        valor: null,
-        data: null,
-        area: null,
-        origem: null,
-        destino: null
+        type: null,
+        description: null,
+        value: null,
+        date: null,
+        area_id: null,
+        origin: null,
+        destination: null
     })
-    const { isAdmin } = useContext(AuthContext);
+    const { token } = useAuth();
 
     //funcao que busca os elementos da WBS
     const fetchElementos = async () => {
-        const data = await fetchData('wbs/get/all');
-        setElementosWBS(data.elementos);
+        const data = await handleFetch({
+            table: 'wbs_area',
+            query: 'all',
+            token
+        })
+        setAreas(data.data);
     };
 
 
@@ -32,7 +36,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
     //funcao que passa os dados dos inputs pro formulario
     const handleChange = (e, isNumber) => {
         var { name, value } = e.target;
-        if(isNumber){
+        if (isNumber) {
             value = value.replace(/[^0-9.]/g, '');
         }
         objSetter({
@@ -45,14 +49,14 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
 
     //funcao que valida os dados do formulario de acordo com varias especificacoes
     const validaDados = () => {
-        if (obj.valor < 0) {
-            camposRef.current['valor'].classList.add('campo-vazio');
+        if (obj.value < 0) {
+            camposRef.current['value'].classList.add('campo-vazio');
             setExibirModal('valorNegativo')
             return true;
         }
         const camposVazios = Object.entries(obj)
-        .filter(([key, value]) => value === null || value === "")
-        .map(([key]) => key);
+            .filter(([key, value]) => value === null || value === "")
+            .map(([key]) => key);
 
         if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
@@ -70,7 +74,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
     //funcao que chama as funcoes de submit de acordo com o tipo de funcao, e apenas se os dados forem validos
     const handleSubmit = async () => {
         const isInvalido = validaDados();
-        if(isInvalido) return;
+        if (isInvalido) return;
         funcoes?.enviar();
     }
 
@@ -78,72 +82,72 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
         <tr className='linha-cadastro'>
             <td className={styles.tdTipo}>
                 <select
-                    value={obj.tipo}
-                    name='tipo'
+                    value={obj.type}
+                    name='type'
                     onChange={(e) => handleChange(e, false)}
-                    ref={el => (camposRef.current.tipo = el)}
+                    ref={el => (camposRef.current.type = el)}
                 >
                     <option value="" defaultValue>Type</option>
-                    <option value='Income'>Income</option>
-                    <option value='Expense'>Cost</option>
-                    <option value='Exchange'>Exchange</option>
+                    <option value='income'>Income</option>
+                    <option value='cost'>Cost</option>
+                    <option value='exchange'>Exchange</option>
                 </select>
             </td>
             <td className={styles.tdDescricao}>
                 <input
-                    value={obj.descricao}
-                    name='descricao'
+                    value={obj.description}
+                    name='description'
                     onChange={(e) => handleChange(e, false)}
-                    ref={el => (camposRef.current.descricao = el)} />
+                    ref={el => (camposRef.current.description = el)} />
             </td>
             <td className={styles.tdValor}>
                 <input
-                    value={obj.valor}
-                    name='valor'
+                    value={obj.value}
+                    name='value'
                     onChange={(e) => handleChange(e, true)}
                     min="0"
-                    ref={el => (camposRef.current.valor = el)} />
+                    ref={el => (camposRef.current.value = el)} />
             </td>
             <td className={styles.tdData}>
                 <input type="date"
-                    value={obj.data}
-                    name='data'
+                    value={obj.date}
+                    name='date'
                     onChange={(e) => handleChange(e, false)}
-                    ref={el => (camposRef.current.data = el)} />
+                    ref={el => (camposRef.current.date = el)} />
             </td>
             <td className={styles.tdArea}>
                 <select
-                    name="area"
+                    name="area_id"
                     onChange={(e) => handleChange(e, false)}
-                    value={obj.area}
-                    ref={el => (camposRef.current.area = el)}
+                    value={obj.area_id}
+                    ref={el => (camposRef.current.area_id = el)}
 
                 >
                     <option value="" defaultValue>Area</option>
-                    {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
-                        <option key={index} value={area}>{area}</option>
+                    {areas.map((area, index) => (
+                        <option key={area.id} value={area.id}>{area.name}</option>
                     ))};
-                    <option value="Others">Others</option>
+                    <option value={-1}>Others</option>
                 </select>
             </td>
             <td className={styles.tdOrigem}>
                 <input
-                    value={obj.origem}
-                    name='origem'
+                    value={obj.origin}
+                    name='origin'
                     onChange={(e) => handleChange(e, false)}
-                    ref={el => (camposRef.current.origem = el)} />
+                    ref={el => (camposRef.current.origin = el)} />
             </td>
             <td className={styles.tdDestino}>
                 <input
-                    value={obj.destino}
-                    name='destino'
+                    value={obj.destination}
+                    name='destination'
                     onChange={(e) => handleChange(e, false)}
-                    ref={el => (camposRef.current.destino = el)} />
+                    ref={el => (camposRef.current.destination = el)} />
             </td>
             <td>-</td>
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
-                    <button onClick={(e) => handleSubmit(e)} disabled={!isAdmin}>Add new</button>
+                    <button onClick={(e) => handleSubmit(e)} disabled={!isEditor}>Add new</button>
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>

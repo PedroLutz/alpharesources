@@ -1,27 +1,45 @@
-import { useEffect, useState, useRef, useContext } from "react";
+import { useEffect, useState, useRef } from "react";
 import React from "react";
-import { fetchData } from "../../../../functions/crud";
-import { AuthContext } from "../../../../contexts/AuthContext";
 import styles from '../../../../styles/modules/recursos.module.css'
+import { handleFetch } from '../../../../functions/crud_s';
+import useAuth from '../../../../hooks/useAuth';
 
-const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
+const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEditor }) => {
     const [elementosWBS, setElementosWBS] = useState([]);
     const [itensPorArea, setItensPorArea] = useState([]);
+    const [areaSelecionada, setAreaSelecionada] = useState('');
+    const [areas, setAreas] = useState([]);
     const camposRef = useRef({
         area: null,
-        item: null,
-        recurso: null,
-        uso: null,
-        tipo: null,
-        ehEssencial: null
+        item_id: null,
+        resource: null,
+        usage: null,
+        type: null,
+        is_essential: null
     });
-    const { isAdmin } = useContext(AuthContext);
     const isFirstRender = useRef(true);
+    const { token } = useAuth();
 
     //funcao que busca no banco os elementos da WBS
     const fetchElementos = async () => {
-        const data = await fetchData('wbs/get/all');
-        setElementosWBS(data.elementos);
+        var elementos;
+        try {
+            const data = await handleFetch({
+                table: 'wbs_item',
+                query: 'with_areas',
+                token
+            })
+            elementos = data?.data ?? [];
+        } finally {
+            setAreas([...new Map(
+                elementos
+                    .map(item => [
+                        item.wbs_area.id,
+                        { id: item.wbs_area.id, name: item.wbs_area.name }])
+            ).values()
+            ]);
+            setElementosWBS(elementos);
+        }
     };
 
 
@@ -30,23 +48,13 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
         fetchElementos();
     }, []);
 
-
-    //useEffect que so roda quando obj.area atualiza, que reseta o valor de item
-    useEffect(() => {
-        if (isFirstRender.current) {
-            isFirstRender.current = false;
-            return;
-        }
-
-        objSetter({
-            ...obj,
-            item: ''
-        });
-    }, [obj.area]);
-
-
     const atualizarItensPorArea = (area) => {
-        const itensDaArea = elementosWBS.filter(item => item.area === area).map(item => item.item);
+        var itensDaArea;
+        if(area != -1) {
+            itensDaArea = elementosWBS.filter(item => item.wbs_area.id == area);
+        } else {
+            itensDaArea = [{id: -1, name: 'Others'}]
+        }
         setItensPorArea(itensDaArea);
     }
 
@@ -56,10 +64,44 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
         }
     }, [obj.area, elementosWBS])
 
+    useEffect(() => {
+            if (areaSelecionada != '') {
+                atualizarItensPorArea(areaSelecionada, setItensPorArea);
+            }
+    }, [areaSelecionada, elementosWBS]);
+
+    useEffect(() => {
+            if (obj?.item_id !== undefined) {
+                const item = elementosWBS.find(item => item.id == obj?.item_id);
+                if(item){
+                    const areaSelecionada = item.wbs_area.id;
+                    setAreaSelecionada(areaSelecionada);
+                    atualizarItensPorArea(areaSelecionada, setItensPorArea);
+                    objSetter({
+                        ...obj,
+                        item_id: obj.item_id
+                    })
+                }
+            } else {
+                setAreaSelecionada(-1);
+                setItensPorArea([{id: -1, name: 'Others'}]);
+                objSetter({
+                        ...obj,
+                        item_id: -1
+                    })
+            }
+        }, [obj?.item_id, elementosWBS]);
+
     const handleAreaChange = (e) => {
         const areaSelecionada = e.target.value;
-        atualizarItensPorArea(areaSelecionada);
-        handleChange(e);
+        objSetter({ ...obj, item_id: "" });
+        setAreaSelecionada(areaSelecionada);
+        if(areaSelecionada != -1){
+            atualizarItensPorArea(areaSelecionada, setItensPorArea);
+        } else {
+            setItensPorArea([{id: -1, name: 'Others'}]);
+        }
+        camposRef.current.area.classList.remove('campo-vazio');
     };
 
 
@@ -94,10 +136,12 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
 
 
     //funcao que detecta se os dados sao validos, e se sao, utiliza a funcao de submit
-    const handleSubmit = async (e) => {
+    const handleSubmit = async () => {
         const isInvalido = validaDados();
         if (isInvalido) return;
         funcoes?.enviar();
+        setAreaSelecionada("");
+        setItensPorArea([]);
     };
 
     return (
@@ -106,60 +150,59 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                 <select
                     name="area"
                     onChange={handleAreaChange}
-                    value={obj.area}
+                    value={areaSelecionada}
                     ref={el => (camposRef.current.area = el)}
                 >
                     <option value="" defaultValue>Area</option>
-                    {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
-                        <option key={index} value={area}>{area}</option>
-                    ))};
-                    <option value="Others">Others</option>
+                    {areas.map((area, index) => (
+                        <option key={index} value={area.id}>{area.name}</option>
+                    ))}
+                    <option value={-1}>Others</option>
                 </select>
             </td>
             <td>
                 <select
-                    value={obj.item}
-                    name='item'
+                    value={obj.item_id}
+                    name='item_id'
                     onChange={handleChange}
                     ref={el => (camposRef.current.item = el)}
 
                 >
                     <option value="" defaultValue>Item</option>
                     {itensPorArea.map((item, index) => (
-                        <option key={index} value={item}>{item}</option>
+                        <option key={index} value={item.id}>{item.name}</option>
                     ))}
-                    <option value="Others">Others</option>
                 </select>
             </td>
             <td>
                 <input type='text'
-                    value={obj.recurso}
-                    name='recurso'
+                    value={obj.resource}
+                    name='resource'
                     placeholder='Resource'
                     onChange={handleChange}
                     min="0"
-                    ref={el => (camposRef.current.recurso = el)} />
+                    ref={el => (camposRef.current.resource = el)} />
             </td>
             <td>
                 <input type='text'
-                    value={obj.uso}
-                    name='uso'
-                    placeholder='Use'
+                    value={obj.usage}
+                    name='usage'
+                    placeholder='Usage'
                     onChange={handleChange}
                     min="0"
-                    ref={el => (camposRef.current.uso = el)} />
+                    ref={el => (camposRef.current.usage = el)} />
             </td>
             <td>
                 <select
-                    value={obj.tipo}
-                    name='tipo'
+                    value={obj.type}
+                    name='type'
                     onChange={handleChange}
                     className={styles.campo_tipo}
-                    ref={el => (camposRef.current.tipo = el)} >
+                    ref={el => (camposRef.current.type = el)} >
                     <option value="" defaultValue>Type</option>
-                    <option value="Financial">Financial</option>
-                    <option value="Physical">Physical</option>
-                    <option value="Human">Human</option>
+                    <option value="financial">Financial</option>
+                    <option value="physical">Physical</option>
+                    <option value="human">Human</option>
                 </select>
             </td>
             <td>
@@ -167,11 +210,11 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
             </td>
             <td>
                 <select
-                    value={obj.ehEssencial}
-                    name='ehEssencial'
+                    value={obj.is_essential}
+                    name='is_essential'
                     onChange={handleChange}
                     className={styles.campo_ehEssencial}
-                    ref={el => (camposRef.current.ehEssencial = el)} >
+                    ref={el => (camposRef.current.is_essential = el)} >
                     <option value="" defaultValue>-</option>
                     <option value={false}>No</option>
                     <option value={true}>Yes</option>
@@ -179,7 +222,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
             </td>
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
-                    <button onClick={(e) => handleSubmit(e)} disabled={!isAdmin}>Add new</button>
+                    <button onClick={(e) => handleSubmit(e)} disabled={!isEditor}>Add new</button>
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>

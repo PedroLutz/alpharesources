@@ -1,21 +1,21 @@
 import { useRef, useContext } from "react";
 import styles from '../../../../styles/modules/custoBeneficio.module.css'
 import React from "react";
-import { AuthContext } from "../../../../contexts/AuthContext";
+import usePerm from '../../../../hooks/usePerm';
 
 const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     const camposRef = useRef({
-        identificacao: null,
-        descricao: null,
-        custo: null,
-        escala_custo: null,
-        impacto: null,
-        urgencia: null,
-        diferencial: null,
-        areas_afetadas: null,
-        explicacao: null
+        identification: null,
+        description: null,
+        cost: null,
+        cost_ranking: null,
+        impact: null,
+        urgency: null,
+        area_impact: null,
+        explanation: null,
+        edge: null
     })
-    const {isAdmin} = useContext(AuthContext);
+    const { isEditor } = usePerm();
 
     //funcao que atualiza o obj. dependendo da natureza do dado, permite caracteres especificos apenas.
     const handleChange = (e, isNumber) => {
@@ -36,11 +36,11 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     
     //funcao que verifica os dados do obj de acordo com varias especificacoes
     const validaDados = () => {
-        const camposNumericos = { impacto: obj.impacto, 
-            urgencia: obj.urgencia, 
-            areas_afetadas: obj.areas_afetadas, 
-            escala_custo: obj.escala_custo,
-            diferencial: obj.diferencial };
+        const camposNumericos = { impact: obj.impact, 
+            urgency: obj.urgency, 
+            area_impact: obj.area_impact, 
+            cost_ranking: obj.cost_ranking,
+            edge: obj.edge };
 
         for (const [key, value] of Object.entries(camposNumericos)) {
             if (value < 0) {
@@ -82,90 +82,90 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
         <tr>
             <td>
                 <textarea
-                    name="identificacao"
+                    name="identification"
                     onChange={(e) => handleChange(e, false)}
-                    value={obj.identificacao}
+                    value={obj.identification}
                     placeholder="Identification"
-                    ref={el => (camposRef.current.identificacao = el)}
+                    ref={el => (camposRef.current.identification = el)}
                 />
             </td>
             <td className={styles.tdDescricao}>
                 <textarea
-                    name="descricao"
+                    name="description"
                     onChange={(e) => handleChange(e, false)}
-                    value={obj.descricao}
+                    value={obj.description}
                     placeholder="Description"
-                    ref={el => (camposRef.current.descricao = el)}
+                    ref={el => (camposRef.current.description = el)}
                 />
             </td>
             <td className={styles.tdCusto}>
                 <input
-                    name="custo"
+                    name="cost"
                     onChange={(e) => handleChange(e, {dinheiro: true})}
-                    value={obj.custo}
+                    value={obj.cost}
                     placeholder="Cost"
-                    ref={el => (camposRef.current.custo = el)}
+                    ref={el => (camposRef.current.cost = el)}
                 />
             </td>
             <td className={styles.tdEscala}>
                 <input
-                    name="escala_custo"
+                    name="cost_ranking"
                     onChange={(e) => handleChange(e, {dinheiro: false})}
-                    value={obj.escala_custo}
+                    value={obj.cost_ranking}
                     placeholder="Cost Ranking"
-                    ref={el => (camposRef.current.escala_custo = el)}
+                    ref={el => (camposRef.current.cost_ranking = el)}
                 />
             </td>
             <td className={styles.tdImpacto}>
                 <input
-                    name="impacto"
+                    name="impact"
                     onChange={(e) => handleChange(e, {dinheiro: false})}
-                    value={obj.impacto}
+                    value={obj.impact}
                     placeholder="Impact"
-                    ref={el => (camposRef.current.impacto = el)}
+                    ref={el => (camposRef.current.impact = el)}
                 />
             </td>
             <td className={styles.tdUrgencia}>
                 <input
-                    name="urgencia"
+                    name="urgency"
                     onChange={(e) => handleChange(e, {dinheiro: false})}
-                    value={obj.urgencia}
+                    value={obj.urgency}
                     placeholder="Urgency"
-                    ref={el => (camposRef.current.urgencia = el)}
+                    ref={el => (camposRef.current.urgency = el)}
                 />
             </td>
             <td className={styles.tdDiferencial}>
                 <input
-                    name="diferencial"
+                    name="edge"
                     onChange={(e) => handleChange(e, {dinheiro: false})}
-                    value={obj.diferencial}
+                    value={obj.edge}
                     placeholder="Edge"
-                    ref={el => (camposRef.current.diferencial = el)}
+                    ref={el => (camposRef.current.edge = el)}
                 />
             </td>
             <td className={styles.tdAreas}>
                 <input
-                    name="areas_afetadas"
+                    name="area_impact"
                     onChange={(e) => handleChange(e, {dinheiro: false})}
-                    value={obj.areas_afetadas}
+                    value={obj.area_impact}
                     placeholder="Affected Areas"
-                    ref={el => (camposRef.current.areas_afetadas = el)}
+                    ref={el => (camposRef.current.area_impact = el)}
                 />
             </td>
             <td className={styles.tdMediaBeneficios}>-</td>
             <td className={styles.tdIndice}>-</td>
             <td className={styles.tdExplicacao}>
                 <textarea
-                    name="explicacao"
+                    name="explanation"
                     onChange={(e) => handleChange(e, false)}
-                    value={obj.explicacao}
+                    value={obj.explanation}
                     placeholder="Explanation"
-                    ref={el => (camposRef.current.explicacao = el)}
+                    ref={el => (camposRef.current.explanation = el)}
                 />
             </td>
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
-                    <button onClick={handleSubmit} disabled={!isAdmin}>Add new</button>
+                    <button onClick={handleSubmit} disabled={!isEditor}>Add new</button>
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>

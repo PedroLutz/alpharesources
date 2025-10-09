@@ -3,19 +3,21 @@ import CadastroInputs from "./CadastroInputs";
 import styles from '../../../../styles/modules/recursos.module.css'
 import Modal from "../../../ui/Modal";
 import Loading from "../../../ui/Loading";
-import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../../functions/crud";
-import { cleanForm, jsDateToEuDate } from "../../../../functions/general";
-import { AuthContext } from "../../../../contexts/AuthContext";
+import useAuth from '../../../../hooks/useAuth';
+import usePerm from '../../../../hooks/usePerm';
+import { cleanForm, isoDateToEuDate } from "../../../../functions/general";
+import { handleFetch, handleReq } from '../../../../functions/crud_s';
 
 const Tabela = () => {
     const camposVazios = {
-        area: "",
-        item: "",
-        recurso: "",
-        uso: "",
-        tipo: "",
-        ehEssencial: ""
+        item_id: "",
+        resource: "",
+        usage: "",
+        type: "",
+        is_essential: ""
     }
+    const { user, token } = useAuth();
+    const { isEditor } = usePerm();
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
@@ -26,36 +28,39 @@ const Tabela = () => {
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
-    const [cores, setCores] = useState([]);
-    const { isAdmin } = useContext(AuthContext)
 
-
-    //funcao que busca as cores e insere em um array de objetos no formato { area : cor }
-    const fetchCores = async () => {
-        const data = await fetchData('wbs/get/cores');
-        var cores = {};
-        data.areasECores.forEach((area) => {
-            cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
-        })
-        setCores(cores);
+    const labelsTypes = {
+        physical: "Physical",
+        financial: 'Financial',
+        human: "Human"
     }
 
     //funcao que busca as datas de inicio e termino dos planos
     const fetchDatasPlanos = async () => {
-        const data = await fetchData('cronograma/get/datasPlanosPorItem');
-        data.planosPorItem.forEach((plano) => {
-            plano.inicio = jsDateToEuDate(plano.inicio)
-            plano.termino = jsDateToEuDate(plano.termino)
+        const data = await handleFetch({
+            table: 'gantt',
+            query: 'plansStartsPerItem',
+            token
         })
-        setDatasPlanos(data.planosPorItem)
+        data.data.forEach(item => {
+            item.gantt_data[0].start = isoDateToEuDate(item.gantt_data[0]?.start);
+        })
+        setDatasPlanos(data.data);
     }
 
 
     //funcao que envia os dados de novoSubmit para submit no banco
     const enviar = async () => {
-        await handleSubmit({
-            route: 'recursos/recurso',
-            dados: novoSubmit
+        await handleReq({
+            table: 'resource',
+            route: 'create',
+            token,
+            data: {
+                ...novoSubmit,
+                user_id: user.id,
+                item_id: novoSubmit.item_id != -1 ? novoSubmit.item_id : null
+            },
+            fetchData: fetchRecursos
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
         setReload(true);
@@ -64,8 +69,12 @@ const Tabela = () => {
     //fuuncao que busca os recursos
     const fetchRecursos = async () => {
         try {
-            const data = await fetchData('recursos/recurso/get/all');
-            setRecursos(data.recursos);
+            const data = await handleFetch({
+                table: 'resource',
+                query: 'all',
+                token
+            })
+            setRecursos(data.data);
         } finally {
             setLoading(false);
         }
@@ -75,10 +84,14 @@ const Tabela = () => {
     //funcao que trata os dados e envia para update
     const handleUpdateItem = async () => {
         setLoading(true);
+        delete novosDados.wbs_item;
         try {
-            await handleUpdate({
-                route: 'recursos/recurso/update?id',
-                dados: novosDados,
+            await handleReq({
+                table: 'resource',
+                route: 'update',
+                token,
+                data: {...novosDados, item_id: novosDados.item_id != -1 ? novosDados.item_id : null},
+                fetchData: fetchRecursos
             });
         } catch (error) {
             console.error("Update failed:", error);
@@ -94,41 +107,41 @@ const Tabela = () => {
     //funcao que envia o id para delecao
     const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
-            var getDeleteSuccess = false;
-            try {
-                getDeleteSuccess = await handleDelete({
-                    route: 'recursos/recurso',
-                    item: confirmDeleteItem,
-                    fetchDados: fetchRecursos
-                });
-            } finally {
-                setExibirModal(`deleteSuccess-${getDeleteSuccess}`)
-            }
+            await handleReq({
+                table: "resource",
+                route: 'delete',
+                token,
+                data: { id: confirmDeleteItem.id },
+                fetchData: fetchRecursos
+            });
+            setExibirModal(`deleteSuccess`);
+            setConfirmDeleteItem(null);
         }
-        if (getDeleteSuccess) {
-            setExibirModal(`deleteSuccess`)
-        } else {
-            setExibirModal(`deleteFail`)
-        }
-        setConfirmDeleteItem(null);
     };
-
 
     //useEffect que so roda quando reload atualiza
     useEffect(() => {
         if (reload == true) {
             setReload(false);
             fetchRecursos();
-            fetchCores();
             fetchDatasPlanos();
         }
     }, [reload]);
 
+    const handleUpdateClick = (item) => {
+        setNovosDados({
+            id: item.id,
+            resource: item.resource,
+            is_essential: item.is_essential,
+            type: item.type,
+            item_id: item.wbs_item?.id,
+            usage: item.usage
+        })
+    }
 
     //useEffect que so roda no primeiro render
     useEffect(() => {
         fetchRecursos();
-        fetchCores();
         fetchDatasPlanos();
     }, []);
 
@@ -143,11 +156,14 @@ const Tabela = () => {
     const calculateRowSpan = (itens, currentArea, currentIndex, parametro) => {
         let rowSpan = 1;
         for (let i = currentIndex + 1; i < itens.length; i++) {
-            if (itens[i][parametro] === currentArea) {
+            const parameter = parametro == 'area' ? itens[i].wbs_item?.wbs_area?.name : itens[i].wbs_item?.name
+            if (parameter === currentArea) {
                 rowSpan++;
             } else {
                 break;
             }
+
+
         }
         return rowSpan;
     };
@@ -168,7 +184,7 @@ const Tabela = () => {
 
             {confirmDeleteItem && (
                 <Modal objeto={{
-                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.recurso}"?`,
+                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.resource}"?`,
                     alerta: true,
                     botao1: {
                         funcao: handleConfirmDelete, texto: 'Confirm'
@@ -200,50 +216,53 @@ const Tabela = () => {
                         <tbody>
                             {recursos.map((recurso, index) => (
                                 <React.Fragment key={index}>
-                                    {linhaVisivel === recurso._id ? (
+                                    {linhaVisivel === recurso.id ? (
                                         <CadastroInputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
                                             funcoes={{
                                                 enviar: () => handleUpdateItem(),
-                                                cancelar: () => { linhaVisivel === recurso._id ? setLinhaVisivel() : setLinhaVisivel(recurso._id); setIsUpdating(false) }
+                                                cancelar: () => { setLinhaVisivel(); setIsUpdating(false) }
                                             }}
                                             setExibirModal={setExibirModal}
+                                            isEditor={isEditor}
                                         />
                                     ) : (
-                                        <tr style={{ backgroundColor: cores[recurso.area] }}>
-                                            {!isUpdating || isUpdating[0] !== recurso.area ? (
+                                        <tr style={{ backgroundColor: recurso?.wbs_item?.wbs_area?.color || 'transparent' }}>
+                                            {!isUpdating || isUpdating[0] !== recurso.wbs_item?.wbs_area.id ? (
                                                 <React.Fragment>
-                                                    {index === 0 || recursos[index - 1].area !== recurso.area ? (
-                                                        <td rowSpan={calculateRowSpan(recursos, recurso.area, index, 'area')}
-                                                        >{recurso.area}</td>
+                                                    {index === 0 || recursos[index - 1].wbs_item?.wbs_area.name !== recurso.wbs_item?.wbs_area.name ? (
+                                                        <td rowSpan={calculateRowSpan(recursos, recurso.wbs_item?.wbs_area.name, index, 'area')}
+                                                        >{recurso.wbs_item?.wbs_area.name || "Others"}</td>
                                                     ) : null}
                                                 </React.Fragment>
                                             ) : (
-                                                <td>{recurso.area}</td>
+                                                <td>{recurso.wbs_item?.wbs_area.name || "Others"}</td>
                                             )}
-                                            {!isUpdating || isUpdating[1] !== recurso.item ? (
+                                            {!isUpdating || isUpdating[1] !== recurso.wbs_item?.id ? (
                                                 <React.Fragment>
-                                                    {index === 0 || recursos[index - 1].item !== recurso.item ? (
-                                                        <td rowSpan={calculateRowSpan(recursos, recurso.item, index, 'item')}
-                                                        >{recurso.item}</td>
+                                                    {index === 0 || recursos[index - 1].wbs_item?.name !== recurso.wbs_item?.name ? (
+                                                        <td rowSpan={calculateRowSpan(recursos, recurso.wbs_item?.name, index, 'item')}
+                                                        >{recurso.wbs_item?.name || "Others"}</td>
                                                     ) : null}
                                                 </React.Fragment>
                                             ) : (
-                                                <td>{recurso.item}</td>
+                                                <td>{recurso.wbs_item?.name || "Others"}</td>
                                             )}
-                                            <td>{recurso.recurso}</td>
-                                            <td>{recurso.uso}</td>
-                                            <td>{recurso.tipo}</td>
-                                            <td>{datasPlanos.find(obj => obj.area === recurso.area && obj.item === recurso.item)?.inicio || "-"}</td>
-                                            <td>{recurso.ehEssencial ? 'Yes' : 'No'}</td>
+                                            <td>{recurso.resource}</td>
+                                            <td>{recurso.usage}</td>
+                                            <td>{labelsTypes[recurso.type]}</td>
+                                            <td>{datasPlanos.find(obj => obj.id === recurso.wbs_item?.id)?.gantt_data[0]?.start || "-"}</td>
+                                            <td>{recurso.is_essential ? 'Yes' : 'No'}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(recurso)}
-                                                    disabled={!isAdmin}>❌</button>
+                                                    disabled={!isEditor}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(recurso._id); setNovosDados(recurso); setIsUpdating([recurso.area, recurso.item])
+                                                    setLinhaVisivel(recurso.id);
+                                                    handleUpdateClick(recurso);
+                                                    setIsUpdating([recurso.wbs_item?.wbs_area.id, recurso.wbs_item?.id])
                                                 }
-                                                } disabled={!isAdmin}>⚙️</button>
+                                                } disabled={!isEditor}>⚙️</button>
                                             </td>
                                         </tr>
                                     )}
@@ -256,6 +275,7 @@ const Tabela = () => {
                                     enviar: () => enviar()
                                 }}
                                 setExibirModal={setExibirModal}
+                                isEditor={isEditor}
                             />
                         </tbody>
                     </table>
