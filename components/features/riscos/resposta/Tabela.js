@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react"
-import styles from '../../../../styles/modules/risco.module.css'
+import styles from '../../../../styles/modules/r co.module.css'
 import CadastroInputs from "./Inputs";
 import Modal from "../../../ui/Modal";
 import Loading from "../../../ui/Loading";

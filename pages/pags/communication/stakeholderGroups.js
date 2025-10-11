@@ -1,5 +1,5 @@
 import PageWrapper from '../../../components/layout/ComunicacaoWrapper';
-import Tabela from '../../../components/features/comunicacao/stakeholdersGrupos/Tabela';
+import Tabela from '../../../components/features/n_comunicacao/grupos/Tabela';
 
 function Wbs() {
   return (
