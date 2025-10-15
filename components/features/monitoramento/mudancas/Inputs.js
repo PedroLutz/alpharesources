@@ -1,36 +1,42 @@
-import { useState, useRef, useContext, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import React from "react";
-import { fetchData } from "../../../../functions/crud";
-import { AuthContext } from "../../../../contexts/AuthContext";
+import { handleFetch } from "../../../../functions/crud_s";
 import styles from '../../../../styles/modules/monitoramento.module.css'
+import usePerm from "../../../../hooks/usePerm";
+import useAuth from "../../../../hooks/useAuth";
 
-const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
-    const [elementosWBS, setElementosWBS] = useState([]);
+const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
+    const { token } = useAuth();
+    const { isEditor } = usePerm();
+    const [areas, setAreas] = useState([]);
     const camposRef = useRef({
-        data: null,
-        area: null,
-        tipo: null,
-        item_config: null,
-        mudanca: null,
-        justificativa: null,
-        impacto: null,
-        aprovado: null,
+        date: null,
+        area_id: null,
+        type: null,
+        item: null,
+        change: null,
+        reasoning: null,
+        impact: null,
+        is_approved: null,
         status: null,
-        responsavel_solicitacao: null,
-        responsavel_aprovacao: null
+        responsible_request: null,
+        responsible_approval: null
     })
-    const { isAdmin } = useContext(AuthContext);
 
     //funcao que busca os elementos da WBS
-    const fetchElementos = async () => {
-        const data = await fetchData('wbs/get/all');
-        setElementosWBS(data.elementos);
+    const fetchAreas = async () => {
+        const data = await handleFetch({
+            table: 'wbs_area',
+            query: 'all',
+            token
+        })
+        setAreas(data.data);
     };
 
 
     //useEffect que so roda no primeiro render
     useEffect(() => {
-        fetchElementos();
+        fetchAreas();
     }, []);
 
     //funcao que atualiza o obj. dependendo da natureza do dado, permite caracteres especificos apenas.
@@ -63,96 +69,92 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
     }
 
     //funcao que roda a funcao de envio de acordo com o tipo da funcao
-    const handleSubmit = (e) => {
+    const handleSubmit = () => {
         const isInvalido = validaDados();
-        if(isInvalido) return;
-        if (funcao.funcao1) {
-            funcao.funcao1();
-        } else {
-            funcao(e);
-        }
+        if (isInvalido) return;
+        funcoes?.enviar();
     }
 
     return (
         <tr>
             <td className={styles.mudancasData}>
                 <input type="date"
-                    value={obj.data}
-                    name='data'
+                    value={obj.date}
+                    name='date'
                     onChange={handleChange}
-                    ref={el => (camposRef.current.data = el)} />
+                    ref={el => (camposRef.current.date = el)} />
             </td>
             <td className={styles.mudancasArea}>
                 <select
-                    name="area"
+                    name="area_id"
                     onChange={handleChange}
-                    value={obj.area}
-                    ref={el => (camposRef.current.area = el)}
+                    value={obj.area_id}
+                    ref={el => (camposRef.current.area_id = el)}
 
                 >
                     <option value="" defaultValue>Area</option>
-                    {[...new Set(elementosWBS.map(item => item.area))].map((area, index) => (
-                        <option key={index} value={area}>{area}</option>
+                    {areas.map((area, index) => (
+                        <option key={index} value={area.id}>{area.name}</option>
                     ))};
                     <option value="Others">Others</option>
                 </select>
             </td>
             <td>
                 <select
-                    value={obj.tipo}
-                    name='tipo'
+                    value={obj.type}
+                    name='type'
                     onChange={handleChange}
-                    ref={el => (camposRef.current.tipo = el)}
+                    ref={el => (camposRef.current.type = el)}
                 >
                     <option value="" defaultValue>Type</option>
-                    <option value='Corrective Action'>Corrective Action</option>
-                    <option value='Preventive Action'>Preventive Action</option>
-                    <option value='Defect Repair'>Defect Repair</option>
-                    <option value='Update'>Update</option>
+                    <option value='corrective'>Corrective Action</option>
+                    <option value='preventive'>Preventive Action</option>
+                    <option value='repair'>Defect Repair</option>
+                    <option value='update'>Update</option>
                 </select>
             </td>
             <td>
                 <textarea
-                    name="item_config"
+                    name="item"
                     onChange={handleChange}
-                    value={obj.item_config}
+                    value={obj.item}
                     placeholder="Item"
-                    ref={el => (camposRef.current.item_config = el)}
+                    ref={el => (camposRef.current.item = el)}
                 />
             </td>
             <td className={styles.mudancasMudanca}>
                 <textarea
-                    name="mudanca"
+                    name="change"
                     onChange={handleChange}
-                    value={obj.mudanca}
+                    value={obj.change}
                     placeholder="Change"
-                    ref={el => (camposRef.current.mudanca = el)}
+                    ref={el => (camposRef.current.change = el)}
                 />
             </td>
             <td className={styles.mudancasJustificativa}>
                 <textarea
-                    name="justificativa"
+                    name="reasoning"
                     onChange={handleChange}
-                    value={obj.justificativa}
+                    value={obj.reasoning}
                     placeholder="Reasoning"
-                    ref={el => (camposRef.current.justificativa = el)}
+                    ref={el => (camposRef.current.reasoning = el)}
                 />
             </td>
             <td className={styles.mudancasImpacto}>
                 <textarea
-                    name="impacto"
+                    name="impact"
                     onChange={handleChange}
-                    value={obj.impacto}
+                    value={obj.impact}
                     placeholder="Impact description"
-                    ref={el => (camposRef.current.impacto = el)}
+                    ref={el => (camposRef.current.impact = el)}
                 />
             </td>
             <td>
                 <select
-                    value={obj.aprovado}
-                    name='aprovado'
+                    value={obj.is_approved}
+                    name='is_approved'
                     onChange={handleChange}
-                    ref={el => (camposRef.current.aprovado = el)}
+                    ref={el => (camposRef.current.is_approved = el)}
                 >
                     <option value="" defaultValue>Decision</option>
                     <option value={true}>Approved</option>
@@ -167,36 +169,36 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.status = el)}
                 >
                     <option value="" defaultValue>Status</option>
-                    <option value="Starting">Starting</option>
-                    <option value="In progress">In progress</option>
-                    <option value="Finalized">Finalized</option>
+                    <option value="starting">Starting</option>
+                    <option value="progress">In progress</option>
+                    <option value="finalized">Finalized</option>
                 </select>
             </td>
             <td>
                 <textarea
-                    name="responsavel_solicitacao"
+                    name="responsible_request"
                     onChange={handleChange}
-                    value={obj.responsavel_solicitacao}
+                    value={obj.responsible_request}
                     placeholder="Applicant"
-                    ref={el => (camposRef.current.responsavel_solicitacao = el)}
+                    ref={el => (camposRef.current.responsible_request = el)}
                 />
             </td>
             <td>
                 <textarea
-                    name="responsavel_aprovacao"
+                    name="responsible_approval"
                     onChange={handleChange}
-                    value={obj.responsavel_aprovacao}
+                    value={obj.responsible_approval}
                     placeholder="Responsible for approval"
-                    ref={el => (camposRef.current.responsavel_aprovacao = el)}
+                    ref={el => (camposRef.current.responsible_approval = el)}
                 />
             </td>
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
-                    <button onClick={handleSubmit} disabled={!isAdmin}>Add new</button>
+                    <button onClick={handleSubmit} disabled={!isEditor}>Add new</button>
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>
-                        <button onClick={funcao.funcao2}>✖️</button>
+                        <button onClick={funcoes.funcao2}>✖️</button>
                     </React.Fragment>
                 )}
             </td>

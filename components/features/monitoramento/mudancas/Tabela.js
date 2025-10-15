@@ -1,25 +1,29 @@
-import React, { useEffect, useState, useContext } from "react"
+import React, { useEffect, useState } from "react"
 import styles from '../../../../styles/modules/monitoramento.module.css'
 import Inputs from "./Inputs";
 import Modal from "../../../ui/Modal";
 import Loading from "../../../ui/Loading";
-import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../../functions/crud";
-import { cleanForm, jsDateToEuDate, euDateToIsoDate } from "../../../../functions/general";
-import { AuthContext } from "../../../../contexts/AuthContext";
+import { cleanForm, isoDateToEuDate } from "../../../../functions/general";
+import usePerm from "../../../../hooks/usePerm";
+import useAuth from "../../../../hooks/useAuth";
+import { handleReq, handleFetch } from "../../../../functions/crud_s";
 
 const Tabela = () => {
+    const { user, token } = useAuth();
+    const user_id = user.id;
+    const { isEditor } = usePerm();
     const camposVazios = {
-        data: '',
-        area: '',
-        tipo: '',
-        item_config: '',
-        mudanca: '',
-        justificativa: '',
-        impacto: '',
-        aprovado: '',
+        date: '',
+        area_id: '',
+        type: '',
+        item: '',
+        change: '',
+        reasoning: '',
+        impact: '',
+        is_approved: '',
         status: '',
-        responsavel_solicitacao: '',
-        responsavel_aprovacao: ''
+        responsible_request: '',
+        responsible_approval: ''
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
@@ -29,16 +33,19 @@ const Tabela = () => {
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
-    const { isAdmin } = useContext(AuthContext)
 
 
     //funcao que envia os dados de novoSubmit para cadastro
-    const enviar = async (e) => {
-        e.preventDefault();
-        await handleSubmit({
-            route: 'monitoramento/mudancas',
-            dados: novoSubmit,
-            fetchDados: fetchMudancas
+    const enviar = async () => {
+        await handleReq({
+            table: 'change',
+            route: 'create',
+            token,
+            data: {
+                ...novoSubmit,
+                user_id
+            },
+            fetchData: fetchMudancas
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     };
@@ -46,62 +53,61 @@ const Tabela = () => {
 
     //funcao que recebe o item, o insere no estado confirmUpdateItem e como objeto de novosDados
     const handleUpdateClick = (item) => {
-        setNovosDados({
+        const obj = {
             ...item,
-            data: euDateToIsoDate(item.data),
-        });
+            area_id: item?.wbs_area?.id,
+        }
+        delete obj.wbs_area;
+        setNovosDados(obj);
+        setLinhaVisivel(item.id);
     };
 
 
     //funcao que trata os dados e os envia para atualizacao
     const handleUpdateItem = async () => {
         setLoading(true);
-        delete novosDados.mediaBeneficios;
         try {
-            await handleUpdate({
-                route: 'monitoramento/mudancas/update?id',
-                dados: novosDados,
-                fetchDados: fetchMudancas
+            await handleReq({
+                table: 'change',
+                route: 'update',
+                token,
+                data: novosDados,
+                fetchData: fetchMudancas
             });
         } catch (error) {
             console.error("Update failed:", error);
         }
-        setLinhaVisivel();
+        setReload(true);
         setLoading(false);
+        setLinhaVisivel();
         setNovosDados(camposVazios);
     };
 
     //funcao que envia o id para ser deletado
     const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
-            var getDeleteSuccess = false;
-            try {
-                getDeleteSuccess = await handleDelete({
-                    route: 'monitoramento/mudancas',
-                    item: confirmDeleteItem,
-                    fetchDados: fetchMudancas
-                });
-            } finally {
-                setExibirModal(`deleteSuccess-${getDeleteSuccess}`)
-            }
+            await handleReq({
+                table: "change",
+                route: 'delete',
+                token,
+                data: { id: confirmDeleteItem.id },
+                fetchData: fetchMudancas
+            });
+            setExibirModal(`deleteSuccess`);
+            setConfirmDeleteItem(null);
         }
-        if (getDeleteSuccess) {
-            setExibirModal(`deleteSuccess`)
-        } else {
-            setExibirModal(`deleteFail`)
-        }
-        setConfirmDeleteItem(null);
     };
 
 
     //funcao que busca os dados
     const fetchMudancas = async () => {
         try {
-            const data = await fetchData('monitoramento/mudancas/get/all');
-            data.mudancas.forEach((mudanca) => {
-                mudanca.data = jsDateToEuDate(mudanca.data)
+            const data = await handleFetch({
+                table: 'change',
+                query: 'all',
+                token
             })
-            setMudancas(data.mudancas);
+            setMudancas(data.data);
         } finally {
             setLoading(false);
         }
@@ -128,6 +134,19 @@ const Tabela = () => {
         'maiorQueCinco': 'Classifications must be between 1 and 5!'
     };
 
+    const typeLabels = {
+        corrective: 'Corrective Action',
+        preventive: 'Preventive Action',
+        repair: 'Defect Repair',
+        update: 'Update'
+    }
+
+    const statusLabels = {
+        starting: 'Starting',
+        progress: 'In progress',
+        finalized: 'Finalized'
+    }
+
     return (
         <div className="centered-container">
             {loading && <Loading />}
@@ -144,7 +163,7 @@ const Tabela = () => {
 
             {confirmDeleteItem && (
                 <Modal objeto={{
-                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.item_config}"?`,
+                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.item}"?`,
                     alerta: true,
                     botao1: {
                         funcao: handleConfirmDelete, texto: 'Confirm'
@@ -178,35 +197,35 @@ const Tabela = () => {
 
                             {mudancas.map((mudanca, index) => (
                                 <React.Fragment key={index}>
-                                    {linhaVisivel === mudanca._id ? (
+                                    {linhaVisivel === mudanca.id ? (
                                         <Inputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
-                                            funcao={{
-                                                funcao1: () => handleUpdateItem(),
-                                                funcao2: () => linhaVisivel === mudanca._id ? setLinhaVisivel() : setLinhaVisivel(mudanca._id)
+                                            funcoes={{
+                                                enviar: handleUpdateItem,
+                                                cancelar: () => setLinhaVisivel()
                                             }}
                                             setExibirModal={setExibirModal}
                                         />
                                     ) : (
                                         <tr>
-                                            <td className={styles.mudancasData}>{mudanca.data}</td>
-                                            <td>{mudanca.area}</td>
-                                            <td>{mudanca.tipo}</td>
-                                            <td>{mudanca.item_config}</td>
-                                            <td className={styles.mudancasMudanca}>{mudanca.mudanca}</td>
-                                            <td className={styles.mudancasJustificativa}>{mudanca.justificativa}</td>
-                                            <td className={styles.mudancasImpacto}>{mudanca.impacto}</td>
-                                            <td>{mudanca.aprovado ? 'Approved' : 'Rejected'}</td>
-                                            <td>{mudanca.status}</td>
-                                            <td>{mudanca.responsavel_solicitacao}</td>
-                                            <td>{mudanca.responsavel_aprovacao}</td>
+                                            <td className={styles.mudancasData}>{isoDateToEuDate(mudanca.date)}</td>
+                                            <td>{mudanca.wbs_area?.name}</td>
+                                            <td>{typeLabels[mudanca.type]}</td>
+                                            <td>{mudanca.item}</td>
+                                            <td className={styles.mudancasMudanca}>{mudanca.change}</td>
+                                            <td className={styles.mudancasJustificativa}>{mudanca.reasoning}</td>
+                                            <td className={styles.mudancasImpacto}>{mudanca.impact}</td>
+                                            <td>{mudanca.is_approved ? 'Approved' : 'Rejected'}</td>
+                                            <td>{statusLabels[mudanca.status]}</td>
+                                            <td>{mudanca.responsible_request}</td>
+                                            <td>{mudanca.responsible_approval}</td>
                                             <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(mudanca)} disabled={!isAdmin}>❌</button>
+                                                <button onClick={() => setConfirmDeleteItem(mudanca)} disabled={!isEditor}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(mudanca._id); handleUpdateClick(mudanca)
+                                                    handleUpdateClick(mudanca)
                                                 }
-                                                } disabled={!isAdmin}>⚙️</button>
+                                                } disabled={!isEditor}>⚙️</button>
                                             </td>
                                         </tr>
                                     )}
@@ -215,7 +234,7 @@ const Tabela = () => {
                             <Inputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcao={enviar}
+                                funcoes={{ enviar }}
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>

@@ -1,17 +1,17 @@
-import { useRef, useContext } from "react";
+import { useRef } from "react";
 import styles from '../../../../styles/modules/monitoramento.module.css'
 import React from "react";
-import { AuthContext } from "../../../../contexts/AuthContext";
+import usePerm from "../../../../hooks/usePerm";
 
-const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
+const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     const camposRef = useRef({
-        data: null, 
-        tipo: null,
-        situacao: null,
-        aprendizado: null,
-        acao: null
+        date: null, 
+        type: null,
+        situation: null,
+        learning: null,
+        action: null
     })
-    const { isAdmin } = useContext(AuthContext);
+    const {isEditor} = usePerm();
 
     //funcao que atualiza o obj. dependendo da natureza do dado, permite caracteres especificos apenas.
     const handleChange = (e) => {
@@ -42,72 +42,68 @@ const CadastroInputs = ({ obj, objSetter, funcao, tipo, setExibirModal }) => {
         return false;
     }
 
-    //funcao que roda a funcao de envio de acordo com o tipo da funcao
-    const handleSubmit = (e) => {
+    //funcao que roda a funcao de envio de acordo com o type da funcao
+    const handleSubmit = () => {
         const isInvalido = validaDados();
-        if(isInvalido) return;
-        if (funcao.funcao1) {
-            funcao.funcao1();
-        } else {
-            funcao(e);
-        }
+        if (isInvalido) return;
+        funcoes?.enviar();
     }
 
     return (
         <tr>
             <td className={styles.licoesData}>
                 <input type="date"
-                    value={obj.data}
-                    name='data'
+                    value={obj.date}
+                    name='date'
                     onChange={handleChange}
-                    ref={el => (camposRef.current.data = el)} />
+                    ref={el => (camposRef.current.date = el)} />
             </td>
             <td className={styles.licoesTipo}>
                 <select
-                    value={obj.tipo}
-                    name='tipo'
+                    value={obj.type}
+                    name='type'
                     onChange={handleChange}
-                    ref={el => (camposRef.current.tipo = el)}
+                    ref={el => (camposRef.current.type = el)}
                 >
                     <option value="" defaultValue>Type</option>
-                    <option value='Explicit'>Explicit</option>
-                    <option value='Tacit'>Tacit</option>
+                    <option value={true}>Explicit</option>
+                    <option value={false}>Tacit</option>
                 </select>
             </td>
-            <td className={styles.licoesSituacao}>
+            <td className={styles.licoesSituaction}>
                 <textarea
-                    name="situacao"
+                    name="situation"
                     onChange={handleChange}
-                    value={obj.situacao}
+                    value={obj.situation}
                     placeholder="Situation"
-                    ref={el => (camposRef.current.situacao = el)}
+                    ref={el => (camposRef.current.situation = el)}
                 />
             </td>
             <td className={styles.licoesAprendizado}>
                 <textarea
-                    name="aprendizado"
+                    name="learning"
                     onChange={handleChange}
-                    value={obj.aprendizado}
+                    value={obj.learning}
                     placeholder="Lesson learned"
-                    ref={el => (camposRef.current.aprendizado = el)}
+                    ref={el => (camposRef.current.learning = el)}
                 />
             </td>
             <td className={styles.licoesAcao}>
                 <textarea
-                    name="acao"
+                    name="action"
                     onChange={handleChange}
-                    value={obj.acao}
+                    value={obj.action}
                     placeholder="Action taken"
-                    ref={el => (camposRef.current.acao = el)}
+                    ref={el => (camposRef.current.action = el)}
                 />
             </td>
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
-                    <button onClick={handleSubmit} disabled={!isAdmin}>Add new</button>
+                    <button onClick={handleSubmit} disabled={!isEditor}>Add new</button>
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>
-                        <button onClick={funcao.funcao2}>✖️</button>
+                        <button onClick={funcoes?.cancelar}>✖️</button>
                     </React.Fragment>
                 )}
             </td>

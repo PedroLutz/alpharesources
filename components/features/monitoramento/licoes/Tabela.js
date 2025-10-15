@@ -1,19 +1,23 @@
-import React, { useEffect, useState, useContext } from "react"
+import React, { useEffect, useState } from "react"
 import styles from '../../../../styles/modules/monitoramento.module.css'
 import Inputs from "./Inputs";
 import Modal from "../../../ui/Modal";
 import Loading from "../../../ui/Loading";
-import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../../functions/crud";
-import { cleanForm, jsDateToEuDate, euDateToIsoDate } from "../../../../functions/general";
-import { AuthContext } from "../../../../contexts/AuthContext";
+import { handleReq, handleFetch } from "../../../../functions/crud_s";
+import { cleanForm, isoDateToEuDate } from "../../../../functions/general";
+import useAuth from "../../../../hooks/useAuth";
+import usePerm from "../../../../hooks/usePerm";
 
 const Tabela = () => {
+    const { user, token } = useAuth();
+    const user_id = user.id;
+    const { isEditor } = usePerm();
     const camposVazios = {
-        data: '',
-        tipo: '',
-        situacao: '',
-        aprendizado: '',
-        acao: ''
+        date: '',
+        type: '',
+        situation: '',
+        learning: '',
+        action: ''
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
@@ -23,79 +27,69 @@ const Tabela = () => {
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
-    const { isAdmin } = useContext(AuthContext)
 
 
     //funcao que envia os dados de novoSubmit para cadastro
-    const enviar = async (e) => {
-        e.preventDefault();
-        await handleSubmit({
-            route: 'monitoramento/licoes',
-            dados: novoSubmit,
-            fetchDados: fetchLicoes
+    const enviar = async () => {
+        await handleReq({
+            table: 'lesson',
+            route: 'create',
+            token,
+            data: {
+                ...novoSubmit,
+                user_id
+            },
+            fetchData: fetchLicoes
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-    };
-
-
-    //funcao que recebe o item, o insere no estado confirmUpdateItem e como objeto de novosDados
-    const handleUpdateClick = (item) => {
-        setNovosDados({
-            ...item,
-            data: euDateToIsoDate(item.data),
-        });
     };
 
 
     //funcao que trata os dados e os envia para atualizacao
     const handleUpdateItem = async () => {
         setLoading(true);
-        delete novosDados.mediaBeneficios;
         try {
-            await handleUpdate({
-                route: 'monitoramento/licoes/update?id',
-                dados: novosDados,
-                fetchDados: fetchLicoes
+            await handleReq({
+                table: 'lesson',
+                route: 'update',
+                token,
+                data: novosDados,
+                fetchData: fetchLicoes
             });
         } catch (error) {
             console.error("Update failed:", error);
         }
-        setLinhaVisivel();
+        setReload(true);
         setLoading(false);
+        setLinhaVisivel();
         setNovosDados(camposVazios);
     };
 
     //funcao que envia o id para ser deletado
     const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
-            var getDeleteSuccess = false;
-            try {
-                getDeleteSuccess = await handleDelete({
-                    route: 'monitoramento/licoes',
-                    item: confirmDeleteItem,
-                    fetchDados: fetchLicoes
-                });
-            } finally {
-                setExibirModal(`deleteSuccess-${getDeleteSuccess}`)
-            }
+            await handleReq({
+                table: "lesson",
+                route: 'delete',
+                token,
+                data: { id: confirmDeleteItem.id },
+                fetchData: fetchLicoes
+            });
+            setExibirModal(`deleteSuccess`);
+            setConfirmDeleteItem(null);
         }
-        if (getDeleteSuccess) {
-            setExibirModal(`deleteSuccess`)
-        } else {
-            setExibirModal(`deleteFail`)
-        }
-        setConfirmDeleteItem(null);
     };
 
 
     //funcao que busca os dados
     const fetchLicoes = async () => {
         try {
-            const data = await fetchData('monitoramento/licoes/get/all');
-            data.licoes.forEach((licao) => {
-                licao.data = jsDateToEuDate(licao.data)
+            const data = await handleFetch({
+                table: 'lesson',
+                query: 'all',
+                token
             })
-            setLicoes(data.licoes);
+            setLicoes(data.data);
         } finally {
             setLoading(false);
         }
@@ -138,7 +132,7 @@ const Tabela = () => {
 
             {confirmDeleteItem && (
                 <Modal objeto={{
-                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.situacao}"?`,
+                    titulo: `Are you sure you want to PERMANENTLY delete the lesson for "${confirmDeleteItem.situation}"?`,
                     alerta: true,
                     botao1: {
                         funcao: handleConfirmDelete, texto: 'Confirm'
@@ -166,29 +160,29 @@ const Tabela = () => {
 
                             {licoes.map((licao, index) => (
                                 <React.Fragment key={index}>
-                                    {linhaVisivel === licao._id ? (
+                                    {linhaVisivel === licao.id ? (
                                         <Inputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
-                                            funcao={{
-                                                funcao1: () => handleUpdateItem(),
-                                                funcao2: () => linhaVisivel === licao._id ? setLinhaVisivel() : setLinhaVisivel(licao._id)
+                                            funcoes={{
+                                                enviar: handleUpdateItem,
+                                                cancelar: () => setLinhaVisivel()
                                             }}
                                             setExibirModal={setExibirModal}
                                         />
                                     ) : (
                                         <tr>
-                                            <td className={styles.licoesData}>{licao.data}</td>
-                                            <td className={styles.licoesTipo}>{licao.tipo}</td>
-                                            <td className={styles.licoesSituacao}>{licao.situacao}</td>
-                                            <td className={styles.licoesAprendizado}>{licao.aprendizado}</td>
-                                            <td className={styles.licoesAcao}>{licao.acao}</td>
+                                            <td className={styles.licoesData}>{isoDateToEuDate(licao.date)}</td>
+                                            <td className={styles.licoesTipo}>{licao.type ? 'Explicit' : 'Tacit'}</td>
+                                            <td className={styles.licoesSituacao}>{licao.situation}</td>
+                                            <td className={styles.licoesAprendizado}>{licao.learning}</td>
+                                            <td className={styles.licoesAcao}>{licao.action}</td>
                                             <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(licao)} disabled={!isAdmin}>❌</button>
+                                                <button onClick={() => setConfirmDeleteItem(licao)} disabled={!isEditor}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(licao._id); handleUpdateClick(licao)
+                                                    setLinhaVisivel(licao.id); setNovosDados(licao)
                                                 }
-                                                } disabled={!isAdmin}>⚙️</button>
+                                                } disabled={!isEditor}>⚙️</button>
                                             </td>
                                         </tr>
                                     )}
@@ -197,7 +191,7 @@ const Tabela = () => {
                             <Inputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcao={enviar}
+                                funcoes={{ enviar }}
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>

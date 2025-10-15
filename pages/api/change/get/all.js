@@ -1,22 +1,26 @@
 'use client';
-import client from "../../../../lib/supabaseClient";
+import { createServerClient } from "../../../../lib/supabaseServerClient";
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  const client = createServerClient(token);
+
   const { data, error } = await client
     .from('change')
     .select(`
         id,
+        date,
         wbs_area (
             id,
             name,
             color
         ),
-        responsible_request_id ( name ),
-        responsible_approval_id ( name ),
+        responsible_request,
+        responsible_approval,
         type,
         item,
         change,
@@ -24,7 +28,7 @@ export default async function handler(req, res) {
         impact,
         is_approved,
         status`)
-    .order('wbs_area.name', { ascending: true })
+    .order('date', { ascending: true })
 
   if (error) return res.status(400).json({ error: error.message })
 
