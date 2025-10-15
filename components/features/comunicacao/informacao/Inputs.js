@@ -1,39 +1,117 @@
-import { useEffect, useState, useRef, useContext } from "react";
+import { useEffect, useState, useRef } from "react";
+import usePerm from "../../../../hooks/usePerm";
+import useAuth from "../../../../hooks/useAuth";
 import React from "react";
-import { fetchData } from "../../../../functions/crud";
-import { AuthContext } from "../../../../contexts/AuthContext";
+import { handleFetch } from "../../../../functions/crud_s";
 import styles from '../../../../styles/modules/comunicacao.module.css'
 
 const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
-    const [gruposENomes, setGruposENomes] = useState([]);
+    const { token } = useAuth();
+    const { isEditor } = usePerm();
+    const [stakeholders, setStakeholders] = useState([]);
+    const [grupos, setGrupos] = useState([]);
+    const [grupoSelecionado, setGrupoSelecionado] = useState('');
     const [stakeholdersDoGrupo, setStakeholdersDoGrupo] = useState([]);
     const [nomesMembros, setNomesMembros] = useState([]);
     const [verOpcaoCustom, setVerOpcaoCustom] = useState(false);
     const camposRef = useRef({
         grupo: null,
-        stakeholder: null,
-        informacao: null,
-        metodo: null,
-        frequencia: null,
-        canal: null,
-        responsavel: null,
-        registro: null,
+        stakeholder_id: null,
+        information: null,
+        method: null,
+        frequency: null,
+        channel: null,
+        responsible: null,
+        register: null,
         feedback: null,
-        acao: null
+        action: null
     })
-    const { isAdmin } = useContext(AuthContext);
     const isFirstRender = useRef(true);
 
     //funcao que busca os grupos e nomes dos stakeholders
-    const fetchGruposENomes = async () => {
-        const data = await fetchData('comunicacao/stakeholders/get/gruposENomes');
-        setGruposENomes(data.gruposENomes);
+
+    const atualizarStakeholdersDoGrupo = (group) => {
+        const stakeholdersPorGrupo = stakeholders.filter(item => item.stakeholder_group.id == group);
+        setStakeholdersDoGrupo(stakeholdersPorGrupo);
+    }
+
+    useEffect(() => {
+        if (tipo == "update") {
+            const item = stakeholders.find(item => item.id == obj?.stakeholder_id);
+            if (item) {
+                const grupoSelecionado = item?.stakeholder_group?.id;
+                setGrupoSelecionado(grupoSelecionado);
+            }
+        }
+    }, [obj?.stakeholder_id, stakeholders]);
+
+    useEffect(() => {
+        if (grupoSelecionado != '') {
+            atualizarStakeholdersDoGrupo(grupoSelecionado);
+        }
+    }, [grupoSelecionado, stakeholders]);
+
+    useEffect(() => {
+        setGrupos([...new Map(
+            stakeholders
+                .map(item => [
+                    item.stakeholder_group.id,
+                    { id: item.stakeholder_group.id, name: item.stakeholder_group.group }])
+        ).values()
+        ]);
+        setStakeholdersDoGrupo(stakeholders);
+    }, [stakeholders]);
+
+
+    //so executa quando o tipo for cadastro pq a atualizacao n altera nem a area nem o item
+    //ent n pode mexer no obj
+    useEffect(() => {
+        if (tipo == 'cadastro') {
+            objSetter({
+                ...obj,
+                stakeholder_id: ''
+            })
+        }
+    }, [grupoSelecionado]);
+
+    const handleGrupoChange = (e) => {
+        const grupoSelecionado = e.target.value;
+        objSetter({ ...obj, stakeholder_id: "" });
+        atualizarStakeholdersDoGrupo(grupoSelecionado);
+        setGrupoSelecionado(grupoSelecionado);
+        camposRef.current.grupo.classList.remove('campo-vazio');
     };
+
+    //funcao para buscar os elementos da WBS para inserção nos selects
+    const fetchGruposENomes = async () => {
+        var stakeholders;
+        try {
+            const data = await handleFetch({
+                table: 'stakeholder',
+                query: 'with_groups',
+                token
+            })
+            stakeholders = data?.data ?? [];
+        } finally {
+            setGrupos([...new Map(
+                stakeholders
+                    .map(item => [
+                        item.stakeholder_group.id,
+                        { id: item.stakeholder_group.id, name: item.stakeholder_group.group }])
+            ).values()
+            ]);
+            setStakeholders(stakeholders);
+        }
+    }
 
     //funcao que busca os nomes dos membros
     const fetchMembros = async () => {
-        const data = await fetchData('responsabilidades/membros/get/nomes');
-        setNomesMembros(data.nomes);
+        const data = await handleFetch({
+            table: 'member',
+            query: 'names',
+            token
+        })
+        setNomesMembros(data.data);
     };
 
     //useEffect que roda na primeira render, e verifica se o campo obj.frequencia tem algum valor
@@ -47,19 +125,6 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
         fetchGruposENomes();
         fetchMembros();
     }, []);
-
-    //useEffect que so roda quando obj.grupo atualiza, que limpa o valor de stakeholder
-    useEffect(() => {
-        if (isFirstRender.current) {
-            isFirstRender.current = false;
-            return;
-        }
-
-        objSetter({
-            ...obj,
-            stakeholder: ''
-        });
-    }, [obj.grupo]);
 
     //funcao que insere os dados no obj
     const handleChange = (e) => {
@@ -85,38 +150,15 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
         }
     }
 
-    useEffect(() => {
-        if(obj.grupo != ''){
-            const stakeholdersDoGrupo = gruposENomes.filter(item => item.grupo === obj.grupo).map(item => item.stakeholder);
-            setStakeholdersDoGrupo(stakeholdersDoGrupo);
-        }
-    }, [obj.grupo, gruposENomes])
-
-
-    //funcao para atualizar o grupo, inserindo em stakeholdersDoGrupo os stakeholders pertencentes ao grupo selecionado
-    const handleGrupoChange = (e) => {
-        const grupoSelecionado = e.target.value;
-        const stakeholdersDoGrupo = gruposENomes.filter(item => item.grupo === grupoSelecionado).map(item => item.stakeholder);
-        setStakeholdersDoGrupo(stakeholdersDoGrupo);
-
-        handleChange(e);
-    };
-
 
     const validaDados = () => {
-        if(funcoes?.isStakeholderCadastrado?.(obj.grupo, obj.stakeholder) ?? false){
-            camposRef.current.stakeholder.classList.add('campo-vazio');
-            setExibirModal('stakeholderRepetido');
-            return true;
-        }
-
         const camposConsiderados = { ...obj };
         delete camposConsiderados.feedback;
-        delete camposConsiderados.acao;
-        delete camposConsiderados.registro;
+        delete camposConsiderados.action;
+        delete camposConsiderados.register;
         const camposVazios = Object.entries(camposConsiderados)
-        .filter(([key, value]) => value === null || value === "")
-        .map(([key]) => key);
+            .filter(([key, value]) => value === null || value === "")
+            .map(([key]) => key);
 
         if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
@@ -133,7 +175,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
 
     const handleSubmit = async () => {
         const isInvalido = validaDados();
-        if(isInvalido) return;
+        if (isInvalido) return;
         await funcoes?.enviar();
         setVerOpcaoCustom(false);
     }
@@ -144,53 +186,53 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                 <select
                     name="grupo"
                     onChange={handleGrupoChange}
-                    value={obj.grupo}
+                    value={grupoSelecionado}
                     ref={el => (camposRef.current.grupo = el)}
                 >
                     <option value="" defaultValue>Group</option>
-                    {[...new Set(gruposENomes.map(stakeholder => stakeholder.grupo))].map((grupo, index) => (
-                        <option key={index} value={grupo}>{grupo}</option>
+                    {grupos.map((grupo, index) => (
+                        <option key={index} value={grupo.id}>{grupo.name}</option>
                     ))};
                 </select>
             </td>
             <td className={styles.infoTdStakeholder}>
                 <select
-                    value={obj.stakeholder}
-                    name='stakeholder'
+                    value={obj.stakeholder_id}
+                    name='stakeholder_id'
                     onChange={handleChange}
-                    ref={el => (camposRef.current.stakeholder = el)}
+                    ref={el => (camposRef.current.stakeholder_id = el)}
 
                 >
                     <option value="" defaultValue>Stakeholder</option>
                     {stakeholdersDoGrupo.map((stakeholder, index) => (
-                        <option key={index} value={stakeholder}>{stakeholder}</option>
+                        <option key={index} value={stakeholder.id}>{stakeholder.stakeholder}</option>
                     ))}
                 </select>
             </td>
             <td className={styles.infoTdInfo}>
                 <textarea
-                    name="informacao"
+                    name="information"
                     onChange={handleChange}
-                    value={obj.informacao}
+                    value={obj.information}
                     placeholder="Communicated information"
-                    ref={el => (camposRef.current.informacao = el)}
+                    ref={el => (camposRef.current.information = el)}
                 />
             </td>
             <td>
                 <textarea
-                    name="metodo"
+                    name="method"
                     onChange={handleChange}
-                    value={obj.metodo}
+                    value={obj.method}
                     placeholder="Method"
-                    ref={el => (camposRef.current.metodo = el)}
+                    ref={el => (camposRef.current.method = el)}
                 />
             </td>
             <td className={verOpcaoCustom ? styles.infoTdFrequencia : ''}>
                 <select
-                    value={obj.frequencia}
-                    name='frequencia'
+                    value={obj.frequency}
+                    name='frequency'
                     onChange={handleFrequenciaChange}
-                    ref={el => (camposRef.current.frequencia = el)}
+                    ref={el => (camposRef.current.frequency = el)}
                 >
                     <option value="" name='default' defaultValue>Frequency</option>
                     <option value="Daily">Daily</option>
@@ -201,42 +243,42 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                 </select>
                 {verOpcaoCustom && (
                     <input type="text"
-                        value={obj.frequencia}
+                        value={obj.frequency}
                         placeholder="New frequency"
-                        name='frequencia'
+                        name='frequency'
                         onChange={handleChange} />
                 )}
             </td>
             <td>
                 <textarea
-                    name="canal"
+                    name="channel"
                     onChange={handleChange}
-                    value={obj.canal}
+                    value={obj.channel}
                     placeholder="Channel"
-                    ref={el => (camposRef.current.canal = el)}
+                    ref={el => (camposRef.current.channel = el)}
                 />
             </td>
             <td>
                 <select
-                    name="responsavel"
+                    name="responsible"
                     onChange={handleChange}
-                    value={obj.responsavel}
-                    ref={el => (camposRef.current.responsavel = el)}
+                    value={obj.responsible}
+                    ref={el => (camposRef.current.responsible = el)}
                 >
                     <option defaultValue value="">Responsible</option>
                     <option value='Circunstancial'>Circunstancial</option>
                     {nomesMembros.map((membro, index) => (
-                        <option key={index} value={membro.nome}>{membro.nome}</option>
+                        <option key={index} value={membro.id}>{membro.name}</option>
                     ))}
                 </select>
             </td>
             <td>
                 <textarea
-                    name="registro"
+                    name="register"
                     onChange={handleChange}
-                    value={obj.registro}
+                    value={obj.register}
                     placeholder="Record"
-                    ref={el => (camposRef.current.registro = el)}
+                    ref={el => (camposRef.current.register = el)}
                 />
             </td>
             <td>
@@ -250,16 +292,16 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
             </td>
             <td>
                 <textarea
-                    name="acao"
+                    name="action"
                     onChange={handleChange}
-                    value={obj.acao}
+                    value={obj.action}
                     placeholder="Action Taken"
-                    ref={el => (camposRef.current.acao = el)}
+                    ref={el => (camposRef.current.action = el)}
                 />
             </td>
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
-                    <button onClick={handleSubmit} disabled={!isAdmin}>Add new</button>
+                    <button onClick={handleSubmit} disabled={!isEditor}>Add new</button>
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>

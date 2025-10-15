@@ -1,5 +1,5 @@
 'use client';
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { useRouter } from 'next/router';
 import styles from '../../styles/modules/login.module.css'
 import Loading from "../ui/Loading";
@@ -16,7 +16,7 @@ const FormularioLogin = () => {
 
   const validarCampos = () => {
     if (usuario === '' || senha === '') {
-      setAlert('campos');
+      setAlert('Fill out all fields!');
       return false;
     }
     return true;
@@ -33,13 +33,24 @@ const FormularioLogin = () => {
       password: senha,
     })
     if (error) {
+      if (error?.name === 'AuthApiError') {
+        setAlert(getAlertMessage[error.message])
+      } else {
+        setAlert('An unexpected error happened. Please try again later!');
+      }
       console.error(error);
-      setAlert('erro');
     } else if (data.user?.aud === 'authenticated') {
       router.replace('/');
     }
     setLoading(false);
   };
+
+  const getAlertMessage = {
+    'Invalid login credentials': 'Invalid login credentials!',
+    'Email not confirmed': 'Check your email to verify your account!',
+    'Email rate limit exceeded': 'Please try again later!',
+    'User not found': 'User not found!',
+  }
 
   return (
     <div>
@@ -62,10 +73,7 @@ const FormularioLogin = () => {
           <div className={input_login}>
             <div>
               <button className="botao-bonito" onClick={handleSubmit}>Login</button>
-              {alert === 'campos' && <p>Fill all fields!</p>}
-              {alert === 'user' && <p>This user doesn't exist!</p>}
-              {alert === 'senha' && <p>Wrong password!</p>}
-              {alert === 'erro' && <p>Unexpected error occurred. Try again.</p>}
+              {alert !== '' && <p>{alert}</p>}
             </div>
           </div>
         </div>

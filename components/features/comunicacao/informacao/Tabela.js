@@ -3,23 +3,26 @@ import styles from '../../../../styles/modules/comunicacao.module.css'
 import Inputs from "./Inputs";
 import Modal from "../../../ui/Modal";
 import Loading from "../../../ui/Loading";
-import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../../functions/crud";
+import { handleFetch, handleReq } from "../../../../functions/crud_s";
+import usePerm from "../../../../hooks/usePerm";
+import useAuth from "../../../../hooks/useAuth";
 import { cleanForm } from "../../../../functions/general";
-import { AuthContext } from "../../../../contexts/AuthContext";
 import Link from "next/link";
 
 const Tabela = () => {
+    const { isEditor } = usePerm();
+    const { user, token } = useAuth();
+    const user_id = user.id;
     const camposVazios = {
-        grupo: "",
-        stakeholder: "",
-        informacao: "",
-        metodo: "",
-        frequencia: "",
-        canal: "",
-        responsavel: "",
-        registro: "",
+        stakeholder_id: "",
+        information: "",
+        method: "",
+        frequency: "",
+        channel: "",
+        responsible: "",
+        register: "",
         feedback: "",
-        acao: ""
+        action: ""
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
@@ -29,68 +32,82 @@ const Tabela = () => {
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
-    const { isAdmin } = useContext(AuthContext);
     const [isUpdating, setIsUpdating] = useState(false);
 
     //funcao que envia os dados para registro no backend
     const enviar = async () => {
-        await handleSubmit({
-            route: 'comunicacao/informacao',
-            dados: novoSubmit,
-            fetchDados: fetchInformacoes
+        await handleReq({
+            table: 'information',
+            route: 'create',
+            token,
+            data: {...novoSubmit, user_id},
+            fetchData: fetchInformacoes
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     };
 
-    const isStakeholderCadastrado = (grupo, stakeholder) => {
-        return informacoes.some((informacao) => informacao.grupo.trim().toLowerCase() == grupo.trim().toLowerCase()
-            && informacao.stakeholder.trim().toLowerCase() == stakeholder.trim().toLowerCase());
+    const handleUpdateClick = (item) => {
+        const obj = {
+            id: item.id,
+            stakeholder_id: item?.stakeholder?.id,
+            information: item.information,
+            method: item.method,
+            frequency: item.frequency,
+            channel: item.channel,
+            responsible: item.responsible,
+            register: item.register,
+            feedback: item.feedbacck,
+            action: item.action
+        }
+        setNovosDados(obj);
+        setLinhaVisivel(item.id);
+        setIsUpdating([item.stakeholder?.stakeholder_group?.id, item.stakeholder?.id])
     }
 
     //funcao que trata os dados e envia o conteudo para o backend para update
     const handleUpdateItem = async () => {
         setLoading(true);
         try {
-            await handleUpdate({
-                route: 'comunicacao/informacao/update?id',
-                dados: novosDados,
-                fetchDados: fetchInformacoes
+            await handleReq({
+                table: 'information',
+                route: 'update',
+                token,
+                data: novosDados,
+                fetchData: fetchInformacoes
             });
         } catch (error) {
             console.error("Update failed:", error);
         }
         setLinhaVisivel();
-        setIsUpdating(false);
         setLoading(false);
-        setNovosDados(camposVazios);
+        setIsUpdating(false);
+        cleanForm(novosDados, setNovosDados, camposVazios);
     };
 
     //funcao que envia os dados para atualizacao no backend
     const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
-            var getDeleteSuccess = false;
-            try {
-                getDeleteSuccess = await handleDelete({
-                    route: 'comunicacao/informacao',
-                    item: confirmDeleteItem,
-                    fetchDados: fetchInformacoes
-                });
-            } finally {
-                if (getDeleteSuccess) {
-                    setExibirModal(`deleteSuccess`)
-                } else {
-                    setExibirModal(`deleteFail`)
-                }
-            }
+            await handleReq({
+                table: "information",
+                route: 'delete',
+                token,
+                data: { id: confirmDeleteItem.id },
+                fetchData: fetchInformacoes
+            });
         }
-        setConfirmDeleteItem(null);
+        setExibirModal("deleteSuccess");
+        setConfirmDeleteItem(null)
     };
 
     //funcao que busca as informacoes no backend
     const fetchInformacoes = async () => {
         try {
-            const data = await fetchData('comunicacao/informacao/get/all');
-            setInformacoes(data.informacoes);
+            const data = await handleFetch({
+                table: 'information',
+                query: 'all',
+                token
+            });
+            setInformacoes(data.data);
         } finally {
             setLoading(false);
         }
@@ -117,10 +134,14 @@ const Tabela = () => {
     };
 
     //funcao que calcula o rowSpan de grupo de acordo com a quantidade de stakeholders nele
-    const calculateRowSpan = (itens, currentArea, currentIndex, parametro) => {
+    const calculateRowSpan = (currentArea, currentIndex, parametro) => {
         let rowSpan = 1;
-        for (let i = currentIndex + 1; i < itens.length; i++) {
-            if (itens[i][parametro] === currentArea) {
+        for (let i = currentIndex + 1; i < informacoes.length; i++) {
+            let comparedData = informacoes[i][parametro];
+            if (parametro.includes(".")) {
+                comparedData = parametro.split('.').reduce((acc, key) => acc?.[key], informacoes[i]);
+            }
+            if (comparedData === currentArea) {
                 rowSpan++;
             } else {
                 break;
@@ -145,7 +166,7 @@ const Tabela = () => {
 
             {confirmDeleteItem && (
                 <Modal objeto={{
-                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.informacao}"?`,
+                    titulo: `Are you sure you want to PERMANENTLY delete the information for "${confirmDeleteItem?.stakeholder?.stakeholder}"?`,
                     alerta: true,
                     botao1: {
                         funcao: handleConfirmDelete, texto: 'Confirm'
@@ -177,59 +198,59 @@ const Tabela = () => {
                         <tbody>
                             {informacoes.map((informacao, index) => (
                                 <React.Fragment key={index}>
-                                    {linhaVisivel === informacao._id ? (
+                                    {linhaVisivel === informacao.id ? (
                                         <Inputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
                                             funcoes={{
                                                 enviar: handleUpdateItem,
-                                                cancelar: () => { linhaVisivel === informacao._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false); }
+                                                cancelar: () => { setLinhaVisivel(); setIsUpdating(false); }
                                             }}
                                             setExibirModal={setExibirModal}
                                         />
                                     ) : (
                                         <tr>
-                                            {!isUpdating || isUpdating[0] !== informacao.grupo ? (
+                                            {!isUpdating || isUpdating[0] !== informacao.stakeholder?.stakeholder_group?.id ? (
                                                 <React.Fragment>
-                                                    {index === 0 || informacoes[index - 1].grupo !== informacao.grupo ? (
-                                                        <td rowSpan={calculateRowSpan(informacoes, informacao.grupo, index, 'grupo')}
-                                                        >{informacao.grupo}</td>
+                                                    {index === 0 || informacoes[index - 1].stakeholder?.stakeholder_group?.id !== informacao.stakeholder?.stakeholder_group?.id ? (
+                                                        <td rowSpan={calculateRowSpan(informacoes, informacao.stakeholder?.stakeholder_group?.id, index, 'stakeholder.stakeholder_group.id')}
+                                                        >{informacao.stakeholder?.stakeholder_group?.group}</td>
                                                     ) : null}
                                                 </React.Fragment>
                                             ) : (
-                                                <td>{informacao.grupo}</td>
+                                                <td>{informacao.stakeholder?.stakeholder_group?.group}</td>
                                             )}
-                                            {!isUpdating || isUpdating[1] !== informacao.stakeholder ? (
+                                            {!isUpdating || isUpdating[1] !== informacao.stakeholder?.id ? (
                                                 <React.Fragment>
-                                                    {index === 0 || informacoes[index - 1].stakeholder !== informacao.stakeholder ? (
-                                                        <td rowSpan={calculateRowSpan(informacoes, informacao.stakeholder, index, 'stakeholder')}
-                                                        >{informacao.stakeholder}</td>
+                                                    {index === 0 || informacoes[index - 1].stakeholder?.id !== informacao.stakeholder?.id ? (
+                                                        <td rowSpan={calculateRowSpan(informacoes, informacao.stakeholder?.id, index, 'stakeholder.id')}
+                                                        >{informacao.stakeholder?.stakeholder}</td>
                                                     ) : null}
                                                 </React.Fragment>
                                             ) : (
-                                                <td>{informacao.stakeholder}</td>
+                                                <td>{informacao.stakeholder?.stakeholder}</td>
                                             )}
-                                            <td className={styles.infoTdInfo}>{informacao.informacao}</td>
-                                            <td>{informacao.metodo}</td>
-                                            <td>{informacao.frequencia}</td>
-                                            <td>{informacao.canal}</td>
-                                            <td>{informacao.responsavel}</td>
+                                            <td className={styles.infoTdInfo}>{informacao.information}</td>
+                                            <td>{informacao.method}</td>
+                                            <td>{informacao.frequency}</td>
+                                            <td>{informacao.channel}</td>
+                                            <td>{informacao.responsible}</td>
                                             <td>
-                                                {informacao.registro ? (
-                                                    <Link href={informacao.registro}>{informacao.registro}</Link>
+                                                {informacao.register ? (
+                                                    <Link href={informacao.register}>{informacao.register}</Link>
                                                 ) : (
                                                     '-'
                                                 )}
 
                                             </td>
                                             <td>{informacao.feedback || '-'}</td>
-                                            <td>{informacao.acao || '-'}</td>
+                                            <td>{informacao.action || '-'}</td>
                                             <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(informacao)} disabled={!isAdmin}>❌</button>
+                                                <button onClick={() => setConfirmDeleteItem(informacao)} disabled={!isEditor}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(informacao._id); setNovosDados(informacao); setIsUpdating([informacao.grupo, informacao.stakeholder])
+                                                    handleUpdateClick(informacao)
                                                 }
-                                                } disabled={!isAdmin}>⚙️</button>
+                                                } disabled={!isEditor}>⚙️</button>
                                             </td>
                                         </tr>
                                     )}
@@ -238,7 +259,7 @@ const Tabela = () => {
                             <Inputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcoes={{enviar, isStakeholderCadastrado}}
+                                funcoes={{ enviar }}
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>

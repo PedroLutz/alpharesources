@@ -1,28 +1,34 @@
-import { useEffect, useState, useRef, useContext } from "react";
+import { useEffect, useState, useRef } from "react";
 import React from "react";
-import { fetchData } from "../../../../functions/crud";
-import { AuthContext } from "../../../../contexts/AuthContext";
+import { handleFetch } from "../../../../functions/crud_s";
+import usePerm from "../../../../hooks/usePerm";
+import useAuth from "../../../../hooks/useAuth";
 
 const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
+    const {isEditor} = usePerm();
+    const {token} = useAuth();
     const [nomesStakeholders, setNomesStakeholders] = useState([]);
     const camposRef = useRef({
-        grupo: null,
+        group_id: null,
         stakeholder: null,
-        influencia: null,
-        impacto: null,
-        poder: null,
-        interesse: null,
-        expectativas: null,
-        requisitos: null,
-        engajamento_positivo: null,
-        engajamento_negativo: null
+        influence: null,
+        impact: null,
+        power: null,
+        interest: null,
+        expectations: null,
+        requisites: null,
+        positive_eng: null,
+        negative_eng: null
     })
-    const { isAdmin } = useContext(AuthContext);
 
     //funcao que busca os grupos de stakeholders
     const fetchStakeholders = async () => {
-        const data = await fetchData('comunicacao/stakeholderGroups/get/stakeholderGroupsNames');
-        setNomesStakeholders(data.stakeholderGroups);
+        const data = await handleFetch({
+                        table: 'stakeholder_group',
+                        query: 'groups_names',
+                        token
+                    });
+        setNomesStakeholders(data.data);
     };      
 
     //useEffect que só roda na primeira render
@@ -42,7 +48,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
 
     //funcao para validar os dados e inserir no modal o texto de aviso
     const validaDados = () => {
-        if(funcoes?.isStakeholderCadastrado?.(obj.grupo, obj.stakeholder) ?? false){
+        if(funcoes?.isStakeholderCadastrado?.(obj.group_id, obj.stakeholder) ?? false){
             camposRef.current.stakeholder.classList.add('campo-vazio');
             setExibirModal('stakeholderRepetido');
             return true;
@@ -76,14 +82,14 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
             <td>
 
                 <select
-                    name="grupo"
+                    name="group_id"
                     onChange={handleChange}
-                    value={obj.grupo}
-                    ref={el => (camposRef.current.grupo = el)}
+                    value={obj.group_id}
+                    ref={el => (camposRef.current.group_id = el)}
                 >
                     <option defaultValue value=''>Stakeholder Group</option>
-                    {[...new Set(nomesStakeholders.map(item => item.grupo))].map((grupo, index) => (
-                        <option key={index} value={grupo}>{grupo}</option>
+                    {nomesStakeholders.map((group, index) => (
+                        <option key={index} value={group.id}>{group.group}</option>
                     ))};
                 </select>
             </td>
@@ -98,10 +104,10 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
             </td>
             <td>
                 <select
-                    value={obj.influencia}
-                    name='influencia'
+                    value={obj.influence}
+                    name='influence'
                     onChange={handleChange}
-                    ref={el => (camposRef.current.influencia = el)} >
+                    ref={el => (camposRef.current.influence = el)} >
                     <option value="" defaultValue>Influence</option>
                     <option value={true}>High</option>
                     <option value={false}>Low</option>
@@ -109,10 +115,10 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
             </td>
             <td>
                 <select
-                    value={obj.impacto}
-                    name='impacto'
+                    value={obj.impact}
+                    name='impact'
                     onChange={handleChange}
-                    ref={el => (camposRef.current.impacto = el)} >
+                    ref={el => (camposRef.current.impact = el)} >
                     <option value="" defaultValue>Impact</option>
                     <option value={true}>High</option>
                     <option value={false}>Low</option>
@@ -120,10 +126,10 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
             </td>
             <td>
                 <select
-                    value={obj.poder}
-                    name='poder'
+                    value={obj.power}
+                    name='power'
                     onChange={handleChange}
-                    ref={el => (camposRef.current.poder = el)} >
+                    ref={el => (camposRef.current.power = el)} >
                     <option value="" defaultValue>Power</option>
                     <option value={true}>High</option>
                     <option value={false}>Low</option>
@@ -131,10 +137,10 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
             </td>
             <td>
                 <select
-                    value={obj.interesse}
-                    name='interesse'
+                    value={obj.interest}
+                    name='interest'
                     onChange={handleChange}
-                    ref={el => (camposRef.current.interesse = el)} >
+                    ref={el => (camposRef.current.interest = el)} >
                     <option value="" defaultValue>Interest</option>
                     <option value={true}>High</option>
                     <option value={false}>Low</option>
@@ -142,43 +148,43 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
             </td>
             <td>
                 <textarea
-                    name="expectativas"
+                    name="expectations"
                     onChange={handleChange}
-                    value={obj.expectativas}
+                    value={obj.expectations}
                     placeholder="Expectations"
-                    ref={el => (camposRef.current.expectativas = el)}
+                    ref={el => (camposRef.current.expectations = el)}
                 />
             </td>
             <td>
                 <textarea
-                    name="requisitos"
+                    name="requisites"
                     onChange={handleChange}
-                    value={obj.requisitos}
+                    value={obj.requisites}
                     placeholder="Requisites"
-                    ref={el => (camposRef.current.requisitos = el)}
+                    ref={el => (camposRef.current.requisites = el)}
                 />
             </td>
             <td>
                 <textarea
-                    name="engajamento_positivo"
+                    name="positive_eng"
                     onChange={handleChange}
-                    value={obj.engajamento_positivo}
+                    value={obj.positive_eng}
                     placeholder="Positive Engagement"
-                    ref={el => (camposRef.current.engajamento_positivo = el)}
+                    ref={el => (camposRef.current.positive_eng = el)}
                 />
             </td>
             <td>
                 <textarea
-                    name="engajamento_negativo"
+                    name="negative_eng"
                     onChange={handleChange}
-                    value={obj.engajamento_negativo}
+                    value={obj.negative_eng}
                     placeholder="Negative Engagement"
-                    ref={el => (camposRef.current.engajamento_negativo = el)}
+                    ref={el => (camposRef.current.negative_eng = el)}
                 />
             </td>
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
-                    <button onClick={handleSubmit} disabled={!isAdmin}>Add new</button>
+                    <button onClick={handleSubmit} disabled={!isEditor}>Add new</button>
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>

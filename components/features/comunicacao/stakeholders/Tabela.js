@@ -1,24 +1,27 @@
-import React, { useEffect, useState, useContext } from "react"
+import React, { useEffect, useState } from "react"
 import styles from '../../../../styles/modules/comunicacao.module.css'
 import Inputs from "./Inputs";
 import Modal from "../../../ui/Modal";
 import Loading from "../../../ui/Loading";
-import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../../functions/crud";
+import { handleReq, handleFetch } from "../../../../functions/crud_s";
 import { cleanForm } from "../../../../functions/general";
-import { AuthContext } from "../../../../contexts/AuthContext";
+import usePerm from "../../../../hooks/usePerm";
+import useAuth from "../../../../hooks/useAuth";
 
 const Tabela = () => {
+    const { user, token } = useAuth();
+    const user_id = user.id;
+    const { isEditor } = usePerm();
     const camposVazios = {
-        grupo: "",
+        group_id: "",
         stakeholder: "",
-        influencia: "",
-        impacto: "",
-        poder: "",
-        interesse: "",
-        expectativas: "",
-        requisitos: "",
-        engajamento_positivo: "",
-        engajamento_negativo: ""
+        influence: "",
+        power: "",
+        interest: "",
+        expectations: "",
+        requisites: "",
+        positive_eng: "",
+        negative_eng: ""
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
@@ -28,84 +31,105 @@ const Tabela = () => {
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
-    const { isAdmin } = useContext(AuthContext);
     const [isUpdating, setIsUpdating] = useState(false);
 
     //funcao que cadastra os stakeholders e cadastra na funcao de engajamento o stakeholder do jeito devido
     const enviar = async () => {
-        await handleSubmit({
-            route: 'comunicacao/stakeholders',
-            dados: novoSubmit,
-            fetchDados: fetchStakeholders
-        });
+        const data = await handleReq({
+                    table: 'stakeholder',
+                    route: 'createReturn',
+                    token,
+                    data: {
+                        ...novoSubmit,
+                        user_id
+                    },
+                    fetchData: fetchStakeholders
+                });
 
         const objEngajamento = {
-            grupo: novoSubmit.grupo,
-            stakeholder: novoSubmit.stakeholder,
-            poder: novoSubmit.poder,
-            interesse: novoSubmit.interesse,
-            nivel_engajamento: '',
-            nivel_eng_desejado: ''
+            stakeholder_id: data.data.resultado[0].id,
+            eng_level: null,
+            eng_target_level: null
         }
 
-
-        await handleSubmit({
-            route: 'comunicacao/engajamento',
-            dados: objEngajamento
-        })
+        await handleReq({
+                    table: 'engagement',
+                    route: 'create',
+                    token,
+                    data: {
+                        ...objEngajamento,
+                        user_id
+                    },
+                });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
     };
 
+    const handleUpdateClick = (item) => {
+        const obj = {
+            id: item.id,
+            group_id: item?.stakeholder_group?.id,
+            stakeholder: item.stakeholder,
+            influence: item.influence,
+            power: item.power,
+            interest: item.interest,
+            expectations: item.expectations,
+            requisites: item.requisites,
+            positive_eng: item.positive_eng,
+            negative_eng: item.negative_eng
+        }
+        setNovosDados(obj);
+        setLinhaVisivel(item.id);
+        setIsUpdating(item?.stakeholder_group?.id)
+    }
+
     const isStakeholderCadastrado = (grupo, stakeholder) => {
-        return stakeholders.some((s) => s.grupo.trim().toLowerCase() == grupo.trim().toLowerCase()
+        return stakeholders.some((s) => s?.stakeholder_group?.id == grupo
             && s.stakeholder.trim().toLowerCase() == stakeholder.trim().toLowerCase());
     }
 
     //funcao que trata os dados e envia para realizacao do update
     const handleUpdateItem = async () => {
-        setLoading(true);
-        try {
-            await handleUpdate({
-                route: 'comunicacao/stakeholders/update?id',
-                dados: novosDados,
-                fetchDados: fetchStakeholders
-            });
-        } catch (error) {
-            console.error("Update failed:", error);
-        }
-        setLinhaVisivel();
-        setIsUpdating(false);
-        setLoading(false)
-        setNovosDados(camposVazios);
-    };
+            setLoading(true);
+            try {
+                await handleReq({
+                    table: 'stakeholder',
+                    route: 'update',
+                    token,
+                    data: novosDados,
+                    fetchData: fetchStakeholders
+                });
+            } catch (error) {
+                console.error("Update failed:", error);
+            }
+            setLinhaVisivel();
+            setLoading(false);
+            cleanForm(novosDados, setNovosDados, camposVazios);
+        };
 
     //funcao que envia os dados para serem deletados
     const handleConfirmDelete = async () => {
-        if (confirmDeleteItem) {
-            var getDeleteSuccess = false;
-            try {
-                getDeleteSuccess = await handleDelete({
-                    route: 'comunicacao/stakeholders',
-                    item: confirmDeleteItem,
-                    fetchDados: fetchStakeholders
+            if (confirmDeleteItem) {
+                await handleReq({
+                    table: "stakeholder",
+                    route: 'delete',
+                    token,
+                    data: { id: confirmDeleteItem.id },
+                    fetchData: fetchStakeholders
                 });
-            } finally {
-                setExibirModal(`deleteSuccess-${getDeleteSuccess}`)
             }
-        }
-        if (getDeleteSuccess) {
-            setExibirModal(`deleteSuccess`)
-        } else {
-            setExibirModal(`deleteFail`)
-        }
-        setConfirmDeleteItem(null);
-    };
+            setExibirModal("deleteSuccess");
+            setConfirmDeleteItem(null)
+        };
 
     //funcao que busca os stakeholders
     const fetchStakeholders = async () => {
         try {
-            const data = await fetchData('comunicacao/stakeholders/get/all');
-            setStakeholders(data.stakeholders);
+            const data = await handleFetch({
+                table: 'stakeholder',
+                query: 'all',
+                token
+            });
+            setStakeholders(data.data);
         } finally {
             setLoading(false);
         }
@@ -132,10 +156,14 @@ const Tabela = () => {
     };
 
     //funcao que calcula o rowSpan de determinado valor de acordo com os itens agrupados nesse valor
-    const calculateRowSpan = (itens, currentArea, currentIndex, parametro) => {
+    const calculateRowSpan = (currentArea, currentIndex, parametro) => {
         let rowSpan = 1;
-        for (let i = currentIndex + 1; i < itens.length; i++) {
-            if (itens[i][parametro] === currentArea) {
+        for (let i = currentIndex + 1; i < stakeholders.length; i++) {
+            let comparedData = stakeholders[i][parametro];
+            if (parametro.includes(".")) {
+                comparedData = parametro.split('.').reduce((acc, key) => acc?.[key], stakeholders[i]);
+            }
+            if (comparedData === currentArea) {
                 rowSpan++;
             } else {
                 break;
@@ -198,43 +226,43 @@ const Tabela = () => {
 
                             {stakeholders.map((stakeholder, index) => (
                                 <React.Fragment key={index}>
-                                    {linhaVisivel === stakeholder._id ? (
+                                    {linhaVisivel === stakeholder.id ? (
                                         <Inputs tipo="update"
                                             obj={novosDados}
                                             objSetter={setNovosDados}
                                             funcoes={{
                                                 enviar: handleUpdateItem,
-                                                cancelar: () => { linhaVisivel === stakeholder._id ? setLinhaVisivel() : setLinhaVisivel(item._id); setIsUpdating(false); }
+                                                cancelar: () => { setLinhaVisivel() ; setIsUpdating(false); }
                                             }}
                                             setExibirModal={setExibirModal}
                                         />
                                     ) : (
                                         <tr>
-                                            {!isUpdating || isUpdating[0] !== stakeholder.grupo ? (
+                                            {!isUpdating || isUpdating !== stakeholder?.stakeholder_group?.id ? (
                                                 <React.Fragment>
-                                                    {index === 0 || stakeholders[index - 1].grupo !== stakeholder.grupo ? (
-                                                        <td rowSpan={calculateRowSpan(stakeholders, stakeholder.grupo, index, 'grupo')}
-                                                        >{stakeholder.grupo}</td>
+                                                    {index === 0 || stakeholders[index - 1].stakeholder_group?.id !== stakeholder.stakeholder_group?.id ? (
+                                                        <td rowSpan={calculateRowSpan(stakeholder.stakeholder_group?.id, index, 'stakeholder_group.id')}
+                                                        >{stakeholder.stakeholder_group?.group}</td>
                                                     ) : null}
                                                 </React.Fragment>
                                             ) : (
-                                                <td>{stakeholder.grupo}</td>
+                                                <td>{stakeholder?.stakeholder_group?.group}</td>
                                             )}
                                             <td>{stakeholder.stakeholder}</td>
-                                            <td>{stakeholder.influencia ? 'High' : 'Low'}</td>
-                                            <td>{stakeholder.impacto ? 'High' : 'Low'}</td>
-                                            <td>{stakeholder.poder ? 'High' : 'Low'}</td>
-                                            <td>{stakeholder.interesse ? 'High' : 'Low'}</td>
-                                            <td>{stakeholder.expectativas}</td>
-                                            <td>{stakeholder.requisitos}</td>
-                                            <td>{stakeholder.engajamento_positivo}</td>
-                                            <td>{stakeholder.engajamento_negativo}</td>
+                                            <td>{stakeholder.influence ? 'High' : 'Low'}</td>
+                                            <td>{stakeholder.impact ? 'High' : 'Low'}</td>
+                                            <td>{stakeholder.power ? 'High' : 'Low'}</td>
+                                            <td>{stakeholder.interest ? 'High' : 'Low'}</td>
+                                            <td>{stakeholder.expectations}</td>
+                                            <td>{stakeholder.requisites}</td>
+                                            <td>{stakeholder.positive_eng}</td>
+                                            <td>{stakeholder.negative_eng}</td>
                                             <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(stakeholder)} disabled={!isAdmin}>❌</button>
+                                                <button onClick={() => setConfirmDeleteItem(stakeholder)} disabled={!isEditor}>❌</button>
                                                 <button onClick={() => {
-                                                    setLinhaVisivel(stakeholder._id); setNovosDados(stakeholder); setIsUpdating([stakeholder.grupo, stakeholder.stakeholder])
+                                                    handleUpdateClick(stakeholder)
                                                 }
-                                                } disabled={!isAdmin}>⚙️</button>
+                                                } disabled={!isEditor}>⚙️</button>
                                             </td>
                                         </tr>
                                     )}
@@ -243,7 +271,7 @@ const Tabela = () => {
                             <Inputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
-                                funcoes={{enviar, isStakeholderCadastrado}}
+                                funcoes={{ enviar, isStakeholderCadastrado }}
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>
