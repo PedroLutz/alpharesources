@@ -5,7 +5,7 @@ import styles from '../../../../styles/modules/risco.module.css'
 import useAuth from "../../../../hooks/useAuth";
 
 const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEditor, loaded }) => {
-    const {token} = useAuth();
+    const { token } = useAuth();
     const [elementosWBS, setElementosWBS] = useState([]);
     const [itensPorArea, setItensPorArea] = useState([]);
     const [areas, setAreas] = useState([]);
@@ -24,105 +24,105 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEdito
     })
 
     const fetchMembros = async () => {
-            const data = await handleFetch({
-                table: "member",
-                query: 'names',
-                token
-                });
-            setNomesMembros(data.data);
+        const data = await handleFetch({
+            table: "member",
+            query: 'names',
+            token
+        });
+        setNomesMembros(data.data);
     };
-    
+
     useEffect(() => {
         fetchMembros();
     }, []);
 
     const atualizarItensPorArea = (area, setter) => {
-            const itensDaArea = elementosWBS.filter(item => item.wbs_area.id == area);
-            setter(itensDaArea);
-        }
+        const itensDaArea = elementosWBS.filter(item => item.wbs_area.id == area);
+        setter(itensDaArea);
+    }
 
-        useEffect(() => {
-                if (tipo == "update") {
-                    if (obj?.item_id !== '') {
-                        const item = elementosWBS.find(item => item.id == obj?.item_id);
-                        if (item) {
-                            const areaSelecionada = item?.wbs_area?.id || -1;
-                            setAreaSelecionada(areaSelecionada);
-                            atualizarItensPorArea(areaSelecionada, setItensPorArea);
-                            // setRecursoSelecionado(item?.id);
-                        }
-                    } else {
-                        setAreaSelecionada(-1);
-                        atualizarItensPorArea(-1, setItensPorArea);
-                    }
+    useEffect(() => {
+        if (tipo == "update") {
+            if (obj?.item_id !== '') {
+                const item = elementosWBS.find(item => item.id == obj?.item_id);
+                if (item) {
+                    const areaSelecionada = item?.wbs_area?.id || -1;
+                    setAreaSelecionada(areaSelecionada);
+                    atualizarItensPorArea(areaSelecionada, setItensPorArea);
+                    // setRecursoSelecionado(item?.id);
                 }
-            }, [obj?.item_id, elementosWBS]);
-    
-        useEffect(() => {
-            if (areaSelecionada != '') {
-                atualizarItensPorArea(areaSelecionada, setItensPorArea);
-            }
-        }, [areaSelecionada, elementosWBS]);
-    
-        //useEffect que roda apenas na primeira execucao
-        useEffect(() => {
-            fetchElementos();
-        }, []);
-    
-        useEffect(() => {
-            if (loaded == true) {
-                setAreas([...new Map(
-                    elementosWBS
-                        .map(item => [
-                            item.wbs_area.id,
-                            { id: item.wbs_area.id, name: item.wbs_area.name }])
-                ).values()
-                ]);
-                setItensPorArea([]);
-            }
-        }, [loaded, elementosWBS]);
-    
-    
-        //so executa quando o tipo for cadastro pq a atualizacao n altera nem a area nem o item
-        //ent n pode mexer no obj
-        useEffect(() => {
-            if (tipo == 'cadastro') {
-                objSetter({
-                    ...obj,
-                    item_id: ''
-                })
-            }
-        }, [areaSelecionada]);
-    
-        const handleAreaChange = (e) => {
-            const areaSelecionada = e.target.value;
-            objSetter({ ...obj, item_id: "" });
-            atualizarItensPorArea(areaSelecionada, setItensPorArea);
-            setAreaSelecionada(areaSelecionada);
-            camposRef.current.area.classList.remove('campo-vazio');
-        };
-    
-        //funcao para buscar os elementos da WBS para inserção nos selects
-        const fetchElementos = async () => {
-            var elementos;
-            try {
-                const data = await handleFetch({
-                    table: 'wbs_item',
-                    query: 'with_areas',
-                    token
-                })
-                elementos = data?.data ?? [];
-            } finally {
-                setAreas([...new Map(
-                    elementos
-                        .map(item => [
-                            item.wbs_area.id,
-                            { id: item.wbs_area.id, name: item.wbs_area.name }])
-                ).values()
-                ]);
-                setElementosWBS(elementos);
+            } else {
+                setAreaSelecionada(-1);
+                atualizarItensPorArea(-1, setItensPorArea);
             }
         }
+    }, [obj?.item_id, elementosWBS]);
+
+    useEffect(() => {
+        if (areaSelecionada != '') {
+            atualizarItensPorArea(areaSelecionada, setItensPorArea);
+        }
+    }, [areaSelecionada, elementosWBS]);
+
+    //useEffect que roda apenas na primeira execucao
+    useEffect(() => {
+        fetchElementos();
+    }, []);
+
+    useEffect(() => {
+        if (loaded == true) {
+            setAreas([...new Map(
+                elementosWBS
+                    .map(item => [
+                        item.wbs_area.id,
+                        { id: item.wbs_area.id, name: item.wbs_area.name }])
+            ).values()
+            ]);
+            setItensPorArea([]);
+        }
+    }, [loaded, elementosWBS]);
+
+
+    //so executa quando o tipo for cadastro pq a atualizacao n altera nem a area nem o item
+    //ent n pode mexer no obj
+    useEffect(() => {
+        if (tipo == 'cadastro') {
+            objSetter({
+                ...obj,
+                item_id: ''
+            })
+        }
+    }, [areaSelecionada]);
+
+    const handleAreaChange = (e) => {
+        const areaSelecionada = e.target.value;
+        objSetter({ ...obj, item_id: "" });
+        atualizarItensPorArea(areaSelecionada, setItensPorArea);
+        setAreaSelecionada(areaSelecionada);
+        camposRef.current.area.classList.remove('campo-vazio');
+    };
+
+    //funcao para buscar os elementos da WBS para inserção nos selects
+    const fetchElementos = async () => {
+        var elementos;
+        try {
+            const data = await handleFetch({
+                table: 'wbs_item',
+                query: 'with_areas',
+                token
+            })
+            elementos = data?.data ?? [];
+        } finally {
+            setAreas([...new Map(
+                elementos
+                    .map(item => [
+                        item.wbs_area.id,
+                        { id: item.wbs_area.id, name: item.wbs_area.name }])
+            ).values()
+            ]);
+            setElementosWBS(elementos);
+        }
+    }
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -134,7 +134,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEdito
     };
 
     const validaDados = () => {
-        if(funcoes?.isRiscoCadastrado?.(obj.risk) ?? false){
+        if (funcoes?.isRiscoCadastrado?.(obj.risk) ?? false) {
             camposRef.current.risco.classList.add('campo-vazio');
             setExibirModal('riscoRepetido');
             return true;
@@ -143,7 +143,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEdito
             .filter(([key, value]) => value === null || value === "")
             .map(([key]) => key);
 
-            console.log(camposVazios, obj)
+        console.log(camposVazios, obj)
         if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
                 if (camposRef.current[campo]) {
@@ -158,7 +158,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEdito
 
     const handleSubmit = () => {
         const isInvalido = validaDados();
-        if(isInvalido == true) return;
+        if (isInvalido == true) return;
         funcoes?.enviar();
         setAreaSelecionada('');
     }
@@ -167,31 +167,31 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEdito
         <tr>
             <td className={styles.riscoTdArea}>
                 <select
-                        name="area"
-                        onChange={(e) => handleAreaChange(e, false)}
-                        value={areaSelecionada || ''}
-                        ref={el => (camposRef.current.area = el)}
-                    >
-                        <option value="" defaultValue>Area</option>
-                        {areas.map((area, index) => (
-                            <option key={index} value={area.id}>{area.name}</option>
-                        ))}
-                        <option value={-1}>Others</option>
-                    </select>
+                    name="area"
+                    onChange={(e) => handleAreaChange(e, false)}
+                    value={areaSelecionada || ''}
+                    ref={el => (camposRef.current.area = el)}
+                >
+                    <option value="" defaultValue>Area</option>
+                    {areas.map((area, index) => (
+                        <option key={index} value={area.id}>{area.name}</option>
+                    ))}
+                    <option value={-1}>Others</option>
+                </select>
             </td>
             <td className={styles.riscoTdItem}>
                 <select
-                        name="item_id"
-                        onChange={handleChange}
-                        value={obj.item_id || ''}
-                        ref={el => (camposRef.current.item = el)}
-                    >
-                        <option value="" defaultValue>Item</option>
-                        {itensPorArea.map((item, index) => (
-                            <option key={index} value={item.id}>{item.name}</option>
-                        ))}
-                        <option value={-1}>Others</option>
-                    </select>
+                    name="item_id"
+                    onChange={handleChange}
+                    value={obj.item_id || ''}
+                    ref={el => (camposRef.current.item = el)}
+                >
+                    <option value="" defaultValue>Item</option>
+                    {itensPorArea.map((item, index) => (
+                        <option key={index} value={item.id}>{item.name}</option>
+                    ))}
+                    <option value={-1}>Others</option>
+                </select>
             </td>
             <td>
                 <textarea
@@ -272,7 +272,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEdito
                         <option key={index} value={membro.id}>{membro.name}</option>
                     ))}
                 </select>
-                
+
             </td>
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (

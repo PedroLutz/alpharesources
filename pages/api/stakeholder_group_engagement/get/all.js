@@ -10,26 +10,25 @@ export default async function handler(req, res) {
   const client = createServerClient(token);
 
   const { data, error } = await client
-    .from('engagement')
+    .from('stakeholder_group_engagement')
     .select(`
         id,
-        stakeholder (
+        stakeholder_group (
             id,
-            stakeholder_group (
-                id,
-                group
-            ),
-            stakeholder,
-            power,
-            interest
+            group
         ),
+        dependency,
+        influence,
+        control,
+        impact,
+        engagement,
+        alignment,
         eng_level,
         eng_target_level
         `)
-    .order('stakeholder(stakeholder_group->group)', { ascending: true })
-    .order('stakeholder(stakeholder)', { ascending: true })
+    .order('stakeholder_group(group)', { ascending: true })
 
-  if (error) return res.status(400).json({ error: error.message })
+  if (error) {return res.status(400).json({ error: error.message })}
 
   return res.status(200).json(data)
 }

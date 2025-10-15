@@ -1,5 +1,5 @@
 import PageWrapper from '../../../components/layout/ComunicacaoWrapper';
-import Tabela from '../../../components/features/comunicacao/informacao/Tabela';
+import Tabela from '../../../components/features/n_comunicacao/informacao/Tabela';
 
 function Wbs() {
   return (
