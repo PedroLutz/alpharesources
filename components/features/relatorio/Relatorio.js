@@ -1,16 +1,36 @@
 import React, { useState, useEffect } from "react";
-import { fetchData } from "../../../functions/crud";
 import { isoDateToEuDate } from "../../../functions/general";
 import styles from '../../../styles/modules/relatorio.module.css'
 import Loading from "../../ui/Loading";
 import Modal from "../../ui/Modal";
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns';
+import useAuth from "../../../hooks/useAuth";
+import { handlePostFetch, handleFetch } from "../../../functions/crud_s";
+
+/*
+⢀⡴⠑⡄⠀⠀⠀⠀⠀⠀⠀⣀⣀⣤⣤⣤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ 
+⠸⡇⠀⠿⡀⠀⠀⠀⣀⡴⢿⣿⣿⣿⣿⣿⣿⣿⣷⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀ 
+⠀⠀⠀⠀⠑⢄⣠⠾⠁⣀⣄⡈⠙⣿⣿⣿⣿⣿⣿⣿⣿⣆⠀⠀⠀⠀⠀⠀⠀⠀ 
+⠀⠀⠀⠀⢀⡀⠁⠀⠀⠈⠙⠛⠂⠈⣿⣿⣿⣿⣿⠿⡿⢿⣆⠀⠀⠀⠀⠀⠀⠀ 
+⠀⠀⠀⢀⡾⣁⣀⠀⠴⠂⠙⣗⡀⠀⢻⣿⣿⠭⢤⣴⣦⣤⣹⠀⠀⠀⢀⢴⣶⣆ 
+⠀⠀⢀⣾⣿⣿⣿⣷⣮⣽⣾⣿⣥⣴⣿⣿⡿⢂⠔⢚⡿⢿⣿⣦⣴⣾⠁⠸⣼⡿ 
+⠀⢀⡞⠁⠙⠻⠿⠟⠉⠀⠛⢹⣿⣿⣿⣿⣿⣌⢤⣼⣿⣾⣿⡟⠉⠀⠀⠀⠀⠀ 
+⠀⣾⣷⣶⠇⠀⠀⣤⣄⣀⡀⠈⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀ 
+⠀⠉⠈⠉⠀⠀⢦⡈⢻⣿⣿⣿⣶⣶⣶⣶⣤⣽⡹⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀ 
+⠀⠀⠀⠀⠀⠀⠀⠉⠲⣽⡻⢿⣿⣿⣿⣿⣿⣿⣷⣜⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀ 
+⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣷⣶⣮⣭⣽⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀ 
+⠀⠀⠀⠀⠀⠀⣀⣀⣈⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠇⠀⠀⠀⠀⠀⠀⠀ 
+⠀⠀⠀⠀⠀⠀⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀ 
+⠀⠀⠀⠀⠀⠀⠀⠹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀ 
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠻⠿⠿⠿⠿⠛⠉
+
+
+FAZER SELECIONADOR DE CAMPOS A SEREM USADOS
+
+*/
 
 const Relatorio = () => {
     const [showTable, setShowTable] = useState(false);
-    const [mes, setMes] = useState("");
     const objKpis = {
         scopeStatus: '',
         scheduleStatus: '',
@@ -27,12 +47,15 @@ const Relatorio = () => {
     const [areaAnalysis, setAreaAnalysis] = useState([]);
     const [loading, setLoading] = useState(false);
     const [riscos, setRiscos] = useState([]);
+    const [oportunidades, setOportunidades] = useState([]);
     const [flagExport, setFlagExport] = useState(false);
+    const [interval, setInterval] = useState('');
+    const {user, token} = useAuth();
 
     //transforma os dados em uma unica string
     const generateLabelsTarefas = (dados, setter) => {
         const tarefas = dados.reduce(
-            (texto, dado) => texto + `${dado.area} - ${dado.item}, `, ``
+            (texto, dado) => texto + `${dado.area_name} - ${dado.item_name}, `, ``
         )
         //o reduce vai incluir uma virgula no final, ent é só cortar ela fora
         //ent o slice pega o texto entre o inicio e a ultima virgula (exclusivo)
@@ -42,7 +65,7 @@ const Relatorio = () => {
 
     const generateLabelsRiscos = (dados, setter) => {
         const riscos = dados.reduce(
-            (texto, dado) => texto + `${dado.risco}, `, ``
+            (texto, dado) => texto + `${dado.risk}, `, ``
         )
         const textoAjustado = riscos.slice(0, riscos.lastIndexOf(','));
         setter(textoAjustado);
@@ -69,88 +92,104 @@ const Relatorio = () => {
     };
 
     const busca = async () => {
-        setLoading(true)
-        if (mes == "") {
+        setLoading(true);
+        if (interval == "") {
             setExibirModal(true);
             setLoading(false);
             return;
         }
-        const mesAno = format(mes, 'yyyy-MM');
-        try {
-            const response = await fetch(`/api/relatorio/get/geral`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ monthYear: mesAno }),
-            });
+        const data = await handlePostFetch({
+            table: "report",
+            query: 'all',
+            token,
+            data: { uid: user.id, interval_text: interval },
+        });
 
-            if (response.ok) {
-                const data = await response.json();
-                console.log(data)
-                generateLabelsTarefas(data.tarefasIniciadas, setTarefasIniciadas);
-                generateLabelsTarefas(data.tarefasConcluidas, setTarefasConcluidas);
-                generateLabelsTarefas(data.tarefasEmAndamento, setTarefasEmAndamento);
-                generateLabelsTarefas(data.tarefasPlanejadas, setTarefasPlanejadas);
-                generateLabelsRiscos(data.riscos, setRiscos);
-            } else {
-                console.error(`Erro ao buscar por dados`);
+        generateLabelsTarefas(data.data.started, setTarefasIniciadas);
+        generateLabelsTarefas(data.data.completed, setTarefasConcluidas);
+        generateLabelsTarefas(data.data.execution, setTarefasEmAndamento);
+        generateLabelsTarefas(data.data.planned, setTarefasPlanejadas);
+        generateLabelsRiscos(data.data.threats, setRiscos);
+        generateLabelsRiscos(data.data.opportunities, setOportunidades);
+        
+        const responsePlano = await handleFetch({
+            table: "gantt",
+            query: "startAndEndPlans",
+            token
+        });
+        const responseGantt = await handleFetch({
+            table: "gantt",
+            query: "startAndEndMonitors",
+            token
+        });
+        const responseSituacoesGantt = await handleFetch({
+            table: "gantt",
+            query: "monitorsAndStatus",
+            token
+        });
+        const dadosPlano = responsePlano.data;
+        const dadosGantt = responseGantt.data;
+        const dadosSituacoesGantt = responseSituacoesGantt.data;
+
+        var primeiroEUltimoPlanos = [];
+        var primeiroEUltimoGantts = [];
+        const areas = new Map(dadosPlano.map(item => [item.wbs_item.wbs_area.id, {id: item.wbs_item.wbs_area.id, name: item.wbs_item.wbs_area.name}]).values())
+        areas.forEach((area) => {
+            {
+                const primeiroInicio = dadosPlano.filter(dado => dado.wbs_item.wbs_area.id == area.id)
+                            .reduce((min, obj) => obj.gantt_data[0].start < min.gantt_data[0].start ? obj : min);
+                const ultimoTermino = dadosPlano.filter(dado => dado.wbs_item.wbs_area.id == area.id)
+                            .reduce((max, obj) => obj.gantt_data[0].end > max.gantt_data[0].end ? obj : max);
+                primeiroEUltimoPlanos.push({primeiro: primeiroInicio, ultimo: ultimoTermino});
+                
             }
-        } catch (error) {
-            console.error(`Erro ao buscar por dados`, error);
-        }
-
-        const responsePlano = await fetchData('cronograma/get/startAndEndPlano');
-        const responseGantt = await fetchData('cronograma/get/startAndEndGantt');
-        const responseSituacoesGantt = await fetchData('cronograma/get/ganttsESituacoes');
-        const dadosPlano = responsePlano.resultadosPlano;
-        const dadosGantt = responseGantt.resultadosGantt;
-        const dadosSituacoesGantt = responseSituacoesGantt.ganttPorArea;
+            {
+                const primeiroInicio = dadosGantt.filter(dado => dado.wbs_item.wbs_area.id == area.id)
+                            .reduce((min, obj) => obj.gantt_data[0].start < min.gantt_data[0].start ? obj : min);
+                const ultimoTermino = dadosGantt.filter(dado => dado.wbs_item.wbs_area.id == area.id)
+                            .reduce((max, obj) => obj.gantt_data[0].end > max.gantt_data[0].end ? obj : max);
+                primeiroEUltimoGantts.push({primeiro: primeiroInicio, ultimo: ultimoTermino});
+            }
+        })
 
         var objSituacao = {}
-        dadosSituacoesGantt.forEach((dado) => {
-            if (dado.itens.filter((item) => item.situacao === "em andamento").length === 0 &&
-                dado.itens.filter((item) => item.situacao === "iniciar").length === 0) {
+        dadosSituacoesGantt.ganttPorArea.forEach((dado) => {
+            if (dado.itens.filter((item) => item?.status === "executing").length === 0 &&
+                dado.itens.filter((item) => item?.status === "start").length === 0) {
                 objSituacao = { ...objSituacao, [dado.area]: "Complete" }
-            } else if (dado.itens.filter((item) => item.situacao === "em andamento").length === 0 &&
-                dado.itens.filter((item) => item.situacao === "iniciar").length > 0 &&
-                dado.itens.filter((item) => item.situacao === 'concluida').length > 0) {
+            }
+            else if (dado.itens.filter((item) => item?.status === "executing").length === 0 &&
+                dado.itens.filter((item) => item?.status === "start").length > 0 &&
+                dado.itens.filter((item) => item?.status === 'complete').length > 0) {
                 objSituacao = { ...objSituacao, [dado.area]: "Hold" }
-            } else if (dado.itens.filter((item) => item.situacao === "em andamento").length > 0) {
+            }
+            else if (dado.itens.filter((item) => item?.status === "executing").length > 0) {
                 objSituacao = { ...objSituacao, [dado.area]: "Executing" }
-            } else if (dado.itens.filter((item) => item.situacao === "em andamento").length === 0 &&
-                dado.itens.filter((item) => item.situacao === "concluida").length === 0) {
+            }
+            else if (dado.itens.filter((item) => item?.status === "executing").length === 0 &&
+                dado.itens.filter((item) => item?.status === "complete").length === 0) {
                 objSituacao = { ...objSituacao, [dado.area]: "To Begin" }
             }
         })
 
         var duplas = [];
-        dadosPlano.forEach((dado) => {
-            const gantt = dadosGantt.find(o => o.area === dado.area);
+        primeiroEUltimoPlanos.forEach((dado) => {
+            const gantt = primeiroEUltimoGantts.find(o => o.primeiro.id === dado.primeiro.id);
             duplas.push([dado, gantt])
         })
 
         let arrayAnalise = [];
-
         duplas.forEach((dupla) => {
-            const area = dupla[0].area;
+            const area = dupla[0].ultimo.wbs_item.wbs_area.name;
             const planoUltimo = dupla[0].ultimo;
             const ganttUltimo = dupla[1].ultimo;
-            const getLastDayOfMonth = (monthYear) => {
-                console.log(monthYear)
-                const { year, month } = monthYear;
-
-                const lastDay = new Date(year, month, 0).getDate(); // Dia 0 do próximo mês retorna o último dia do mês atual
-                return new Date(year, month - 1, lastDay); // month - 1 porque os meses são indexados de 0 a 11
-            };
+            const hoje = new Date().toISOString();
             var obj = { area: area, state: objSituacao[area] }
 
-            const monthYear = { year: format(mes, 'MM-yyyy').split("-")[1], month: format(mes, 'MM-yyyy').split("-")[0] }
-            const hoje = getLastDayOfMonth(monthYear).toISOString();
 
             //executing
             if (objSituacao[area] === "Executing") {
-                if (planoUltimo.termino >= hoje) {
+                if (planoUltimo.gantt_data[0].end >= hoje) {
                     obj = { ...obj, status: 'On Schedule' }
                 } else {
                     obj = { ...obj, status: 'Overdue' }
@@ -160,7 +199,7 @@ const Relatorio = () => {
 
             //hold
             if (objSituacao[area] === "Hold") {
-                if (planoUltimo.termino >= hoje) {
+                if (planoUltimo.gantt_data[0].end >= hoje) {
                     obj = { ...obj, status: 'On Schedule' }
                 } else {
                     obj = { ...obj, status: 'Overdue' }
@@ -170,7 +209,7 @@ const Relatorio = () => {
 
             //complete
             if (objSituacao[area] === "Complete") {
-                if (planoUltimo.termino >= ganttUltimo.termino) {
+                if (planoUltimo.gantt_data[0].end >= ganttUltimo.gantt_data[0].end) {
                     obj = { ...obj, status: 'On Schedule' }
                 } else {
                     obj = { ...obj, status: 'Overdue' }
@@ -180,7 +219,7 @@ const Relatorio = () => {
 
             //to begin
             if (objSituacao[area] === "To Begin") {
-                if (planoUltimo.termino >= hoje) {
+                if (planoUltimo.gantt_data[0].end >= hoje) {
                     obj = { ...obj, status: 'On Schedule' }
                 } else {
                     obj = { ...obj, status: 'Overdue' }
@@ -188,9 +227,9 @@ const Relatorio = () => {
                 arrayAnalise.push(obj);
             }
         })
-        setAreaAnalysis(arrayAnalise);
-        setLoading(false);
+        setAreaAnalysis(arrayAnalise)
         setShowTable(true);
+        setLoading(false);
     }
 
     const generatePDF = async () => {
@@ -279,7 +318,7 @@ const Relatorio = () => {
 
         const opt = {
             margin: 1,
-            filename: `relatorio-${format(mes, 'MM-yyyy')}.pdf`,
+            filename: `report-${format(new Date(), 'dd-MM-yyyy')}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2 },
             jsPDF: {
@@ -301,11 +340,24 @@ const Relatorio = () => {
 
     }, [flagExport]);
 
+    const futurePerformanceLabel = () => {
+        switch(interval){
+            case '1 week':
+                return "week";
+            case "2 weeks":
+                return "2 weeks";
+            case "1 month":
+                return "month";
+            case "2 months":
+                return "2 months"
+        }
+    }
+
     return (
         <div className="centered-container">
             {exibirModal && (
                 <Modal objeto={{
-                    titulo: "Please select a valid month!",
+                    titulo: "Please select a valid interval!",
                     botao1: {
                         funcao: () => setExibirModal(false), texto: 'Okay'
                     },
@@ -315,18 +367,17 @@ const Relatorio = () => {
             <h2 className="smallTitle">Status Report Generator</h2>
             {loading && <Loading />}
             <div className={styles.menu}>
-                <h3>Select Month</h3>
+                <h3>Select Interval</h3>
                 <div>
-                    <DatePicker
-                        selected={mes}
-                        onChange={(date) => setMes(date)}
-                        dateFormat="MM/yyyy"
-                        className={styles.datePicker}
-                        calendarClassName={styles.datePicker_calendar}
-                        showMonthYearPicker
-                        showFullMonthYearPicker
-                        placeholderText="MM/yyyy"
-                    />
+                    <select
+                        style={{backgroundColor: 'transparent', borderColor: 'gray', borderStyle: 'solid', borderWidth: '0.1rem', borderRadius: '0.4rem'}}
+                        onChange={(e) => setInterval(e.target.value)}>
+                        <option defaultValue value="">Interval</option>
+                        <option value="2 months">2 months</option>
+                        <option defaultValue value="1 month">1 month</option>
+                        <option value="2 weeks">2 weeks</option>
+                        <option value="1 week">1 week</option>
+                    </select>
                 </div>
                 <button className="botao-padrao" onClick={busca}>Get data</button>
                 {showTable && (
@@ -351,8 +402,8 @@ const Relatorio = () => {
                                                 <td>Alpha Scuderia</td>
                                             </tr>
                                             <tr>
-                                                <td>Month of report</td>
-                                                <td>{format(mes, 'MM/yyyy')}</td>
+                                                <td>Date of report</td>
+                                                <td>{format(new Date(), 'dd/MM/yyyy')}</td>
                                             </tr>
                                             <tr>
                                                 <td>Projected Date of Completion</td>
@@ -393,8 +444,12 @@ const Relatorio = () => {
                                             <td>{tarefasConcluidas || '-'}</td>
                                         </tr>
                                         <tr>
-                                            <td>Risks</td>
+                                            <td>Threats of tasks in execution</td>
                                             <td>{riscos || '-'}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Opportunities of tasks in execution</td>
+                                            <td>{oportunidades || '-'}</td>
                                         </tr>
                                         <tr>
                                             <td>Issues</td>
@@ -512,7 +567,7 @@ const Relatorio = () => {
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td>Tasks planned for next month</td>
+                                                <td>Tasks planned for the next {futurePerformanceLabel()}</td>
                                                 <td>{tarefasPlanejadas || '-'}</td>
                                             </tr>
                                             <tr>

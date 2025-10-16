@@ -10,6 +10,28 @@ import chroma from 'chroma-js';
 import useAuth from '../../../hooks/useAuth';
 import usePerm from '../../../hooks/usePerm';
 
+/*
+⢀⡴⠑⡄⠀⠀⠀⠀⠀⠀⠀⣀⣀⣤⣤⣤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ 
+⠸⡇⠀⠿⡀⠀⠀⠀⣀⡴⢿⣿⣿⣿⣿⣿⣿⣿⣷⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀ 
+⠀⠀⠀⠀⠑⢄⣠⠾⠁⣀⣄⡈⠙⣿⣿⣿⣿⣿⣿⣿⣿⣆⠀⠀⠀⠀⠀⠀⠀⠀ 
+⠀⠀⠀⠀⢀⡀⠁⠀⠀⠈⠙⠛⠂⠈⣿⣿⣿⣿⣿⠿⡿⢿⣆⠀⠀⠀⠀⠀⠀⠀ 
+⠀⠀⠀⢀⡾⣁⣀⠀⠴⠂⠙⣗⡀⠀⢻⣿⣿⠭⢤⣴⣦⣤⣹⠀⠀⠀⢀⢴⣶⣆ 
+⠀⠀⢀⣾⣿⣿⣿⣷⣮⣽⣾⣿⣥⣴⣿⣿⡿⢂⠔⢚⡿⢿⣿⣦⣴⣾⠁⠸⣼⡿ 
+⠀⢀⡞⠁⠙⠻⠿⠟⠉⠀⠛⢹⣿⣿⣿⣿⣿⣌⢤⣼⣿⣾⣿⡟⠉⠀⠀⠀⠀⠀ 
+⠀⣾⣷⣶⠇⠀⠀⣤⣄⣀⡀⠈⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀ 
+⠀⠉⠈⠉⠀⠀⢦⡈⢻⣿⣿⣿⣶⣶⣶⣶⣤⣽⡹⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀ 
+⠀⠀⠀⠀⠀⠀⠀⠉⠲⣽⡻⢿⣿⣿⣿⣿⣿⣿⣷⣜⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀ 
+⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣷⣶⣮⣭⣽⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀ 
+⠀⠀⠀⠀⠀⠀⣀⣀⣈⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠇⠀⠀⠀⠀⠀⠀⠀ 
+⠀⠀⠀⠀⠀⠀⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀ 
+⠀⠀⠀⠀⠀⠀⠀⠹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀ 
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠻⠿⠿⠿⠿⠛⠉
+
+
+CORRIGIR PRA EVITAR ATUALIZACAO DE PREDESCESSOR PRA DEPOIS DO SUCESSOR
+
+*/
+
 const Tabela = () => {
   const { user, token } = useAuth();
   const {isEditor} = usePerm();
@@ -110,7 +132,7 @@ const Tabela = () => {
           dependencies = `${item.gantt_dependency[0].dependency_id}`;
         }
         ganttData.push([taskID, taskName, resource, startDate, endDate, 10, 100, dependencies]);
-        const riscosAnalise = etis.filter(e => e.risk.wbs_item.id == item.wbs_item.id);
+        const riscosAnalise = etis.filter(e => e?.risk?.wbs_item?.id == item?.wbs_item?.id);
         var acrescimoDeData = 0;
         if(riscosAnalise.length > 0){
           riscosAnalise.forEach(e => {
@@ -350,7 +372,8 @@ const Tabela = () => {
           fetchData: fetchCronogramas
         });
 
-        if (novosDados.dp_item != "") {
+        if (novosDados.dp_item != "" && novosDados.dp_item != undefined && novosDados.dp_item != null) {
+          console.log(novosDados.dp_item)
           const formDataDependency = {
             gantt_id: novosDados.gantt_id,
             dependency_id: cronogramas.find((c) => c.wbs_item.id == novosDados.dp_item).id,
