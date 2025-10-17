@@ -96,7 +96,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     {areas.map((area, index) => (
                         <option key={index} value={area.id}>{area.name}</option>
                     ))};
-                    <option value="Others">Others</option>
+                    <option value={-1}>Others</option>
                 </select>
             </td>
             <td>

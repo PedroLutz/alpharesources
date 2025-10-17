@@ -43,6 +43,7 @@ const Tabela = () => {
             token,
             data: {
                 ...novoSubmit,
+                area_id: novoSubmit.area_id == -1 ? null : novoSubmit.area_id,
                 user_id
             },
             fetchData: fetchMudancas
@@ -55,7 +56,7 @@ const Tabela = () => {
     const handleUpdateClick = (item) => {
         const obj = {
             ...item,
-            area_id: item?.wbs_area?.id,
+            area_id: item?.wbs_area?.id || -1,
         }
         delete obj.wbs_area;
         setNovosDados(obj);
@@ -71,7 +72,10 @@ const Tabela = () => {
                 table: 'change',
                 route: 'update',
                 token,
-                data: novosDados,
+                data: {
+                    ...novosDados,
+                    area_id: novosDados.area_id == -1 ? null : novosDados.area_id
+                },
                 fetchData: fetchMudancas
             });
         } catch (error) {
@@ -210,7 +214,7 @@ const Tabela = () => {
                                     ) : (
                                         <tr>
                                             <td className={styles.mudancasData}>{isoDateToEuDate(mudanca.date)}</td>
-                                            <td>{mudanca.wbs_area?.name}</td>
+                                            <td>{mudanca.wbs_area?.name || "Others"}</td>
                                             <td>{typeLabels[mudanca.type]}</td>
                                             <td>{mudanca.item}</td>
                                             <td className={styles.mudancasMudanca}>{mudanca.change}</td>
