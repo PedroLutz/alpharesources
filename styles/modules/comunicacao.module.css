@@ -104,7 +104,7 @@ INFORMACAO
 .tabelaInformacao td textarea,
 .tabelaInformacao td select,
 .tabelaInformacao td:not(:global(.botoes_acoes)) button {
-    height: 3rem;
+    height: 3.3rem;
 }
 
 .tabelaInformacao td.infoTdInfo {
@@ -119,12 +119,17 @@ INFORMACAO
 }
 
 .tabelaInformacao td.infoTdFrequencia select {
-    height: 2.7rem;
     margin-bottom: 0.2rem;
+    width: 8rem;
+    transition: all 0.2s, height 0s;
+}
+
+.tabelaInformacao td.infoTdFrequencia select.infoTdFrequenciaSelect {
+    height: 1.5rem;
 }
 
 .tabelaInformacao td.infoTdFrequencia input {
-    max-width: 9.5rem;
+    width: 8rem;
 }
 
 .tabelaInformacao td.infoTdStakeholder select {
@@ -162,6 +167,16 @@ RESPONSIVIDADE
     }
 
     /* -------INFORMACAO ------- */
+    .tabelaInformacao td textarea,
+    .tabelaInformacao td select,
+    .tabelaInformacao td:not(:global(.botoes_acoes)) button {
+        height: 2.5rem;
+    }
+
+    .tabelaInformacao td.infoTdFrequencia select.infoTdFrequenciaSelect {
+    height: 1.1rem;
+}
+
     .tabelaInformacao td.infoTdInfo {
         font-size: 0.6rem;
         text-align: justify;

@@ -159,19 +159,21 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEdito
                 </select>
             </td>
             <td className={styles.areaTd}>
-                <select
-                    name="area"
-                    onChange={(e) => setAreaEscrita(e.target.value)}
-                    value={areaEscrita || ''}
-                    ref={el => (camposRef.current.area = el)}
+                <div className={styles.inputsDiv}>
+                    <select
+                        name="area"
+                        onChange={(e) => setAreaEscrita(e.target.value)}
+                        value={areaEscrita || ''}
+                        ref={el => (camposRef.current.area = el)}
 
-                >
-                    <option value="" defaultValue>Area</option>
-                    {areas.map((area, index) => (
-                        <option key={index} value={area.id}>{area.name}</option>
-                    ))};
-                </select>
-                <button onClick={addToAreaArray}>➕</button>
+                    >
+                        <option value="" defaultValue>Area</option>
+                        {areas.map((area, index) => (
+                            <option key={index} value={area.id}>{area.name}</option>
+                        ))};
+                    </select>
+                    <button onClick={addToAreaArray}>➕</button>
+                </div>
                 <div className={styles.areaDiv}>
                     {obj.areas.map((a, index) => (
                     <AreaModal

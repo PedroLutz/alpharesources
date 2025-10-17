@@ -179,6 +179,12 @@
 
 .tabelaFuncoes td.areaTd {
     width: 8rem;
+    vertical-align: top;
+}
+
+.tabelaFuncoes td.areaTd div.inputsDiv{
+     display: flex;
+     vertical-align: top;
 }
 
 .tabelaFuncoes td.areaTd select {
@@ -194,10 +200,6 @@
     display: block;
     max-height: 2.5rem;
     overflow-y: scroll
-}
-
-.tabelaFuncoes td.areaTd {
-    vertical-align: top;
 }
 
 .tabelaFuncoes td.areaTd button{
@@ -231,6 +233,10 @@
 .tabelaHabilidade td select {
     width: 6rem;
     height: 2.5rem;
+}
+
+.tabelaHabilidade td textarea[name="skill"]{
+    width: 10rem;
 }
 
 .tabelaHabilidade td.habilidadeTdNivel {
@@ -322,9 +328,31 @@
         width: 100%;
     }
 
+    .tabelaFuncoes div.areaDiv {
+        height: 2rem;
+    }
+
+    .tabelaFuncoes div.areaContainer {
+        height: 1.5rem;
+    }
+
+    .tabelaFuncoes td.areaTd select,
+    .tabelaFuncoes td.areaTd button,
+    .tabelaFuncoes div.areaContainer button {
+        height: 1.5rem;
+    }
+
+    .tabelaFuncoes div.areaContainer button {
+        width: 1rem;
+    }
+
     /* -------- HABILIDADE ----------*/
 
     .tabelaHabilidade th.habilidadeThSkill {
         font-size: 0.5rem;
+    }
+
+    .tabelaHabilidade td textarea[name="skill"]{
+        width: 8rem;
     }
 }

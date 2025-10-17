@@ -26,7 +26,6 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
         feedback: null,
         action: null
     })
-    const isFirstRender = useRef(true);
 
     //funcao que busca os grupos e nomes dos stakeholders
 
@@ -118,13 +117,14 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     //se esse valor for diferente dos preestabelecidos e nao for vazio, inicia o componente mostrando o input de opcao customizada
     useEffect(() => {
         const opcoesPreEstabelecidas = ["Daily", "Weekly", "Monthly", "On demand"];
-        if (obj.frequencia && !opcoesPreEstabelecidas.includes(obj.frequencia)) {
+        console.log(obj.frequency)
+        if (obj.frequency && !opcoesPreEstabelecidas.includes(obj.frequency)) {
             setVerOpcaoCustom(true);
         }
 
         fetchGruposENomes();
         fetchMembros();
-    }, []);
+    }, [obj.frequency]);
 
     //funcao que insere os dados no obj
     const handleChange = (e) => {
@@ -182,7 +182,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
 
     return (
         <tr>
-            <td>
+            <td className={styles.infoTdStakeholder}>
                 <select
                     name="grupo"
                     onChange={handleGrupoChange}
@@ -227,8 +227,9 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.method = el)}
                 />
             </td>
-            <td className={verOpcaoCustom ? styles.infoTdFrequencia : ''}>
+            <td className={styles.infoTdFrequencia}>
                 <select
+                    className={verOpcaoCustom && styles.infoTdFrequenciaSelect}
                     value={obj.frequency}
                     name='frequency'
                     onChange={handleFrequenciaChange}
