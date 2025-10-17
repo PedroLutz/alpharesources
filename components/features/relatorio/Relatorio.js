@@ -174,7 +174,7 @@ const Relatorio = () => {
 
         var duplas = [];
         primeiroEUltimoPlanos.forEach((dado) => {
-            const gantt = primeiroEUltimoGantts.find(o => o.primeiro.id === dado.primeiro.id);
+            const gantt = primeiroEUltimoGantts.find(o => o.primeiro.wbs_item.wbs_area.id === dado.primeiro.wbs_item.wbs_area.id);
             duplas.push([dado, gantt])
         })
 

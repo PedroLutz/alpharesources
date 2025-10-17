@@ -93,7 +93,7 @@ const Tabela = () => {
 
             var paleta = [];
             for (const [key, value] of Object.entries(cores)) {
-                if (data.data.some((item) => item.wbs_item.wbs_area.name === key && item.end !== null)) {
+                if (data.data.some((item) => { return item.wbs_item.wbs_area.name === key && item.gantt_data[0]?.end !== null })) {
                     paleta.push({
                         "color": value ? chroma(value).darken().saturate(3).hex() : '#000000',
                         "dark": value ? chroma(value).hex() : '#000000',
@@ -336,23 +336,19 @@ const Tabela = () => {
 
         var primeiroEUltimoPlanos = [];
         var primeiroEUltimoGantts = [];
-        const areas = new Map(dadosPlano.map(item => [item.wbs_item.wbs_area.id, {id: item.wbs_item.wbs_area.id, name: item.wbs_item.wbs_area.name}]).values())
+        const areas = new Map(dadosPlano.map(item => [item.wbs_item.wbs_area.id, { id: item.wbs_item.wbs_area.id, name: item.wbs_item.wbs_area.name }]).values())
         areas.forEach((area) => {
-            {
-                const primeiroInicio = dadosPlano.filter(dado => dado.wbs_item.wbs_area.id == area.id)
-                            .reduce((min, obj) => obj.gantt_data[0].start < min.gantt_data[0].start ? obj : min);
-                const ultimoTermino = dadosPlano.filter(dado => dado.wbs_item.wbs_area.id == area.id)
-                            .reduce((max, obj) => obj.gantt_data[0].end > max.gantt_data[0].end ? obj : max);
-                primeiroEUltimoPlanos.push({primeiro: primeiroInicio, ultimo: ultimoTermino});
-                
-            }
-            {
-                const primeiroInicio = dadosGantt.filter(dado => dado.wbs_item.wbs_area.id == area.id)
-                            .reduce((min, obj) => obj.gantt_data[0].start < min.gantt_data[0].start ? obj : min);
-                const ultimoTermino = dadosGantt.filter(dado => dado.wbs_item.wbs_area.id == area.id)
-                            .reduce((max, obj) => obj.gantt_data[0].end > max.gantt_data[0].end ? obj : max);
-                primeiroEUltimoGantts.push({primeiro: primeiroInicio, ultimo: ultimoTermino});
-            }
+            const primeiroInicio = dadosPlano.filter(dado => dado.wbs_item.wbs_area.id == area.id)
+                .reduce((min, obj) => obj.gantt_data[0].start < min.gantt_data[0].start ? obj : min);
+            const ultimoTermino = dadosPlano.filter(dado => dado.wbs_item.wbs_area.id == area.id)
+                .reduce((max, obj) => obj.gantt_data[0].end > max.gantt_data[0].end ? obj : max);
+            primeiroEUltimoPlanos.push({ primeiro: primeiroInicio, ultimo: ultimoTermino });
+
+            const primeiroInicioG = dadosGantt.filter(dado => dado.wbs_item.wbs_area.id == area.id)
+                .reduce((min, obj) => obj.gantt_data[0].start < min.gantt_data[0].start ? obj : min);
+            const ultimoTerminoG = dadosGantt.filter(dado => dado.wbs_item.wbs_area.id == area.id)
+                .reduce((max, obj) => obj.gantt_data[0].end > max.gantt_data[0].end ? obj : max);
+            primeiroEUltimoGantts.push({ primeiro: primeiroInicioG, ultimo: ultimoTerminoG });
         })
 
         var objSituacao = {}
@@ -375,9 +371,11 @@ const Tabela = () => {
             }
         })
 
+        console.log(primeiroEUltimoPlanos, primeiroEUltimoGantts)
+
         var duplas = [];
         primeiroEUltimoPlanos.forEach((dado) => {
-            const gantt = primeiroEUltimoGantts.find(o => o.primeiro.id === dado.primeiro.id);
+            const gantt = primeiroEUltimoGantts.find(o => o.primeiro.wbs_item.wbs_area.id === dado.primeiro.wbs_item.wbs_area.id);
             duplas.push([dado, gantt])
         })
 
@@ -462,7 +460,7 @@ const Tabela = () => {
                         `Are you sure you want to complete "${findGanttByItemId(confirmUpdateTask.item).wbs_item.wbs_area.name} - ${findGanttByItemId(confirmUpdateTask.item).wbs_item.name}"?` :
                         `Are you sure you want to reset the dates of "${findGanttByItemId(confirmUpdateTask.item).wbs_item.wbs_area.name} - ${findGanttByItemId(confirmUpdateTask.item).wbs_item.name}"?`,
                     botao1: {
-                        funcao: () => { handleAtualizarTarefa(confirmUpdateTask.delete ? 'complete' : 'reset'); setConfirmUpdateTask(null) }, texto: 'Confirm'
+                        funcao: () => { handleAtualizarTarefa(confirmUpdateTask.complete ? 'complete' : 'reset'); setConfirmUpdateTask(null) }, texto: 'Confirm'
                     },
                     botao2: {
                         funcao: () => setConfirmUpdateTask(null), texto: 'Cancel'
@@ -579,7 +577,7 @@ const Tabela = () => {
             </button>
 
             {mostrarTabela && (
-                <div>
+                <div className='centered-container'>
                     <div className={styles.tabelaCronograma_container}>
                         <div className={styles.tabelaCronograma_wrapper}>
                             <table className={`${styles.tabelaCronograma} tabela`}>
@@ -587,11 +585,11 @@ const Tabela = () => {
                                     <tr>
                                         <th>Area</th>
                                         <th>Task</th>
-                                        <th>Start</th>
-                                        <th>End</th>
+                                        <th style={{ width: '9rem' }}>Start</th>
+                                        <th style={{ width: '9rem' }}>End</th>
                                         <th>Dependency: Area</th>
                                         <th>Dependency: Item</th>
-                                        <th>Situation</th>
+                                        <th style={{ width: '9rem' }}>Situation</th>
                                         <th>Options</th>
                                     </tr>
                                 </thead>
@@ -638,43 +636,42 @@ const Tabela = () => {
                         </div>
                     </div>
 
-                    <div className={`${styles.areaAnalysis}`}>
-                        <table className='tabela'>
-                            <thead>
-                                <tr>
-                                    <th>Area</th>
-                                    <th>State</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {report.map((area, index) => (
-                                    <tr key={index}>
-                                        <td>{area.area}</td>
-                                        <td
-                                            style={{
-                                                backgroundColor:
-                                                    area.state === 'To Begin' ? '#ffc6c6' : (
-                                                        area.state === 'Complete' ? '#d8ffc6' : (
-                                                            area.state === 'Hold' ? '#e1e1e1' : '#cdf2ff'
-                                                        )
-                                                    ),
-                                            }}>{area.state}</td>
-                                        <td
-                                            style={{
-                                                backgroundColor:
-                                                    area.status === 'Overdue' ? '#ffc6c6' : '#d8ffc6'
-                                            }}>{area.status}</td>
+                    <div className={styles.tabelaCronograma_container}>
+                        <div className={styles.areaAnalysis}>
+                            <table className='tabela' style={{ maxWidth: '50rem' }}>
+                                <thead>
+                                    <tr>
+                                        <th>Area</th>
+                                        <th>State</th>
+                                        <th>Status</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {report.map((area, index) => (
+                                        <tr key={index}>
+                                            <td>{area.area}</td>
+                                            <td
+                                                style={{
+                                                    backgroundColor:
+                                                        area.state === 'To Begin' ? '#ffc6c6' : (
+                                                            area.state === 'Complete' ? '#d8ffc6' : (
+                                                                area.state === 'Hold' ? '#e1e1e1' : '#cdf2ff'
+                                                            )
+                                                        ),
+                                                }}>{area.state}</td>
+                                            <td
+                                                style={{
+                                                    backgroundColor:
+                                                        area.status === 'Overdue' ? '#ffc6c6' : '#d8ffc6'
+                                                }}>{area.status}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-
                 </div>
-
             )}
-
         </div>
     )
 }

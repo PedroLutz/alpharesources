@@ -3,7 +3,6 @@ import React from "react";
 import styles from '../../../../styles/modules/comunicacao.module.css'
 
 const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
-    console.log(obj)
     const camposRef = useRef({
         dependency: null,
         influence: null,

@@ -225,7 +225,7 @@ const TabelaPlanos = () => {
                                                 <td>{item?.risk?.risk}</td>
                                             )}
                                             <td>{capitalizeFirstLetter(item.strategy)}</td>
-                                            <td>{item.details}</td>
+                                            <td className={styles.planoTdResponse}>{item.details}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(item)} disabled={!isEditor}>❌</button>
                                                 <button onClick={() => {

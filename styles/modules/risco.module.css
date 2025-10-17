@@ -61,6 +61,10 @@ PLANO --------------------------
     width: 10rem;
 }
 
+.tabelaPlano td.planoTdResponse {
+    width: 10rem;
+}
+
 .tabelaPlano td.planoTdStrategy select,
 .tabelaPlano td.planoTdResponse textarea,
 .tabelaPlano td:not(:global(.botoes_acoes)) button {

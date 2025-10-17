@@ -120,9 +120,10 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal, isEdito
     const handleSubmit = async () => {
         const isInvalido = validaDados();
         if (isInvalido == true) return;
-        funcoes?.enviar();
-        setAreaSelecionada('');
-        setItensPorArea([]);
+        if(await funcoes?.enviar()){
+            setAreaSelecionada('');
+            setItensPorArea([]);
+        }
     };
 
     const fetchNomesMembros = async () => {

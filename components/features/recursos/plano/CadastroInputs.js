@@ -172,6 +172,8 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEdito
             resource_id: recursoSelecionado
         }
         funcoes?.enviar(sentObj);
+        setAreaSelecionada('');
+        setRecursoSelecionado('');
     };
 
     return (
@@ -241,17 +243,17 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEdito
                     min="0"
                     ref={el => (camposRef.current.value_a = el)} />
             </td>
-            <td>
+            <td className={styles.tdDatas}>
                 <input
-                    value={obj.expected_date || undefined}
+                    value={obj.expected_date || ""}
                     name='expected_date'
                     type="date"
                     onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.expected_date = el)} />
             </td>
-            <td className={styles.tdCriticalDate}>
+            <td className={styles.tdDatas}>
                 <input
-                    value={obj.critical_date || undefined}
+                    value={obj.critical_date || ""}
                     name='critical_date'
                     type="date"
                     onChange={(e) => handleChange(e, false)}

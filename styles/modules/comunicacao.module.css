@@ -74,7 +74,14 @@ COMUNICACAO (STAKEHOLDER GROUPS)
 ENGAJAMENTO
 */
 
-.tabelaEngajamento td select {
+.tabelaEngajamento th.eng_camposMenores,
+.tabelaEngajamento td.eng_camposMenores {
+    width: 5rem;
+    font-size: 0.7rem;
+}
+
+.tabelaEngajamento td select,
+.tabelaEngajamento td input {
     width: 100%;
 }
 
@@ -147,7 +154,9 @@ RESPONSIVIDADE
         width: 100%;
     }
 
-    .tabelaEngajamento th.eng_engajamentoId {
+    .tabelaEngajamento th.eng_engajamentoId,
+    .tabelaEngajamento th.eng_camposMenores,
+    .tabelaEngajamento td.eng_camposMenores {
         font-size: 0.6rem;
         width: 5rem;
     }

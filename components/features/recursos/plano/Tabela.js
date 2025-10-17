@@ -344,9 +344,9 @@ const PlanoAquisicao = () => {
                                 <th>Where to Acquire (Supplier)</th>
                                 <th>Details</th>
                                 <th>Value</th>
-                                <th>Actual strategy</th>
-                                <th>Date</th>
-                                <th>Value</th>
+                                <th>Actual strategy <a>*</a></th>
+                                <th>Date <a>*</a></th>
+                                <th>Value <a>*</a></th>
                                 <th style={{ minWidth: '8rem' }}>Date difference</th>
                                 <th style={{ minWidth: '8rem' }}>Value difference</th>
                             </tr>

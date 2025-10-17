@@ -81,7 +81,7 @@ const Tabela = () => {
   }
 
   const enviar = async () => {
-    if(!validarDados(novoSubmit)) return;
+    if(!validarDados(novoSubmit)) return false;
     try {
       for (let key in novoSubmit) {
         if (key != 'item_id') {
@@ -104,6 +104,7 @@ const Tabela = () => {
     } finally {
       cleanForm(novoSubmit, setNovoSubmit, camposVazios);
       setReload(true);
+      return true;
     }
   };
 

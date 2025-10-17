@@ -54,20 +54,20 @@ const Tabela = () => {
 
             //adicionar cores na tabela
             var cores = {};
-                        data.data.forEach((c) => {
-                            cores = { ...cores, [c.wbs_item.wbs_area.name]: c.wbs_item.wbs_area.color ? c.wbs_item.wbs_area.color : '' }
-                        })
-            
-                        var paleta = [];
-                        for (const [key, value] of Object.entries(cores)) {
-                            if (data.data.some((item) => item.wbs_item.wbs_area.name === key && item.end !== null)) {
-                                paleta.push({
-                                    "color": value ? chroma(value).darken().saturate(3).hex() : '#000000',
-                                    "dark": value ? chroma(value).hex() : '#000000',
-                                    "light": value ? chroma(value).darken().hex() : '#000000'
-                                })
-                            }
-                        }
+            data.data.forEach((c) => {
+                cores = { ...cores, [c.wbs_item.wbs_area.name]: c.wbs_item.wbs_area.color ? c.wbs_item.wbs_area.color : '' }
+            })
+
+            var paleta = [];
+            for (const [key, value] of Object.entries(cores)) {
+                if (data.data.some((item) => item.wbs_item.wbs_area.name === key && item.gantt_data[0].end !== null)) {
+                    paleta.push({
+                        "color": value ? chroma(value).darken().saturate(3).hex() : '#000000',
+                        "dark": value ? chroma(value).hex() : '#000000',
+                        "light": value ? chroma(value).darken().hex() : '#000000'
+                    })
+                }
+            }
 
             setPaleta(paleta);
         } finally {
@@ -81,18 +81,20 @@ const Tabela = () => {
         fetchCronogramas();
     }, []);
 
+    const checkShouldBeGraphed = (item) => {
+        return item.gantt_data[0].start < item.gantt_data[0].end &&
+            item.gantt_data[0].start != null &&
+            item.gantt_data[0].end != null &&
+            item.gantt_data[0].status != 'start'
+    }
 
     //funcao que cria a array que sera insa inserida no grafico cantt
     const createGanttData = () => {
         const ganttData = [['Task ID', 'Task Name', 'Resource', 'Start Date', 'End Date', 'Duration', 'Percent Complete', 'Dependencies']];
         cronogramas.forEach((item) => {
             if (!item.gantt_data[0].is_plan) {
-                if (euDateToJsDate(item.gantt_data[0].start) < euDateToJsDate(item.gantt_data[0].end) &&
-                    euDateToJsDate(item.gantt_data[0].start) != null &&
-                    euDateToJsDate(item.gantt_data[0].end) != null) {
-
+                if (checkShouldBeGraphed(item)) {
                     const planoDoGantt = planosCronogramas.find(plan => plan.id === item.id);
-                    console.log(planoDoGantt, item)
                     if (planoDoGantt) {
                         var dependencies2 = '';
                         const taskID2 = `${planoDoGantt.gantt_data[0].id}`;
@@ -146,10 +148,10 @@ const Tabela = () => {
     }, [chartData]);
 
     const tamanhoDaFonte = (num) => {
-        if(num <= 13){
+        if (num <= 13) {
             return '0.7rem'
         }
-        if(num > 13 && num <= 20){
+        if (num > 13 && num <= 20) {
             return '0.6rem'
         } else {
             return isMobile ? '0.5rem' : '0.6rem'
@@ -158,9 +160,9 @@ const Tabela = () => {
 
     const handleResize = () => {
         if (window.innerWidth < 1024) {
-        setIsMobile(true)
+            setIsMobile(true)
         } else {
-        setIsMobile(false)
+            setIsMobile(false)
         }
     }
 
@@ -168,6 +170,18 @@ const Tabela = () => {
         handleResize();
         window.addEventListener("resize", handleResize);
     }, []);
+
+    const calculateRowSpan = (currentArea, currentIndex) => {
+        let rowSpan = 1;
+        for (let i = currentIndex + 1; i < cronogramas.length; i++) {
+            if (cronogramas[i].wbs_item.wbs_area.id === currentArea && checkShouldBeGraphed(cronogramas[i])) {
+                rowSpan++;
+            } else {
+                break;
+            }
+        }
+        return rowSpan;
+    };
 
     return (
         <div className="centered-container">
@@ -186,10 +200,7 @@ const Tabela = () => {
                 }}>
                     <tbody style={{ borderColor: 'black', borderStyle: 'solid', borderWidth: '0.01rem' }}>
                         {cronogramas.filter(item =>
-                            (item.gantt_data[0].start != item.gantt_data[0].end)
-                            && (item.gantt_data[0].start != null)
-                            && (item.gantt_data[0].end != null)
-                            && (item.gantt_data[0].status != 'start'))
+                            checkShouldBeGraphed(item))
                             .map((item, index) => (
                                 <tr key={index}
                                     style={{
@@ -200,13 +211,16 @@ const Tabela = () => {
                                         borderRightWidth: '0rem',
                                         backgroundColor: item.wbs_item.wbs_area.color
                                     }}>
+                                    {index === 0 || cronogramas[index - 1].wbs_item.wbs_area.id !== item.wbs_item.wbs_area.id ? (
+                                        <td rowSpan={calculateRowSpan(item.wbs_item.wbs_area.id, index)} style={{ fontSize: tamanhoDaFonte(item.wbs_item.wbs_area.name.length), minWidth: '6rem', maxWidth: '8rem', borderRightWidth: '0.1rem', borderRightStyle: 'solid' }}>{item.wbs_item.wbs_area.name}</td>
+                                    ) : null}
                                     <td style={{ fontSize: tamanhoDaFonte(item.wbs_item.name.length), minWidth: '6rem', maxWidth: '8rem' }}>{item.wbs_item.name}</td>
                                 </tr>
-                            ))} 
+                            ))}
                     </tbody>
                 </table>
                 <div className="centered-container" style={{
-                    width: isMobile ? "70vw" :"40vw",
+                    width: isMobile ? "70vw" : "40vw",
                     display: "flex",
                     flexDirection: "row",
                     alignItems: "flex-start",
@@ -219,21 +233,18 @@ const Tabela = () => {
                         width: '100%'
                     }}>
                         <tbody>
-                            {cronogramas.filter(item => (item.gantt_data[0].start != item.gantt_data[0].end)
-                                && (item.gantt_data[0].start != null)
-                                && (item.gantt_data[0].end != null)
-                                && (item.gantt_data[0].status != 'start')).map((item, index) => (
-                                    <tr key={index}
-                                        style={{ height: '30px', borderColor: 'black', borderStyle: 'solid', borderWidth: '0.1rem', borderLeftWidth: '0rem' }}>
-                                        <td></td>
-                                    </tr>
-                                ))}
+                            {cronogramas.filter(item => checkShouldBeGraphed(item)).map((item, index) => (
+                                <tr key={index}
+                                    style={{ height: '30px', borderColor: 'black', borderStyle: 'solid', borderWidth: '0.1rem', borderLeftWidth: '0rem' }}>
+                                    <td></td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
 
                     {chartDataLoaded && (
                         <Chart
-                            width={isMobile ? "70vw" :"40vw"}
+                            width={isMobile ? "70vw" : "40vw"}
                             height={chartHeight}
                             chartType="Gantt"
                             loader={<div>Loading Chart</div>}

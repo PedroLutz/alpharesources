@@ -189,9 +189,9 @@ const Tabela = () => {
                                 <th>Frequency</th>
                                 <th>Channel</th>
                                 <th>Responsible</th>
-                                <th>Record</th>
-                                <th>Feedback</th>
-                                <th>Action taken</th>
+                                <th>Record *</th>
+                                <th>Feedback *</th>
+                                <th>Action taken *</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>

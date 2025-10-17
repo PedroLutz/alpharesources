@@ -143,10 +143,10 @@ const Tabela = () => {
                                         <b>Name:</b> {item.name}
                                     </div>
                                     <div className={styles.membrosConteudo}>
-                                        <b>Soft skills:</b> {item.softskills}
+                                        <b>Softskills:</b> {item.softskills}
                                     </div>
                                     <div className={styles.membrosConteudo}>
-                                        <b>Hard skills:</b> {item.hardskills}
+                                        <b>Hardskills:</b> {item.hardskills}
                                     </div>
                                     <div className={styles.membrosBotoesAcoes}>
                                         <button onClick={() => setConfirmDeleteItem(item)}
