@@ -53,14 +53,14 @@ const TabelaAnalise = () => {
         var obj = {};
         for (const key in camposVazios) {
             if (key == 'risk_id') {
-                obj[key] = item.risk?.id
+                obj[key] = item?.risk?.id
             } else {
                 obj[key] = item[key];
             }
         }
         obj.id = item.id;
         setNovosDados(obj);
-        setIsUpdating(item.risk?.id)
+        setIsUpdating(item?.risk?.id)
     }
 
     const handleUpdateItem = async () => {
@@ -156,7 +156,7 @@ const TabelaAnalise = () => {
 
             {confirmDeleteItem && (
                 <Modal objeto={{
-                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.risk.risk}"?`,
+                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem?.risk?.risk}"?`,
                     alerta: true,
                     botao1: {
                         funcao: handleConfirmDelete, texto: 'Confirm'
@@ -209,11 +209,11 @@ const TabelaAnalise = () => {
                                         <tr style={{ backgroundColor: item?.risk?.wbs_item?.wbs_area?.color || 'white' }}>
                                             {seeArea && (
                                                 <React.Fragment>
-                                                    {index === 0 || impactos[index - 1].risk?.wbs_item?.wbs_area?.id !== item?.risk?.wbs_item?.wbs_area?.id ? (
+                                                    {index === 0 || audits[index - 1].risk?.wbs_item?.wbs_area?.id !== item?.risk?.wbs_item?.wbs_area?.id ? (
                                                         <td rowSpan={calculateRowSpan(item?.risk?.wbs_item?.wbs_area?.id, index, 'risk.wbs_item.wbs_area.id')}
                                                         >{item?.risk?.wbs_item?.wbs_area?.name}</td>
                                                     ) : null}
-                                                    {index === 0 || impactos[index - 1].risk?.wbs_item?.id !== item?.risk?.wbs_item?.id ? (
+                                                    {index === 0 || audits[index - 1].risk?.wbs_item?.id !== item?.risk?.wbs_item?.id ? (
                                                         <td rowSpan={calculateRowSpan(item?.risk?.wbs_item?.id, index, 'risk.wbs_item.id')}
                                                         >{item?.risk?.wbs_item?.name}</td>
                                                     ) : null}

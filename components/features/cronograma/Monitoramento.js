@@ -84,6 +84,15 @@ const Tabela = () => {
                 query: "monitors",
                 token
             })
+
+            data.data.sort((a, b) => {
+                if(a.wbs_item.wbs_area.name != b.wbs_item.wbs_area.name){
+                return a.wbs_item.wbs_area.name > b.wbs_item.wbs_area.name
+                }
+
+                return a.gantt_data[0].start > b.gantt_data[0].start
+            })
+
             setCronogramas(data.data);
 
             var cores = {};
@@ -370,8 +379,6 @@ const Tabela = () => {
                 objSituacao = { ...objSituacao, [dado.area]: "To Begin" }
             }
         })
-
-        console.log(primeiroEUltimoPlanos, primeiroEUltimoGantts)
 
         var duplas = [];
         primeiroEUltimoPlanos.forEach((dado) => {

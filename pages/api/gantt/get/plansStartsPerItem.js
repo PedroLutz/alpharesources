@@ -2,16 +2,16 @@
 import { createServerClient } from "../../../../lib/supabaseServerClient";
 
 export default async function handler(req, res) {
-    if (req.method !== 'GET') {
-        return res.status(405).json({ error: 'Method not allowed' })
-    }
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' })
+  }
 
-    const token = req.headers.authorization?.replace('Bearer ', '');
-    const client = createServerClient(token);
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  const client = createServerClient(token);
 
-    const { data, error } = await client
-        .from('gantt')
-        .select(`
+  const { data, error } = await client
+    .from('gantt')
+    .select(`
     id,
     wbs_item (
       id,
@@ -24,9 +24,9 @@ export default async function handler(req, res) {
       end
     )
   `)
-        .eq('gantt_data.is_plan', true)
+    .eq('gantt_data.is_plan', true)
 
-    if (error) return res.status(400).json({ error: error.message })
+  if (error) { console.log(error); return res.status(400).json({ error: error.message }) }
 
-    return res.status(200).json(data)
+  return res.status(200).json(data)
 }

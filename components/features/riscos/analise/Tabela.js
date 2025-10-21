@@ -15,7 +15,7 @@ const TabelaAnalise = () => {
 
     const camposVazios = {
         risk_id: "",
-        ocurrence: "",
+        occurrence: "",
         action: "",
         urgency: "",
         impact: "",
@@ -54,7 +54,7 @@ const TabelaAnalise = () => {
         let riscos = []
         if (analises) {
             analises.forEach((analise) => {
-                if (analise.ocurrence === occ && analise.impact === imp) {
+                if (analise.occurrence === occ && analise.impact === imp) {
                     riscos.push(analise.risk.risk)
                 }
             })
@@ -70,12 +70,12 @@ const TabelaAnalise = () => {
 
     const handleUpdateClick = (item) => {
         setLinhaVisivel(item.id);
-        setIsUpdating(item.risk.risk);
+        setIsUpdating(item?.risk?.risk);
         setNovosDados({
             id: item.id,
             risk_id: item.risk.id,
             action: item.action,
-            ocurrence: item.ocurrence,
+            occurrence: item.occurrence,
             urgency: item.urgency,
             impact: item.impact,
             financial_impact: item.financial_impact,
@@ -161,7 +161,7 @@ const TabelaAnalise = () => {
     };
 
     const calculaRPN = (item) => {
-        return item.ocurrence * item.impact * item.action * item.urgency;
+        return item.occurrence * item.impact * item.action * item.urgency;
     }
 
     return (
@@ -183,7 +183,7 @@ const TabelaAnalise = () => {
 
             {confirmDeleteItem && (
                 <Modal objeto={{
-                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.risk.risk}"?`,
+                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem?.risk?.risk}"?`,
                     alerta: true,
                     botao1: {
                         funcao: handleConfirmDelete, texto: 'Confirm'
@@ -258,7 +258,7 @@ const TabelaAnalise = () => {
                                             ) : (
                                                 <td className={styles.analiseRiskTd}>{item?.risk?.risk}</td>
                                             )}
-                                            <td className={styles.analiseOcurrenceTd}>{item.ocurrence}</td>
+                                            <td className={styles.analiseOcurrenceTd}>{item.occurrence}</td>
                                             <td>{item.impact}</td>
                                             <td>{item.action}</td>
                                             <td>{item.urgency}</td>
@@ -266,11 +266,11 @@ const TabelaAnalise = () => {
                                                 backgroundColor: calculaRPN(item) >= 150 ? '#f7b2b2' : (calculaRPN(item) >= 50 ? '#f7dcb2' : '#d2f5c6')
                                             }}>{calculaRPN(item)}</td>
                                             <td>{item.financial_impact != 0 ? `R$${(Number(item.financial_impact)).toFixed(2)}` : '-'}</td>
-                                            <td>{item.financial_impact != 0 ? `R$${(item.financial_impact * (item.ocurrence / 5)).toFixed(2)}` : '-'}</td>
+                                            <td>{item.financial_impact != 0 ? `R$${(item.financial_impact * (item.occurrence / 5)).toFixed(2)}` : '-'}</td>
                                             <td>{(item.schedule_impact != 0 && item.schedule_impact != null) ?
                                                 `${item.schedule_impact} days` : '-'}</td>
                                             <td>{(item.schedule_impact != 0 && item.schedule_impact != null) ?
-                                                `${(item.schedule_impact * (item.ocurrence / 5)).toFixed()} days` : '-'}
+                                                `${(item.schedule_impact * (item.occurrence / 5)).toFixed()} days` : '-'}
                                             </td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(item)} disabled={!isEditor}>❌</button>

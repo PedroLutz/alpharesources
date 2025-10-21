@@ -291,7 +291,7 @@ const PlanoAquisicao = () => {
         purchase: 'Purchase',
         rental: 'Rental',
         borrowing: "Borrowing",
-        outsorcing: "Outsorcing",
+        outsourcing: "Outsourcing",
     }
 
     return (
@@ -366,7 +366,7 @@ const PlanoAquisicao = () => {
                                             isEditor={isEditor}
                                         />
                                     ) : (
-                                        <tr style={{ backgroundColor: plano.resource.wbs_item.wbs_area.color || 'white' }}>
+                                        <tr style={{ backgroundColor: plano?.resource?.wbs_item?.wbs_area?.color || 'white' }}>
                                             {!isUpdating || isUpdating !== plano.resource.resource ? (
                                                 <React.Fragment>
                                                     {index === 0 || planos[index - 1].recurso !== plano.resource.resource ? (

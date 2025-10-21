@@ -51,7 +51,7 @@ const TabelaAnalise = () => {
 
     const handleUpdateClick = (item) => {
         setLinhaVisivel(item.id);
-        setIsUpdating(item.risk.id);
+        setIsUpdating(item?.risk?.id);
         setNovosDados({
             id: item.id,
             risk_id: item.risk.id,
@@ -164,7 +164,7 @@ const TabelaAnalise = () => {
 
             {confirmDeleteItem && (
                 <Modal objeto={{
-                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.risk.risk}"?`,
+                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem?.risk?.risk}"?`,
                     alerta: true,
                     botao1: {
                         funcao: handleConfirmDelete, texto: 'Confirm'

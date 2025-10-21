@@ -42,6 +42,11 @@ const Resumo = () => {
                 receitasPorMesArr.push({ month: obj.month, total: obj.total + exchangeValue });
             }
         })
+        monthly_summary.data.forEach(obj => {
+          if(obj.type == 'exchange') {
+            if(!receitasPorMesArr.some(o => o.month == obj.month)) receitasPorMesArr.push({ month: obj.month, total: obj.total });
+          }
+        })
         setReceitasPorMes(receitasPorMesArr);
 
         const despesasPorMesArr = [];
@@ -50,6 +55,11 @@ const Resumo = () => {
                 const exchangeValue = monthly_summary?.data?.find(o => o.type == 'exchange' && o.month == obj.month)?.total || 0;
                 despesasPorMesArr.push({ month: obj.month, total: -obj.total + exchangeValue });
             }
+        })
+        monthly_summary.data.forEach(obj => {
+          if(obj.type == 'exchange') {
+            if(!despesasPorMesArr.some(o => o.month == obj.month)) despesasPorMesArr.push({ month: obj.month, total: obj.total });
+          }
         })
         setDespesasPorMes(despesasPorMesArr);
 
@@ -66,8 +76,13 @@ const Resumo = () => {
         area_summary.data.forEach(obj => {
             if (obj.type == 'income') {
                 const exchangeValue = area_summary?.data?.find(o => o.type == 'exchange' && o.area_id == obj.area_id)?.total || 0;
-                receitasPorAreaArr.push({ area_id: obj.area_id, area_name: obj.area_name, area_color: obj.area_color, total: obj.total + exchangeValue });
+                receitasPorAreaArr.push({ area_id: obj.area_id, area_name: obj.area_name || 'Others', area_color: obj.area_color, total: obj.total + exchangeValue });
             }
+        })
+        area_summary.data.forEach(obj => {
+          if(obj.type == 'exchange') {
+            if(!receitasPorAreaArr.some(o => o.area_id == obj.area_id)) receitasPorAreaArr.push({ area_id: obj.area_id, area_name: obj.area_name || 'Others', area_color: obj.area_color, total: obj.total });
+          }
         })
         setReceitasPorArea(receitasPorAreaArr);
 
@@ -75,8 +90,13 @@ const Resumo = () => {
         area_summary.data.forEach(obj => {
             if (obj.type == 'cost') {
                 const exchangeValue = area_summary?.data?.find(o => o.type == 'exchange' && o.area_id == obj.area_id)?.total || 0;
-                despesasPorAreaArr.push({ area_id: obj.area_id, area_name: obj.area_name, area_color: obj.area_color, total: -obj.total + exchangeValue });
+                despesasPorAreaArr.push({ area_id: obj.area_id, area_name: obj.area_name || 'Others', area_color: obj.area_color, total: -obj.total + exchangeValue });
             }
+        })
+        area_summary.data.forEach(obj => {
+          if(obj.type == 'exchange') {
+            if(!despesasPorAreaArr.some(o => o.area_id == obj.area_id)) despesasPorAreaArr.push({ area_id: obj.area_id, area_name: obj.area_name || 'Others', area_color: obj.area_color, total: obj.total });
+          }
         })
         setDespesasPorArea(despesasPorAreaArr);
 
@@ -89,9 +109,12 @@ const Resumo = () => {
             data: { uid: user.id },
         });
 
-        setReceitasTotais(total_summary?.data[0]?.total + total_summary?.data[2]?.total);
-        setDespesasTotais(-total_summary?.data[1]?.total + total_summary?.data[2]?.total);
-        setTotalValor(total_summary?.data[0]?.total + total_summary?.data[1]?.total);
+        total_summary.data.sort((a,b) => a.type > b.type);
+
+        //data[0] = cost, data[1] = exchange, data[2] = income
+        setReceitasTotais(total_summary?.data[2]?.total + total_summary?.data[1]?.total);
+        setDespesasTotais(-total_summary?.data[0]?.total + total_summary?.data[1]?.total);
+        setTotalValor(total_summary?.data[2]?.total + total_summary?.data[0]?.total);
 
 
         //------------------------------------------------MIN MAX--------------------------------------------------
@@ -120,7 +143,7 @@ const Resumo = () => {
         })
 
         const totalPlanejado = valoresPlanejadosMensais.reduce(
-            (acc, cur) => acc + (2 * cur.total_a + cur.total_b) / 3, 0
+            (acc, cur) => acc + ((2 * cur.total_a) + cur.total_b) / 3, 0
         )
 
         const plan_area_summary = await handlePostFetch({
@@ -130,7 +153,6 @@ const Resumo = () => {
             data: { uid: user.id },
         })
         const valoresPlanejadosAreas = plan_area_summary?.data;
-
 
         const area_durations = await handlePostFetch({
             table: "gantt",
@@ -195,10 +217,17 @@ const Resumo = () => {
         var gastosMensaisAcumulados = 0;
         porcentagemExecucaoMensal.forEach(obj => {
             const mes = obj.mes;
-            const valorPlanejado = valoresPlanejadosMensais.find((plano) => 
+            const valorPlanejadoArr = valoresPlanejadosMensais.filter((plano) => 
                 plano.month === mes
-            ) || { total_a: 0, total_b: 0, month: mes };
-            gastosMensaisAcumuladosPlano += ((2 * valorPlanejado.total_a + valorPlanejado.total_b) / 3)
+            ) || [{ total_a: 0, total_b: 0, month: mes }];
+
+            var gastosMensaisPlano = 0;
+
+            for(var i = 0; i < valorPlanejadoArr.length; i++){
+              gastosMensaisAcumuladosPlano += ((2 * valorPlanejadoArr[i].total_a + valorPlanejadoArr[i].total_b) / 3);
+              gastosMensaisPlano += ((2 * valorPlanejadoArr[i].total_a + valorPlanejadoArr[i].total_b) / 3);
+            }
+
             const gastoNoMes = despesasPorMesArr.find((despesa) => {
                 const planoDate = despesa.month.split("-");
                 return `${planoDate[0]}/${planoDate[1]}` === mes})?.total || 0;
@@ -208,17 +237,17 @@ const Resumo = () => {
             const valorAgregado = execucaoNoMes * totalPlanejado / 100;
 
             curvaSGraph.push([
-                valorPlanejado.mes,
+                mes,
                 parseFloat(gastosMensaisAcumuladosPlano.toFixed(2)),
                 parseFloat(valorAgregado.toFixed(2)),
                 parseFloat(gastosMensaisAcumulados.toFixed(2))
             ]);
 
             curvaStabelaArray.push({
-                mes: valorPlanejado.month,
+                mes,
                 gastoMensal: parseFloat(gastoNoMes.toFixed(2)),
                 gastoMensalAcumulado: parseFloat(gastosMensaisAcumulados.toFixed(2)),
-                gastoPlanejado: parseFloat(((2 * valorPlanejado.total_a + valorPlanejado.total_b) / 3).toFixed(2)),
+                gastoPlanejado: parseFloat(gastosMensaisPlano.toFixed(2)),
                 gastoPlanejadoAcumulado: parseFloat(gastosMensaisAcumuladosPlano.toFixed(2)),
                 valorAgregado: parseFloat(valorAgregado.toFixed(2))
             })
@@ -227,13 +256,25 @@ const Resumo = () => {
         setCurvaS(curvaSGraph);
         setCurvaSTabela(curvaStabelaArray);
 
-
         //------------------------------------------------KPIs TABLE--------------------------------------------------
-        const kpis = valoresPlanejadosAreas.map(vp => {
+        const valoresPlanejadosAreasReduced = valoresPlanejadosAreas.reduce((acc, cur) => {
+          const found = acc.find(i => i.area_id == cur.area_id);
+          if(found == undefined){
+            acc.push(cur);
+          } else {
+            found.total_a = cur.total_a;
+            found.total_b = cur.total_b;
+          }
+          return acc;
+        }, [])
+
+        valoresPlanejadosAreasReduced.sort((a, b) => a.area_name > b.area_name)
+
+        const kpis = valoresPlanejadosAreasReduced.map(vp => {
             const area = vp.area_id;
 
             const comparacao = porcentagensDeExecucao.find(c => c.area_id === area);
-            const despesa = despesasPorArea.find(d => d.area_id === area);
+            const despesa = despesasPorAreaArr.find(d => d.area_id === area);
 
             const valorPlanejado = parseFloat((vp.total_a * 2 + vp.total_b) / 3).toFixed(2);
             const porcentagem = comparacao ? comparacao.porcentagem : 0;
@@ -419,12 +460,12 @@ const Resumo = () => {
                   <tr key={index}>
                     <td>{item.area}</td>
                     <td>R${item.valorPlanejado}</td>
-                    <td>R${item.custoReal * -1}</td>
+                    <td>R${item.custoReal}</td>
                     <td>{Number(item.porcentagem).toFixed(2)}%</td>
                     <td>R${Number(item.valorAgregado).toFixed(2)}</td>
                     <td>{item.custoReal == 0 ? '-'
-                      : (Number(item.valorAgregado / (item.custoReal * -1)).toFixed(2)) != 0 ?
-                        Number(item.valorAgregado / (item.custoReal * -1)).toFixed(2) : '-'}</td>
+                      : (Number(item.valorAgregado / (item.custoReal)).toFixed(2)) != 0 ?
+                        Number(item.valorAgregado / (item.custoReal)).toFixed(2) : '-'}</td>
                   </tr>
                 ))}
               </tbody>

@@ -13,6 +13,8 @@ const Main = () => {
     const { user, token} = useAuth();
     const {isEditor} = usePerm();
 
+    console.log(token)
+
     const [areas, setAreas] = useState([]);
     const [items, setItems] = useState([]);
 

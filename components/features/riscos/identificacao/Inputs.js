@@ -271,6 +271,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEdito
                     {nomesMembros.map((membro, index) => (
                         <option key={index} value={membro.id}>{membro.name}</option>
                     ))}
+                    <option value={-1}>Circunstancial</option>
                 </select>
 
             </td>

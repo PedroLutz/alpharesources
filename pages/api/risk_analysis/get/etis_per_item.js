@@ -18,7 +18,7 @@ export default async function handler(req, res) {
                 id
             )
         ),
-        ocurrence,
+        occurrence,
         schedule_impact
         )`)
     .gt('schedule_impact', 0);

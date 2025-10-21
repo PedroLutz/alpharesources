@@ -44,6 +44,10 @@ RISCO --------------------------
     text-align: center;
 }
 
+.tabelaRisco td select[name='owner_id']{
+    width: 8rem;
+}
+
 /* 
 PLANO --------------------------
 */

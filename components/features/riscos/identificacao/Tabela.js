@@ -41,6 +41,7 @@ const TabelaRiscos = () => {
             data: {
                 ...novoSubmit,
                 item_id: novoSubmit.item_id != -1 ? novoSubmit.item_id : null,
+                owner_id: novoSubmit.owner_id != -1 ? novoSubmit.owner_id : null,
                 user_id
             },
             fetchData: fetchRiscos
@@ -76,7 +77,10 @@ const TabelaRiscos = () => {
                 table: 'risk',
                 route: 'update',
                 token,
-                data: { ...novosDados, item_id: novosDados.item_id != -1 ? novosDados.item_id : null },
+                data: { ...novosDados, 
+                    item_id: novosDados.item_id != -1 ? novosDados.item_id : null,
+                    owner_id: novosDados.owner_id != -1 ? novosDados.owner_id : null,
+                 },
                 fetchData: fetchRiscos
             });
         } catch (error) {
@@ -244,7 +248,7 @@ const TabelaRiscos = () => {
                                             <td>{item.effect}</td>
                                             <td>{item.cause}</td>
                                             <td>{item.trigger}</td>
-                                            <td>{item.member?.name}</td>
+                                            <td>{item.member?.name || 'Circunstancial'}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(item)} disabled={!isEditor}>❌</button>
                                                 <button onClick={() => {

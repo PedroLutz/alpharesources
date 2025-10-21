@@ -136,7 +136,7 @@ const Tabela = () => {
         var acrescimoDeData = 0;
         if(riscosAnalise.length > 0){
           riscosAnalise.forEach(e => {
-            const eti = e?.schedule_impact * (e?.ocurrence / 5) || 0;
+            const eti = e?.schedule_impact * (e?.occurrence / 5) || 0;
             acrescimoDeData+= eti;
           })
         }
@@ -193,6 +193,15 @@ const Tabela = () => {
         query: 'plans',
         token
       })
+
+      data.data.sort((a, b) => {
+        if(a.wbs_item.wbs_area.name != b.wbs_item.wbs_area.name){
+          return a.wbs_item.wbs_area.name > b.wbs_item.wbs_area.name
+        }
+
+        return a.gantt_data[0].start > b.gantt_data[0].start
+      })
+
       const dataETIs = await handleFetch({
         table: 'risk_analysis',
         query: 'etis_per_item',
@@ -205,7 +214,7 @@ const Tabela = () => {
         if(riscosAnalise.length > 0){
           var acrescimoDeData = 0;
           riscosAnalise.forEach(e => {
-            const eti = e?.schedule_impact * (e?.ocurrence / 5) || 0;
+            const eti = e?.schedule_impact * (e?.occurrence / 5) || 0;
             acrescimoDeData+= eti;
           })
           const termino = item.gantt_data[0].end;

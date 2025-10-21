@@ -26,7 +26,7 @@ export default async function handler(req, res) {
                 name
             )
         ),
-        ocurrence,
+        occurrence,
         impact,
         action,
         urgency,

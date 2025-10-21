@@ -252,7 +252,7 @@ const Tabela = () => {
                                             <td>{recurso.resource}</td>
                                             <td>{recurso.usage}</td>
                                             <td>{labelsTypes[recurso.type]}</td>
-                                            <td>{datasPlanos.find(obj => obj.id === recurso.wbs_item?.id)?.gantt_data[0]?.start || "-"}</td>
+                                            <td>{datasPlanos.find(obj => obj?.wbs_item?.id === recurso?.wbs_item?.id)?.gantt_data[0]?.start || "-"}</td>
                                             <td>{recurso.is_essential ? 'Yes' : 'No'}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(recurso)}

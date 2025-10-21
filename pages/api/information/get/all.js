@@ -18,7 +18,10 @@ export default async function handler(req, res) {
         method,
         frequency,
         channel,
-        responsible,
+        member (
+          id,
+          name
+        ),
         register,
         feedback,
         action`)

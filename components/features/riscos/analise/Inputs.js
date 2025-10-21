@@ -13,7 +13,7 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEditor, 
     const [areaSelecionada, setAreaSelecionada] = useState('');
     const camposRef = useRef({
         risk_id: null,
-        ocurrence: null,
+        occurrence: null,
         impact: null,
         action: null,
         urgency: null,
@@ -90,7 +90,7 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEditor, 
             setExibirModal('riscoRepetido');
             return true;
         }
-        const campos = { ocurrence: obj.ocurrence, impact: obj.impact, urgency: obj.urgency, action: obj.action };
+        const campos = { occurrence: obj.occurrence, impact: obj.impact, urgency: obj.urgency, action: obj.action };
 
         for (const [key, value] of Object.entries(campos)) {
             if (value < 0) {
@@ -168,12 +168,12 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEditor, 
             </td>
             <td className={styles.analiseOcurrenceTd}>
                 <input
-                    name="ocurrence"
+                    name="occurrence"
                     onChange={(e) => handleChange(e, true)}
-                    value={obj.ocurrence}
+                    value={obj.occurrence}
                     min={1}
                     max={5}
-                    ref={el => (camposRef.current.ocurrence = el)}
+                    ref={el => (camposRef.current.occurrence = el)}
                 />
             </td>
             <td>

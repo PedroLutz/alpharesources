@@ -19,7 +19,7 @@ const Tabela = () => {
         method: "",
         frequency: "",
         channel: "",
-        responsible: "",
+        responsible_id: "",
         register: "",
         feedback: "",
         action: ""
@@ -40,7 +40,9 @@ const Tabela = () => {
             table: 'information',
             route: 'create',
             token,
-            data: {...novoSubmit, user_id},
+            data: {...novoSubmit, 
+                responsible_id: novoSubmit.responsible_id == -1 ? novoSubmit.responsible_id : null,
+                user_id},
             fetchData: fetchInformacoes
         });
         cleanForm(novoSubmit, setNovoSubmit, camposVazios);
@@ -54,9 +56,9 @@ const Tabela = () => {
             method: item.method,
             frequency: item.frequency,
             channel: item.channel,
-            responsible: item.responsible,
+            responsible_id: item?.member?.id != null ? item?.member?.id : -1,
             register: item.register,
-            feedback: item.feedbacck,
+            feedback: item.feedback,
             action: item.action
         }
         setNovosDados(obj);
@@ -72,7 +74,7 @@ const Tabela = () => {
                 table: 'information',
                 route: 'update',
                 token,
-                data: novosDados,
+                data: {...novosDados, responsible_id: novosDados.responsible_id != -1 ? novosDados.responsible_id : null},
                 fetchData: fetchInformacoes
             });
         } catch (error) {
@@ -213,7 +215,7 @@ const Tabela = () => {
                                             {!isUpdating || isUpdating[0] !== informacao.stakeholder?.stakeholder_group?.id ? (
                                                 <React.Fragment>
                                                     {index === 0 || informacoes[index - 1].stakeholder?.stakeholder_group?.id !== informacao.stakeholder?.stakeholder_group?.id ? (
-                                                        <td rowSpan={calculateRowSpan(informacoes, informacao.stakeholder?.stakeholder_group?.id, index, 'stakeholder.stakeholder_group.id')}
+                                                        <td rowSpan={calculateRowSpan(informacao.stakeholder?.stakeholder_group?.id, index, 'stakeholder.stakeholder_group.id')}
                                                         >{informacao.stakeholder?.stakeholder_group?.group}</td>
                                                     ) : null}
                                                 </React.Fragment>
@@ -223,7 +225,7 @@ const Tabela = () => {
                                             {!isUpdating || isUpdating[1] !== informacao.stakeholder?.id ? (
                                                 <React.Fragment>
                                                     {index === 0 || informacoes[index - 1].stakeholder?.id !== informacao.stakeholder?.id ? (
-                                                        <td rowSpan={calculateRowSpan(informacoes, informacao.stakeholder?.id, index, 'stakeholder.id')}
+                                                        <td rowSpan={calculateRowSpan(informacao.stakeholder?.id, index, 'stakeholder.id')}
                                                         >{informacao.stakeholder?.stakeholder}</td>
                                                     ) : null}
                                                 </React.Fragment>
@@ -234,7 +236,7 @@ const Tabela = () => {
                                             <td>{informacao.method}</td>
                                             <td>{informacao.frequency}</td>
                                             <td>{informacao.channel}</td>
-                                            <td>{informacao.responsible}</td>
+                                            <td>{informacao?.member?.name || 'Circunstancial'}</td>
                                             <td>
                                                 {informacao.register ? (
                                                     <Link href={informacao.register}>{informacao.register}</Link>

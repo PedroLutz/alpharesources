@@ -21,7 +21,7 @@ export default async function handler(req, res) {
                 )
             )
         ),
-        ocurrence,
+        occurrence,
         financial_impact
         )`)
     .gt('financial_impact', 0);

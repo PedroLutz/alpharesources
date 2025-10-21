@@ -21,7 +21,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
         method: null,
         frequency: null,
         channel: null,
-        responsible: null,
+        responsible_id: null,
         register: null,
         feedback: null,
         action: null
@@ -261,13 +261,13 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
             </td>
             <td>
                 <select
-                    name="responsible"
+                    name="responsible_id"
                     onChange={handleChange}
-                    value={obj.responsible}
-                    ref={el => (camposRef.current.responsible = el)}
+                    value={obj.responsible_id}
+                    ref={el => (camposRef.current.responsible_id = el)}
                 >
                     <option defaultValue value="">Responsible</option>
-                    <option value='Circunstancial'>Circunstancial</option>
+                    <option value={-1}>Circunstancial</option>
                     {nomesMembros.map((membro, index) => (
                         <option key={index} value={membro.id}>{membro.name}</option>
                     ))}
