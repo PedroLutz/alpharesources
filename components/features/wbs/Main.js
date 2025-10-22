@@ -8,12 +8,11 @@ import styles from "../../../styles/modules/wbs.module.css"
 import InputContainer from "./InputContainer";
 import useAuth from "../../../hooks/useAuth";
 import usePerm from "../../../hooks/usePerm";
+import HelpBubble from "../../ui/HelpBubble/wbs/wbs";
 
 const Main = () => {
     const { user, token} = useAuth();
     const {isEditor} = usePerm();
-
-    console.log(token)
 
     const [areas, setAreas] = useState([]);
     const [items, setItems] = useState([]);
@@ -44,6 +43,8 @@ const Main = () => {
     const [editId, setEditId] = useState();
     const [deleteAreaConfirm, setDeleteAreaConfirm] = useState(null);
     const [deleteItemConfirm, setDeleteItemConfirm] = useState(null);
+
+    const [showHelp, setShowHelp] = useState(false);
 
     const fetchAreas = async () => {
         const data = await handleFetch({
@@ -142,7 +143,8 @@ const Main = () => {
     return (
         <div className="centered-container">
             {isLoading && <Loading />}
-            <h2 className="smallTitle">Work Breakdown Structure</h2>
+            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
+            <h2 className="smallTitle">Work Breakdown Structure <button onClick={()=>setShowHelp(true)}>❔</button></h2>
             <div className={styles.main_container}>
                 <div className={styles.main_wrapper}>
                     <div className={styles.wbs_container}>

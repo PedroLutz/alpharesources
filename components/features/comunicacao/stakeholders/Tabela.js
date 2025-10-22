@@ -7,6 +7,7 @@ import { handleReq, handleFetch } from "../../../../functions/crud_s";
 import { cleanForm } from "../../../../functions/general";
 import usePerm from "../../../../hooks/usePerm";
 import useAuth from "../../../../hooks/useAuth";
+import HelpBubble from "../../../ui/HelpBubble/comunicacao/Stakeholders";
 
 const Tabela = () => {
     const { user, token } = useAuth();
@@ -32,6 +33,7 @@ const Tabela = () => {
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [showHelp, setShowHelp] = useState(false);
 
     //funcao que cadastra os stakeholders e cadastra na funcao de engajamento o stakeholder do jeito devido
     const enviar = async () => {
@@ -175,7 +177,8 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2 className="smallTitle">Stakeholder Identification</h2>
+            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
+            <h2 className="smallTitle">Stakeholder Identification <button onClick={()=> setShowHelp(true)}>❔</button></h2>
             {exibirModal != null && (
                 <Modal objeto={{
                     titulo: modalLabels[exibirModal],

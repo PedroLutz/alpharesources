@@ -9,6 +9,7 @@ import CadastroInputs from './CadastroInputs';
 import chroma from 'chroma-js';
 import useAuth from '../../../hooks/useAuth';
 import usePerm from '../../../hooks/usePerm';
+import HelpBubble from '../../ui/HelpBubble/cronograma/Monitoramento';
 
 /*
 
@@ -61,6 +62,7 @@ const Tabela = () => {
     const [chartDataLoaded, setChartDataLoaded] = useState(false);
     const [paleta, setPaleta] = useState([]);
     const [report, setReport] = useState([]);
+    const [showHelp, setShowHelp] = useState(false);
 
     const handleUpdateClick = (item) => {
         setNovosDados({
@@ -451,6 +453,7 @@ const Tabela = () => {
     return (
         <div className='centered-container'>
             {loading && <Loading />}
+            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
 
             {exibirModal != null && (
                 <Modal objeto={{
@@ -475,7 +478,7 @@ const Tabela = () => {
                 }} />
             )}
 
-            <h2 className='smallTitle'>Timeline Monitoring</h2>
+            <h2 className='smallTitle'>Timeline Monitoring <button onClick={()=>setShowHelp(true)}>❔</button></h2>
 
             {chartDataLoaded ? (
                 <div style={{ width: '90%', height: chartHeight }}>
@@ -593,7 +596,7 @@ const Tabela = () => {
                                         <th>Area</th>
                                         <th>Task</th>
                                         <th style={{ width: '9rem' }}>Start</th>
-                                        <th style={{ width: '9rem' }}>End</th>
+                                        <th style={{ width: '9rem' }}>Last executed</th>
                                         <th>Dependency: Area</th>
                                         <th>Dependency: Item</th>
                                         <th style={{ width: '9rem' }}>Situation</th>

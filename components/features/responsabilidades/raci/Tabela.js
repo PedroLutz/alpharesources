@@ -7,6 +7,7 @@ import { cleanForm } from '../../../../functions/general';
 import useAuth from '../../../../hooks/useAuth';
 import usePerm from '../../../../hooks/usePerm';
 import { handleFetch, handlePostFetch, handleReq } from '../../../../functions/crud_s';
+import HelpBubble from "../../../ui/HelpBubble/responsabilidades/Raci";
 
 const Tabela = () => {
   const { user, token } = useAuth();
@@ -28,6 +29,7 @@ const Tabela = () => {
   const [novoSubmit, setNovoSubmit] = useState(camposVazios);
   const [novosDados, setNovosDados] = useState(camposVazios);
   const [oldDados, setOldDados] = useState(camposVazios);
+  const [showHelp, setShowHelp] = useState(false);
 
   const handleUpdateClick = (item) => {
     let obj = { item_id: item.item_id };
@@ -303,7 +305,8 @@ const Tabela = () => {
   return (
     <div className="centered-container">
       {loading && <Loading />}
-      <h2 className="smallTitle">RACI Matrix</h2>
+      {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
+      <h2 className="smallTitle">RACI Matrix <button onClick={()=> setShowHelp(true)}>❔</button></h2>
       <button className="botao-bonito" style={{ width: '9rem' }} onClick={() => setVerOpcoes(!verOpcoes)}>Toggle options</button>
       <div className={styles.tabelaRaci_container}>
         <div className={styles.tabelaRaci_wrapper}>

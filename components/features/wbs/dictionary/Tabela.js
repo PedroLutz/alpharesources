@@ -7,6 +7,7 @@ import { handleFetch, handleReq } from '../../../../functions/crud_s';
 import { cleanForm } from "../../../../functions/general";
 import useAuth from "../../../../hooks/useAuth";
 import usePerm from "../../../../hooks/usePerm";
+import HelpBubble from "../../../ui/HelpBubble/wbs/wbsDictionary";
 
 const TabelaAnalise = () => {
     const { user, token } = useAuth();
@@ -34,6 +35,7 @@ const TabelaAnalise = () => {
     const [linhaVisivel, setLinhaVisivel] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [showHelp, setShowHelp] = useState(false);
 
 
     //essa funcao chama handleSubmit() e envia os dados para cadastro
@@ -166,7 +168,8 @@ const TabelaAnalise = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2 className="smallTitle">WBS Dictionary</h2>
+            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
+            <h2 className="smallTitle">WBS Dictionary <button onClick={()=>setShowHelp(true)}>❔</button></h2>
             {exibirModal != null && (
                 <Modal objeto={{
                     titulo: modalLabels[exibirModal],

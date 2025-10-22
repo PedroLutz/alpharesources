@@ -7,6 +7,7 @@ import { handleReq, handleFetch } from "../../../../functions/crud_s";
 import { cleanForm } from "../../../../functions/general";
 import useAuth from "../../../../hooks/useAuth";
 import usePerm from "../../../../hooks/usePerm";
+import HelpBubble from "../../../ui/HelpBubble/comunicacao/Engajamento";
 
 const Tabela = () => {
     const camposVazios = {
@@ -23,6 +24,7 @@ const Tabela = () => {
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [showHelp, setShowHelp] = useState(false);
 
     const handleUpdateClick = (item) => {
         const obj = {
@@ -123,7 +125,8 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2 className="smallTitle">Stakeholder Engagement Matrix</h2>
+            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
+            <h2 className="smallTitle">Stakeholder Engagement Matrix <button onClick={()=> setShowHelp(true)}>❔</button></h2>
             {exibirModal != null && (
                 <Modal objeto={{
                     titulo: modalLabels[exibirModal],

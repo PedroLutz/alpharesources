@@ -7,6 +7,7 @@ import { cleanForm } from '../../../../functions/general';
 import useAuth from '../../../../hooks/useAuth';
 import usePerm from '../../../../hooks/usePerm';
 import { handleFetch, handleReq } from '../../../../functions/crud_s';
+import HelpBubble from "../../../ui/HelpBubble/responsabilidades/Membros";
 
 const Tabela = () => {
     const { user, token } = useAuth();
@@ -25,6 +26,7 @@ const Tabela = () => {
     };
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
+    const [showHelp, setShowHelp] = useState(false);
 
     const fetchMembros = async () => {
         setLoading(true);
@@ -108,7 +110,8 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2 className='smallTitle'>Team members</h2>
+            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
+            <h2 className='smallTitle'>Team members <button onClick={()=> setShowHelp(true)}>❔</button></h2>
             <div id="report" className={styles.membrosContainerPai}>
                 <CadastroInputs
                     tipo='cadastro'

@@ -7,6 +7,7 @@ import { handleFetch, handleReq } from "../../../../functions/crud_s";
 import { cleanForm } from "../../../../functions/general";
 import useAuth from "../../../../hooks/useAuth";
 import usePerm from "../../../../hooks/usePerm";
+import HelpBubble from "../../../ui/HelpBubble/comunicacao/Grupos";
 
 const Tabela = () => {
     const { user, token } = useAuth();
@@ -31,6 +32,7 @@ const Tabela = () => {
     const [exibirModal, setExibirModal] = useState(null);
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [loading, setLoading] = useState(true);
+    const [showHelp, setShowHelp] = useState(false);
 
     const enviar = async () => {
         const data = await handleReq({
@@ -125,7 +127,8 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2 className="smallTitle">Stakeholder Groups</h2>
+            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
+            <h2 className="smallTitle">Stakeholder Groups <button onClick={()=> setShowHelp(true)}>❔</button></h2>
             {exibirModal != null && (
                 <Modal objeto={{
                     titulo: modalLabels[exibirModal],
@@ -160,7 +163,7 @@ const Tabela = () => {
 
                             </tr>
                             <tr>
-                                <th>Stakeholder</th>
+                                <th>Stakeholder Group</th>
                                 <th>Involvement</th>
                                 <th>Potential Influence</th>
                                 <th>Potential Impact</th>

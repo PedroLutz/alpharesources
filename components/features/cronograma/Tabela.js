@@ -9,6 +9,7 @@ import CadastroInputs from './CadastroInputs';
 import chroma from 'chroma-js';
 import useAuth from '../../../hooks/useAuth';
 import usePerm from '../../../hooks/usePerm';
+import HelpBubble from '../../ui/HelpBubble/cronograma/Tabela';
 
 /*
 ⢀⡴⠑⡄⠀⠀⠀⠀⠀⠀⠀⣀⣀⣤⣤⣤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ 
@@ -63,6 +64,7 @@ const Tabela = () => {
   const [showContingencies, setShowContingencies] = useState(false);
   const [tabela, setTabela] = useState([]);
   const [isMobile, setIsMobile] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
 
 
   //funcao que recebe o item a ser atualizado e insere os campos relevantes em novosDados
@@ -437,7 +439,8 @@ const Tabela = () => {
   return (
     <div className="centered-container">
       {loading && <Loading />}
-      <h2 className='smallTitle'>Estimated timeline</h2>
+      {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
+      <h2 className='smallTitle'>Estimated timeline <button onClick={()=>setShowHelp(true)}>❔</button></h2>
       {confirmDeleteItem && (
         <div className="overlay">
           <div className="modal">

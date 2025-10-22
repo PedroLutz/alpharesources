@@ -9,6 +9,7 @@ import stylesResumo from '../../../../styles/modules/resumo.module.css'
 import useAuth from '../../../../hooks/useAuth';
 import usePerm from '../../../../hooks/usePerm';
 import { Chart } from 'react-google-charts';
+import HelpBubble from "../../../ui/HelpBubble/recursos/Plano";
 
 const { grafico, pie_direita, pie_esquerda, pie_container, h3_resumo, custom_span } = stylesResumo;
 
@@ -46,6 +47,7 @@ const PlanoAquisicao = () => {
     const [planosSoma_all, setPlanosSoma_all] = useState([]);
     const [verReserves, setVerReserves] = useState(false);
     const [cores, setCores] = useState([]);
+    const [showHelp, setShowHelp] = useState(false);
 
     //funcao que envia os dados do novoSubmit para cadastro no banco
     const enviar = async (obj) => {
@@ -111,7 +113,9 @@ const PlanoAquisicao = () => {
                 token
             })
 
-            const totalContin = dataContingencia.data.reduce((acc, cur) => acc += (cur.financial_impact * (cur.ocurrence / 5)), 0);
+            
+
+            const totalContin = dataContingencia.data.reduce((acc, cur) => acc += (cur.financial_impact * (cur.occurrence / 5)), 0);
 
             setPlanos(data.data);
             setResumo(dataResumo.data);
@@ -188,9 +192,9 @@ const PlanoAquisicao = () => {
         })
 
         contingencia.forEach(c => {
-            const areaName = c.risk?.wbs_item?.wbs_area.name || 'Others';
+            const areaName = c.risk?.wbs_item?.wbs_area.name || 'Reserves';
             if (!objReserve[areaName]) objReserve[areaName] = 0;
-            objReserve[areaName] += (c.financial_impact * (c.ocurrence / 5));
+            objReserve[areaName] += (c.financial_impact * (c.occurrence / 5));
         });
 
         Object.keys(objReserve).forEach((key) => {
@@ -297,7 +301,8 @@ const PlanoAquisicao = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2 className="smallTitle">Resource Acquisition Planning</h2>
+            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
+            <h2 className="smallTitle">Resource Acquisition Planning <button onClick={()=> setShowHelp(true)}>❔</button></h2>
 
             {exibirModal != null && (
                 <Modal objeto={{

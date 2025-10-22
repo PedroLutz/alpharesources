@@ -7,6 +7,7 @@ import { handleReq, handleFetch } from "../../../../functions/crud_s";
 import useAuth from "../../../../hooks/useAuth";
 import usePerm from "../../../../hooks/usePerm";
 import { cleanForm } from "../../../../functions/general";
+import HelpBubble from "../../../ui/HelpBubble/comunicacao/EngajamentoGrupos";
 
 const Tabela = () => {
     const { token } = useAuth();
@@ -27,6 +28,7 @@ const Tabela = () => {
     const [exibirModal, setExibirModal] = useState(null);
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [loading, setLoading] = useState(true);
+    const [showHelp, setShowHelp] = useState(false);
 
     const handleUpdateClick = (item) => {
         const obj = {
@@ -123,7 +125,8 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2 className="smallTitle">Stakeholder Group Engagement Matrix</h2>
+            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
+            <h2 className="smallTitle">Stakeholder Group Engagement Matrix <button onClick={()=> setShowHelp(true)}>❔</button></h2>
             {exibirModal != null && (
                 <Modal objeto={{
                     titulo: modalLabels[exibirModal],

@@ -5,9 +5,10 @@ import { handleFetch } from '../../../functions/crud_s';
 import { jsDateToEuDate, euDateToJsDate } from '../../../functions/general';
 import useAuth from '../../../hooks/useAuth';
 import chroma from 'chroma-js';
+import HelpBubble from '../../ui/HelpBubble/cronograma/Comparacao';
 
 const Tabela = () => {
-    const { user, token } = useAuth();
+    const { token } = useAuth();
     const [cronogramas, setCronogramas] = useState([]);
     const [planosCronogramas, setPlanosCronogramas] = useState([]);
     const [chartHeight, setChartHeight] = useState('100px');
@@ -16,6 +17,7 @@ const Tabela = () => {
     const [reload, setReload] = useState(false);
     const [paleta, setPaleta] = useState([]);
     const [isMobile, setIsMobile] = useState(false);
+    const [showHelp, setShowHelp] = useState(false);
 
     //useEffect que so executa quando acontece reload é atualizado
     useEffect(() => {
@@ -35,10 +37,19 @@ const Tabela = () => {
                 query: "monitors",
                 token
             });
+            data.data.sort((a, b) => {
+                if(a.wbs_item.wbs_area.name != b.wbs_item.wbs_area.name){
+                return a.wbs_item.wbs_area.name > b.wbs_item.wbs_area.name
+                }
+
+                return a.gantt_data[0].start > b.gantt_data[0].start
+            })
             data.data.forEach((item) => {
                 item.gantt_data[0].start = jsDateToEuDate(item?.gantt_data[0].start);
                 item.gantt_data[0].end = jsDateToEuDate(item?.gantt_data[0].end);
+
             });
+            
             setCronogramas(data.data);
 
             const data2 = await handleFetch({
@@ -50,6 +61,7 @@ const Tabela = () => {
                 item.gantt_data[0].start = jsDateToEuDate(item?.gantt_data[0].start);
                 item.gantt_data[0].end = jsDateToEuDate(item?.gantt_data[0].end);
             });
+            
             setPlanosCronogramas(data2.data);
 
             //adicionar cores na tabela
@@ -82,7 +94,7 @@ const Tabela = () => {
     }, []);
 
     const checkShouldBeGraphed = (item) => {
-        return item.gantt_data[0].start < item.gantt_data[0].end &&
+        return euDateToJsDate(item.gantt_data[0].start) < euDateToJsDate(item.gantt_data[0].end) &&
             item.gantt_data[0].start != null &&
             item.gantt_data[0].end != null &&
             item.gantt_data[0].status != 'start'
@@ -93,6 +105,7 @@ const Tabela = () => {
         const ganttData = [['Task ID', 'Task Name', 'Resource', 'Start Date', 'End Date', 'Duration', 'Percent Complete', 'Dependencies']];
         cronogramas.forEach((item) => {
             if (!item.gantt_data[0].is_plan) {
+                console.log(item, item.gantt_data[0].start < item.gantt_data[0].end, item.gantt_data[0].start != null,item.gantt_data[0].end != null, item.gantt_data[0].status != null)
                 if (checkShouldBeGraphed(item)) {
                     const planoDoGantt = planosCronogramas.find(plan => plan.id === item.id);
                     if (planoDoGantt) {
@@ -105,7 +118,7 @@ const Tabela = () => {
                         if (!planoDoGantt.gantt_dependency[0]) {
                             dependencies2 = null;
                         } else {
-                            dependencies2 = `${planosCronogramas.find(plan => plan.id == planoDoGantt.gantt_dependency[0].dependency_id).gantt_data[0].id}`;
+                            dependencies2 = `${planosCronogramas.find(plan => plan.id == item.gantt_dependency[0].dependency_id).gantt_data[0].id}`;
                         }
                         ganttData.push([taskID2, taskName2, resource2, startDate2, endDate2, 0, 100, dependencies2]);
                     }
@@ -126,6 +139,7 @@ const Tabela = () => {
                 }
             }
         });
+        console.log(ganttData)
         return ganttData;
     };
 
@@ -158,6 +172,16 @@ const Tabela = () => {
         }
     }
 
+    const reduceLabel = (text) => {
+        return [...text].reduce((acc, cur) => { 
+            if(cur === cur.toUpperCase() && cur !== " "){
+                acc += cur;
+                acc = acc + ". "
+            }
+            return acc;
+        }, "")
+    }
+
     const handleResize = () => {
         if (window.innerWidth < 1024) {
             setIsMobile(true)
@@ -186,7 +210,8 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2 className='smallTitle'>Planned Schedule vs Reality</h2>
+            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
+            <h2 className='smallTitle'>Planned Schedule vs Reality <button onClick={()=>setShowHelp(true)}>❔</button></h2>
 
             <div className='centered-container' style={{
                 width: "50vw",
@@ -211,10 +236,10 @@ const Tabela = () => {
                                         borderRightWidth: '0rem',
                                         backgroundColor: item.wbs_item.wbs_area.color
                                     }}>
-                                    {index === 0 || cronogramas[index - 1].wbs_item.wbs_area.id !== item.wbs_item.wbs_area.id ? (
-                                        <td rowSpan={calculateRowSpan(item.wbs_item.wbs_area.id, index)} style={{ fontSize: tamanhoDaFonte(item.wbs_item.wbs_area.name.length), minWidth: '6rem', maxWidth: '8rem', borderRightWidth: '0.1rem', borderRightStyle: 'solid' }}>{item.wbs_item.wbs_area.name}</td>
-                                    ) : null}
-                                    <td style={{ fontSize: tamanhoDaFonte(item.wbs_item.name.length), minWidth: '6rem', maxWidth: '8rem' }}>{item.wbs_item.name}</td>
+                                    {/* {index === 0 || cronogramas[index - 1].wbs_item.wbs_area.id !== item.wbs_item.wbs_area.id ? ( */}
+                                        <td style={{ fontSize: tamanhoDaFonte(item.wbs_item.wbs_area.name.length < 28 ? item.wbs_item.wbs_area.name.length : reduceLabel(item.wbs_item.wbs_area.name).length), minWidth: '6rem', maxWidth: '8rem', borderRightWidth: '0.1rem', borderRightStyle: 'solid' }}>{item.wbs_item.wbs_area.name.length < 28 ? item.wbs_item.wbs_area.name : reduceLabel(item.wbs_item.wbs_area.name)}</td>
+                                    {/* ) : null} */}
+                                    <td style={{ fontSize: tamanhoDaFonte(item.wbs_item.name.length < 28 ? item.wbs_item.name.length : reduceLabel(item.wbs_item.name).length), minWidth: '6rem', maxWidth: '8rem' }}>{item.wbs_item.name.length < 28 ? item.wbs_item.name : reduceLabel(item.wbs_item.name)}</td>
                                 </tr>
                             ))}
                     </tbody>

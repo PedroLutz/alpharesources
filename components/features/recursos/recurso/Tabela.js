@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react"
+import React, { useEffect, useState } from "react"
 import CadastroInputs from "./CadastroInputs";
 import styles from '../../../../styles/modules/recursos.module.css'
 import Modal from "../../../ui/Modal";
@@ -7,6 +7,7 @@ import useAuth from '../../../../hooks/useAuth';
 import usePerm from '../../../../hooks/usePerm';
 import { cleanForm, isoDateToEuDate } from "../../../../functions/general";
 import { handleFetch, handleReq } from '../../../../functions/crud_s';
+import HelpBubble from "../../../ui/HelpBubble/recursos/Recurso";
 
 const Tabela = () => {
     const camposVazios = {
@@ -28,6 +29,7 @@ const Tabela = () => {
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [showHelp, setShowHelp] = useState(false);
 
     const labelsTypes = {
         physical: "Physical",
@@ -171,7 +173,9 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2 className="smallTitle">Resource Identification</h2>
+            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
+            
+            <h2 className="smallTitle">Resource Identification <button onClick={()=> setShowHelp(true)}>❔</button></h2>
 
             {exibirModal != null && (
                 <Modal objeto={{

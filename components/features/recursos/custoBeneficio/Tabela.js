@@ -3,11 +3,11 @@ import styles from '../../../../styles/modules/custoBeneficio.module.css'
 import Inputs from "./Inputs";
 import Modal from "../../../ui/Modal";
 import Loading from "../../../ui/Loading";
-import { handleSubmit, handleDelete, handleUpdate, fetchData } from "../../../../functions/crud";
 import { handleFetch, handleReq } from '../../../../functions/crud_s';
 import { cleanForm } from "../../../../functions/general";
 import useAuth from '../../../../hooks/useAuth';
 import usePerm from '../../../../hooks/usePerm';
+import HelpBubble from '../../../ui/HelpBubble/recursos/CustoBeneficio';
 
 const Tabela = () => {
     const camposVazios = {
@@ -30,6 +30,7 @@ const Tabela = () => {
     const [loading, setLoading] = useState(true);
     const { user, token } = useAuth();
     const { isEditor } = usePerm();
+    const [showHelp, setShowHelp] = useState(false);
 
 
     //funcao que envia os dados de novoSubmit para cadastro
@@ -138,7 +139,8 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2 className='smallTitle'>Cost-Benefit Analysis</h2>
+            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
+            <h2 className='smallTitle'>Cost-Benefit Analysis <button onClick={()=>setShowHelp(true)}>❔</button></h2>
 
             {exibirModal != null && (
                 <Modal objeto={{

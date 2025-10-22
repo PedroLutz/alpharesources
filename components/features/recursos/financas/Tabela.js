@@ -7,6 +7,7 @@ import { jsDateToEuDate, euDateToIsoDate, cleanForm } from '../../../../function
 import useAuth from '../../../../hooks/useAuth';
 import usePerm from '../../../../hooks/usePerm';
 import { handleFetch, handleReq } from '../../../../functions/crud_s';
+import HelpBubble from '../../../ui/HelpBubble/recursos/Financas';
 
 const labelsTipo = {
     income: 'Income',
@@ -35,6 +36,7 @@ const Tabela = () => {
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
+    const [showHelp, setShowHelp] = useState(false);
 
 
     //funcao que busca os dados de lancamentos e cria as arrays lancamentos e lancamentosDeletados,
@@ -164,7 +166,8 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2 className='smallTitle'>Financial Releases Data</h2>
+            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
+            <h2 className='smallTitle'>Financial Releases Data <button onClick={()=>setShowHelp(true)}>❔</button></h2>
             <div id="report" className={styles.tabela_financas_container}>
                 <div className={styles.tabela_financas_wrapper}>
                     <table className={`tabela ${styles.tabela_financas}`}>

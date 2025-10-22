@@ -7,6 +7,7 @@ import { handleFetch, handleReq } from '../../../../functions/crud_s';
 import { cleanForm } from "../../../../functions/general";
 import useAuth from '../../../../hooks/useAuth';
 import usePerm from '../../../../hooks/usePerm';
+import HelpBubble from "../../../ui/HelpBubble/responsabilidades/Habilidades";
 
 const Tabela = () => {
     const { user, token } = useAuth();
@@ -28,6 +29,7 @@ const Tabela = () => {
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [showHelp, setShowHelp] = useState(false);
 
     const enviar = async () => {
         await handleReq({
@@ -151,7 +153,8 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2 className="smallTitle">Skill evaluation</h2>
+            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
+            <h2 className="smallTitle">Skill evaluation <button onClick={()=> setShowHelp(true)}>❔</button></h2>
 
             {exibirModal != null && (
                 <Modal objeto={{
