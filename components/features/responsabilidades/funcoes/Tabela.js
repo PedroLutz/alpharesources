@@ -206,10 +206,10 @@ const Tabela = () => {
                                         />
                                     ) : (
                                         <tr>
-                                            <td>{funcao.role}</td>
-                                            <td className={styles.funcoesTdDescricao}>{funcao.description}</td>
-                                            <td className={styles.funcoesTdHabilidade}>{funcao.skills}</td>
-                                            <td>{funcao.member.name}</td>
+                                            <td name="role">{funcao.role}</td>
+                                            <td name="description">{funcao.description}</td>
+                                            <td name="skills">{funcao.skills}</td>
+                                            <td name="member_id">{funcao.member.name}</td>
                                             <td>{funcao.wbs_area.map(a => a.name).join(", ")}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(funcao)} disabled={!isEditor}>❌</button>
