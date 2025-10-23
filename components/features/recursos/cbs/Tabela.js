@@ -3,13 +3,14 @@ import Loading from '../../../ui/Loading';
 import { handlePostFetch, handleFetch } from "../../../../functions/crud_s";
 import styles from '../../../../styles/modules/cbs.module.css'
 import useAuth from "../../../../hooks/useAuth";
+import HelpBubble from '../../../ui/HelpBubble/recursos/Cbs';
 
 const Tabela = () => {
     const [dadosCbs, setDadosCbs] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [cores, setCores] = useState([]);
     const { user, token } = useAuth();
     const user_id = user.id;
+    const [showHelp, setShowHelp] = useState(false);
 
     //funcao para puxar os dados e atribuilos ao estado dadosCBS
     const fetchCbs = async () => {
@@ -49,7 +50,7 @@ const Tabela = () => {
             data_emvs.data.forEach(item =>{
                 const id = item?.risk?.wbs_item?.id || -1;
                 if(!contingencies[id]) contingencies[id] = 0;
-                contingencies[id] += item.financial_impact * (item.ocurrence / 5);
+                contingencies[id] += item.financial_impact * (item.occurrence / 5);
             })
             for(const key in contingencies){
                 var obj = array.find(i => i.item_id == key);
@@ -84,23 +85,10 @@ const Tabela = () => {
         }
     }
 
-    //funcao para puxar as cores e criar uma array de objetos no formato {area : cor}
-    const fetchCores = async () => {
-        // const data = await fetchData('wbs/get/cores');
-        // var cores = {};
-        // data.areasECores.forEach((area) => {
-        //     cores = { ...cores, [area._id]: area.cor[0] ? area.cor[0] : '' }
-        // })
-        // setCores(cores);
-    }
-
-
     //useEffect que só executa na primeira render
     useEffect(() => {
         fetchCbs();
-        fetchCores();
     }, []);
-
 
     //funcao para calcular o rowSpan do td de areas de acordo com a quantidade de itens q tem
     const calculateRowSpan = (currentArea, currentIndex, parametro) => {
@@ -122,7 +110,8 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2 className="smallTitle">Cost Breakdown Structure (CBS)</h2>
+            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
+            <h2 className="smallTitle">Cost Breakdown Structure (CBS) <button onClick={()=>setShowHelp(true)}>❔</button></h2>
 
             <div className={styles.tabela_cbs_container}>
                 <div className={styles.tabela_cbs_wrapper}>

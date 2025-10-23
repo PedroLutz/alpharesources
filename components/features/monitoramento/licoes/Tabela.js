@@ -7,6 +7,7 @@ import { handleReq, handleFetch } from "../../../../functions/crud_s";
 import { cleanForm, isoDateToEuDate } from "../../../../functions/general";
 import useAuth from "../../../../hooks/useAuth";
 import usePerm from "../../../../hooks/usePerm";
+import HelpBubble from "../../../ui/HelpBubble/monitoramento/Licao";
 
 const Tabela = () => {
     const { user, token } = useAuth();
@@ -27,6 +28,7 @@ const Tabela = () => {
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [showHelp, setShowHelp] = useState(false);
 
 
     //funcao que envia os dados de novoSubmit para cadastro
@@ -119,7 +121,8 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2 className="smallTitle">Lessons learned</h2>
+            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
+            <h2 className="smallTitle">Lessons learned <button onClick={()=> setShowHelp(true)}>❔</button></h2>
 
             {exibirModal != null && (
                 <Modal objeto={{

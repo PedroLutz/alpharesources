@@ -7,6 +7,7 @@ import { handleReq, handleFetch } from "../../../../functions/crud_s";
 import { cleanForm } from "../../../../functions/general";
 import usePerm from "../../../../hooks/usePerm";
 import useAuth from "../../../../hooks/useAuth";
+import HelpBubble from "../../../ui/HelpBubble/risco/Audit";
 
 const TabelaAnalise = () => {
     const { isEditor } = usePerm();
@@ -33,6 +34,7 @@ const TabelaAnalise = () => {
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
     const [seeArea, setSeeArea] = useState(false);
+    const [showHelp, setShowHelp] = useState(false);
 
     const enviar = async () => {
         await handleReq({
@@ -141,7 +143,8 @@ const TabelaAnalise = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2>Risk Audit</h2>
+            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
+            <h2 className="smallTitle">Risk Audit <button onClick={()=> setShowHelp(true)}>❔</button></h2>
             <button className="botao-bonito" style={{ marginBottom: '1rem', width: 'fit-content' }}
                 onClick={() => { !isUpdating && setSeeArea(!seeArea) }}
             >See areas and items</button>
@@ -231,24 +234,24 @@ const TabelaAnalise = () => {
                                             )}
                                             <td className={styles.auditTdText}>{item.impact_description}</td>
                                             <td className={styles.auditTdComparacao}>
-                                                Plan: R${Number(item?.risk?.risk_analysis?.financial_impact || '0').toFixed(2)}<br />
+                                                Plan: R${Number(item?.risk?.risk_analysis[0]?.financial_impact || '0').toFixed(2)}<br />
                                                 Actual: R${Number(item.financial_impact).toFixed(2)}
                                             </td>
                                             <td className={styles.auditTdComparacao}>
-                                                Plan: <br />{item?.risk?.risk_analysis?.schedule_impact || '-'} days<br />
+                                                Plan: <br />{item?.risk?.risk_analysis[0]?.schedule_impact || '-'} days<br />
                                                 Actual: <br />{item.schedule_impact} days
                                             </td>
                                             <td className={styles.auditTdText}>{item.response}</td>
                                             <td className={styles.auditTdComparacao}>
-                                                Plan: {item?.risk?.risk_analysis?.impact || '-'}<br />
+                                                Plan: {item?.risk?.risk_analysis[0]?.impact || '-'}<br />
                                                 Actual: {item.impact}<br />
                                             </td>
                                             <td className={styles.auditTdComparacao}>
-                                                Plan: {item?.risk?.risk_analysis?.action || '-'}<br />
+                                                Plan: {item?.risk?.risk_analysis[0]?.action || '-'}<br />
                                                 Actual: {item.action}<br />
                                             </td>
                                             <td className={styles.auditTdComparacao}>
-                                                Plan: {item?.risk?.risk_analysis?.urgency || '-'}<br />
+                                                Plan: {item?.risk?.risk_analysis[0]?.urgency || '-'}<br />
                                                 Actual: {item.urgency}<br />
                                             </td>
                                             <td className={styles.auditTdText}>{item.evaluation_description}</td>

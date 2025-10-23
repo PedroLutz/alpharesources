@@ -6,6 +6,7 @@ import styles from '../../../../styles/modules/resumo.module.css'
 import { handlePostFetch, handleFetch } from '../../../../functions/crud_s';
 import tabela from '../../../../styles/modules/financas.module.css'
 import useAuth from '../../../../hooks/useAuth';
+import HelpBubble from '../../../ui/HelpBubble/recursos/ResumoFinancas';
 
 const { grafico, pie_direita, pie_esquerda, pie_container, h3_resumo, custom_span } = styles;
 
@@ -26,6 +27,7 @@ const Resumo = () => {
     const [cores, setCores] = useState({});
     const [curvaS, setCurvaS] = useState([]);
     const [curvaSTabela, setCurvaSTabela] = useState([]);
+    const [showHelp, setShowHelp] = useState(false);
 
     const fetchResumos = async () => {
         const monthly_summary = await handlePostFetch({
@@ -110,11 +112,14 @@ const Resumo = () => {
         });
 
         total_summary.data.sort((a,b) => a.type > b.type);
+        const data_income = total_summary.data.find(o => o.type == 'income')?.total || 0;
+        const data_cost = total_summary.data.find(o => o.type == 'cost')?.total || 0;
+        const data_exchange = total_summary.data.find(o => o.type == 'exchange')?.total || 0;
 
         //data[0] = cost, data[1] = exchange, data[2] = income
-        setReceitasTotais(total_summary?.data[2]?.total + total_summary?.data[1]?.total);
-        setDespesasTotais(-total_summary?.data[0]?.total + total_summary?.data[1]?.total);
-        setTotalValor(total_summary?.data[2]?.total + total_summary?.data[0]?.total);
+        setReceitasTotais(data_income + data_exchange);
+        setDespesasTotais(-data_cost + data_exchange);
+        setTotalValor(data_income + data_cost);
 
 
         //------------------------------------------------MIN MAX--------------------------------------------------
@@ -427,7 +432,8 @@ const Resumo = () => {
     <div className={h3_resumo}>
       {loading && <Loading />}
       <div className="centered-container">
-        <h2 className="smallTitle">Report</h2>
+        {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
+        <h2 className="smallTitle">Report <button onClick={()=>setShowHelp(true)}>❔</button></h2>
 
         <div>
           <span className={custom_span}>Cash value:<br />R${Number(totalValor).toFixed(2)}</span>

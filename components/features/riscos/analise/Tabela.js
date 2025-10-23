@@ -7,6 +7,7 @@ import { handleReq, handleFetch } from "../../../../functions/crud_s";
 import { cleanForm } from "../../../../functions/general";
 import useAuth from "../../../../hooks/useAuth";
 import usePerm from "../../../../hooks/usePerm";
+import HelpBubble from "../../../ui/HelpBubble/risco/Analise";
 
 const TabelaAnalise = () => {
     const { user, token } = useAuth();
@@ -31,6 +32,7 @@ const TabelaAnalise = () => {
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
     const [seeArea, setSeeArea] = useState(false);
+    const [showHelp, setShowHelp] = useState(false);
 
     const enviar = async () => {
         await handleReq({
@@ -167,7 +169,8 @@ const TabelaAnalise = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2 className="smallTitle">Risk Analysis</h2>
+            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
+            <h2 className="smallTitle">Risk Analysis <button onClick={()=> setShowHelp(true)}>❔</button></h2>
             <button className="botao-bonito" style={{ marginBottom: '1rem', width: 'fit-content' }}
                 onClick={() => { !isUpdating && setSeeArea(!seeArea) }}
             >See areas and items</button>

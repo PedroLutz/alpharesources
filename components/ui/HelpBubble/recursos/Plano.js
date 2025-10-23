@@ -28,7 +28,8 @@ const HelpBubble = ({ setShowHelp }) => {
                     </ul>
                     </div>
                     If the results are registered, the table automatically compares the date and the value of the acquisition with the plans.<br/><br/>
-                    Below the table, graphs are generated based on the plans. Clicking on <b>View reserves</b> adds financial reserves based on data from <Link href={'/pags/risk/analysis'}>Risk Analysis</Link>.
+                    Below the table, graphs are generated based on the plans, one with the essential scenario (only essential items) and the other with the ideal scenario (all items). Clicking on <b>View reserves</b> adds financial reserves based on data from <Link href={'/pags/risk/analysis'}>Risk Analysis</Link>.<br/><br/>
+                    Each graph displays, for each scenario and each area, the sums of the weighed averages of the value of each plan, using the formula <b>(2 * [value of plan a] + [value of plan B])/3</b>. This is to allow the generation of a single graph for clarity, but still give more weight to Plan A (as it is the most likely to happen).
                 </div>
                 <button className='botao-padrao' onClick={() => setShowHelp(false)}>Back</button>
             </div>

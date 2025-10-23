@@ -8,6 +8,7 @@ import usePerm from "../../../../hooks/usePerm";
 import useAuth from "../../../../hooks/useAuth";
 import { cleanForm } from "../../../../functions/general";
 import Link from "next/link";
+import HelpBubble from "../../../ui/HelpBubble/comunicacao/Informacao";
 
 const Tabela = () => {
     const { isEditor } = usePerm();
@@ -33,6 +34,7 @@ const Tabela = () => {
     const [reload, setReload] = useState(false);
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [showHelp, setShowHelp] = useState(false);
 
     //funcao que envia os dados para registro no backend
     const enviar = async () => {
@@ -155,7 +157,8 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2 className="smallTitle">Communicated Information</h2>
+            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
+            <h2 className="smallTitle">Communicated Information <button onClick={()=> setShowHelp(true)}>❔</button></h2>
 
             {exibirModal != null && (
                 <Modal objeto={{

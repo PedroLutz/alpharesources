@@ -6,6 +6,7 @@ import Modal from "../../ui/Modal";
 import { format } from 'date-fns';
 import useAuth from "../../../hooks/useAuth";
 import { handlePostFetch, handleFetch } from "../../../functions/crud_s";
+import HelpBubble from "../../ui/HelpBubble/monitoramento/Relatorio";
 
 /*
 ⢀⡴⠑⡄⠀⠀⠀⠀⠀⠀⠀⣀⣀⣤⣤⣤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ 
@@ -51,6 +52,7 @@ const Relatorio = () => {
     const [flagExport, setFlagExport] = useState(false);
     const [interval, setInterval] = useState('');
     const {user, token} = useAuth();
+    const [showHelp, setShowHelp] = useState(false);
 
     //transforma os dados em uma unica string
     const generateLabelsTarefas = (dados, setter) => {
@@ -364,8 +366,9 @@ const Relatorio = () => {
                 }} />
             )}
 
-            <h2 className="smallTitle">Status Report Generator</h2>
+            <h2 className="smallTitle">Status Report Generator <button onClick={()=> setShowHelp(true)}>❔</button></h2>
             {loading && <Loading />}
+            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
             <div className={styles.menu}>
                 <h3>Select Interval</h3>
                 <div>
@@ -399,7 +402,9 @@ const Relatorio = () => {
                                         <tbody>
                                             <tr>
                                                 <td>Project Name</td>
-                                                <td>Alpha Scuderia</td>
+                                                <td><input name='teamname'
+                                                    id='teamname' />
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td>Date of report</td>

@@ -7,6 +7,7 @@ import { handleReq, handleFetch } from "../../../../functions/crud_s";
 import { cleanForm } from "../../../../functions/general";
 import useAuth from "../../../../hooks/useAuth";
 import usePerm from "../../../../hooks/usePerm";
+import HelpBubble from "../../../ui/HelpBubble/risco/Identificacao";
 
 const TabelaRiscos = () => {
     const { user, token } = useAuth();
@@ -32,6 +33,7 @@ const TabelaRiscos = () => {
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUptading] = useState(false);
     const [loaded, setLoaded] = useState(false);
+    const [showHelp, setShowHelp] = useState(false);
 
     const enviar = async () => {
         await handleReq({
@@ -161,7 +163,8 @@ const TabelaRiscos = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2 className="smallTitle">Risk Identification</h2>
+            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
+            <h2 className="smallTitle">Risk Identification <button onClick={()=> setShowHelp(true)}>❔</button></h2>
             {exibirModal != null && (
                 <Modal objeto={{
                     titulo: modalLabels[exibirModal],

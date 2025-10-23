@@ -7,6 +7,7 @@ import { handleReq, handleFetch } from "../../../../functions/crud_s";
 import { cleanForm } from "../../../../functions/general";
 import useAuth from "../../../../hooks/useAuth";
 import usePerm from "../../../../hooks/usePerm";
+import HelpBubble from "../../../ui/HelpBubble/risco/Resposta";
 
 const TabelaPlanos = () => {
     const { user, token } = useAuth();
@@ -26,6 +27,7 @@ const TabelaPlanos = () => {
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
     const [seeArea, setSeeArea] = useState(false);
+    const [showHelp, setShowHelp] = useState(false);
 
     const enviar = async () => {
         await handleReq({
@@ -136,7 +138,8 @@ const TabelaPlanos = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            <h2 className="smallTitle">Risk Response Planning</h2>
+            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
+            <h2 className="smallTitle">Risk Response Planning <button onClick={()=> setShowHelp(true)}>❔</button></h2>
             <button className="botao-bonito" style={{ marginBottom: '1rem', width: 'fit-content' }}
                 onClick={() => { !isUpdating && setSeeArea(!seeArea) }}
             >See areas and items</button>
@@ -180,13 +183,6 @@ const TabelaPlanos = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            <CadastroInputs
-                                obj={novoSubmit}
-                                objSetter={setNovoSubmit}
-                                funcoes={{ enviar }}
-                                setExibirModal={setExibirModal}
-                                seeArea={seeArea}
-                            />
                             {respostas.map((item, index) => (
                                 <React.Fragment key={index}>
                                     {linhaVisivel === item.id ? (
@@ -237,6 +233,13 @@ const TabelaPlanos = () => {
                                     )}
                                 </React.Fragment>
                             ))}
+                            <CadastroInputs
+                                obj={novoSubmit}
+                                objSetter={setNovoSubmit}
+                                funcoes={{ enviar }}
+                                setExibirModal={setExibirModal}
+                                seeArea={seeArea}
+                            />
                         </tbody>
                     </table>
                 </div>
