@@ -13,7 +13,7 @@
 }
 
 .botao-padrao:hover {
-    background-color: #ffa4f3;
+    background-color: #eba25a;
     font-size: 0.8rem;
     font-weight: bold;
     width: 7rem;
@@ -21,7 +21,7 @@
 }
 
 .botao-bonito {
-    background-color: #fc79ec;
+    background-color: #eea761;
     border: 1px solid black;
     border-radius: 5px;
     padding: 3px;
@@ -41,7 +41,7 @@
 }
 
 .botao-bonito:hover {
-    background-color: #a84ee0;
+    background-color: #975819;
     font-size: 0.8rem;
     font-weight: bold;
     width: 7rem;

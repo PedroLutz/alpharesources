@@ -24,19 +24,19 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 2px solid #ff00e3;
+  border: 2px solid #f28c28;
   border-radius: 15px;
   text-align: center;
   word-wrap: break-word;
   white-space: normal;
-  color: #ff00e3;
+  color: #f28c28;
   background: white;
   text-decoration: none;
 }
 
 .menuGroup span:hover {
-  border: 2px solid #9006e3;
-  color: #9006e3;
+  border: 2px solid #a0a0a0;
+  color: #a0a0a0;
   text-decoration: none;
 }
 
@@ -46,12 +46,12 @@
 }
 
 .menuGroup span a:hover {
-  color: #9006e3;
+  color: #a0a0a0;
 }
 
-.menuGroup span:hover img {
+/* .menuGroup span:hover img {
   filter: hue-rotate(325deg);
-}
+} */
 
 .menuText {
   position: relative;
@@ -64,8 +64,18 @@
   width: 80px;
 }
 
+
+.img_wrapper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: #f28c28; /* cor da sobreposição */
+  mix-blend-mode: screen; /* ou overlay, screen, etc */
+  pointer-events: none;
+}
+
 .gradient_text {
-  background: linear-gradient(45deg, #FF00e3, #9006e3);
+  background-color: #f28c28;
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;

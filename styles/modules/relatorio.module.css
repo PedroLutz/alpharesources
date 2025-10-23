@@ -2,12 +2,52 @@
     overflow: auto;
 }
 
-.menu {
+.menu, .customize_report {
     border-width: 0.1rem;
     border-style: solid;
     border-radius: 1rem;
     padding: 1rem;
     margin-bottom: 1rem;
+}
+
+.customize_report_wrapper{
+    width: 2rem;
+    height: 1rem;
+    align-items: center;
+}
+
+.customize_report_wrapper input[type="color"]{
+    width: 2rem;
+    height: 1rem;
+    /* opacity: 0; */
+}
+
+
+
+.hiddenInput {
+  display: none;
+}
+
+.uploadLabel {
+  background-color: transparent;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 3px;
+    color: black;
+    font-size: 0.9rem;
+    cursor: pointer;
+    width: 7rem;
+    transition: 0.1s;
+    height: 1.7rem;
+    margin: 0.5rem; 
+}
+
+.uploadLabel:hover {
+  background-color: #eba25a;
+    font-size: 0.8rem;
+    font-weight: bold;
+    width: 7rem;
+    height: 1.7rem;
 }
 
 .datePicker {
@@ -23,20 +63,6 @@
     outline: none;
     margin-left: 0.5rem;
     margin-right: 0.5rem;
-}
-
-.datePicker_calendar {
-    font-family: 'Montserrat' !important;
-    font-size: 0.7rem !important;
-}
-
-.menu :global(.react-datepicker__month-text:hover),
-.menu :global(.react-datepicker__month-text--today:hover) {
-    background-color: #ffc3f7 !important;
-}
-
-.menu :global(.react-datepicker__month-text--keyboard-selected) {
-    background-color: #ff75ef !important;
 }
 
 .report {
@@ -83,7 +109,7 @@
 .tableResources thead tr:first-child,
 .tableStatus thead tr:first-child,
 .tableDetails thead tr:first-child {
-    background-color: #ff00e3;
+    background-color: #f28c28;
     border-color: black;
     font-weight: bolder;
     border-style: solid;
@@ -98,7 +124,7 @@
     font-weight: bold;
     border-style: solid;
     border-width: 0.1rem;
-    background-color: #ffccf9;
+    background-color: #cecece;
     font-weight: bold;
     width: 10rem;
     text-align: center;
@@ -106,7 +132,7 @@
 
 .tableInformation tr td:first-child,
 .tableProgress tr td:not(#notPink):first-child {
-    background-color: #ffccf9;
+    background-color: #cecece;
     font-weight: bold;
     width: 10rem;
     text-align: left;

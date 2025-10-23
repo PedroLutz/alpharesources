@@ -150,17 +150,38 @@
 ---------    FUNCOES       ----------
 */
 
-.funcoesTdDescricao,
-.funcoesTdHabilidade {
+.tabelaFuncoes td textarea[name="role"]{
+    width: 10rem;
+}
+
+.tabelaFuncoes td[name="role"]{
+    width: 10rem;
+}
+
+.tabelaFuncoes td[name="role"]{
+    width: 10rem;
+}
+
+.tabelaFuncoes td[name="description"],
+.tabelaFuncoes td[name="skills"] {
     font-size: 0.75rem;
     text-align: justify;
+}
+
+.tabelaFuncoes td[name="description"],
+.tabelaFuncoes td textarea[name="description"]{
     width: 18rem;
 }
 
-.funcoesTdDescricao textarea,
-.funcoesTdHabilidade textarea {
-    height: 100%;
-    width: 18rem;
+
+.tabelaFuncoes td[name="skills"],
+.tabelaFuncoes td textarea[name="skills"]{
+    width: 15rem;
+}
+
+.tabelaFuncoes td[name="member_id"],
+.tabelaFuncoes td select[name="member_id"]{
+    width: 8rem;
 }
 
 .funcoesTdFuncao textarea {
@@ -276,8 +297,8 @@
     }
 
     .tabelaRaci td select,
-    .funcoesTdDescricao,
-    .funcoesTdHabilidade,
+    .tabelaFuncoes td[name="description"],
+    .tabelaFuncoes td[name="skills"],
     .tabelaFuncoes td textarea,
     .tabelaFuncoes td select,
     .tabelaHabilidade td.habilidadeTdAcao,
@@ -319,8 +340,8 @@
         height: 3rem;
     }
 
-    .funcoesTdDescricao textarea,
-    .funcoesTdHabilidade textarea {
+    .tabelaFuncoes td textarea[name="description"],
+    .tabelaFuncoes td textarea[name="skills"] {
         width: 10rem;
     }
 

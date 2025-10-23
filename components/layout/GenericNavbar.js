@@ -38,8 +38,8 @@ const GenericNavbar = ({ base, itens, dropdowns }) => {
 
   return (
     <nav className={styles.nav}>
-      <h2 style={{fontSize: (base.titulo.length > 10 && isMobile) && '1rem'}}><Link href={base.link}>Alpha Management/{base.titulo}</Link></h2>
-      <img src={'/images/logo.png'} alt="Logo" />
+      <h2 style={{fontSize: (base.titulo.length > 10 && isMobile) && '1rem'}}><Link href={base.link}>STEM Management/{base.titulo}</Link></h2>
+      <img src={'/images/logo_white.png'} alt="Logo" />
 
       <button
         className={styles.hamburger}

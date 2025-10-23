@@ -21,6 +21,7 @@ const HelpBubble = ({ setShowHelp }) => {
                             <li><b>Project Changes</b>: fields for registering changes and lessons learned during the interval.</li>
                         </ul>
                     </div>
+                    The team can also optionally add their own logo to the report.
                 </div>
                 <button className='botao-padrao' onClick={() => setShowHelp(false)}>Back</button>
             </div>

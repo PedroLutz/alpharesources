@@ -5,7 +5,7 @@ import Loading from "../../ui/Loading";
 import Modal from "../../ui/Modal";
 import { format } from 'date-fns';
 import useAuth from "../../../hooks/useAuth";
-import { handlePostFetch, handleFetch } from "../../../functions/crud_s";
+import { handlePostFetch, handleFetch, handleReq } from "../../../functions/crud_s";
 import HelpBubble from "../../ui/HelpBubble/monitoramento/Relatorio";
 
 /*
@@ -51,8 +51,16 @@ const Relatorio = () => {
     const [oportunidades, setOportunidades] = useState([]);
     const [flagExport, setFlagExport] = useState(false);
     const [interval, setInterval] = useState('');
-    const {user, token} = useAuth();
+    const { user, token } = useAuth();
+    const user_id = user?.id;
     const [showHelp, setShowHelp] = useState(false);
+
+    const [teamLogo, setTeamLogo] = useState(null);
+    const [teamColors, setTeamColors] = useState({});
+    const [objTeamColors, setObjTeamColors] = useState({
+        main: '',
+        secondary: ''
+    })
 
     //transforma os dados em uma unica string
     const generateLabelsTarefas = (dados, setter) => {
@@ -96,7 +104,7 @@ const Relatorio = () => {
     const busca = async () => {
         setLoading(true);
         if (interval == "") {
-            setExibirModal(true);
+            setExibirModal(`Please select a valid interval!`);
             setLoading(false);
             return;
         }
@@ -113,7 +121,7 @@ const Relatorio = () => {
         generateLabelsTarefas(data.data.planned, setTarefasPlanejadas);
         generateLabelsRiscos(data.data.threats, setRiscos);
         generateLabelsRiscos(data.data.opportunities, setOportunidades);
-        
+
         const responsePlano = await handleFetch({
             table: "gantt",
             query: "startAndEndPlans",
@@ -135,22 +143,22 @@ const Relatorio = () => {
 
         var primeiroEUltimoPlanos = [];
         var primeiroEUltimoGantts = [];
-        const areas = new Map(dadosPlano.map(item => [item.wbs_item.wbs_area.id, {id: item.wbs_item.wbs_area.id, name: item.wbs_item.wbs_area.name}]).values())
+        const areas = new Map(dadosPlano.map(item => [item.wbs_item.wbs_area.id, { id: item.wbs_item.wbs_area.id, name: item.wbs_item.wbs_area.name }]).values())
         areas.forEach((area) => {
             {
                 const primeiroInicio = dadosPlano.filter(dado => dado.wbs_item.wbs_area.id == area.id)
-                            .reduce((min, obj) => obj.gantt_data[0].start < min.gantt_data[0].start ? obj : min);
+                    .reduce((min, obj) => obj.gantt_data[0].start < min.gantt_data[0].start ? obj : min);
                 const ultimoTermino = dadosPlano.filter(dado => dado.wbs_item.wbs_area.id == area.id)
-                            .reduce((max, obj) => obj.gantt_data[0].end > max.gantt_data[0].end ? obj : max);
-                primeiroEUltimoPlanos.push({primeiro: primeiroInicio, ultimo: ultimoTermino});
-                
+                    .reduce((max, obj) => obj.gantt_data[0].end > max.gantt_data[0].end ? obj : max);
+                primeiroEUltimoPlanos.push({ primeiro: primeiroInicio, ultimo: ultimoTermino });
+
             }
             {
                 const primeiroInicio = dadosGantt.filter(dado => dado.wbs_item.wbs_area.id == area.id)
-                            .reduce((min, obj) => obj.gantt_data[0].start < min.gantt_data[0].start ? obj : min);
+                    .reduce((min, obj) => obj.gantt_data[0].start < min.gantt_data[0].start ? obj : min);
                 const ultimoTermino = dadosGantt.filter(dado => dado.wbs_item.wbs_area.id == area.id)
-                            .reduce((max, obj) => obj.gantt_data[0].end > max.gantt_data[0].end ? obj : max);
-                primeiroEUltimoGantts.push({primeiro: primeiroInicio, ultimo: ultimoTermino});
+                    .reduce((max, obj) => obj.gantt_data[0].end > max.gantt_data[0].end ? obj : max);
+                primeiroEUltimoGantts.push({ primeiro: primeiroInicio, ultimo: ultimoTermino });
             }
         })
 
@@ -255,7 +263,7 @@ const Relatorio = () => {
             img.style.width = '200px';
             img.style.margin = '-10px';
         });
-        
+
 
         document.getElementsByClassName('alphaLogo').forEach((a) => {
             a.style.width = '90%';
@@ -342,8 +350,12 @@ const Relatorio = () => {
 
     }, [flagExport]);
 
+    useEffect(() => {
+        fetchTeamColors();
+    }, [])
+
     const futurePerformanceLabel = () => {
-        switch(interval){
+        switch (interval) {
             case '1 week':
                 return "week";
             case "2 weeks":
@@ -355,25 +367,90 @@ const Relatorio = () => {
         }
     }
 
+    const handleFileChange = (e) => {
+        const file = e.target.files?.[0]
+        if (!file) return;
+        if (file.size > (3 * 1024 * 1024)) {
+            setExibirModal('Please select a smaller image!');
+        }
+
+        const url = URL.createObjectURL(file)
+        const img = new Image();
+        img.src = url;
+        img.onload = () => {
+            if (img.width != img.height) {
+                setExibirModal(`Please select a square image!`)
+                return;
+            } else {
+                setTeamLogo(url);
+            }
+        }
+    }
+
+    const fetchTeamColors = async () => {
+        const data = await handleFetch({
+            table: 'color',
+            query: 'all',
+            token,
+        })
+        if (data.success) {
+            setTeamColors(data.data);
+            setObjTeamColors(data.data);
+            
+        }
+    }
+
+    const handleColorChange = (e) => {
+        const {value, name} = e.target;
+        setObjTeamColors({
+            ...objTeamColors,
+            [name]: value
+        })
+    }
+
+    const submitColorChange = async () => {
+        setLoading(true);
+
+        if(teamColors?.id != undefined){
+            await handleReq({
+                table: 'color',
+                route: 'update',
+                token,
+                data: {id: teamColors.id, main: objTeamColors.main, secondary: objTeamColors.secondary},
+                fetchData: fetchTeamColors
+            })
+        } else {
+            await handleReq({
+                table: 'color',
+                route: 'create',
+                token,
+                data: {main: objTeamColors.main, secondary: objTeamColors.secondary, user_id},
+                fetchData: fetchTeamColors
+            })
+        }
+        setLoading(false);
+    }
+
     return (
         <div className="centered-container">
             {exibirModal && (
                 <Modal objeto={{
-                    titulo: "Please select a valid interval!",
+                    titulo: `${exibirModal}`,
                     botao1: {
                         funcao: () => setExibirModal(false), texto: 'Okay'
                     },
                 }} />
             )}
 
-            <h2 className="smallTitle">Status Report Generator <button onClick={()=> setShowHelp(true)}>❔</button></h2>
+            <h2 className="smallTitle">Status Report Generator <button onClick={() => setShowHelp(true)}>❔</button></h2>
             {loading && <Loading />}
-            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
+            {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
+            <div style={{display: `flex`, gap: `1rem`}}>
             <div className={styles.menu}>
                 <h3>Select Interval</h3>
                 <div>
                     <select
-                        style={{backgroundColor: 'transparent', borderColor: 'gray', borderStyle: 'solid', borderWidth: '0.1rem', borderRadius: '0.4rem'}}
+                        style={{ backgroundColor: 'transparent', borderColor: 'gray', borderStyle: 'solid', borderWidth: '0.1rem', borderRadius: '0.4rem' }}
                         onChange={(e) => setInterval(e.target.value)}>
                         <option defaultValue value="">Interval</option>
                         <option value="2 months">2 months</option>
@@ -386,6 +463,23 @@ const Relatorio = () => {
                 {showTable && (
                     <button className="botao-padrao" onClick={() => setFlagExport(true)}>Export</button>)}
             </div>
+
+                {showTable && <div className={styles.customize_report}>
+                    <h3>Customize report</h3>
+                    <label htmlFor="fileUpload" className={styles.uploadLabel}>
+                        Upload Team Logo
+                    </label>
+                    <input
+                        id="fileUpload"
+                        type="file"
+                        onChange={handleFileChange}
+                        className={styles.hiddenInput}
+                    />
+                </div>}
+            </div>
+            
+
+
             {showTable && (
                 <div className={styles.report_container}>
                     <div className={`reportToPrint`} style={{ padding: '1rem', maxWidth: '95vw' }}>
@@ -396,28 +490,28 @@ const Relatorio = () => {
                                     <table className={`tableInformation ${styles.tableInformation}`}>
                                         <thead>
                                             <tr>
-                                                <th colSpan={2}>PROJECT INFORMATION</th>
+                                                <th colSpan={2} style={{backgroundColor: teamColors?.main}}>PROJECT INFORMATION</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td>Project Name</td>
+                                                <td style={{backgroundColor: teamColors?.secondary}}>Project Name</td>
                                                 <td><input name='teamname'
                                                     id='teamname' />
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td>Date of report</td>
+                                                <td style={{backgroundColor: teamColors?.secondary}}>Date of report</td>
                                                 <td>{format(new Date(), 'dd/MM/yyyy')}</td>
                                             </tr>
                                             <tr>
-                                                <td>Projected Date of Completion</td>
+                                                <td style={{backgroundColor: teamColors?.secondary}}>Projected Date of Completion</td>
                                                 <td><input type="date"
                                                     id='dateCompletion' />
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td>Project Manager</td>
+                                                <td style={{backgroundColor: teamColors?.secondary}}>Project Manager</td>
                                                 <td><input name='manager'
                                                     id='manager' />
                                                 </td>
@@ -425,40 +519,40 @@ const Relatorio = () => {
                                         </tbody>
                                     </table>
                                     <div className={styles.alphaLogo}>
-                                        <img src={'/images/logo.png'} alt="Logo" />
+                                        <img src={teamLogo || '/images/logo.png'} alt="Logo" />
                                     </div>
                                 </div>
 
                                 <table style={{ marginTop: '2rem' }} className={`tableProgress ${styles.tableProgress}`}>
                                     <thead>
                                         <tr>
-                                            <th colSpan={2}>TASK ANALYSIS</th>
+                                            <th style={{backgroundColor: teamColors?.main}} colSpan={2}>TASK ANALYSIS</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>Tasks initiated</td>
+                                            <td style={{backgroundColor: teamColors?.secondary}}>Tasks initiated</td>
                                             <td>{tarefasIniciadas || '-'}</td>
                                         </tr>
                                         <tr>
-                                            <td>Tasks in execution</td>
+                                            <td style={{backgroundColor: teamColors?.secondary}}>Tasks in execution</td>
                                             <td>{tarefasEmAndamento || '-'}</td>
                                         </tr>
                                         <tr>
-                                            <td>Tasks finished</td>
+                                            <td style={{backgroundColor: teamColors?.secondary}}>Tasks finished</td>
                                             <td>{tarefasConcluidas || '-'}</td>
                                         </tr>
                                         <tr>
-                                            <td>Threats of tasks in execution</td>
+                                            <td style={{backgroundColor: teamColors?.secondary}}>Threats of tasks in execution</td>
                                             <td>{riscos || '-'}</td>
                                         </tr>
                                         <tr>
-                                            <td>Opportunities of tasks in execution</td>
+                                            <td style={{backgroundColor: teamColors?.secondary}}>Opportunities of tasks in execution</td>
                                             <td>{oportunidades || '-'}</td>
                                         </tr>
                                         <tr>
-                                            <td>Issues</td>
-                                            <td><textarea/></td>
+                                            <td style={{backgroundColor: teamColors?.secondary}}>Issues</td>
+                                            <td><textarea /></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -467,20 +561,20 @@ const Relatorio = () => {
                                     <table className={`tableResources ${styles.tableResources}`} style={{ marginTop: '2rem' }}>
                                         <thead>
                                             <tr>
-                                                <th colSpan={3}>WORK COMPLETED VERSUS RESOURCES USED</th>
+                                                <th colSpan={3} style={{backgroundColor: teamColors?.main}}>WORK COMPLETED VERSUS RESOURCES USED</th>
                                             </tr>
                                             <tr>
-                                                <th>Finished task</th>
-                                                <th>Planned resources</th>
-                                                <th>Used resources</th>
+                                                <th style={{backgroundColor: teamColors?.secondary}}>Finished task</th>
+                                                <th style={{backgroundColor: teamColors?.secondary}}>Planned resources</th>
+                                                <th style={{backgroundColor: teamColors?.secondary}}>Used resources</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {tarefasConcluidas.split(', ').map((tarefa, index) => (
                                                 <tr key={index}>
                                                     <td style={{ textAlign: 'left', padding: '0.3rem' }}>{tarefa}</td>
-                                                    <td><textarea/></td>
-                                                    <td><textarea/></td>
+                                                    <td><textarea /></td>
+                                                    <td><textarea /></td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -491,14 +585,14 @@ const Relatorio = () => {
                                 <table className={`tableStatus ${styles.tableStatus}`} style={{ marginTop: '2rem' }}>
                                     <thead>
                                         <tr>
-                                            <th colSpan={5}>KPI ANALYSIS</th>
+                                            <th colSpan={5} style={{backgroundColor: teamColors?.main}}>KPI ANALYSIS</th>
                                         </tr>
                                         <tr>
-                                            <th>Scope</th>
-                                            <th>Schedule</th>
-                                            <th>Cost</th>
-                                            <th>Risk</th>
-                                            <th>Quality</th>
+                                            <th style={{backgroundColor: teamColors?.secondary}}>Scope</th>
+                                            <th style={{backgroundColor: teamColors?.secondary}}>Schedule</th>
+                                            <th style={{backgroundColor: teamColors?.secondary}}>Cost</th>
+                                            <th style={{backgroundColor: teamColors?.secondary}}>Risk</th>
+                                            <th style={{backgroundColor: teamColors?.secondary}}>Quality</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -530,13 +624,13 @@ const Relatorio = () => {
                                 <table className={`tableDetails ${styles.tableDetails}`} style={{ marginTop: '2rem' }}>
                                     <thead>
                                         <tr>
-                                            <th colSpan={4}>AREA ANALYSIS (PLANNED VERSUS ACTUAL PROGRESS)</th>
+                                            <th colSpan={4} style={{backgroundColor: teamColors?.main}}>AREA ANALYSIS (PLANNED VERSUS ACTUAL PROGRESS)</th>
                                         </tr>
                                         <tr>
-                                            <th>Area</th>
-                                            <th>Situation</th>
-                                            <th>Status</th>
-                                            <th>Notes</th>
+                                            <th style={{backgroundColor: teamColors?.secondary}}>Area</th>
+                                            <th style={{backgroundColor: teamColors?.secondary}}>Situation</th>
+                                            <th style={{backgroundColor: teamColors?.secondary}}>Status</th>
+                                            <th style={{backgroundColor: teamColors?.secondary}}>Notes</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -567,16 +661,16 @@ const Relatorio = () => {
                                     <table style={{ marginTop: '2rem' }} className={`tableProgress ${styles.tableProgress}`}>
                                         <thead>
                                             <tr>
-                                                <th colSpan={2}>PREDICTIONS OF FUTURE PROJECT PERFORMANCE</th>
+                                                <th style={{backgroundColor: teamColors?.main}} colSpan={2}>PREDICTIONS OF FUTURE PROJECT PERFORMANCE</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td>Tasks planned for the next {futurePerformanceLabel()}</td>
+                                                <td style={{backgroundColor: teamColors?.secondary}}>Tasks planned for the next {futurePerformanceLabel()}</td>
                                                 <td>{tarefasPlanejadas || '-'}</td>
                                             </tr>
                                             <tr>
-                                                <td>Comments</td>
+                                                <td style={{backgroundColor: teamColors?.secondary}}>Comments</td>
                                                 <td><textarea /></td>
                                             </tr>
                                         </tbody>
@@ -587,16 +681,16 @@ const Relatorio = () => {
                                 <table style={{ marginTop: '2rem' }} className={`tableProgress ${styles.tableProgress}`}>
                                     <thead>
                                         <tr>
-                                            <th colSpan={2}>PROJECT CHANGES</th>
+                                            <th colSpan={2} style={{backgroundColor: teamColors?.main}}>PROJECT CHANGES</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>Changes</td>
+                                            <td style={{backgroundColor: teamColors?.secondary}}>Changes</td>
                                             <td><textarea /></td>
                                         </tr>
                                         <tr>
-                                            <td>Lessons learned</td>
+                                            <td style={{backgroundColor: teamColors?.secondary}}>Lessons learned</td>
                                             <td><textarea /></td>
                                         </tr>
                                     </tbody>

@@ -54,7 +54,7 @@ function MyApp({ Component, pageProps }) {
 
 function InnerApp({ Component, pageProps }) {
   const { titulo } = useContext(TituloContext);
-  const title = `${titulo ? 'AM | ' + titulo : 'Alpha Management'}`
+  const title = `${titulo ? 'SM | ' + titulo : 'Alpha Management'}`
 
   return (
     <div>

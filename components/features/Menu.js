@@ -16,8 +16,8 @@ const Menu = () => {
         <div className={containerMenu} style={{marginTop: '-4rem'}}>
             {/*Logo e nome*/}
             <div className={`${menuText} centered-container`}>
-                <img src={'/images/logo.png'} alt="Logo" style={{ width: '200px', margin: '-10px' }} />
-                <b className={gradient_text}>Alpha Management</b>
+                <img src={'/images/logo.png'} alt="Logo" style={{ width: '200px', margin: '10px' }} />
+                <b className={gradient_text}>STEM Management</b>
             </div>
 
             {/*Itens do Menu, linha 1*/}

@@ -4,7 +4,7 @@ const Footer = () => {
     return (
         <footer className={footer.footer}>
             <div>
-                Coded by Pedro for team Alpha! All rights reserved. 2025.
+                Having problems? Please contact the developer at <b>pedrolutz@protonmail.com</b>.
             </div>
         </footer>
     );

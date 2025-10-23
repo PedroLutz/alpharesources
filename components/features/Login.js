@@ -60,7 +60,7 @@ const FormularioLogin = () => {
         <div className={modal_login}>
           <div>
             <img src={'/images/logo.png'} alt="Logo" style={{ width: '150px' }} />
-            <b className={gradient_text} style={{ fontSize: '20px', marginBottom: '1rem' }}>Alpha Management</b>
+            <b className={gradient_text} style={{ fontSize: '20px', marginBottom: '1rem' }}>STEM Management</b>
           </div>
           <div className={input_login}>
             <div>
