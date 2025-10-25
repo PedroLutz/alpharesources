@@ -350,10 +350,6 @@ const Relatorio = () => {
 
     }, [flagExport]);
 
-    useEffect(() => {
-        fetchTeamColors();
-    }, [])
-
     const futurePerformanceLabel = () => {
         switch (interval) {
             case '1 week':
@@ -385,50 +381,6 @@ const Relatorio = () => {
                 setTeamLogo(url);
             }
         }
-    }
-
-    const fetchTeamColors = async () => {
-        const data = await handleFetch({
-            table: 'color',
-            query: 'all',
-            token,
-        })
-        if (data.success) {
-            setTeamColors(data.data);
-            setObjTeamColors(data.data);
-            
-        }
-    }
-
-    const handleColorChange = (e) => {
-        const {value, name} = e.target;
-        setObjTeamColors({
-            ...objTeamColors,
-            [name]: value
-        })
-    }
-
-    const submitColorChange = async () => {
-        setLoading(true);
-
-        if(teamColors?.id != undefined){
-            await handleReq({
-                table: 'color',
-                route: 'update',
-                token,
-                data: {id: teamColors.id, main: objTeamColors.main, secondary: objTeamColors.secondary},
-                fetchData: fetchTeamColors
-            })
-        } else {
-            await handleReq({
-                table: 'color',
-                route: 'create',
-                token,
-                data: {main: objTeamColors.main, secondary: objTeamColors.secondary, user_id},
-                fetchData: fetchTeamColors
-            })
-        }
-        setLoading(false);
     }
 
     return (

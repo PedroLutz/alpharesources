@@ -49,7 +49,7 @@ const TabelaAnalise = () => {
     };
 
     const isRiscoCadastrado = (risco) => {
-        return analises.some((r) => r.risk.id === risco);
+        return analises.some((r) => r.risk.id == risco);
     }
 
     const getRiscosMapeados = (occ, imp) => {

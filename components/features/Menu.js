@@ -58,6 +58,15 @@ const Menu = () => {
                         Budget & Resource Management
                     </Link>
                 </span>
+                {/*Item finanças*/}
+                <span>
+                    <Link href="/dashboard">
+                        <div>
+                            <img src={'/images/finance_logo.png'} alt="Planning Logo" className={logoItem} />
+                        </div>
+                        Dashboard
+                    </Link>
+                </span>
             </div>
 
             {/*Itens do Menu, linha 2*/}
