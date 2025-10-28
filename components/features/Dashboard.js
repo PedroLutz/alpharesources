@@ -6,6 +6,7 @@ import Loading from "../ui/Loading";
 import HorizontalBarChart from "./HorizontalBarChart";
 import { Chart } from 'react-google-charts';
 import { isoDateToEuDate } from "../../functions/general";
+import HelpBubble from "../ui/HelpBubble/Dashboard";
 
 const Dashboard = () => {
     const [interval, setInterval] = useState("1 week");
@@ -17,11 +18,11 @@ const Dashboard = () => {
     const [activeRisks, setActiveRisks] = useState({ threats: [], opportunities: [] })
     const [budgetSummary, setBudgetSummary] = useState({ total_budget: null, percentage: null, total_spent: null })
     const [resources, setResources] = useState({ resources_nearing_expected_date: [], resources_nearing_critical_date: [] })
-    const [areaSummary, setAreaSummary] = useState([]);
     const [receitasPorArea, setReceitasPorArea] = useState([]);
     const [despesasPorArea, setDespesasPorArea] = useState([]);
     const [currentCashValue, setCurrentCashValue] = useState(null);
     const [cores, setCores] = useState([]);
+    const [showHelp, setShowHelp] = useState(false);
 
     const [ready, setReady] = useState(false);
 
@@ -41,7 +42,6 @@ const Dashboard = () => {
             token,
             data: { uid: user_id, interval_text: interval || "1 week" }
         })
-        console.log(data);
         setCountTasks(data.count_tasks);
         setCountItemsPerArea(data.count_items_per_area)
         setItemsInInterval(data.items_in_interval);
@@ -50,7 +50,6 @@ const Dashboard = () => {
         setBudgetSummary(data.budget_percentage);
         setResources(data.resources);
         setCurrentCashValue(data.current_cash_value.cash_value);
-        setAreaSummary(data.area_summary);
 
         const receitasPorAreaArr = [];
         data.area_summary.forEach(obj => {
@@ -153,8 +152,9 @@ const Dashboard = () => {
 
     return (
         <div className="centered-container">
-            <h2 className="smallTitle">Dashboard</h2>
+            <h2 className="smallTitle">Dashboard <button onClick={() => setShowHelp(true)}>❔</button></h2>
             {loading && <Loading />}
+            {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
             <div className={styles.super_container}>
                 <div className={styles.super_wrapper}>
                     <div className={styles.outer_container}>

@@ -7,7 +7,7 @@ const HelpBubble = ({ setShowHelp }) => {
                 <div>
                     <h2>Help</h2>
                     <b>Timeline Monitoring</b> is used for tracking the Project Schedule.<br /><br />
-                    This table should only be used after registering the WBS in <Link href="/pags/wbs/wbs">WBS</Link>.<br /><br />
+                    This table should only be used after registering the WBS in <Link href="/pags/wbs/wbs">WBS</Link> and the planned timeline in <Link href="/pags/timeline/timeline_plan">Estimated Timeline</Link>.<br /><br />
                     In the <b>Quick update</b> area, choose the task and one of three options:
                     <div style={{textAlign: 'justify', marginLeft: '2rem', marginRight: '2rem'}}>
                     <ol>

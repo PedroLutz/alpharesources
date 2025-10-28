@@ -384,7 +384,6 @@ const Tabela = () => {
         });
 
         if (novosDados.dp_item != "" && novosDados.dp_item != undefined && novosDados.dp_item != null) {
-          console.log(novosDados.dp_item)
           const formDataDependency = {
             gantt_id: novosDados.gantt_id,
             dependency_id: cronogramas.find((c) => c.wbs_item.id == novosDados.dp_item).id,

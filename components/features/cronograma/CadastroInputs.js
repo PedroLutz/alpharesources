@@ -65,16 +65,15 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
             return true;
         }
         var objEnviado = obj;
-        if (obj.start === "1970-01-01" && obj.end === "1970-01-01") {
-            objEnviado = {
-                ...obj,
-                start: '',
-                end: ''
-            }
-        }
         if (obj.start > obj.end) {
             setExibirModal('datasErradas');
             camposRef.current.end.classList.add('campo-vazio');
+            return true;
+        }
+
+        if(tipo === 'updatemonitoring' && obj.start != '' && obj.end != '' && obj.status == 'start'){
+            setExibirModal('invalidStatus');
+            camposRef.current.status.classList.add('campo-vazio');
             return true;
         }
 

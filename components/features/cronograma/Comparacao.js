@@ -6,6 +6,7 @@ import { jsDateToEuDate, euDateToJsDate } from '../../../functions/general';
 import useAuth from '../../../hooks/useAuth';
 import chroma from 'chroma-js';
 import HelpBubble from '../../ui/HelpBubble/cronograma/Comparacao';
+import Link from 'next/link';
 
 const Tabela = () => {
     const { token } = useAuth();
@@ -38,19 +39,25 @@ const Tabela = () => {
                 token
             });
             data.data.sort((a, b) => {
-                if(a.wbs_item.wbs_area.name != b.wbs_item.wbs_area.name){
-                return a.wbs_item.wbs_area.name > b.wbs_item.wbs_area.name
+                if (a.wbs_item.wbs_area.name != b.wbs_item.wbs_area.name) {
+                    return a.wbs_item.wbs_area.name > b.wbs_item.wbs_area.name
                 }
 
                 return a.gantt_data[0].start > b.gantt_data[0].start
             })
+            const cronogramasShouldBeGraphed = [];
             data.data.forEach((item) => {
                 item.gantt_data[0].start = jsDateToEuDate(item?.gantt_data[0].start);
                 item.gantt_data[0].end = jsDateToEuDate(item?.gantt_data[0].end);
-
+                if (euDateToJsDate(item.gantt_data[0].start) < euDateToJsDate(item.gantt_data[0].end) &&
+                    item.gantt_data[0].start != null &&
+                    item.gantt_data[0].end != null &&
+                    item.gantt_data[0].status != 'start') {
+                    cronogramasShouldBeGraphed.push(item);
+                }
             });
-            
-            setCronogramas(data.data);
+
+            setCronogramas(cronogramasShouldBeGraphed);
 
             const data2 = await handleFetch({
                 table: "gantt",
@@ -61,7 +68,7 @@ const Tabela = () => {
                 item.gantt_data[0].start = jsDateToEuDate(item?.gantt_data[0].start);
                 item.gantt_data[0].end = jsDateToEuDate(item?.gantt_data[0].end);
             });
-            
+
             setPlanosCronogramas(data2.data);
 
             //adicionar cores na tabela
@@ -93,53 +100,44 @@ const Tabela = () => {
         fetchCronogramas();
     }, []);
 
-    const checkShouldBeGraphed = (item) => {
-        return euDateToJsDate(item.gantt_data[0].start) < euDateToJsDate(item.gantt_data[0].end) &&
-            item.gantt_data[0].start != null &&
-            item.gantt_data[0].end != null &&
-            item.gantt_data[0].status != 'start'
-    }
-
     //funcao que cria a array que sera insa inserida no grafico cantt
     const createGanttData = () => {
         const ganttData = [['Task ID', 'Task Name', 'Resource', 'Start Date', 'End Date', 'Duration', 'Percent Complete', 'Dependencies']];
         cronogramas.forEach((item) => {
             if (!item.gantt_data[0].is_plan) {
-                console.log(item, item.gantt_data[0].start < item.gantt_data[0].end, item.gantt_data[0].start != null,item.gantt_data[0].end != null, item.gantt_data[0].status != null)
-                if (checkShouldBeGraphed(item)) {
-                    const planoDoGantt = planosCronogramas.find(plan => plan.id === item.id);
-                    if (planoDoGantt) {
-                        var dependencies2 = '';
-                        const taskID2 = `${planoDoGantt.gantt_data[0].id}`;
-                        const taskName2 = planoDoGantt.wbs_item.name;
-                        const resource2 = planoDoGantt.wbs_item.wbs_area.name;
-                        const startDate2 = euDateToJsDate(planoDoGantt.gantt_data[0].start);
-                        const endDate2 = euDateToJsDate(planoDoGantt.gantt_data[0].end);
-                        if (!planoDoGantt.gantt_dependency[0]) {
-                            dependencies2 = null;
-                        } else {
-                            dependencies2 = `${planosCronogramas.find(plan => plan.id == item.gantt_dependency[0].dependency_id).gantt_data[0].id}`;
-                        }
-                        ganttData.push([taskID2, taskName2, resource2, startDate2, endDate2, 0, 100, dependencies2]);
-                    }
 
-                    var dependencies = '';
-                    const taskID = `${item.gantt_data[0].id}`;
-                    const taskName = item.wbs_item.name;
-                    const resource = item.wbs_item.wbs_area.name;
-                    const startDate = euDateToJsDate(item.gantt_data[0].start);
-                    const endDate = euDateToJsDate(item.gantt_data[0].end);
-                    if (!item.gantt_dependency[0]) {
-                        dependencies = null;
+                const planoDoGantt = planosCronogramas.find(plan => plan.id === item.id);
+                if (planoDoGantt) {
+                    var dependencies2 = '';
+                    const taskID2 = `${planoDoGantt.gantt_data[0].id}`;
+                    const taskName2 = planoDoGantt.wbs_item.name;
+                    const resource2 = planoDoGantt.wbs_item.wbs_area.name;
+                    const startDate2 = euDateToJsDate(planoDoGantt.gantt_data[0].start);
+                    const endDate2 = euDateToJsDate(planoDoGantt.gantt_data[0].end);
+                    if (!planoDoGantt.gantt_dependency[0]) {
+                        dependencies2 = null;
                     } else {
-                        dependencies = `${cronogramas.find(c => c.id == item.gantt_dependency[0].dependency_id).gantt_data[0].id}`;
+                        dependencies2 = `${planosCronogramas.find(plan => plan.id == item.gantt_dependency[0].dependency_id).gantt_data[0].id}`;
                     }
-                    ganttData.push([taskID, taskName, resource, startDate, endDate, 0, 100, dependencies]);
-
+                    ganttData.push([taskID2, taskName2, resource2, startDate2, endDate2, 0, 100, dependencies2]);
                 }
+
+                var dependencies = '';
+                const taskID = `${item.gantt_data[0].id}`;
+                const taskName = item.wbs_item.name;
+                const resource = item.wbs_item.wbs_area.name;
+                const startDate = euDateToJsDate(item.gantt_data[0].start);
+                const endDate = euDateToJsDate(item.gantt_data[0].end);
+                if (!item.gantt_dependency[0]) {
+                    dependencies = null;
+                } else {
+                    dependencies = `${cronogramas.find(c => c.id == item.gantt_dependency[0].dependency_id).gantt_data[0].id}`;
+                }
+                ganttData.push([taskID, taskName, resource, startDate, endDate, 0, 100, dependencies]);
+
+
             }
         });
-        console.log(ganttData)
         return ganttData;
     };
 
@@ -173,8 +171,8 @@ const Tabela = () => {
     }
 
     const reduceLabel = (text) => {
-        return [...text].reduce((acc, cur) => { 
-            if(cur === cur.toUpperCase() && cur !== " "){
+        return [...text].reduce((acc, cur) => {
+            if (cur === cur.toUpperCase() && cur !== " ") {
                 acc += cur;
                 acc = acc + ". "
             }
@@ -198,7 +196,7 @@ const Tabela = () => {
     const calculateRowSpan = (currentArea, currentIndex) => {
         let rowSpan = 1;
         for (let i = currentIndex + 1; i < cronogramas.length; i++) {
-            if (cronogramas[i].wbs_item.wbs_area.id === currentArea && checkShouldBeGraphed(cronogramas[i])) {
+            if (cronogramas[i].wbs_item.wbs_area.id === currentArea) {
                 rowSpan++;
             } else {
                 break;
@@ -210,10 +208,11 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
-            <h2 className='smallTitle'>Planned Schedule vs Reality <button onClick={()=>setShowHelp(true)}>❔</button></h2>
+            {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
+            <h2 className='smallTitle'>Planned Schedule vs Reality <button onClick={() => setShowHelp(true)}>❔</button></h2>
 
-            <div className='centered-container' style={{
+            {cronogramas.length > 0 ? (
+                <div className='centered-container' style={{
                 width: "50vw",
                 display: "flex",
                 flexDirection: "row",
@@ -224,8 +223,7 @@ const Tabela = () => {
                     marginBottom: '80px',
                 }}>
                     <tbody style={{ borderColor: 'black', borderStyle: 'solid', borderWidth: '0.01rem' }}>
-                        {cronogramas.filter(item =>
-                            checkShouldBeGraphed(item))
+                        {cronogramas
                             .map((item, index) => (
                                 <tr key={index}
                                     style={{
@@ -236,9 +234,11 @@ const Tabela = () => {
                                         borderRightWidth: '0rem',
                                         backgroundColor: item.wbs_item.wbs_area.color
                                     }}>
-                                    {/* {index === 0 || cronogramas[index - 1].wbs_item.wbs_area.id !== item.wbs_item.wbs_area.id ? ( */}
-                                        <td style={{ fontSize: tamanhoDaFonte(item.wbs_item.wbs_area.name.length < 28 ? item.wbs_item.wbs_area.name.length : reduceLabel(item.wbs_item.wbs_area.name).length), minWidth: '6rem', maxWidth: '8rem', borderRightWidth: '0.1rem', borderRightStyle: 'solid' }}>{item.wbs_item.wbs_area.name.length < 28 ? item.wbs_item.wbs_area.name : reduceLabel(item.wbs_item.wbs_area.name)}</td>
-                                    {/* ) : null} */}
+                                    {index === 0 || cronogramas[index - 1].wbs_item.wbs_area.id !== item.wbs_item.wbs_area.id ? (
+                                        <td style={{ fontSize: tamanhoDaFonte(item.wbs_item.wbs_area.name.length < 28 ? item.wbs_item.wbs_area.name.length : reduceLabel(item.wbs_item.wbs_area.name).length), minWidth: '6rem', maxWidth: '8rem', borderRightWidth: '0.1rem', borderRightStyle: 'solid' }}
+                                            rowSpan={calculateRowSpan(item.wbs_item.wbs_area.id, index)}
+                                        >{item.wbs_item.wbs_area.name.length < 28 ? item.wbs_item.wbs_area.name : reduceLabel(item.wbs_item.wbs_area.name)}</td>
+                                    ) : null}
                                     <td style={{ fontSize: tamanhoDaFonte(item.wbs_item.name.length < 28 ? item.wbs_item.name.length : reduceLabel(item.wbs_item.name).length), minWidth: '6rem', maxWidth: '8rem' }}>{item.wbs_item.name.length < 28 ? item.wbs_item.name : reduceLabel(item.wbs_item.name)}</td>
                                 </tr>
                             ))}
@@ -258,7 +258,7 @@ const Tabela = () => {
                         width: '100%'
                     }}>
                         <tbody>
-                            {cronogramas.filter(item => checkShouldBeGraphed(item)).map((item, index) => (
+                            {cronogramas.map((item, index) => (
                                 <tr key={index}
                                     style={{ height: '30px', borderColor: 'black', borderStyle: 'solid', borderWidth: '0.1rem', borderLeftWidth: '0rem' }}>
                                     <td></td>
@@ -311,6 +311,16 @@ const Tabela = () => {
                     )}
                 </div>
             </div>
+            ) : (
+                <div className={styles.quickUpdate} style={{ marginBottom: '1rem' }}>
+                    <div>
+                        No data available for this graph. <br/>
+                        Please register all items in <Link href="pags/timeline/timeline_plan">Estimated Timeline</Link><br/>
+                        and use <Link href="pags/timeline/monitoring">Timeline Monitoring</Link>.
+                    </div>
+                </div>
+            )}
+            
         </div>
     );
 };

@@ -8,6 +8,7 @@ import useAuth from '../../../../hooks/useAuth';
 import usePerm from '../../../../hooks/usePerm';
 import { handleFetch, handlePostFetch, handleReq } from '../../../../functions/crud_s';
 import HelpBubble from "../../../ui/HelpBubble/responsabilidades/Raci";
+import Link from 'next/link';
 
 const Tabela = () => {
   const { user, token } = useAuth();
@@ -83,7 +84,7 @@ const Tabela = () => {
   }
 
   const enviar = async () => {
-    if(!validarDados(novoSubmit)) return false;
+    if (!validarDados(novoSubmit)) return false;
     try {
       for (let key in novoSubmit) {
         if (key != 'item_id') {
@@ -203,7 +204,7 @@ const Tabela = () => {
 
   const handleConfirmDelete = async () => {
     if (confirmDeleteItem) {
-      try{
+      try {
         for (const item of confirmDeleteItem?.raci ?? []) {
           await handleReq({
             table: "raci_item",
@@ -272,7 +273,7 @@ const Tabela = () => {
   };
 
   const handleUpdateItem = async () => {
-    if(!validarDados(novosDados)) return;
+    if (!validarDados(novosDados)) return;
     setLoading(true);
     for (let key in novosDados) {
       if (key != 'item_id' && key != 'id') {
@@ -305,103 +306,107 @@ const Tabela = () => {
   return (
     <div className="centered-container">
       {loading && <Loading />}
-      {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
-      <h2 className="smallTitle">RACI Matrix <button onClick={()=> setShowHelp(true)}>❔</button></h2>
+      {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
+      <h2 className="smallTitle">RACI Matrix <button onClick={() => setShowHelp(true)}>❔</button></h2>
       <button className="botao-bonito" style={{ width: '9rem' }} onClick={() => setVerOpcoes(!verOpcoes)}>Toggle options</button>
-      <div className={styles.tabelaRaci_container}>
-        <div className={styles.tabelaRaci_wrapper}>
-          <table className={`${styles.tabelaRaci} tabela`}>
-            <thead>
-              <tr>
-                <th>Area</th>
-                <th>Item</th>
-                {!verOpcoes ? (
-                  <React.Fragment>
-                    {tableHeaders.map((membro, index) => (
-                      <th key={index} className='notLast'>{membro}</th>
-                    ))}
-                  </React.Fragment>
-                ) : (
-                  <React.Fragment>
-                    {tableNames.map((membro, index) => (
-                      <th key={index}>{membro}</th>
-                    ))}
-                    <th style={{ width: '5rem' }}>Actions</th>
-                  </React.Fragment>
-                )}
-
-              </tr>
-            </thead>
-            <tbody>
-              {verOpcoes && (
-                <tr className="linha-cadastro">
-                  <CadastroInputs
-                    obj={novoSubmit}
-                    objSetter={setNovoSubmit}
-                    funcoes={{
-                      enviar,
-                      checkItemDisponivel,
-                      checkAreaDisponivel
-                    }}
-                    setExibirModal={setExibirModal}
-                    isEditor={isEditor}
-                    loaded={loaded}
-                    tipo='cadastro' />
-                </tr>
-              )}
-              {itensRaci.map((item, index) => (
-                <tr key={index} style={{ backgroundColor: item?.area_color }}>
-                  {index === 0 || itensRaci[index - 1].area_name !== item?.area_name ? (
-                    <td rowSpan={calculateRowSpan(itensRaci, item?.area_name, index)}
-                      className={styles.raciTdArea}>{item?.area_name}</td>
-                  ) : null}
-                  <td className={styles.raciTdItem}>{item.item_name}</td>
-                  {linhaVisivel === item.item_id ? (
+      {tableHeaders.length == 0 ? (
+        <div className={styles.no_members} style={{ marginBottom: '1rem' }}>
+          <h4>Please register all team members in <Link href="/pags/responsibilities/members">Team members</Link> beforing using the RACI matrix.</h4>
+        </div>
+      ) : (
+        <div className={styles.tabelaRaci_container}>
+          <div className={styles.tabelaRaci_wrapper}>
+            <table className={`${styles.tabelaRaci} tabela`}>
+              <thead>
+                <tr>
+                  <th>Area</th>
+                  <th>Item</th>
+                  {!verOpcoes ? (
                     <React.Fragment>
-                      <CadastroInputs
-                        obj={novosDados}
-                        objSetter={setNovosDados}
-                        funcoes={{
-                          enviar: handleUpdateItem,
-                          cancelar: () => setLinhaVisivel(null),
-                          checkItemDisponivel,
-                          checkAreaDisponivel
-                        }}
-                        setExibirModal={setExibirModal}
-                        loaded={loaded}
-                        isEditor={isEditor}
-                        tipo='update' />
+                      {tableHeaders.map((membro, index) => (
+                        <th key={index} className='notLast'>{membro}</th>
+                      ))}
                     </React.Fragment>
                   ) : (
                     <React.Fragment>
-                      {nomesMembros.map((membro, index) => {
-                        const membroObj = item.raci?.find(m => m.member_id === membro.id)
-                        return <td key={index}>{membroObj?.responsibility[0].toUpperCase() || "-"}</td>
-                      })}
-                      {verOpcoes && (
-                        <td className="botoes_acoes lastMaior">
-
-                          <button type="button"
-                            onClick={() => setConfirmDeleteItem(item)}
-                            disabled={!isEditor}>❌</button>
-                          <button onClick={() => {
-                            setLinhaVisivel(item.item_id); handleUpdateClick(item)
-                          }} disabled={!isEditor}>⚙️</button>
-
-                        </td>
-                      )}
-
+                      {tableNames.map((membro, index) => (
+                        <th key={index}>{membro}</th>
+                      ))}
+                      <th style={{ width: '5rem' }}>Actions</th>
                     </React.Fragment>
-                  )
-                  }
+                  )}
+
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {verOpcoes && (
+                  <tr className="linha-cadastro">
+                    <CadastroInputs
+                      obj={novoSubmit}
+                      objSetter={setNovoSubmit}
+                      funcoes={{
+                        enviar,
+                        checkItemDisponivel,
+                        checkAreaDisponivel
+                      }}
+                      setExibirModal={setExibirModal}
+                      isEditor={isEditor}
+                      loaded={loaded}
+                      tipo='cadastro' />
+                  </tr>
+                )}
+                {itensRaci.map((item, index) => (
+                  <tr key={index} style={{ backgroundColor: item?.area_color }}>
+                    {index === 0 || itensRaci[index - 1].area_name !== item?.area_name ? (
+                      <td rowSpan={calculateRowSpan(itensRaci, item?.area_name, index)}
+                        className={styles.raciTdArea}>{item?.area_name}</td>
+                    ) : null}
+                    <td className={styles.raciTdItem}>{item.item_name}</td>
+                    {linhaVisivel === item.item_id ? (
+                      <React.Fragment>
+                        <CadastroInputs
+                          obj={novosDados}
+                          objSetter={setNovosDados}
+                          funcoes={{
+                            enviar: handleUpdateItem,
+                            cancelar: () => setLinhaVisivel(null),
+                            checkItemDisponivel,
+                            checkAreaDisponivel
+                          }}
+                          setExibirModal={setExibirModal}
+                          loaded={loaded}
+                          isEditor={isEditor}
+                          tipo='update' />
+                      </React.Fragment>
+                    ) : (
+                      <React.Fragment>
+                        {nomesMembros.map((membro, index) => {
+                          const membroObj = item.raci?.find(m => m.member_id === membro.id)
+                          return <td key={index}>{membroObj?.responsibility[0].toUpperCase() || "-"}</td>
+                        })}
+                        {verOpcoes && (
+                          <td className="botoes_acoes lastMaior">
+
+                            <button type="button"
+                              onClick={() => setConfirmDeleteItem(item)}
+                              disabled={!isEditor}>❌</button>
+                            <button onClick={() => {
+                              setLinhaVisivel(item.item_id); handleUpdateClick(item)
+                            }} disabled={!isEditor}>⚙️</button>
+
+                          </td>
+                        )}
+
+                      </React.Fragment>
+                    )
+                    }
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-
-      </div>
-
+      )}
       {confirmDeleteItem && (
         <Modal objeto={{
           titulo: `Are you sure you want to delete "${confirmDeleteItem.area_name} - ${confirmDeleteItem.item_name}"?`,
