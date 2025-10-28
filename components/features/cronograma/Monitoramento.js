@@ -92,7 +92,7 @@ const Tabela = () => {
                 return a.wbs_item.wbs_area.name > b.wbs_item.wbs_area.name
                 }
 
-                return a.gantt_data[0].start > b.gantt_data[0].start
+                return isoDateToJsDate(a.gantt_data[0].start) > isoDateToJsDate(b.gantt_data[0].start)
             })
 
             setCronogramas(data.data);

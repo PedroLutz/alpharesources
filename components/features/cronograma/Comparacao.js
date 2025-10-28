@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { Chart } from 'react-google-charts';
 import Loading from '../../ui/Loading';
 import { handleFetch } from '../../../functions/crud_s';
-import { jsDateToEuDate, euDateToJsDate } from '../../../functions/general';
+import { jsDateToEuDate, euDateToJsDate, isoDateToJsDate } from '../../../functions/general';
 import useAuth from '../../../hooks/useAuth';
 import chroma from 'chroma-js';
 import HelpBubble from '../../ui/HelpBubble/cronograma/Comparacao';
@@ -43,7 +43,7 @@ const Tabela = () => {
                     return a.wbs_item.wbs_area.name > b.wbs_item.wbs_area.name
                 }
 
-                return a.gantt_data[0].start > b.gantt_data[0].start
+                return isoDateToJsDate(a.gantt_data[0].start) > isoDateToJsDate(b.gantt_data[0].start)
             })
             const cronogramasShouldBeGraphed = [];
             data.data.forEach((item) => {
