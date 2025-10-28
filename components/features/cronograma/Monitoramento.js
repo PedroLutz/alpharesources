@@ -92,7 +92,7 @@ const Tabela = () => {
                 return a.wbs_item.wbs_area.name > b.wbs_item.wbs_area.name
                 }
 
-                return a.gantt_data[0].start > b.gantt_data[0].start
+                return isoDateToJsDate(a.gantt_data[0].start) > isoDateToJsDate(b.gantt_data[0].start)
             })
 
             setCronogramas(data.data);
@@ -149,6 +149,13 @@ const Tabela = () => {
         const updatedData = {
             ...novosDados
         };
+
+        const dependencia = cronogramas.find(item => item.id == novosDados?.dependency_id) || null;
+
+        if(dependencia != null && dependencia.gantt_data[0].status !== 'complete'){
+            setExibirModal('dependenciaNaoFinalizada');
+            return;
+        }
 
         delete updatedData?.dependency_id;
         delete updatedData?.dp_item;
@@ -217,22 +224,20 @@ const Tabela = () => {
         }
 
         try {
-            const itemParaAtualizar = cronogramas.find(
-                (item) =>
-                    item.wbs_item.id == itemSelecionado
-            );
+            const itemParaAtualizar = cronogramas.find(item => item.wbs_item.id == itemSelecionado);
+            const dependencia = cronogramas.find(item => item.id == itemParaAtualizar.gantt_dependency[0]?.dependency_id) || null;
 
             if (!itemParaAtualizar) {
                 setExibirModal('semtarefa');
                 return;
             }
 
-            if (itemParaAtualizar.status === 'complete') {
+            if (status !== 'reset' && itemParaAtualizar?.gantt_data[0]?.status === 'complete') {
                 setExibirModal('tarefaConcluida')
                 return;
             }
 
-            if (status !== 'executing' && itemParaAtualizar.status === 'start') {
+            if (status !== 'executing' && status !== 'reset' && itemParaAtualizar?.gantt_data[0]?.status === 'start') {
                 setExibirModal('tarefaNaoIniciada')
                 return;
             }
@@ -241,6 +246,23 @@ const Tabela = () => {
             const formattedDate = today
                 .toLocaleString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' })
                 .split(',')[0];
+
+            if(dependencia != null){
+                if(dependencia?.gantt_data[0].status !== 'complete'){
+                    setExibirModal('dependenciaNaoFinalizada');
+                    return;
+                }
+
+                if(status === "executing" && isoDateToJsDate(dependencia?.gantt_data[0].end) > today){
+                    setExibirModal('dependenciaNaoFinalizada');
+                    return;
+                }
+            }
+
+            if(status === "complete" && itemParaAtualizar?.gantt_data[0]?.start == formattedDate){
+                setExibirModal('startAndEndSameDay');
+                return;
+            }
 
             var updatedItem = { id: itemParaAtualizar.gantt_data[0]?.id, user_id: user.id };
 
@@ -322,7 +344,10 @@ const Tabela = () => {
         'datasErradas': 'The finishing date must be after the starting date!',
         'semtarefa': 'Select a task to update.',
         'tarefaConcluida': "You can't update a task you've already completed!",
-        'tarefaNaoIniciada': "You can't update a task you haven't started yet!"
+        'tarefaNaoIniciada': "You can't update a task you haven't started yet!",
+        "dependenciaNaoFinalizada": "The predecessor task is not finished yet!" ,
+        "invalidStatus": "Please select a valid status for this task!",
+        "startAndEndSameDay": "A task cannot end the same day it started!"
     };
 
     const generateReport = async () => {

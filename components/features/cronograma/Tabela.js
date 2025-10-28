@@ -201,7 +201,7 @@ const Tabela = () => {
           return a.wbs_item.wbs_area.name > b.wbs_item.wbs_area.name
         }
 
-        return a.gantt_data[0].start > b.gantt_data[0].start
+        return isoDateToJsDate(a.gantt_data[0].start) > isoDateToJsDate(b.gantt_data[0].start)
       })
 
       const dataETIs = await handleFetch({
@@ -384,7 +384,6 @@ const Tabela = () => {
         });
 
         if (novosDados.dp_item != "" && novosDados.dp_item != undefined && novosDados.dp_item != null) {
-          console.log(novosDados.dp_item)
           const formDataDependency = {
             gantt_id: novosDados.gantt_id,
             dependency_id: cronogramas.find((c) => c.wbs_item.id == novosDados.dp_item).id,

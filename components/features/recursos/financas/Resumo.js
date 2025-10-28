@@ -3,7 +3,7 @@ import { Chart } from 'react-google-charts';
 import Loading from '../../../ui/Loading';
 import { sortBy } from 'lodash';
 import styles from '../../../../styles/modules/resumo.module.css'
-import { handlePostFetch, handleFetch } from '../../../../functions/crud_s';
+import { handlePostFetch, handleFetch, handleReq } from '../../../../functions/crud_s';
 import tabela from '../../../../styles/modules/financas.module.css'
 import useAuth from '../../../../hooks/useAuth';
 import HelpBubble from '../../../ui/HelpBubble/recursos/ResumoFinancas';
@@ -11,407 +11,407 @@ import HelpBubble from '../../../ui/HelpBubble/recursos/ResumoFinancas';
 const { grafico, pie_direita, pie_esquerda, pie_container, h3_resumo, custom_span } = styles;
 
 const Resumo = () => {
-    const { user, token } = useAuth();
+  const { user, token } = useAuth();
 
-    const [totalValor, setTotalValor] = useState(0);
-    const [receitasPorArea, setReceitasPorArea] = useState([]);
-    const [despesasPorArea, setDespesasPorArea] = useState([]);
-    const [receitasPorMes, setReceitasPorMes] = useState([]);
-    const [despesasPorMes, setDespesasPorMes] = useState([]);
-    const [maiorValor, setMaiorValor] = useState([]);
-    const [menorValor, setMenorValor] = useState([]);
-    const [kpis, setKpis] = useState([])
-    const [receitasTotais, setReceitasTotais] = useState([]);
-    const [despesasTotais, setDespesasTotais] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [cores, setCores] = useState({});
-    const [curvaS, setCurvaS] = useState([]);
-    const [curvaSTabela, setCurvaSTabela] = useState([]);
-    const [showHelp, setShowHelp] = useState(false);
+  const [totalValor, setTotalValor] = useState(0);
+  const [receitasPorArea, setReceitasPorArea] = useState([]);
+  const [despesasPorArea, setDespesasPorArea] = useState([]);
+  const [receitasPorMes, setReceitasPorMes] = useState([]);
+  const [despesasPorMes, setDespesasPorMes] = useState([]);
+  const [maiorValor, setMaiorValor] = useState([]);
+  const [menorValor, setMenorValor] = useState([]);
+  const [kpis, setKpis] = useState([])
+  const [receitasTotais, setReceitasTotais] = useState([]);
+  const [despesasTotais, setDespesasTotais] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [cores, setCores] = useState({});
+  const [curvaS, setCurvaS] = useState([]);
+  const [curvaSTabela, setCurvaSTabela] = useState([]);
+  const [showHelp, setShowHelp] = useState(false);
 
-    const fetchResumos = async () => {
-        const monthly_summary = await handlePostFetch({
-            table: "financial_release",
-            query: 'monthly_summary',
-            token,
-            data: { uid: user.id },
-        });
+  const fetchResumos = async () => {
+    const monthly_summary = await handlePostFetch({
+      table: "financial_release",
+      query: 'monthly_summary',
+      token,
+      data: { uid: user.id },
+    });
 
-        const receitasPorMesArr = [];
-        monthly_summary.data.forEach(obj => {
-            if (obj.type == 'income') {
-                const exchangeValue = monthly_summary?.data?.find(o => o.type == 'exchange' && o.month == obj.month)?.total || 0;
-                receitasPorMesArr.push({ month: obj.month, total: obj.total + exchangeValue });
-            }
-        })
-        monthly_summary.data.forEach(obj => {
-          if(obj.type == 'exchange') {
-            if(!receitasPorMesArr.some(o => o.month == obj.month)) receitasPorMesArr.push({ month: obj.month, total: obj.total });
-          }
-        })
-        setReceitasPorMes(receitasPorMesArr);
+    const receitasPorMesArr = [];
+    monthly_summary.data.forEach(obj => {
+      if (obj.type == 'income') {
+        const exchangeValue = monthly_summary?.data?.find(o => o.type == 'exchange' && o.month == obj.month)?.total || 0;
+        receitasPorMesArr.push({ month: obj.month, total: obj.total + exchangeValue });
+      }
+    })
+    monthly_summary.data.forEach(obj => {
+      if (obj.type == 'exchange') {
+        if (!receitasPorMesArr.some(o => o.month == obj.month)) receitasPorMesArr.push({ month: obj.month, total: obj.total });
+      }
+    })
+    setReceitasPorMes(receitasPorMesArr);
 
-        const despesasPorMesArr = [];
-        monthly_summary.data.forEach(obj => {
-            if (obj.type == 'cost') {
-                const exchangeValue = monthly_summary?.data?.find(o => o.type == 'exchange' && o.month == obj.month)?.total || 0;
-                despesasPorMesArr.push({ month: obj.month, total: -obj.total + exchangeValue });
-            }
-        })
-        monthly_summary.data.forEach(obj => {
-          if(obj.type == 'exchange') {
-            if(!despesasPorMesArr.some(o => o.month == obj.month)) despesasPorMesArr.push({ month: obj.month, total: obj.total });
-          }
-        })
-        setDespesasPorMes(despesasPorMesArr);
-
-
-        //------------------------------------------------AREA SUMMARY--------------------------------------------------
-        const area_summary = await handlePostFetch({
-            table: "financial_release",
-            query: 'area_summary',
-            token,
-            data: { uid: user.id },
-        });
-
-        const receitasPorAreaArr = [];
-        area_summary.data.forEach(obj => {
-            if (obj.type == 'income') {
-                const exchangeValue = area_summary?.data?.find(o => o.type == 'exchange' && o.area_id == obj.area_id)?.total || 0;
-                receitasPorAreaArr.push({ area_id: obj.area_id, area_name: obj.area_name || 'Others', area_color: obj.area_color, total: obj.total + exchangeValue });
-            }
-        })
-        area_summary.data.forEach(obj => {
-          if(obj.type == 'exchange') {
-            if(!receitasPorAreaArr.some(o => o.area_id == obj.area_id)) receitasPorAreaArr.push({ area_id: obj.area_id, area_name: obj.area_name || 'Others', area_color: obj.area_color, total: obj.total });
-          }
-        })
-        setReceitasPorArea(receitasPorAreaArr);
-
-        const despesasPorAreaArr = [];
-        area_summary.data.forEach(obj => {
-            if (obj.type == 'cost') {
-                const exchangeValue = area_summary?.data?.find(o => o.type == 'exchange' && o.area_id == obj.area_id)?.total || 0;
-                despesasPorAreaArr.push({ area_id: obj.area_id, area_name: obj.area_name || 'Others', area_color: obj.area_color, total: -obj.total + exchangeValue });
-            }
-        })
-        area_summary.data.forEach(obj => {
-          if(obj.type == 'exchange') {
-            if(!despesasPorAreaArr.some(o => o.area_id == obj.area_id)) despesasPorAreaArr.push({ area_id: obj.area_id, area_name: obj.area_name || 'Others', area_color: obj.area_color, total: obj.total });
-          }
-        })
-        setDespesasPorArea(despesasPorAreaArr);
+    const despesasPorMesArr = [];
+    monthly_summary.data.forEach(obj => {
+      if (obj.type == 'cost') {
+        const exchangeValue = monthly_summary?.data?.find(o => o.type == 'exchange' && o.month == obj.month)?.total || 0;
+        despesasPorMesArr.push({ month: obj.month, total: -obj.total + exchangeValue });
+      }
+    })
+    monthly_summary.data.forEach(obj => {
+      if (obj.type == 'exchange') {
+        if (!despesasPorMesArr.some(o => o.month == obj.month)) despesasPorMesArr.push({ month: obj.month, total: obj.total });
+      }
+    })
+    setDespesasPorMes(despesasPorMesArr);
 
 
-        //------------------------------------------------TOTAL SUMMARY--------------------------------------------------
-        const total_summary = await handlePostFetch({
-            table: "financial_release",
-            query: 'total_summary',
-            token,
-            data: { uid: user.id },
-        });
+    //------------------------------------------------AREA SUMMARY--------------------------------------------------
+    const area_summary = await handlePostFetch({
+      table: "financial_release",
+      query: 'area_summary',
+      token,
+      data: { uid: user.id },
+    });
 
-        total_summary.data.sort((a,b) => a.type > b.type);
-        const data_income = total_summary.data.find(o => o.type == 'income')?.total || 0;
-        const data_cost = total_summary.data.find(o => o.type == 'cost')?.total || 0;
-        const data_exchange = total_summary.data.find(o => o.type == 'exchange')?.total || 0;
+    const receitasPorAreaArr = [];
+    area_summary.data.forEach(obj => {
+      if (obj.type == 'income') {
+        const exchangeValue = area_summary?.data?.find(o => o.type == 'exchange' && o.area_id == obj.area_id)?.total || 0;
+        receitasPorAreaArr.push({ area_id: obj.area_id, area_name: obj.area_name || 'Others', area_color: obj.area_color, total: obj.total + exchangeValue });
+      }
+    })
+    area_summary.data.forEach(obj => {
+      if (obj.type == 'exchange') {
+        if (!receitasPorAreaArr.some(o => o.area_id == obj.area_id)) receitasPorAreaArr.push({ area_id: obj.area_id, area_name: obj.area_name || 'Others', area_color: obj.area_color, total: obj.total });
+      }
+    })
+    setReceitasPorArea(receitasPorAreaArr);
 
-        //data[0] = cost, data[1] = exchange, data[2] = income
-        setReceitasTotais(data_income + data_exchange);
-        setDespesasTotais(-data_cost + data_exchange);
-        setTotalValor(data_income + data_cost);
+    const despesasPorAreaArr = [];
+    area_summary.data.forEach(obj => {
+      if (obj.type == 'cost') {
+        const exchangeValue = area_summary?.data?.find(o => o.type == 'exchange' && o.area_id == obj.area_id)?.total || 0;
+        despesasPorAreaArr.push({ area_id: obj.area_id, area_name: obj.area_name || 'Others', area_color: obj.area_color, total: -obj.total + exchangeValue });
+      }
+    })
+    area_summary.data.forEach(obj => {
+      if (obj.type == 'exchange') {
+        if (!despesasPorAreaArr.some(o => o.area_id == obj.area_id)) despesasPorAreaArr.push({ area_id: obj.area_id, area_name: obj.area_name || 'Others', area_color: obj.area_color, total: obj.total });
+      }
+    })
+    setDespesasPorArea(despesasPorAreaArr);
 
 
-        //------------------------------------------------MIN MAX--------------------------------------------------
-        const min_max = await handlePostFetch({
-            table: "financial_release",
-            query: 'min_max',
-            token,
-            data: { uid: user.id },
-        })
+    //------------------------------------------------TOTAL SUMMARY--------------------------------------------------
+    const total_summary = await handlePostFetch({
+      table: "financial_release",
+      query: 'total_summary',
+      token,
+      data: { uid: user.id },
+    });
 
-        setMaiorValor(min_max?.data[0]?.max_value || 0);
-        setMenorValor(min_max?.data[0]?.min_value || 0);
+    total_summary.data.sort((a, b) => a.type > b.type);
+    const data_income = total_summary.data.find(o => o.type == 'income')?.total || 0;
+    const data_cost = total_summary.data.find(o => o.type == 'cost')?.total || 0;
+    const data_exchange = total_summary.data.find(o => o.type == 'exchange')?.total || 0;
+
+    //data[0] = cost, data[1] = exchange, data[2] = income
+    setReceitasTotais(data_income + data_exchange);
+    setDespesasTotais(-data_cost + data_exchange);
+    setTotalValor(data_income + data_cost);
 
 
-        //------------------------------------------------S CURVE--------------------------------------------------
-        const plan_monthly_summary = await handlePostFetch({
-            table: "resource_acquisition_plan",
-            query: 'monthly_summary',
-            token,
-            data: { uid: user.id },
-        })
-        const valoresPlanejadosMensais = plan_monthly_summary?.data;
-        valoresPlanejadosMensais.forEach(o => {
-          const planoDate = o.month.split("-");
-          o.month = `${planoDate[0]}/${planoDate[1]}`;
-        })
+    //------------------------------------------------MIN MAX--------------------------------------------------
+    const min_max = await handlePostFetch({
+      table: "financial_release",
+      query: 'min_max',
+      token,
+      data: { uid: user.id },
+    })
 
-        const totalPlanejado = valoresPlanejadosMensais.reduce(
-            (acc, cur) => acc + ((2 * cur.total_a) + cur.total_b) / 3, 0
-        )
+    setMaiorValor(min_max?.data[0]?.max_value || 0);
+    setMenorValor(min_max?.data[0]?.min_value || 0);
 
-        const plan_area_summary = await handlePostFetch({
-            table: "resource_acquisition_plan",
-            query: 'area_summary',
-            token,
-            data: { uid: user.id },
-        })
-        const valoresPlanejadosAreas = plan_area_summary?.data;
 
-        const area_durations = await handlePostFetch({
-            table: "gantt",
-            query: 'area_durations',
-            token,
-            data: { uid: user.id },
-        })
+    //------------------------------------------------S CURVE--------------------------------------------------
+    const plan_monthly_summary = await handlePostFetch({
+      table: "resource_acquisition_plan",
+      query: 'monthly_summary',
+      token,
+      data: { uid: user.id },
+    })
+    const valoresPlanejadosMensais = plan_monthly_summary?.data;
+    valoresPlanejadosMensais.forEach(o => {
+      const planoDate = o.month.split("-");
+      o.month = `${planoDate[0]}/${planoDate[1]}`;
+    })
 
-        const porcentagensDeExecucao = [];
-        for (let i = 0; i < area_durations?.data?.length; i = i + 2) {
-            const real = area_durations?.data[i];
-            const plan_duration = area_durations?.data[i + 1]?.duration_days;
-            const porcentagem = real?.duration_days * 100 / plan_duration;
-            porcentagensDeExecucao.push({ area_id: real.area_id, area_name: real.area_name, porcentagem })
-        }
+    const totalPlanejado = valoresPlanejadosMensais.reduce(
+      (acc, cur) => acc + ((2 * cur.total_a) + cur.total_b) / 3, 0
+    )
 
-        const first_and_last = await handlePostFetch({
-            table: "gantt",
-            query: 'first_and_last',
-            token,
-            data: { uid: user.id },
-        })
-        const limitesProjeto = first_and_last?.data[0] || [];
+    const plan_area_summary = await handlePostFetch({
+      table: "resource_acquisition_plan",
+      query: 'area_summary',
+      token,
+      data: { uid: user.id },
+    })
+    const valoresPlanejadosAreas = plan_area_summary?.data;
 
-        const [inicio, fim] = [new Date(limitesProjeto.first_start), new Date(limitesProjeto.last_end)];
+    const area_durations = await handlePostFetch({
+      table: "gantt",
+      query: 'area_durations',
+      token,
+      data: { uid: user.id },
+    })
 
-        const ultimosDias = []
-        const atual = new Date(inicio.getFullYear(), inicio.getMonth(), 1)
-
-        while (atual <= fim) {
-            const ultimoDia = new Date(atual.getFullYear(), atual.getMonth() + 1, 0)
-            ultimosDias.push(ultimoDia)
-            atual.setMonth(atual.getMonth() + 1)
-        }
-
-        const duracaoTotal = fim - inicio;
-
-        const porcentagemExecucaoMensal = ultimosDias.map(data => {
-            let porcentagem = 0
-
-            if (data < inicio) {
-                porcentagem = 0
-            } else if (data > fim) {
-                porcentagem = 100
-            } else {
-                const diasPassados = data - inicio
-                porcentagem = (diasPassados / duracaoTotal) * 100
-            }
-
-            const mesFormatado = `${data.getFullYear()}/${String(data.getMonth() + 1).padStart(2, '0')}`
-
-            return {
-                mes: mesFormatado,
-                porcentagemExecucao: porcentagem
-            }
-        })
-
-        const curvaSGraph = [["Month", "Planned Cost", "Aggregated Value", "Actual Cost"]];
-        const curvaStabelaArray = [];
-
-        var gastosMensaisAcumuladosPlano = 0;
-        var gastosMensaisAcumulados = 0;
-        porcentagemExecucaoMensal.forEach(obj => {
-            const mes = obj.mes;
-            const valorPlanejadoArr = valoresPlanejadosMensais.filter((plano) => 
-                plano.month === mes
-            ) || [{ total_a: 0, total_b: 0, month: mes }];
-
-            var gastosMensaisPlano = 0;
-
-            for(var i = 0; i < valorPlanejadoArr.length; i++){
-              gastosMensaisAcumuladosPlano += ((2 * valorPlanejadoArr[i].total_a + valorPlanejadoArr[i].total_b) / 3);
-              gastosMensaisPlano += ((2 * valorPlanejadoArr[i].total_a + valorPlanejadoArr[i].total_b) / 3);
-            }
-
-            const gastoNoMes = despesasPorMesArr.find((despesa) => {
-                const planoDate = despesa.month.split("-");
-                return `${planoDate[0]}/${planoDate[1]}` === mes})?.total || 0;
-            
-            gastosMensaisAcumulados += gastoNoMes;
-            const execucaoNoMes = obj.porcentagemExecucao;
-            const valorAgregado = execucaoNoMes * totalPlanejado / 100;
-
-            curvaSGraph.push([
-                mes,
-                parseFloat(gastosMensaisAcumuladosPlano.toFixed(2)),
-                parseFloat(valorAgregado.toFixed(2)),
-                parseFloat(gastosMensaisAcumulados.toFixed(2))
-            ]);
-
-            curvaStabelaArray.push({
-                mes,
-                gastoMensal: parseFloat(gastoNoMes.toFixed(2)),
-                gastoMensalAcumulado: parseFloat(gastosMensaisAcumulados.toFixed(2)),
-                gastoPlanejado: parseFloat(gastosMensaisPlano.toFixed(2)),
-                gastoPlanejadoAcumulado: parseFloat(gastosMensaisAcumuladosPlano.toFixed(2)),
-                valorAgregado: parseFloat(valorAgregado.toFixed(2))
-            })
-        })
-
-        setCurvaS(curvaSGraph);
-        setCurvaSTabela(curvaStabelaArray);
-
-        //------------------------------------------------KPIs TABLE--------------------------------------------------
-        const valoresPlanejadosAreasReduced = valoresPlanejadosAreas.reduce((acc, cur) => {
-          const found = acc.find(i => i.area_id == cur.area_id);
-          if(found == undefined){
-            acc.push(cur);
-          } else {
-            found.total_a = cur.total_a;
-            found.total_b = cur.total_b;
-          }
-          return acc;
-        }, [])
-
-        valoresPlanejadosAreasReduced.sort((a, b) => a.area_name > b.area_name)
-
-        const kpis = valoresPlanejadosAreasReduced.map(vp => {
-            const area = vp.area_id;
-
-            const comparacao = porcentagensDeExecucao.find(c => c.area_id === area);
-            const despesa = despesasPorAreaArr.find(d => d.area_id === area);
-
-            const valorPlanejado = parseFloat((vp.total_a * 2 + vp.total_b) / 3).toFixed(2);
-            const porcentagem = comparacao ? comparacao.porcentagem : 0;
-            const custoReal = despesa ? despesa.total.toFixed(2) : 0;
-            const valorAgregado = valorPlanejado * (porcentagem / 100);
-
-            return {
-                area: vp.area_name,
-                valorPlanejado,
-                custoReal,
-                porcentagem,
-                valorAgregado
-            };
-        });
-        setKpis(kpis);
-        setLoading(false)
+    const porcentagensDeExecucao = [];
+    for (let i = 0; i < area_durations?.data?.length; i = i + 2) {
+      const real = area_durations?.data[i];
+      const plan_duration = area_durations?.data[i + 1]?.duration_days;
+      const porcentagem = real?.duration_days * 100 / plan_duration;
+      porcentagensDeExecucao.push({ area_id: real.area_id, area_name: real.area_name, porcentagem })
     }
 
-    //---------------------------------------------------GRAPH MEMOS-----------------------------------------------------
-    //gerar Array do grafico de pizza Receitas Por Area
-    const ReceitasPorAreaGraph = useMemo(() => {
-        if (receitasPorArea.length === 0) return [['Area', 'Value']];
-        const graph = [['Area', 'Value']];
-        receitasPorArea.forEach((area) => {
-        graph.push([area.area_name, area.total]);
-        });
-        return graph;
-    }, [receitasPorArea]);
+    const first_and_last = await handlePostFetch({
+      table: "gantt",
+      query: 'first_and_last',
+      token,
+      data: { uid: user.id },
+    })
+    const limitesProjeto = first_and_last?.data[0] || [];
 
-    //gerar Array do grafico de pizza Despesas por Area
-    const DespesasPorAreaGraph = useMemo(() => {
-        if (despesasPorArea.length === 0) return [['Area', 'Value']];
-        const graph = [['Area', 'Value']];
-        despesasPorArea.forEach((area) => {
-        graph.push([area.area_name, area.total]);
-        });
-        return graph;
-    }, [despesasPorArea]);
+    const [inicio, fim] = [new Date(limitesProjeto.first_start), new Date(limitesProjeto.last_end)];
 
-    //gerar Array do grafico de colunas de valores por area
-    const ValoresPorAreaGraph = useMemo(() => {
-        if (receitasPorArea.length == 0 || despesasPorArea.length == 0) return [['Area', 'Revenue', 'Expense']]
-        const graph = [['Area', 'Revenue', 'Expense']];
-        const areasGanhos = new Set(receitasPorArea.map((receitaArea) => receitaArea.area_name));
-        const areasGastos = new Set(despesasPorArea.map((despesaArea) => despesaArea.area_name));
-        const todasAreas = Array.from(new Set([...areasGanhos, ...areasGastos]));
+    const ultimosDias = []
+    const atual = new Date(inicio.getFullYear(), inicio.getMonth(), 1)
 
-        todasAreas.forEach((areaNome) => {
-        const receitaArea = receitasPorArea.find((receita) => receita.area_name === areaNome);
-        const receitaValor = receitaArea?.total || 0;
-
-        const despesaArea = despesasPorArea.find((despesa) => despesa.area_name === areaNome);
-        const despesaValor = despesaArea?.total || 0;
-
-        graph.push([areaNome, receitaValor, despesaValor]);
-        });
-
-        return graph;
-    }, [receitasPorArea, despesasPorArea])
-
-    //gerar Array do grafico de colunas de valores por mês, crescimento mensal e gasto mensal
-    const [ValoresPorMesGraph, CashFlowMensal, CaixaMensalGraph, CrescimentoDosGastosGraph] = useMemo(() => {
-        if (receitasPorMes.length == 0 || despesasPorMes.length == 0) {
-          return [
-            [['Month', 'Revenue', 'Expense']],
-            [],
-            [['Month', 'Value']],
-            [['Month', 'Value']]
-          ]
-        }
-        const valoresGraph = [['Month', 'Revenue', 'Expense']];
-        const cashFlow = [];
-        const caixaGraph = [['Month', 'Value']];
-        const crescimentoGraph = [['Month', 'Value']];
-    
-        let saldoAcumulado = 0;
-        let gastosAcumulados = 0;
-    
-        const mesesGanhos = new Set(receitasPorMes.map((receitaMes) => receitaMes.month));
-        const mesesGastos = new Set(despesasPorMes.map((despesaMes) => despesaMes.month));
-        const todosMeses = sortBy(Array.from(new Set([...mesesGanhos, ...mesesGastos])));
-        todosMeses.forEach((mesNome) => {
-          const receitaMes = receitasPorMes.find((receita) => receita.month === mesNome);
-          const receitaValor = receitaMes?.total || 0;
-    
-          const despesaMes = despesasPorMes.find((despesa) => despesa.month === mesNome);
-          const despesaValor = despesaMes?.total || 0;
-    
-          const saldoMes = receitaValor - despesaValor;
-    
-          saldoAcumulado += saldoMes;
-          gastosAcumulados += despesaValor;
-    
-          const dateParts = mesNome.split('-');
-          const formattedDate = `${dateParts[0]}/${dateParts[1]}`;
-    
-          valoresGraph.push([formattedDate, receitaValor, despesaValor]);
-          cashFlow.push({
-            mes: formattedDate, receita: receitaValor, despesa: despesaValor,
-            movimento: saldoMes, balanco: saldoAcumulado
-          })
-          caixaGraph.push([formattedDate, saldoAcumulado]);
-          crescimentoGraph.push([formattedDate, gastosAcumulados]);
-        });
-    
-        return [
-          valoresGraph,
-          cashFlow,
-          caixaGraph,
-          crescimentoGraph
-        ]
-      }, [receitasPorMes, despesasPorMes])
-
-    const fetchCores = async () => {
-        const data = await handleFetch({
-            table: "wbs_area",
-            query: 'colors',
-            token
-        });
-        var cores = {};
-        data.data.forEach((area) => {
-            cores = { ...cores, [area.name]: area.color || ''}
-        })
-        setCores(cores);
+    while (atual <= fim) {
+      const ultimoDia = new Date(atual.getFullYear(), atual.getMonth() + 1, 0)
+      ultimosDias.push(ultimoDia)
+      atual.setMonth(atual.getMonth() + 1)
     }
 
-    useEffect(() => {
-        fetchCores();
-        fetchResumos();
-    }, []);
+    const duracaoTotal = fim - inicio;
 
-    const estiloGraph = {
+    const porcentagemExecucaoMensal = ultimosDias.map(data => {
+      let porcentagem = 0
+
+      if (data < inicio) {
+        porcentagem = 0
+      } else if (data > fim) {
+        porcentagem = 100
+      } else {
+        const diasPassados = data - inicio
+        porcentagem = (diasPassados / duracaoTotal) * 100
+      }
+
+      const mesFormatado = `${data.getFullYear()}/${String(data.getMonth() + 1).padStart(2, '0')}`
+
+      return {
+        mes: mesFormatado,
+        porcentagemExecucao: porcentagem
+      }
+    })
+
+    const curvaSGraph = [["Month", "Planned Cost", "Aggregated Value", "Actual Cost"]];
+    const curvaStabelaArray = [];
+
+    var gastosMensaisAcumuladosPlano = 0;
+    var gastosMensaisAcumulados = 0;
+    porcentagemExecucaoMensal.forEach(obj => {
+      const mes = obj.mes;
+      const valorPlanejadoArr = valoresPlanejadosMensais.filter((plano) =>
+        plano.month === mes
+      ) || [{ total_a: 0, total_b: 0, month: mes }];
+
+      var gastosMensaisPlano = 0;
+
+      for (var i = 0; i < valorPlanejadoArr.length; i++) {
+        gastosMensaisAcumuladosPlano += ((2 * valorPlanejadoArr[i].total_a + valorPlanejadoArr[i].total_b) / 3);
+        gastosMensaisPlano += ((2 * valorPlanejadoArr[i].total_a + valorPlanejadoArr[i].total_b) / 3);
+      }
+
+      const gastoNoMes = despesasPorMesArr.find((despesa) => {
+        const planoDate = despesa.month.split("-");
+        return `${planoDate[0]}/${planoDate[1]}` === mes
+      })?.total || 0;
+
+      gastosMensaisAcumulados += gastoNoMes;
+      const execucaoNoMes = obj.porcentagemExecucao;
+      const valorAgregado = execucaoNoMes * totalPlanejado / 100;
+
+      curvaSGraph.push([
+        mes,
+        parseFloat(gastosMensaisAcumuladosPlano.toFixed(2)),
+        parseFloat(valorAgregado.toFixed(2)),
+        parseFloat(gastosMensaisAcumulados.toFixed(2))
+      ]);
+
+      curvaStabelaArray.push({
+        mes,
+        gastoMensal: parseFloat(gastoNoMes.toFixed(2)),
+        gastoMensalAcumulado: parseFloat(gastosMensaisAcumulados.toFixed(2)),
+        gastoPlanejado: parseFloat(gastosMensaisPlano.toFixed(2)),
+        gastoPlanejadoAcumulado: parseFloat(gastosMensaisAcumuladosPlano.toFixed(2)),
+        valorAgregado: parseFloat(valorAgregado.toFixed(2))
+      })
+    })
+
+    setCurvaS(curvaSGraph);
+    setCurvaSTabela(curvaStabelaArray);
+
+    //------------------------------------------------KPIs TABLE--------------------------------------------------
+    const valoresPlanejadosAreasReduced = valoresPlanejadosAreas.reduce((acc, cur) => {
+      const found = acc.find(i => i.area_id == cur.area_id);
+      if (found == undefined) {
+        acc.push(cur);
+      } else {
+        found.total_a = cur.total_a;
+        found.total_b = cur.total_b;
+      }
+      return acc;
+    }, [])
+
+    valoresPlanejadosAreasReduced.sort((a, b) => a.area_name > b.area_name)
+
+    const kpis = valoresPlanejadosAreasReduced.map(vp => {
+      const area = vp.area_id;
+
+      const comparacao = porcentagensDeExecucao.find(c => c.area_id === area);
+      const despesa = despesasPorAreaArr.find(d => d.area_id === area);
+
+      const valorPlanejado = parseFloat((vp.total_a * 2 + vp.total_b) / 3).toFixed(2);
+      const porcentagem = comparacao ? comparacao.porcentagem : 0;
+      const custoReal = despesa ? despesa.total.toFixed(2) : 0;
+      const valorAgregado = valorPlanejado * (porcentagem / 100);
+
+      return {
+        area: vp.area_name,
+        valorPlanejado,
+        custoReal,
+        porcentagem,
+        valorAgregado
+      };
+    });
+    setKpis(kpis);
+    setLoading(false)
+  }
+
+  //---------------------------------------------------GRAPH MEMOS-----------------------------------------------------
+  //gerar Array do grafico de pizza Receitas Por Area
+  const ReceitasPorAreaGraph = useMemo(() => {
+    if (receitasPorArea.length === 0) return [['Area', 'Value']];
+    const graph = [['Area', 'Value']];
+    receitasPorArea.forEach((area) => {
+      graph.push([area.area_name, area.total]);
+    });
+    return graph;
+  }, [receitasPorArea]);
+
+  //gerar Array do grafico de pizza Despesas por Area
+  const DespesasPorAreaGraph = useMemo(() => {
+    if (despesasPorArea.length === 0) return [['Area', 'Value']];
+    const graph = [['Area', 'Value']];
+    despesasPorArea.forEach((area) => {
+      graph.push([area.area_name, area.total]);
+    });
+    return graph;
+  }, [despesasPorArea]);
+
+  //gerar Array do grafico de colunas de valores por area
+  const ValoresPorAreaGraph = useMemo(() => {
+    if (receitasPorArea.length == 0 || despesasPorArea.length == 0) return [['Area', 'Revenue', 'Expense']]
+    const graph = [['Area', 'Revenue', 'Expense']];
+    const areasGanhos = new Set(receitasPorArea.map((receitaArea) => receitaArea.area_name));
+    const areasGastos = new Set(despesasPorArea.map((despesaArea) => despesaArea.area_name));
+    const todasAreas = Array.from(new Set([...areasGanhos, ...areasGastos]));
+
+    todasAreas.forEach((areaNome) => {
+      const receitaArea = receitasPorArea.find((receita) => receita.area_name === areaNome);
+      const receitaValor = receitaArea?.total || 0;
+
+      const despesaArea = despesasPorArea.find((despesa) => despesa.area_name === areaNome);
+      const despesaValor = despesaArea?.total || 0;
+
+      graph.push([areaNome, receitaValor, despesaValor]);
+    });
+    return graph;
+  }, [receitasPorArea, despesasPorArea])
+
+  //gerar Array do grafico de colunas de valores por mês, crescimento mensal e gasto mensal
+  const [ValoresPorMesGraph, CashFlowMensal, CaixaMensalGraph, CrescimentoDosGastosGraph] = useMemo(() => {
+    if (receitasPorMes.length == 0 || despesasPorMes.length == 0) {
+      return [
+        [['Month', 'Revenue', 'Expense']],
+        [],
+        [['Month', 'Value']],
+        [['Month', 'Value']]
+      ]
+    }
+    const valoresGraph = [['Month', 'Revenue', 'Expense']];
+    const cashFlow = [];
+    const caixaGraph = [['Month', 'Value']];
+    const crescimentoGraph = [['Month', 'Value']];
+
+    let saldoAcumulado = 0;
+    let gastosAcumulados = 0;
+
+    const mesesGanhos = new Set(receitasPorMes.map((receitaMes) => receitaMes.month));
+    const mesesGastos = new Set(despesasPorMes.map((despesaMes) => despesaMes.month));
+    const todosMeses = sortBy(Array.from(new Set([...mesesGanhos, ...mesesGastos])));
+    todosMeses.forEach((mesNome) => {
+      const receitaMes = receitasPorMes.find((receita) => receita.month === mesNome);
+      const receitaValor = receitaMes?.total || 0;
+
+      const despesaMes = despesasPorMes.find((despesa) => despesa.month === mesNome);
+      const despesaValor = despesaMes?.total || 0;
+
+      const saldoMes = receitaValor - despesaValor;
+
+      saldoAcumulado += saldoMes;
+      gastosAcumulados += despesaValor;
+
+      const dateParts = mesNome.split('-');
+      const formattedDate = `${dateParts[0]}/${dateParts[1]}`;
+
+      valoresGraph.push([formattedDate, receitaValor, despesaValor]);
+      cashFlow.push({
+        mes: formattedDate, receita: receitaValor, despesa: despesaValor,
+        movimento: saldoMes, balanco: saldoAcumulado
+      })
+      caixaGraph.push([formattedDate, saldoAcumulado]);
+      crescimentoGraph.push([formattedDate, gastosAcumulados]);
+    });
+
+    return [
+      valoresGraph,
+      cashFlow,
+      caixaGraph,
+      crescimentoGraph
+    ]
+  }, [receitasPorMes, despesasPorMes])
+
+  const fetchCores = async () => {
+    const data = await handleFetch({
+      table: "wbs_area",
+      query: 'colors',
+      token
+    });
+    var cores = {};
+    data.data.forEach((area) => {
+      cores = { ...cores, [area.name]: area.color || '' }
+    })
+    setCores(cores);
+  }
+
+  useEffect(() => {
+    fetchCores();
+    fetchResumos();
+  }, []);
+
+  const estiloGraph = {
     backgroundColor: 'transparent',
     titleTextStyle: {
       color: "black"
@@ -428,12 +428,12 @@ const Resumo = () => {
     },
   }
 
-    return (
+  return (
     <div className={h3_resumo}>
       {loading && <Loading />}
       <div className="centered-container">
-        {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
-        <h2 className="smallTitle">Report <button onClick={()=>setShowHelp(true)}>❔</button></h2>
+        {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
+        <h2 className="smallTitle">Report <button onClick={() => setShowHelp(true)}>❔</button></h2>
 
         <div>
           <span className={custom_span}>Cash value:<br />R${Number(totalValor).toFixed(2)}</span>
@@ -576,17 +576,22 @@ const Resumo = () => {
           </div>
         </div>
 
-        <div className={grafico}>
-          <Chart
-            width={"90%"}
-            height={"400px"}
-            chartType="ColumnChart"
-            loader={<div>Loading graph</div>}
-            options={{ ...estiloGraph, colors: ['green', 'red'] }}
-            data={ValoresPorAreaGraph}
-            rootProps={{ 'data-testid': '1' }}
-          />
-        </div>
+        {ValoresPorAreaGraph.length > 1 ? (
+          <div className={grafico}>
+            <Chart
+              width={"90%"}
+              height={"400px"}
+              chartType="ColumnChart"
+              loader={<div>Loading graph</div>}
+              options={{ ...estiloGraph, colors: ['green', 'red'] }}
+              data={ValoresPorAreaGraph}
+              rootProps={{ 'data-testid': '1' }}
+            />
+          </div>
+        ) : (
+          <div className='centered-container'>No data available for generating this graph.</div>
+        )}
+
       </div>
 
       <div className={grafico}>
@@ -614,114 +619,136 @@ const Resumo = () => {
       <div className='centered-container'>
         <h3>S Curve Data</h3>
         <div className={tabela.tabela_financas_container}>
-            <div className={tabela.tabela_financas_wrapper}>
-              <table className={`tabela ${tabela.cash_flow}`}>
-          <thead>
-            <tr>
-              <th>Month</th>
-              {curvaSTabela.map((valores, index) => (
-                <th key={index}>{valores.mes}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th>Monthly expense</th>
-              {curvaSTabela.map((valores, index) => (
-                <td key={index}>R${Number(valores.gastoMensal).toFixed(2)}</td>
-              ))}
-            </tr>
-            <tr>
-              <th  >Accumulated monthly expense</th>
-              {curvaSTabela.map((valores, index) => (
-                <td key={index}>R${Number(valores.gastoMensalAcumulado).toFixed(2)}</td>
-              ))}
-            </tr>
-            <tr>
-              <th>Monthly planned cost</th>
-              {curvaSTabela.map((valores, index) => (
-                <td key={index}>R${Number(valores.gastoPlanejado).toFixed(2)}</td>
-              ))}
-            </tr>
-            <tr>
-              <th>Accumulated monthly planned cost</th>
-              {curvaSTabela.map((valores, index) => (
-                <td key={index}>R${Number(valores.gastoPlanejadoAcumulado).toFixed(2)}</td>
-              ))}
-            </tr>
-            <tr>
-              <th>Aggregated Value</th>
-              {curvaSTabela.map((valores, index) => (
-                <td key={index}>R${Number(valores.valorAgregado).toFixed(2)}</td>
-              ))}
-            </tr>
-          </tbody>
+          <div className={tabela.tabela_financas_wrapper}>
+            <table className={`tabela ${tabela.cash_flow}`}>
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  {curvaSTabela.map((valores, index) => (
+                    <th key={index}>{valores.mes}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>Monthly expense</th>
+                  {curvaSTabela.map((valores, index) => (
+                    <td key={index}>R${Number(valores.gastoMensal).toFixed(2)}</td>
+                  ))}
+                </tr>
+                <tr>
+                  <th  >Accumulated monthly expense</th>
+                  {curvaSTabela.map((valores, index) => (
+                    <td key={index}>R${Number(valores.gastoMensalAcumulado).toFixed(2)}</td>
+                  ))}
+                </tr>
+                <tr>
+                  <th>Monthly planned cost</th>
+                  {curvaSTabela.map((valores, index) => (
+                    <td key={index}>R${Number(valores.gastoPlanejado).toFixed(2)}</td>
+                  ))}
+                </tr>
+                <tr>
+                  <th>Accumulated monthly planned cost</th>
+                  {curvaSTabela.map((valores, index) => (
+                    <td key={index}>R${Number(valores.gastoPlanejadoAcumulado).toFixed(2)}</td>
+                  ))}
+                </tr>
+                <tr>
+                  <th>Aggregated Value</th>
+                  {curvaSTabela.map((valores, index) => (
+                    <td key={index}>R${Number(valores.valorAgregado).toFixed(2)}</td>
+                  ))}
+                </tr>
+              </tbody>
 
-        </table>
-            </div>
+            </table>
+          </div>
         </div>
-        
+
       </div>
 
       <div>
         <h3>Releases per month</h3>
-        <div className={grafico}>
-          <Chart
-            width={"90%"}
-            height={"400px"}
-            chartType="ColumnChart"
-            loader={<div>Loading graph</div>}
-            data={ValoresPorMesGraph}
-            options={{
-              ...estiloGraph,
-              title: 'Releases per month',
-              colors: ['green', 'red']
-            }}
-            rootProps={{ 'data-testid': '1' }}
-          />
-        </div>
+        {ValoresPorMesGraph.length > 1 ? (
+          <div className={grafico}>
+            <Chart
+              width={"90%"}
+              height={"400px"}
+              chartType="ColumnChart"
+              loader={<div>Loading graph</div>}
+              data={ValoresPorMesGraph}
+              options={{
+                ...estiloGraph,
+                title: 'Releases per month',
+                colors: ['green', 'red']
+              }}
+              rootProps={{ 'data-testid': '1' }}
+            />
+          </div>
+        ) : (
+          <div className='centered-container'>No data available for generating this graph.</div>
+        )}
 
-        <div className={grafico}>
+        <div>
+
           <h3>Cash value per month</h3>
-          <Chart
-            width={"90%"}
-            height={"400px"}
-            chartType="LineChart"
-            loader={<div>Loading graph</div>}
-            data={CaixaMensalGraph}
-            options={{
-              ...estiloGraph,
-              colors: ["#ff00e3"],
-              series: {
-                0: {
-                  lineWidth: 5,
-                },
-              },
+          {CaixaMensalGraph.length > 1 ? (
+            <div className={grafico}>
+              <Chart
+                width={"90%"}
+                height={"400px"}
+                chartType="LineChart"
+                loader={<div>Loading graph</div>}
+                data={CaixaMensalGraph}
+                options={{
+                  ...estiloGraph,
+                  colors: ["#ff00e3"],
+                  series: {
+                    0: {
+                      lineWidth: 5,
+                    },
+                  },
 
-            }}
-            rootProps={{ 'data-testid': '1' }}
-          />
+                }}
+                rootProps={{ 'data-testid': '1' }}
+              />
+            </div>
+          ) : (
+            <div className='centered-container'>No data available for generating this graph.</div>
+          )}
+
+
         </div>
 
-        <div className={grafico}>
+        <div>
           <h3>Cost growth per month</h3>
-          <Chart
-            width={"90%"}
-            height={"400px"}
-            chartType="LineChart"
-            loader={<div>Loading graph</div>}
-            data={CrescimentoDosGastosGraph}
-            options={{
-              ...estiloGraph, colors: ["#ff00e3"],
-              series: {
-                0: {
-                  lineWidth: 5,
-                },
-              }
-            }}
-            rootProps={{ 'data-testid': '1' }}
-          />
+          {CrescimentoDosGastosGraph.length > 1 ? (
+            <div className={grafico}>
+
+              <Chart
+                width={"90%"}
+                height={"400px"}
+                chartType="LineChart"
+                loader={<div>Loading graph</div>}
+                data={CrescimentoDosGastosGraph}
+                options={{
+                  ...estiloGraph, colors: ["#ff00e3"],
+                  series: {
+                    0: {
+                      lineWidth: 5,
+                    },
+                  }
+                }}
+                rootProps={{ 'data-testid': '1' }}
+              />
+            </div>
+          ) : (
+            <div className='centered-container'>No data available for generating this graph.</div>
+          )}
+
         </div>
+
       </div>
     </div>
   );

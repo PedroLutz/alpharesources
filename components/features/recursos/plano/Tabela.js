@@ -475,9 +475,9 @@ const PlanoAquisicao = () => {
             </div>
 
             <div className="centered-container" style={{ flexDirection: "row" }}>
-                <span className={custom_span}>Essential Scenario: R${parseFloat((planosSoma_essencial)).toFixed(2)}</span>
+                <span className={custom_span}>Essential Scenario: R${parseFloat(planosSoma_essencial.length > 0 ? planosSoma_essencial : 0).toFixed(2)}</span>
                 {!verReserves ? (
-                    <span className={custom_span}>Ideal Scenario: R${parseFloat((planosSoma_all)).toFixed(2)}</span>
+                    <span className={custom_span}>Ideal Scenario: R${parseFloat(planosSoma_all.length > 0 ? planosSoma_all : 0).toFixed(2)}</span>
                 ) : (
                     <span className={custom_span}>Ideal Scenario + Reserves: R${parseFloat(planosSoma_all * 1.05 + totalContingencia).toFixed(2)}</span>
                 )}
