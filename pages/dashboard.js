@@ -1,8 +1,12 @@
 import Dashboard from "../components/features/Dashboard";
+import PageWrapper from "../components/layout/DashboardWrapper";
 
 const DashboardPage = () => {
     return (
-        <Dashboard/>
+        <PageWrapper>
+            <Dashboard/>
+        </PageWrapper>
+        
     )
 }
 

@@ -1,9 +1,12 @@
-import Menu from '../components/features/Menu'
+import Dashboard from "../components/features/Dashboard";
+import PageWrapper from "../components/layout/DashboardWrapper";
 
 function index() {
 
   return (
-    <Menu />
+    <PageWrapper>
+            <Dashboard/>
+        </PageWrapper>
   );
 }
 
