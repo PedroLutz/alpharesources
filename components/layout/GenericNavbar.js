@@ -71,7 +71,7 @@ const GenericNavbar = ({ base, itens, dropdowns }) => {
           </li>
         ))}
         <li>
-          <Link href="/">Menu</Link>
+          <Link href="/">Dashboard</Link>
         </li>
         <Logout />
       </ul>

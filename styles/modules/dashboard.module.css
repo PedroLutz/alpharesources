@@ -1,0 +1,218 @@
+.super_container {
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.super_wrapper {
+    width: 100%;
+    max-width: none;  
+    display: block;
+}
+
+.outer_container {
+    max-width: 100rem;
+    display: block;
+}
+
+.outer_wrapper {
+    max-width: 75rem;
+    max-height: 45rem;
+    display: block;
+}
+
+.inner_container {
+    overflow-x: auto;    
+    overflow-y: hidden;
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    
+}
+
+.block {
+    flex: 0 0 auto; 
+    border: 0.1rem solid black;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    display: grid;
+    gap: 1rem;
+    max-height: 15rem;
+}
+
+.block[name="interval_picker"] {
+    width: 8rem;
+}
+
+.block[name="project_completion"] {
+    width: 20rem;
+}
+
+.block[name="wbs_summary"] {
+    width: 55rem;
+}
+
+.block[name="execution_vs_planned"] {
+    width: 30rem;
+}
+
+.block[name="schedule_summary"] {
+    width: 42rem;
+}
+
+.block[name="budget_summary"] {
+    width: 25rem;
+}
+
+.block[name="resources_nearing"]{
+    width: 30rem;
+}
+
+.block a {
+    font-weight: bold;
+}
+
+.block select {
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    border-radius: 0.4rem;
+    padding: 0.2rem;
+    transition: 0.2s;
+    outline: none;
+    font-size: small;
+    background-color: white;
+}
+
+.block select:hover {
+    background-color: rgb(231, 231, 231);
+}
+
+.block span {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    flex: 1 1 auto;
+    min-height: 0;
+    justify-content: center;
+    text-align: center;
+}
+
+.wrapper table,
+.wrapper table th,
+.wrapper table td {
+    font-size: 0.8rem;
+}
+
+.wrapper table th {
+    background-color: #ff8ff2;
+}
+
+.wrapper table th,
+.wrapper table td {
+    padding: 0.1rem;
+    border: 0.1rem solid black;
+}
+
+.wrapper table th[name="total"],
+.wrapper table th[name="initiated"],
+.wrapper table th[name="percentage"] {
+    font-size: 0.6rem;
+}
+
+.graph {
+    flex: 0 0 auto;
+    max-height: 100%;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-gutter: stable;
+}
+
+.inner_block {
+    display: block;
+    text-align: center;
+    height: 100%;
+    overflow-y: auto;
+    flex: 0 0 auto;
+    padding: 0;
+    scrollbar-width: thin;
+    scrollbar-gutter: stable;
+}
+
+.inner_block ul {
+    width: 10rem;
+    text-align: left;
+}
+
+.inner_block ul li {
+    font-size: small;
+}
+
+.inner_block a {
+    font-weight: normal;
+}
+
+a.warning {
+    font-weight: normal;
+    font-size: 0.7rem
+}
+
+.inner_block table th,
+.inner_block table td {
+    font-size: 0.6rem;
+}
+
+.inner_block table th,
+.inner_block table td {
+    width: 5rem;
+}
+
+.inner_block table th[name="planned_start"],
+.inner_block table td[name="planned_start"],
+.inner_block table th[name="delay"],
+.inner_block table td[name="delay"]{
+    width: 4rem;
+}
+
+.line {
+    position: relative;
+    top: 0;
+    left: 0;
+    transform: translateX(-50%);
+    width: 1px;
+    height: 100%;
+    background-color: black;
+}
+
+@media (max-width: 1280px) {
+    .super_container {
+        width: 100%;
+    }
+
+    .outer_container {
+        width: 100%;
+    }
+
+    .block span {
+        font-size: 1rem;
+    }
+
+    .super_container,
+    .block select,
+    .wrapper table,
+    .wrapper table th,
+    .wrapper table td,
+    .inner_block ul li {
+        font-size: 0.7rem;
+    }
+
+    a.warning {
+        font-size: 0.6rem;
+    }
+}

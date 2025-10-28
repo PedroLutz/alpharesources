@@ -85,8 +85,8 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEditor, 
     };
 
     const validaDados = () => {
-        if(funcoes?.isRiscoCadastrado?.(obj?.risk?.id) ?? false){
-            camposRef.current.risco.classList.add('campo-vazio');
+        if(funcoes?.isRiscoCadastrado?.(obj?.risk_id) ?? false){
+            camposRef.current.risk_id.classList.add('campo-vazio');
             setExibirModal('riscoRepetido');
             return true;
         }
@@ -105,7 +105,6 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEditor, 
             }
         }
         
-        console.log(obj)
         const camposVazios = Object.entries(obj)
             .filter(([key, value]) => value === null || value === "")
             .map(([key]) => key);
