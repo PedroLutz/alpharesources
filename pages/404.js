@@ -7,7 +7,7 @@ const Pagina404 = () => {
     useEffect(() => {
         const timer = setTimeout(() => {
             router.push('/');
-        }, 3000); // redireciona depois de 2 segundos
+        }, 3000);
 
         return () => clearTimeout(timer);
     }, []);

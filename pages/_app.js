@@ -6,6 +6,7 @@ import { TituloProvider, TituloContext } from '../contexts/TituloContext';
 import Footer from '../components/ui/Footer';
 import { useRouter } from 'next/router';
 import useAuth from '../hooks/useAuth';
+import { usePathname } from 'next/navigation';
 import { PermissionProvider } from '../contexts/PermissionProvider';
 
 import { AuthProvider } from '../contexts/AuthProvider';
@@ -19,15 +20,17 @@ function AuthGuard({ children }) {
   const router = useRouter();
   const { user, loading } = useAuth();
   const [isMounted, setIsMounted] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
   useEffect(() => {
-    if (!loading && isMounted && !user) {
+    if (pathname != "/create_user" && !loading && isMounted && !user) {
       router.replace('/login');
     }
+    
   }, [loading, isMounted, user]);
 
   if (!isMounted || loading) {

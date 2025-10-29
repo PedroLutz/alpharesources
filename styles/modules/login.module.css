@@ -38,3 +38,7 @@
     color: red;
     margin: 0.1rem;
 }
+
+.input_login div input[name="password"]{
+    width: 13.5rem;
+}
