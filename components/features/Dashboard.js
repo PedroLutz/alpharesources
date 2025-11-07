@@ -7,6 +7,7 @@ import HorizontalBarChart from "./HorizontalBarChart";
 import { Chart } from 'react-google-charts';
 import { isoDateToEuDate } from "../../functions/general";
 import HelpBubble from "../ui/HelpBubble/Dashboard";
+import { generateColorGradient } from "../../functions/colors";
 
 const Dashboard = () => {
     const [interval, setInterval] = useState("1 week");
@@ -193,7 +194,7 @@ const Dashboard = () => {
                                     <div className={styles.wrapper}>
                                         <div className={styles.graph} style={{ width: '25rem' }}>
                                             {ready &&
-                                                <HorizontalBarChart data={wbs_activity_graph} width="100%" barHeight={10} />
+                                                <HorizontalBarChart data={wbs_activity_graph} width="100%" barHeight={10} colors={[document.documentElement.style.getPropertyValue("--main-color"), document.documentElement.style.getPropertyValue("--secondary-color")]} />
                                             }
 
                                         </div>
@@ -282,7 +283,10 @@ const Dashboard = () => {
                                                     top: 0,
                                                     height: 130
                                                 },
-                                                colors: ['#f28c28', '#d77c4f', '#bc8378', '#a1a1a1'],
+                                                colors: generateColorGradient(
+                                                    document.documentElement.style.getPropertyValue("--main-color"), 
+                                                    document.documentElement.style.getPropertyValue("--secondary-color"),
+                                                    4),
                                                 legend: {
                                                     position: 'labeled'
                                                 }

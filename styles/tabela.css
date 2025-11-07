@@ -19,11 +19,12 @@
 }
 
 .tabela th {
-    background-color: #dadada;
+    background-color: var(--table-header-color);
+    color: var(--table-header-text-color);
     border-width: 0.1rem;
     font-size: 0.9rem;
     border-style: solid;
-    border-color: rgb(0, 0, 0);
+    border-color: var(--table-header-text-color);
     padding: 0.3rem;
     position: sticky;
     top: 0;
@@ -36,8 +37,8 @@
     z-index: 10;
     border-style: solid;
     border-width: 0.1rem;
-    border-color: rgb(0, 0, 0);
-    background: black;
+    border-color: var(--table-header-text-color);
+    background: var(--table-header-text-color);
 }
 
 .tabela td input,

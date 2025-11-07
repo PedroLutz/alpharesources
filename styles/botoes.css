@@ -13,19 +13,20 @@
 }
 
 .botao-padrao:hover {
-    background-color: #eba25a;
+    background-color: var(--secondary-color);
     font-size: 0.8rem;
     font-weight: bold;
     width: 7rem;
     height: 1.7rem;
+    color: var(--secondary-text-color)
 }
 
 .botao-bonito {
-    background-color: #eea761;
+    background-color: var(--main-color);
     border: 1px solid black;
     border-radius: 5px;
     padding: 3px;
-    color: black;
+    color: var(--main-text-color);
     font-weight: bold;
     font-size: 0.9rem;
     cursor: pointer;
@@ -41,11 +42,12 @@
 }
 
 .botao-bonito:hover {
-    background-color: #975819;
+    background-color: var(--secondary-color);
     font-size: 0.8rem;
     font-weight: bold;
     width: 7rem;
     height: 1.7rem;
+    color: var(--secondary-text-color)
 }
 
 .botoes_acoes{
@@ -66,14 +68,14 @@
     background-color: transparent;
     border: none;
     font-size: medium;
-    color: white;
+    color: var(--main-text-color);
     transition: 0.2s;
     cursor: pointer;
     font-weight: bolder;
 }
 
 .botao_logout:hover{
-    color: #46205e;
+    color: var(--main-text-hover-color);
   text-decoration: none;
 }
 

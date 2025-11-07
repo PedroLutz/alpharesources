@@ -1,0 +1,60 @@
+.wrapper {
+    display: flex;
+    align-items: stretch;
+    width: 35rem;
+}
+
+.wrapper > div {
+    flex: 1; /* cada lado ocupa o mesmo espaço */
+    display: flex;
+    flex-direction: column;
+}
+
+.block{
+    display: grid;
+    align-items: center;
+    text-align: left;
+    border: black 0.1rem solid;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    gap: 0.5rem;
+    margin: 0.5rem;
+    flex: 1; /* faz cada bloco crescer pra igualar altura */
+}
+
+.block input,
+.block input[type="color"] {
+    border: 0.1rem black solid;
+    border-radius: 0.5rem;
+    padding: 0.2rem;
+    background-color: transparent;
+    width: 100%;
+    outline: none;
+    transition: 0.1s;
+}
+
+.block input:focus{
+    border: 0.1rem black solid;
+}
+
+.block input:hover,
+.block input[type="color"]:hover{
+    background-color: #e9e9e9;
+}
+
+.block input[type="color"]{
+    margin: 0;
+    height: 1.5rem;
+}
+
+.block button {
+    background-color: #eea761;
+    border: black 0.1rem solid;
+    border-radius: 0.5rem;
+    font-weight: bold;
+    transition: 0.1s;
+}
+
+.block button:hover {
+    background-color: #975819;
+}

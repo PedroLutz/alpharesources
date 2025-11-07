@@ -39,15 +39,11 @@ span.custom_span {
     width: auto;
     padding: 10px;
     border-radius: 15px;
-    border: 1px solid #a0a0a0;
-    background-color: #a0a0a0;
+    border: none;
+    background-color: var(--secondary-color);
     font-size: 18px;
-    color: white;
+    color: var(--secondary-text-color);
     transition: background-color 0.2s ease;
-}
-
-span.custom_span:hover {
-    background-color: #797979;
 }
 
 @media (max-width: 1280px) {

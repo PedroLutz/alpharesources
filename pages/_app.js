@@ -8,8 +8,10 @@ import { useRouter } from 'next/router';
 import useAuth from '../hooks/useAuth';
 import { usePathname } from 'next/navigation';
 import { PermissionProvider } from '../contexts/PermissionProvider';
-
 import { AuthProvider } from '../contexts/AuthProvider';
+import { ColorProvider } from '../contexts/ColorProvider';
+import useColor from '../hooks/useColor';
+import { getTextColor } from '../functions/colors';
 
 import '../styles/global.css';
 import '../styles/graficos.css';
@@ -27,10 +29,16 @@ function AuthGuard({ children }) {
   }, []);
 
   useEffect(() => {
+    if (window.location.hash && window.location.pathname === '/reset_password') {
+      sessionStorage.setItem('supabaseHash', window.location.hash)
+    }
+  }, [])
+
+  useEffect(() => {
     if (pathname != "/create_user" && !loading && isMounted && !user) {
       router.replace('/login');
     }
-    
+
   }, [loading, isMounted, user]);
 
   if (!isMounted || loading) {
@@ -44,20 +52,34 @@ function MyApp({ Component, pageProps }) {
   return (
     <AuthProvider>
       <PermissionProvider>
+        <ColorProvider>
           <AuthGuard>
-        <TituloProvider>
-          <InnerApp Component={Component} pageProps={pageProps} />
-        </TituloProvider>
-      </AuthGuard>
+            <TituloProvider>
+              <InnerApp Component={Component} pageProps={pageProps} />
+            </TituloProvider>
+          </AuthGuard>
+        </ColorProvider>
       </PermissionProvider>
-      
     </AuthProvider>
   );
 }
 
 function InnerApp({ Component, pageProps }) {
   const { titulo } = useContext(TituloContext);
+  const { colors } = useColor();
   const title = `${titulo ? 'SM | ' + titulo : 'Alpha Management'}`
+
+  useEffect(() => {
+    if (colors) {
+      document.documentElement.style.setProperty('--main-color', colors?.main)
+      document.documentElement.style.setProperty('--secondary-color', colors?.secondary)
+      document.documentElement.style.setProperty('--table-header-color', colors?.table_header)
+      document.documentElement.style.setProperty('--table-header-text-color', getTextColor(colors?.table_header))
+      document.documentElement.style.setProperty('--main-text-color', getTextColor(colors?.main))
+      document.documentElement.style.setProperty('--main-text-hover-color', getTextColor(colors?.main) === 'white' ? 'black' : 'white')
+      document.documentElement.style.setProperty('--secondary-text-color', getTextColor(colors?.secondary))
+    }
+  }, [colors])
 
   return (
     <div>
@@ -65,8 +87,8 @@ function InnerApp({ Component, pageProps }) {
         <title>{title}</title>
         <link rel="icon" href="/images/logo.png" />
       </Head>
-        <Component {...pageProps} />
-        <Footer />
+      <Component {...pageProps} />
+      <Footer />
     </div>
   );
 }

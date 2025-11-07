@@ -43,6 +43,12 @@ const PageWrapper = ({ children }) => {
                         ]
                     },
                 ]}
+                itens={[
+                    {
+                        label: 'User Account',
+                        link: "/user_settings"
+                    }
+                ]}
             />
             {children}
         </div>

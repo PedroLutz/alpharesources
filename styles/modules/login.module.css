@@ -42,3 +42,26 @@
 .input_login div input[name="password"]{
     width: 13.5rem;
 }
+
+.botao_bonito {
+    background-color: #eea761;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 3px;
+    color: black;
+    font-weight: bold;
+    font-size: 0.9rem;
+    cursor: pointer;
+    width: 7rem;
+    transition: 0.1s;
+    height: 1.7rem;
+    margin: 0.5rem;
+}
+
+.botao_bonito:hover {
+    background-color: #975819;
+    font-size: 0.8rem;
+    font-weight: bold;
+    width: 7rem;
+    height: 1.7rem;
+}

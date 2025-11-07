@@ -43,7 +43,8 @@
 }
 
 .uploadLabel:hover {
-  background-color: #eba25a;
+    background-color: var(--main-color);
+    color: var(--main-text-color);
     font-size: 0.8rem;
     font-weight: bold;
     width: 7rem;
@@ -109,12 +110,12 @@
 .tableResources thead tr:first-child,
 .tableStatus thead tr:first-child,
 .tableDetails thead tr:first-child {
-    background-color: #f28c28;
+    background-color: var(--main-color);
     border-color: black;
     font-weight: bolder;
     border-style: solid;
     border-width: 0.1rem;
-    color: white;
+    color: var(--main-text-color);
 }
 
 .tableStatus thead tr:last-child th,
@@ -124,7 +125,8 @@
     font-weight: bold;
     border-style: solid;
     border-width: 0.1rem;
-    background-color: #cecece;
+    background-color: var(--table-header-color);
+    color: var(--table-header-text-color);
     font-weight: bold;
     width: 10rem;
     text-align: center;
@@ -132,7 +134,8 @@
 
 .tableInformation tr td:first-child,
 .tableProgress tr td:not(#notPink):first-child {
-    background-color: #cecece;
+    background-color: var(--table-header-color);
+    color: var(--table-header-text-color);
     font-weight: bold;
     width: 10rem;
     text-align: left;

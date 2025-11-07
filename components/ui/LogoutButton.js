@@ -6,8 +6,8 @@ const Logout = () => {
 
     return (
         <button className="botao_logout" onClick={async () => {
-            await client.auth.signOut();
             router.replace('/login');
+            await client.auth.signOut();
         }}>Logoff</button>
     );
 };

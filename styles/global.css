@@ -1,3 +1,24 @@
+:root {
+  --main-color: #f28c28;
+  --secondary-color: #a0a0a0;
+  --table-header-color: #dadada;
+  --table-header-text-color: black;
+  --main-text-color: white;
+  --main-text-hover-color: black;
+  --secondary-text-color: white;
+}
+
+
+[data-theme="custom"] {
+  --main-color: var(--user-main);
+  --secondary-color: var(--user-secondary);
+  --table-header-color: var(--user-table-header);
+  --table-header-text-color: var(--user-table-header-text);
+  --main-text-color: var(--user-main-text-color);
+  --main-text-hover-color: var(--user-main-text-hover-color);
+  --secondary-text-color: var(--user-secondary-hover-color);
+}
+
 * {
   box-sizing: border-box;
 }

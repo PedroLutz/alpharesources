@@ -72,7 +72,7 @@ const FormularioLogin = () => {
           </div>
           <div className={input_login}>
             <div>
-              <button className="botao-bonito" onClick={handleSubmit}>Login</button>
+              <button className={styles.botao_bonito} onClick={handleSubmit}>Login</button>
               {alert !== '' && <p>{alert}</p>}
             </div>
           </div>

@@ -111,11 +111,14 @@
 }
 
 .wrapper table th {
-    background-color: #f28c28;
+    background-color: var(--table-header-color);
+    color: var(--table-header-text-color);
+    border: 0.1rem solid var(--table-header-text-color);
+    padding: 0.1rem
 }
 
-.wrapper table th,
-.wrapper table td {
+
+.wrapper table td{
     padding: 0.1rem;
     border: 0.1rem solid black;
 }

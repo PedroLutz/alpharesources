@@ -1,6 +1,6 @@
 .footer {
     margin-top: 1vh;
-    color: #f28c28;
+    color: var(--main-color);
     font-size: 13px;
     display: flex;
     text-align: center;
