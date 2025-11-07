@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import styles from '../../styles/modules/login.module.css'
 import Loading from "../ui/Loading";
 import client from "../../lib/supabaseClient";
+import { useEffect } from "react";
 
 const { modal_login, gradient_text, input_login } = styles;
 
@@ -21,6 +22,14 @@ const FormularioLogin = () => {
     }
     return true;
   };
+
+  useEffect(() => {
+    const init = async () => {
+      await client.auth.signOut();
+    }
+    
+    init();
+  }, [])
 
   const handleSubmit = async () => {
     if (!validarCampos()) {

@@ -25,6 +25,12 @@ function AuthGuard({ children }) {
   }, []);
 
   useEffect(() => {
+    if (window.location.hash && window.location.pathname === '/reset_password') {
+      sessionStorage.setItem('supabaseHash', window.location.hash)
+    }
+  }, [])
+
+  useEffect(() => {
     if (!loading && isMounted && !user) {
       router.replace('/login');
     }

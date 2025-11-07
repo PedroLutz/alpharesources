@@ -3,7 +3,7 @@ import Loading from '../../ui/Loading';
 import Modal from '../../ui/Modal';
 import { Chart } from 'react-google-charts';
 import { handleFetch, handleReq } from '../../../functions/crud_s';
-import { cleanForm, jsDateToEuDate, euDateToIsoDate, isoDateToJsDate, euDateToJsDate } from '../../../functions/general';
+import { cleanForm, jsDateToEuDate, euDateToIsoDate, isoDateToJsDate } from '../../../functions/general';
 import styles from '../../../styles/modules/cronograma.module.css';
 import CadastroInputs from './CadastroInputs';
 import chroma from 'chroma-js';

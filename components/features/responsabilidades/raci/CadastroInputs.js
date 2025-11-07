@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useContext, useMemo } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { handleFetch } from '../../../../functions/crud_s';
 import styles from '../../../../styles/modules/responsabilidades.module.css'
 import useAuth from '../../../../hooks/useAuth';

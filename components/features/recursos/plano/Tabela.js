@@ -11,7 +11,7 @@ import usePerm from '../../../../hooks/usePerm';
 import { Chart } from 'react-google-charts';
 import HelpBubble from "../../../ui/HelpBubble/recursos/Plano";
 
-const { grafico, pie_direita, pie_esquerda, pie_container, h3_resumo, custom_span } = stylesResumo;
+const { pie_direita, pie_esquerda, pie_container, custom_span } = stylesResumo;
 
 const PlanoAquisicao = () => {
     const camposVazios = {
