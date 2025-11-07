@@ -1,5 +1,5 @@
 'use client';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from 'next/router';
 import styles from '../../styles/modules/login.module.css'
 import Loading from "../ui/Loading";
@@ -21,6 +21,14 @@ const FormularioLogin = () => {
     }
     return true;
   };
+
+  useEffect(() => {
+    const init = async () => {
+      await client.auth.signOut();
+    }
+    
+    init();
+  }, [])
 
   const handleSubmit = async () => {
     if (!validarCampos()) {

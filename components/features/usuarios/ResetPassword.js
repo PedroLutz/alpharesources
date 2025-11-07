@@ -75,7 +75,7 @@ const ResetPassword = () => {
                 <Modal objeto={{
                     titulo: showModal,
                     botao1: {
-                        funcao: () => router.replace("/login"), texto: 'Return to log in'
+                        funcao: () => router.replace("/login"), texto: 'Log in'
                     },
                 }} />
             )}
