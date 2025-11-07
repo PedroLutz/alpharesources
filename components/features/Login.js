@@ -13,6 +13,8 @@ const FormularioLogin = () => {
   const [usuario, setUsuario] = useState("");
   const [senha, setSenha] = useState("");
   const [alert, setAlert] = useState(null);
+  const [resetPasswordAlert, setResetPasswordAlert] = useState("");
+  const [modal, setModal] = useState(false);
   const router = useRouter();
 
   const validarCampos = () => {
@@ -54,6 +56,15 @@ const FormularioLogin = () => {
     setLoading(false);
   };
 
+  const requestPasswordChange = async () => {
+        setLoading(true);
+        const {data, error } = await client.auth.resetPasswordForEmail(usuario, {
+            redirectTo: `${window.location.origin}/reset_password`
+        })
+        setResetPasswordAlert(error ? `Error: ${error}` : `Please check your email to proceed with the password change.`);
+        setLoading(false);
+    }
+
   const getAlertMessage = {
     'Invalid login credentials': 'Invalid login credentials!',
     'Email not confirmed': 'Check your email to verify your account!',
@@ -62,7 +73,28 @@ const FormularioLogin = () => {
   }
 
   return (
-    <div>
+    <div className="centered-container">
+      {modal && (
+                <div className="overlay">
+                    <div className="modal">
+                        <p>Type your email: </p>
+                        <div className={input_login}>
+                          <div>
+                            <input type="email" placeholder="Username" value={usuario} onChange={(e) => setUsuario(e.target.value)} />
+                            {resetPasswordAlert !== ""&&<p>{resetPasswordAlert}</p>}
+                          </div>
+                        </div>
+                        <div className="mesma-linha">
+                          <button className="botao-padrao" onClick={requestPasswordChange}>
+                          Send
+                        </button>
+                        <button className="botao-padrao" onClick={() => setModal(false)}>
+                          Cancel
+                        </button>
+                        </div>
+                    </div>
+                </div>
+            )}
       {loading && <Loading />}
 
       <div className="centered-container" style={{ height: '90vh' }}>
@@ -71,6 +103,7 @@ const FormularioLogin = () => {
             <img src={'/images/logo.png'} alt="Logo" style={{ width: '150px' }} />
             <b className={gradient_text} style={{ fontSize: '20px', marginBottom: '1rem' }}>Alpha Management</b>
           </div>
+          <button className={styles.forgot_password} onClick={() => setModal(true)}>Forgot your password?</button>
           <div className={input_login}>
             <div>
               <input type="email" placeholder="Username" value={usuario} onChange={(e) => setUsuario(e.target.value)} />

@@ -37,3 +37,15 @@
     color: red;
     margin: 0.1rem;
 }
+
+.forgot_password {
+    border: none;
+    background-color: transparent;
+    font-size: small;
+    cursor: pointer;
+    transition: 0.1s;
+}
+
+.forgot_password:hover{
+    font-weight: bold;
+}
