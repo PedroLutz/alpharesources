@@ -8,7 +8,7 @@
     border-radius: 20px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     width: 350px;
-    height: 350px;
+    height: 400px;
 }
 
 .gradient_text {
@@ -64,4 +64,16 @@
     font-weight: bold;
     width: 7rem;
     height: 1.7rem;
+}
+
+.forgot_password {
+    border: none;
+    background-color: transparent;
+    font-size: small;
+    cursor: pointer;
+    transition: 0.1s;
+}
+
+.forgot_password:hover{
+    font-weight: bold;
 }

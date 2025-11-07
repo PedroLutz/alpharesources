@@ -10,8 +10,11 @@ const { modal_login, gradient_text, input_login } = styles;
 const FormularioLogin = () => {
   const [loading, setLoading] = useState(false);
   const [usuario, setUsuario] = useState("");
+  const [resetPasswordEmail, setResetPasswordEmail] = useState("");
+  const [resetPasswordAlert, setResetPasswordAlert] = useState("");
   const [senha, setSenha] = useState("");
   const [alert, setAlert] = useState(null);
+  const [modal, setModal] = useState(false);
   const router = useRouter();
 
   const validarCampos = () => {
@@ -53,6 +56,15 @@ const FormularioLogin = () => {
     setLoading(false);
   };
 
+  const requestPasswordChange = async () => {
+        setLoading(true);
+        const {data, error } = await client.auth.resetPasswordForEmail(usuario, {
+            redirectTo: `${window.location.origin}/reset_password`
+        })
+        setResetPasswordAlert(error ? `Error: ${error}` : `Please check your email to proceed with the password change.`)
+        setLoading(false);
+    }
+
   const getAlertMessage = {
     'Invalid login credentials': 'Invalid login credentials!',
     'Email not confirmed': 'Check your email to verify your account!',
@@ -61,9 +73,30 @@ const FormularioLogin = () => {
   }
 
   return (
-    <div>
+    <div className="centered-container">
+      
+      {modal && (
+                <div className="overlay">
+                    <div className="modal">
+                        <p>Type your email: </p>
+                        <div className={input_login}>
+                          <div>
+                            <input type="email" placeholder="Username" value={usuario} onChange={(e) => setUsuario(e.target.value)} />
+                            {resetPasswordAlert !== ""&&<p>{resetPasswordAlert}</p>}
+                          </div>
+                        </div>
+                        <div className="mesma-linha">
+                          <button className="botao-padrao" onClick={requestPasswordChange}>
+                          Send
+                        </button>
+                        <button className="botao-padrao" onClick={() => setModal(false)}>
+                          Cancel
+                        </button>
+                        </div>
+                    </div>
+                </div>
+            )}
       {loading && <Loading />}
-
       <div className="centered-container" style={{ height: '90vh' }}>
         <div className={modal_login}>
           <div>
@@ -78,10 +111,12 @@ const FormularioLogin = () => {
               <input type="password" placeholder="Password" value={senha} onChange={(e) => setSenha(e.target.value)} />
             </div>
           </div>
+          <button className={styles.forgot_password} onClick={() => setModal(true)}>Forgot your password?</button>
           <div className={input_login}>
             <div>
               <button className={styles.botao_bonito} onClick={handleSubmit}>Login</button>
               {alert !== '' && <p>{alert}</p>}
+              
             </div>
           </div>
         </div>

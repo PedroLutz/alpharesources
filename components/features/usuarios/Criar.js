@@ -77,7 +77,7 @@ const CriarUsuario = () => {
             {modal && (
                 <div className="overlay">
                     <div className="modal centered-container">
-                        <p>Sign in successful! Please check your email.</p>
+                        <p>Sign in successfull! Please check your email to confirm it.</p>
                     </div>
                 </div>
             )}
