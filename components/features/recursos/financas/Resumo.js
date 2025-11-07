@@ -3,7 +3,7 @@ import { Chart } from 'react-google-charts';
 import Loading from '../../../ui/Loading';
 import { sortBy } from 'lodash';
 import styles from '../../../../styles/modules/resumo.module.css'
-import { handlePostFetch, handleFetch, handleReq } from '../../../../functions/crud_s';
+import { handlePostFetch, handleFetch } from '../../../../functions/crud_s';
 import tabela from '../../../../styles/modules/financas.module.css'
 import useAuth from '../../../../hooks/useAuth';
 import HelpBubble from '../../../ui/HelpBubble/recursos/ResumoFinancas';

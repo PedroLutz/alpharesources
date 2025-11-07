@@ -1,7 +1,6 @@
-import React, { useEffect, useState, useRef, useContext } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { handleFetch } from "../../../functions/crud_s";
 import styles from '../../../styles/modules/cronograma.module.css';
-import { cleanForm, jsDateToEuDate, euDateToIsoDate, euDateToJsDate } from '../../../functions/general';
 import useAuth from "../../../hooks/useAuth";
 
 const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, loaded, disabled }) => {

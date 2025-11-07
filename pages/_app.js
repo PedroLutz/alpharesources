@@ -71,13 +71,13 @@ function InnerApp({ Component, pageProps }) {
 
   useEffect(() => {
     if (colors) {
-      document.documentElement.style.setProperty('--main-color', colors?.main)
-      document.documentElement.style.setProperty('--secondary-color', colors?.secondary)
-      document.documentElement.style.setProperty('--table-header-color', colors?.table_header)
-      document.documentElement.style.setProperty('--table-header-text-color', getTextColor(colors?.table_header))
-      document.documentElement.style.setProperty('--main-text-color', getTextColor(colors?.main))
-      document.documentElement.style.setProperty('--main-text-hover-color', getTextColor(colors?.main) === 'white' ? 'black' : 'white')
-      document.documentElement.style.setProperty('--secondary-text-color', getTextColor(colors?.secondary))
+      document.documentElement.style.setProperty('--main-color', colors?.main || '#f28c28')
+      document.documentElement.style.setProperty('--secondary-color', colors?.secondary || "#a0a0a0")
+      document.documentElement.style.setProperty('--table-header-color', colors?.table_header || '#dadada')
+      document.documentElement.style.setProperty('--table-header-text-color', colors?.table_header ? getTextColor(colors?.table_header) : 'black')
+      document.documentElement.style.setProperty('--main-text-color', colors?.main ? getTextColor(colors?.main) : 'black')
+      document.documentElement.style.setProperty('--main-text-hover-color', colors?.main ? (getTextColor(colors?.main) === 'white' ? 'black' : 'white') : 'black')
+      document.documentElement.style.setProperty('--secondary-text-color', colors?.secondary ? getTextColor(colors?.secondary) : 'white')
     }
   }, [colors])
 

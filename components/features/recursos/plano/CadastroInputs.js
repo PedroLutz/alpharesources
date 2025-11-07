@@ -1,6 +1,5 @@
-import { useEffect, useState, useRef, useContext } from "react";
+import { useEffect, useState, useRef } from "react";
 import React from "react";
-import { fetchData } from "../../../../functions/crud";
 import styles from '../../../../styles/modules/planoAquisicao.module.css'
 import { handleFetch } from '../../../../functions/crud_s';
 import useAuth from '../../../../hooks/useAuth';

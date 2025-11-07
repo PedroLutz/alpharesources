@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react"
+import React, { useEffect, useState } from "react"
 import styles from '../../../../styles/modules/risco.module.css'
 import CadastroInputs from "./Inputs";
 import Modal from "../../../ui/Modal";

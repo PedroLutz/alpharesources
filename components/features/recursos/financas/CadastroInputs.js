@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useContext } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styles from '../../../../styles/modules/financas.module.css'
 import { handleFetch } from "../../../../functions/crud_s";
 import useAuth from "../../../../hooks/useAuth";

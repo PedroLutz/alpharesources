@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext, useMemo } from 'react';
+import React, { useEffect, useState,  useMemo } from 'react';
 import styles from '../../../../styles/modules/responsabilidades.module.css'
 import Loading from '../../../ui/Loading';
 import Modal from '../../../ui/Modal';

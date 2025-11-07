@@ -5,7 +5,7 @@ import Loading from "../../ui/Loading";
 import Modal from "../../ui/Modal";
 import { format } from 'date-fns';
 import useAuth from "../../../hooks/useAuth";
-import { handlePostFetch, handleFetch, handleReq } from "../../../functions/crud_s";
+import { handlePostFetch, handleFetch } from "../../../functions/crud_s";
 import HelpBubble from "../../ui/HelpBubble/monitoramento/Relatorio";
 
 /*
