@@ -8,7 +8,12 @@ function cleanForm(object, setter, camposVazios) {
     setter(returnObject);
 }
 
-//js Date to 'dd/MM/yyyy' format
+
+/**
+ * js Date to 'dd/MM/yyyy' format
+ * @param {*} dateData the js date
+ * @returns the dd/MM/yyyy date
+ */
 function jsDateToEuDate(dateData) {
     if(dateData != null){
         const date = new Date(dateData);
@@ -39,7 +44,9 @@ function isoDateToEuDate (dateString) {
     }
     return null;
 }
-//'dd/MM/yyyy' format to js Date
+/**'dd/MM/yyyy' format to js Date
+ * 
+ * */
 function euDateToJsDate(dateString) {
     if(dateString != null){
         var dateParts = dateString.split("/");
@@ -47,10 +54,15 @@ function euDateToJsDate(dateString) {
     }
     return null;
 }
-//'yyyy-MM-dd' format to js Date
+/**'yyyy-MM-dd' format to js Date
+ * 
+ * */
 function isoDateToJsDate(dateString) {
-    var dateParts = dateString.split("-");
-    return new Date(+dateParts[0], dateParts[1] - 1, dateParts[2])
+    if(dateString != null){
+        var dateParts = dateString.split("-");
+        return new Date(+dateParts[0], dateParts[1] - 1, dateParts[2])
+    }
+    return null;
 }
 
 export { cleanForm , jsDateToEuDate, euDateToIsoDate , euDateToJsDate, isoDateToJsDate, isoDateToEuDate };

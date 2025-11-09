@@ -630,10 +630,10 @@ const Tabela = () => {
                                 </thead>
                                 <tbody>
                                     {cronogramas.map((item, index) => (
-                                        <tr key={index} style={{ backgroundColor: item.wbs_item.wbs_area.color }}>
-                                            {index === 0 || cronogramas[index - 1].wbs_item.wbs_area.name !== item.wbs_item.wbs_area.name ? (
-                                                <td rowSpan={calculateRowSpan(cronogramas, item.wbs_item.wbs_area.name, index)}
-                                                >{item.wbs_item.wbs_area.name}</td>
+                                        <tr key={index} style={{ backgroundColor: item?.wbs_item?.wbs_area?.color }}>
+                                            {index === 0 || cronogramas[index - 1].wbs_item.wbs_area.name !== item?.wbs_item?.wbs_area?.name ? (
+                                                <td rowSpan={calculateRowSpan(cronogramas, item?.wbs_item?.wbs_area?.name, index)}
+                                                >{item?.wbs_item?.wbs_area?.name}</td>
                                             ) : null}
                                             <td>{item.wbs_item.name}</td>
                                             {linhaVisivel === item.id ? (
@@ -652,11 +652,11 @@ const Tabela = () => {
                                                     setExibirModal={setExibirModal} />
                                             ) : (
                                                 <React.Fragment>
-                                                    <td>{jsDateToEuDate(item.gantt_data[0].start) || '-'}</td>
-                                                    <td>{jsDateToEuDate(item.gantt_data[0].end) || '-'}</td>
+                                                    <td>{jsDateToEuDate(item?.gantt_data[0]?.start) || '-'}</td>
+                                                    <td>{jsDateToEuDate(item?.gantt_data[0]?.end) || '-'}</td>
                                                     <td>{item.gantt_dependency[0]?.dependency_id ? cronogramas.find(t => t.id == item.gantt_dependency[0]?.dependency_id).wbs_item.wbs_area.name : '-'}</td>
                                                     <td>{item.gantt_dependency[0]?.dependency_id ? cronogramas.find(t => t.id == item.gantt_dependency[0]?.dependency_id).wbs_item.name : '-'}</td>
-                                                    <td>{labelsSituacao[item.gantt_data[0].status] || '-'}</td>
+                                                    <td>{labelsSituacao[item?.gantt_data[0]?.status] || '-'}</td>
                                                     <td className='botoes_acoes'>
                                                         <button onClick={() => {
                                                             setLinhaVisivel(item.id); handleUpdateClick(item)

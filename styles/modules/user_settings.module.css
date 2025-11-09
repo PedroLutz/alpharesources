@@ -48,13 +48,15 @@
 }
 
 .block button {
-    background-color: #eea761;
+    background-color: var(--main-color);
     border: black 0.1rem solid;
     border-radius: 0.5rem;
     font-weight: bold;
     transition: 0.1s;
+    color: var(--main-text-color);
 }
 
 .block button:hover {
-    background-color: #975819;
+    background-color: var(--secondary-color);
+    color: var(--secondary-text-color)
 }
