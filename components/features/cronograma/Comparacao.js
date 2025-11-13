@@ -7,6 +7,7 @@ import useAuth from '../../../hooks/useAuth';
 import chroma from 'chroma-js';
 import HelpBubble from '../../ui/HelpBubble/cronograma/Comparacao';
 import Link from 'next/link';
+import styles from "../../../styles/modules/cronograma.module.css"
 
 const Tabela = () => {
     const { token } = useAuth();
