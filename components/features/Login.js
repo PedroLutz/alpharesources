@@ -103,7 +103,6 @@ const FormularioLogin = () => {
             <img src={'/images/logo.png'} alt="Logo" style={{ width: '150px' }} />
             <b className={gradient_text} style={{ fontSize: '20px', marginBottom: '1rem' }}>Alpha Management</b>
           </div>
-          <button className={styles.forgot_password} onClick={() => setModal(true)}>Forgot your password?</button>
           <div className={input_login}>
             <div>
               <input type="email" placeholder="Username" value={usuario} onChange={(e) => setUsuario(e.target.value)} />
@@ -111,6 +110,7 @@ const FormularioLogin = () => {
             <div>
               <input type="password" placeholder="Password" value={senha} onChange={(e) => setSenha(e.target.value)} />
             </div>
+            <button className={styles.forgot_password} onClick={() => setModal(true)}>Forgot your password?</button>
           </div>
           <div className={input_login}>
             <div>
