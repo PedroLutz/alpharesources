@@ -241,7 +241,7 @@ const Relatorio = () => {
         if (!element) return;
 
         const innerReport = document.getElementById('innerReport');
-        innerReport.style.width = '58rem';
+        innerReport.style.width = '57rem';
 
         document.querySelectorAll('td').forEach((td) => {
             td.style.fontSize = 'small';
