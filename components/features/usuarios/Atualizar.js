@@ -102,20 +102,24 @@ const Atualizar = () => {
     const updateColors = async () => {
         setLoading(true);
         const isUpdate = colors?.main != null && colors?.secondary != null && colors?.table_header != null;
-        console.log(isUpdate)
 
-        var obj;
+        var obj = {
+            main: colorsData?.main || "#fff",
+            secondary: colorsData?.secondary || "#fff",
+            table_header: colorsData?.table_header || "#fff",
+        };
         if(isUpdate){
-            obj = {...colorsData, id: colors?.id};
+            obj = {...obj, id: colors?.id};
         } else {
-            obj = {...colorsData, user_id};
+            obj = {...obj, user_id};
         }
         await handleReq({
             table: 'color',
             route: isUpdate ? 'update' : 'create',
             data: obj,
             token
-        })
+        });
+        window.location.reload();
         setLoading(false);
     }
 
