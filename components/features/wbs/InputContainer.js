@@ -1,9 +1,10 @@
 import styles from "../../../styles/modules/wbs.module.css"
 import { useRef, useState, useEffect } from "react";
+import usePerm from "../../../hooks/usePerm";
 
-const InputContainer = ({ op, functions, isNew, obj, objSetter, setExibirModal, area_id, style, disabled }) => {
+const InputContainer = ({ op, functions, isNew, obj, objSetter, setExibirModal, area_id, style }) => {
+    const {isEditor} = usePerm();
     const camposItemVazios = {
-        area_id: area_id || '',
         name: ''
     };
     const [newItem, setNewItem] = useState(camposItemVazios);
@@ -23,7 +24,7 @@ const InputContainer = ({ op, functions, isNew, obj, objSetter, setExibirModal, 
             } else {
                 objSetter({
                     ...obj,
-                    area_id
+                    id: area_id
                 })
             }
         }
@@ -41,20 +42,17 @@ const InputContainer = ({ op, functions, isNew, obj, objSetter, setExibirModal, 
     const handleSubmit = (isItem) => {
         const usedObj = op == 'item' && isNew == true ? newItem : obj;
 
-        const camposConsiderados = {...usedObj};
-        delete camposConsiderados.id;
-        const camposVazios = Object.entries(camposConsiderados)
-            .filter(([key, value]) => value === null || value === "")
-            .map(([key]) => key);
+        const {id, ...camposConsiderados} = usedObj;
+        const camposVazios = Object.keys(camposConsiderados).filter(
+            key => camposConsiderados[key] === null || camposConsiderados[key] === ""
+        );
 
         if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
-                if (camposRef.current[campo]) {
-                    camposRef.current[campo].classList.add('campo-vazio');
-                }
+                camposRef.current?.[campo]?.classList.add('campo-vazio');
             });
             setExibirModal('inputsVazios');
-            return true;
+            return;
         }
 
         let submitSuccess;
@@ -84,7 +82,7 @@ const InputContainer = ({ op, functions, isNew, obj, objSetter, setExibirModal, 
                 />
             </div>
             <div className={styles.action_buttons}>
-                <button onClick={() => handleSubmit(true)} disabled={disabled}>✔️</button>
+                <button onClick={() => handleSubmit(true)} disabled={!isEditor}>✔️</button>
             </div>
         </div>
         )
@@ -105,7 +103,7 @@ const InputContainer = ({ op, functions, isNew, obj, objSetter, setExibirModal, 
                         <label>Color: </label>
                         <input
                             name="color"
-                            value={obj.color || '#FFFFFF'}
+                            value={obj.color ?? '#FFFFFF'}
                             type="color"
                             onChange={(e) => handleChange(e, obj, objSetter)}
                             ref={el => (camposRef.current.color = el)}
@@ -114,7 +112,7 @@ const InputContainer = ({ op, functions, isNew, obj, objSetter, setExibirModal, 
                 )}
             </div>
             <div className={styles.action_buttons}>
-                <button onClick={handleSubmit} disabled={disabled}>✔️</button>
+                <button onClick={() => handleSubmit(op === "item")} disabled={!isEditor}>✔️</button>
                 {isNew == false &&
                     <button onClick={functions?.hide}>✖️</button>
                 }

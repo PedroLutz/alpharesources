@@ -8,15 +8,9 @@ const PageWrapper = ({ children }) => {
                     titulo: 'Risks',
                     link: "/pags/risk/risks"
                 }}
-                itens={[
-                    {
-                        label: 'Audit',
-                        link: "/pags/risk/audit"
-                    }
-                ]}
                 dropdowns={[
                     {
-                        titulo: 'Planning',
+                        titulo: 'Risk',
                         itens: [
                             {
                                 label: 'Identification',
@@ -34,6 +28,10 @@ const PageWrapper = ({ children }) => {
                                 label: 'Response',
                                 link: "/pags/risk/responses"
                             },
+                            {
+                                label: 'Audit',
+                                link: "/pags/risk/audit"
+                            }
                         ]
                     }
                 ]}

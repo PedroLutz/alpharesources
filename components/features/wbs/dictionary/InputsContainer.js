@@ -1,14 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styles from '../../../../styles/modules/wbs.module.css'
 import { handleFetch } from '../../../../functions/crud_s';
-import useAuth from "../../../../hooks/useAuth";
+import useAuth from '../../../../hooks/useAuth';
+import usePerm from '../../../../hooks/usePerm';
 
-const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, area_id, disabled }) => {
+const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, area_id,  backgroundColor }) => {
     const [elementosWBS, setElementosWBS] = useState([]);
+    const { token } = useAuth();
+    const {isEditor} = usePerm();
     const [itensPorArea, setItensPorArea] = useState([]);
     const [areasUnicas, setAreasUnicas] = useState([]);
-    const [areaSelecionada, setAreaSelecionada] = useState(area_id || '');
-    const { token } = useAuth();
+    const [areaSelecionada, setAreaSelecionada] = useState(area_id ?? '');
     const camposRef = useRef({
         item_id: null,
         description: null,
@@ -22,7 +24,6 @@ const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, area_id, disabl
         restrictions: null,
         resources: null
     });
-    const isFirstRender = useRef(true);
 
     const fetchElementos = async () => {
         const data = await handleFetch({
@@ -51,15 +52,13 @@ const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, area_id, disabl
     }
 
     useEffect(() => {
-        if (areaSelecionada != '') {
-            atualizarItensPorArea(areaSelecionada);
-        }
+        if (!areaSelecionada) return;
+        atualizarItensPorArea(areaSelecionada);
     }, [areaSelecionada, elementosWBS])
 
     const handleAreaChange = (e) => {
         objSetter({...obj, item_id: ""});
         const areaSelecionada = e.target.value;
-        atualizarItensPorArea(areaSelecionada);
         setAreaSelecionada(areaSelecionada);
     };
 
@@ -76,44 +75,41 @@ const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, area_id, disabl
     //essa funcao verifica os casos de invalidez, e se algum deles for verdadeiro,
     //chama a funcao setExibirModal para levantar um modal avisando o problema
     const validaDados = () => {
-        if (funcoes?.isItemCadastrado?.(obj.item_id) ?? false) {
+        const itemRepetido = funcoes?.isItemCadastrado?.(obj.item_id) === true
+        if (itemRepetido) {
             camposRef.current.item.classList.add('campo-vazio');
             setExibirModal('itemRepetido');
-            return true;
+            return false;
         }
-        const camposConsiderados = {...obj};
-        delete camposConsiderados.id;
-        delete camposConsiderados.user_id;
-        const camposVazios = Object.entries(camposConsiderados)
-            .filter(([key, value]) => value === null || value === "")
-            .map(([key]) => key);
+        const { id, user_id, ...camposConsiderados } = obj;
 
-            console.log(camposVazios);
+        const camposVazios = Object.keys(camposConsiderados).filter(
+            key => camposConsiderados[key] === null || camposConsiderados[key] === ""
+        )
+
         if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
-                if (camposRef.current[campo]) {
-                    camposRef.current[campo].classList.add('campo-vazio');
-                }
+                camposRef.current?.[campo]?.classList.add('campo-vazio');
             });
             setExibirModal('inputsVazios');
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     }
 
 
     //essa funcao se responsabiliza por executar o handleSubmit de acordo
     //com o tipo de funcao recebida, executando apenas se os dados sao validos
     const handleSubmit = async () => {
-        const isInvalido = validaDados();
-        if (isInvalido) return;
+        const isValid = validaDados();
+        if (!isValid) return;
         await funcoes?.enviar();
-        setAreaSelecionada(area_id || '');
+        setAreaSelecionada(area_id ?? '');
     };
 
     return (
-        <tr className='linha-cadastro'>
+        <tr className='linha-cadastro' style={{backgroundColor}}>
             <td className={styles.td_area}>
                 <select
                     name="area"
@@ -233,10 +229,10 @@ const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, area_id, disabl
             </td>
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
-                    <button onClick={handleSubmit} disabled={disabled}>Add new</button>
+                    <button onClick={handleSubmit} disabled={!isEditor}>Add new</button>
                 ) : (
                     <React.Fragment>
-                        <button onClick={handleSubmit} disabled={disabled}>✔️</button>
+                        <button onClick={handleSubmit} disabled={!isEditor}>✔️</button>
                         <button onClick={funcoes?.cancelar}>✖️</button>
                     </React.Fragment>
                 )}

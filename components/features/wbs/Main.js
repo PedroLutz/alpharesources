@@ -9,10 +9,11 @@ import InputContainer from "./InputContainer";
 import useAuth from "../../../hooks/useAuth";
 import usePerm from "../../../hooks/usePerm";
 import HelpBubble from "../../ui/HelpBubble/wbs/wbs";
+import { getTextColor } from "../../../functions/colors";
 
 const Main = () => {
-    const { user, token} = useAuth();
-    const {isEditor} = usePerm();
+    const { user, token } = useAuth();
+    const { isEditor } = usePerm();
 
     const [areas, setAreas] = useState([]);
     const [items, setItems] = useState([]);
@@ -26,7 +27,6 @@ const Main = () => {
     };
 
     const camposAreaVazios = {
-        id: '',
         name: '',
         color: '#FFFFFF'
     };
@@ -34,13 +34,12 @@ const Main = () => {
     const [updateArea, setUpdateArea] = useState(camposAreaVazios);
 
     const camposItemVazios = {
-        id: '',
         area_id: '',
         name: ''
     };
     const [updateItem, setUpdateItem] = useState(camposItemVazios);
 
-    const [editId, setEditId] = useState();
+    const [editId, setEditId] = useState(null);
     const [deleteAreaConfirm, setDeleteAreaConfirm] = useState(null);
     const [deleteItemConfirm, setDeleteItemConfirm] = useState(null);
 
@@ -82,7 +81,6 @@ const Main = () => {
             setExibirModal('areaDup');
             return false;
         }
-        delete newArea.id;
         await handleReq({
             table: 'wbs_area',
             route: 'create',
@@ -103,7 +101,6 @@ const Main = () => {
             ...newItem,
             user_id: user.id
         }
-        delete objSent.id;
         await handleReq({
             table: 'wbs_item',
             route: 'create',
@@ -115,12 +112,18 @@ const Main = () => {
     }
 
     const submitUpdate = async (table) => {
+        if (table !== 'wbs_area' && table !== 'wbs_item') {
+            throw new Error('invalid table')
+        }
+
+        const isArea = table === "wbs_area";
+
         setIsLoading(true);
         await handleReq({
             table: table,
             route: 'update',
             token,
-            data: table == 'wbs_area' ? updateArea : updateItem,
+            data: isArea ? updateArea : updateItem,
             fetchData
         });
         setIsLoading(false);
@@ -143,8 +146,13 @@ const Main = () => {
     return (
         <div className="centered-container">
             {isLoading && <Loading />}
-            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
-            <h2 className="smallTitle">Work Breakdown Structure <button onClick={()=>setShowHelp(true)}>❔</button></h2>
+            {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
+
+            <h2 className="smallTitle">
+                Work Breakdown Structure
+                <button onClick={() => setShowHelp(true)}>❔</button>
+            </h2>
+
             <div className={styles.main_container}>
                 <div className={styles.main_wrapper}>
                     <div className={styles.wbs_container}>
@@ -157,7 +165,6 @@ const Main = () => {
                                 submit: submitNewArea
                             }}
                             setExibirModal={setExibirModal}
-                            disabled={!isEditor}
                         />
                     </div>
 
@@ -172,13 +179,13 @@ const Main = () => {
                                     objSetter={setUpdateArea}
                                     functions={{
                                         submit: () => submitUpdate('wbs_area'),
-                                        hide: setEditId
+                                        hide: () => setEditId(null)
                                     }}
                                     setExibirModal={setExibirModal}
                                 />
                             ) : (
                                 <div key={area.id} className={styles.block} style={{ backgroundColor: area.color }}>
-                                    <span className={styles.area_label}>
+                                    <span className={styles.area_label} style={{ color: getTextColor(area.color) }}>
                                         {area.name}
                                     </span>
                                     <div className={styles.action_buttons}>
@@ -205,7 +212,7 @@ const Main = () => {
                                                 area_id={area.id}
                                                 functions={{
                                                     submit: () => submitUpdate('wbs_item'),
-                                                    hide: setEditId
+                                                    hide: () => setEditId(null)
                                                 }}
                                                 obj={updateItem}
                                                 objSetter={setUpdateItem}
@@ -216,7 +223,7 @@ const Main = () => {
                                         <div key={item.id} className={styles.item_outer_block}>
                                             <div className={styles.item_connective_line} />
                                             <div className={styles.block} style={{ backgroundColor: area.color }}>
-                                                <span className={styles.item_label}>{item.name}</span>
+                                                <span className={styles.item_label} style={{ color: getTextColor(area.color) }}>{item.name}</span>
                                                 <div className={styles.action_buttons}>
                                                     <button onClick={() => {
                                                         setEditId(item.id);
@@ -242,7 +249,6 @@ const Main = () => {
                                     functions={{
                                         submit: submitNewItem
                                     }}
-                                    disabled={!isEditor}
                                     setExibirModal={setExibirModal}
                                 />
                             </div>

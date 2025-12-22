@@ -4,7 +4,7 @@ import { PermissionContext } from "../contexts/PermissionProvider";
 const usePerm = () => {
     const context = useContext(PermissionContext);
 
-    if(!PermissionContext){
+    if(!context){
         throw new Error("usePerm must be used inside PermissionContext");
     }
 

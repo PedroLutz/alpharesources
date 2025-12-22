@@ -70,6 +70,24 @@ const GenericNavbar = ({ base, itens, dropdowns }) => {
             <Link href={item.link}>{item.label}</Link>
           </li>
         ))}
+        <li key={-1}>
+            <div className={styles.dropdown}>
+              <a onClick={() => toggleDropdown(-1)} onMouseOver={() => toggleDropdown(-1)}>{"Areas"}</a>
+              {isDropdownOpen == -1 && (
+                <div className={styles.dropdownContent}
+                onMouseLeave={() => toggleDropdown(-1)}
+                style={{ display: isDropdownOpen == -1 ? 'block' : 'none' }}>
+                    <Link href={"/pags/wbs/wbs"}>{"WBS"}</Link>
+                    <Link href={"/pags/timeline/monitoring"}>Time Management</Link>
+                    <Link href={"/pags/finances/finances/table"}>Budget & Resource Management</Link>
+                    <Link href={"/pags/responsibilities/raci"}>Roles & Responsibilities</Link>
+                    <Link href={"/pags/communication/stakeholders"}>Communication Management</Link>
+                    <Link href={"/pags/risk/risks"}>Risk Management</Link>
+                    <Link href={"/pags/report"}>Monitoring</Link>
+                </div>
+              )}
+            </div>
+          </li>
         <li>
           <Link href="/">Dashboard</Link>
         </li>

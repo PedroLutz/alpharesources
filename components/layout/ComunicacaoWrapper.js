@@ -8,15 +8,9 @@ const PageWrapper = ({ children }) => {
                     titulo: 'Communication',
                     link: "/pags/communication/stakeholders"
                 }}
-                itens={[
-                    {
-                        label: 'Communicated Information',
-                        link: "/pags/communication/information"
-                    }
-                ]}
                 dropdowns={[
                     {
-                        titulo: 'Stakeholders',
+                        titulo: 'Communication',
                         itens: [
                             {
                                 label: 'Groups',
@@ -33,10 +27,13 @@ const PageWrapper = ({ children }) => {
                             {
                                 label: 'Group Engagement',
                                 link: "/pags/communication/engagementGroups"
+                            },
+                            {
+                                label: 'Communicated Information',
+                                link: "/pags/communication/information"
                             }
                         ]
                     }
-
                 ]}
             />
             {children}

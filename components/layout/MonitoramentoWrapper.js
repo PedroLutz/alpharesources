@@ -8,19 +8,24 @@ const PageWrapper = ({ children }) => {
                     titulo: 'Monitoring',
                     link: "/pags/report"
                 }}
-                itens={[
+                dropdowns={[
                     {
-                        label: 'Report Generator',
-                        link: "/pags/report"
-                    },
-                    {
-                        label: 'Change Log',
-                        link: "/pags/monitoring/changelog"
-                    },
-                    {
-                        label: 'Lessons learned',
-                        link: "/pags/monitoring/lessons"
-                    },
+                        titulo: 'Monitoring',
+                        itens: [
+                            {
+                                label: 'Report Generator',
+                                link: "/pags/report"
+                            },
+                            {
+                                label: 'Change Log',
+                                link: "/pags/monitoring/changelog"
+                            },
+                            {
+                                label: 'Lessons learned',
+                                link: "/pags/monitoring/lessons"
+                            },
+                        ]
+                    }
                 ]}
             />
             {children}

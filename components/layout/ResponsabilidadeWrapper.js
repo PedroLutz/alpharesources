@@ -8,24 +8,47 @@ const PageWrapper = ({ children }) => {
                     titulo: 'Responsibilities',
                     link: "/pags/responsibilities/raci"
                 }}
-                itens={[
+                dropdowns={[
                     {
-                        label: 'RACI Matrix',
-                        link: "/pags/responsibilities/raci"
-                    },
-                    {
-                        label: 'Members',
-                        link: "/pags/responsibilities/members"
-                    },
-                    {
-                        label: 'Roles',
-                        link: "/pags/responsibilities/roles"
-                    },
-                    {
-                        label: 'Skills',
-                        link: "/pags/responsibilities/skill_evaluation"
+                        titulo: 'Roles & Responsibilities',
+                        itens: [
+                            {
+                                label: 'RACI Matrix',
+                                link: "/pags/responsibilities/raci"
+                            },
+                            {
+                                label: 'Members',
+                                link: "/pags/responsibilities/members"
+                            },
+                            {
+                                label: 'Roles',
+                                link: "/pags/responsibilities/roles"
+                            },
+                            {
+                                label: 'Skills',
+                                link: "/pags/responsibilities/skill_evaluation"
+                            },
+                        ]
                     },
                 ]}
+                // itens={[
+                //     {
+                //         label: 'RACI Matrix',
+                //         link: "/pags/responsibilities/raci"
+                //     },
+                //     {
+                //         label: 'Members',
+                //         link: "/pags/responsibilities/members"
+                //     },
+                //     {
+                //         label: 'Roles',
+                //         link: "/pags/responsibilities/roles"
+                //     },
+                //     {
+                //         label: 'Skills',
+                //         link: "/pags/responsibilities/skill_evaluation"
+                //     },
+                // ]}
             />
             {children}
         </div>

@@ -8,12 +8,12 @@ import { cleanForm } from "../../../../functions/general";
 import useAuth from "../../../../hooks/useAuth";
 import usePerm from "../../../../hooks/usePerm";
 import HelpBubble from "../../../ui/HelpBubble/wbs/wbsDictionary";
+import { getTextColor } from "../../../../functions/colors";
 
 const TabelaAnalise = () => {
     const { user, token } = useAuth();
     const {isEditor} = usePerm();
     const camposVazios = {
-        id: '',
         item_id: '',
         description: '',
         purpose: '',
@@ -25,7 +25,7 @@ const TabelaAnalise = () => {
         premises: '',
         restrictions: '',
         resources: '',
-        user_id: user.id
+        user_id: user?.id
     }
     const [novoSubmit, setNovoSubmit] = useState(camposVazios);
     const [novosDados, setNovosDados] = useState(camposVazios);
@@ -42,9 +42,8 @@ const TabelaAnalise = () => {
     const enviar = async () => {
         const objSent = {
             ...novoSubmit,
-            user_id: user.id
+            user_id: user?.id
         }
-        delete objSent.id;
         await handleReq({
             table: 'wbs_dictionary',
             route: 'create',
@@ -112,7 +111,7 @@ const TabelaAnalise = () => {
                     fetchData: fetchDicionarios
                 });
             } finally {
-                if (getDeleteSuccess) {
+                if (getDeleteSuccess?.success) {
                     setExibirModal(`deleteSuccess`)
                 } else {
                     setExibirModal(`deleteFail`)
@@ -169,7 +168,10 @@ const TabelaAnalise = () => {
         <div className="centered-container">
             {loading && <Loading />}
             {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
-            <h2 className="smallTitle">WBS Dictionary <button onClick={()=>setShowHelp(true)}>❔</button></h2>
+            <h2 className="smallTitle">
+                WBS Dictionary 
+                <button onClick={()=>setShowHelp(true)}>❔</button>
+            </h2>
             {exibirModal != null && (
                 <Modal objeto={{
                     titulo: modalLabels[exibirModal],
@@ -225,10 +227,10 @@ const TabelaAnalise = () => {
                                             }}
                                             area_id={item.wbs_item.wbs_area.id}
                                             setExibirModal={setExibirModal}
-                                            disabled={!isEditor}
+                                            backgroundColor={item.wbs_item.wbs_area.color}
                                         />
                                     ) : (
-                                        <tr style={{ backgroundColor: item.wbs_item.wbs_area.color }}>
+                                        <tr style={{ backgroundColor: item.wbs_item.wbs_area.color, color: getTextColor(item.wbs_item.wbs_area.color) }}>
                                             {!isUpdating || isUpdating !== item.wbs_item.wbs_area.name ? (
                                                 <React.Fragment>
                                                     {index === 0 || dicionarios[index - 1].wbs_item.wbs_area.name !== item.wbs_item.wbs_area.name ? (
@@ -263,7 +265,6 @@ const TabelaAnalise = () => {
                                 objSetter={setNovoSubmit}
                                 funcoes={{ enviar, isItemCadastrado }}
                                 setExibirModal={setExibirModal}
-                                disabled={!isEditor}
                             />
                         </tbody>
                     </table>
