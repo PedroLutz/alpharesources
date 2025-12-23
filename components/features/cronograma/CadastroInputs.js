@@ -2,8 +2,9 @@ import React, { useEffect, useState, useRef } from "react";
 import { handleFetch } from "../../../functions/crud_s";
 import styles from '../../../styles/modules/cronograma.module.css';
 import useAuth from "../../../hooks/useAuth";
+import usePerm from "../../../hooks/usePerm";
 
-const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, loaded, disabled }) => {
+const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, loaded }) => {
     const [elementosWBS, setElementosWBS] = useState([]);
     const [areas, setAreas] = useState([]);
     const [areasDp, setAreasDp] = useState([]);
@@ -11,6 +12,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
     const [areaSelecionadaDp, setAreaSelecionadaDp] = useState('');
     const [itensDaArea, setItensDaArea] = useState([]);
     const [itensDaAreaDp, setItensDaAreaDp] = useState([]);
+    const { isEditor } = usePerm();
     const camposRef = useRef({
         item: null,
         area: null,
@@ -61,40 +63,49 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
                 }
             });
             setExibirModal('inputsVazios');
-            return true;
+            return false;
         }
         var objEnviado = obj;
         if (obj.start > obj.end) {
             setExibirModal('datasErradas');
             camposRef.current.end.classList.add('campo-vazio');
-            return true;
+            return false;
         }
 
-        if(tipo === 'updatemonitoring' && obj.start != '' && obj.end != '' && obj.status == 'start'){
+        if (tipo === 'updatemonitoring' && obj.start != '' && obj.end != '' && obj.status == 'start') {
             setExibirModal('invalidStatus');
             camposRef.current.status.classList.add('campo-vazio');
-            return true;
+            return false;
         }
 
         var depData;
-        if(tipo != 'updatemonitoring'){
+        if (tipo != 'updatemonitoring') {
             depData = funcoes?.findGanttByItemId(objEnviado.dp_item)
         } else {
             depData = funcoes?.findGanttById(objEnviado.dependency_id);
         }
+
+        if (obj.dp_item == obj.item_id) {
+            camposRef.current.dp_item?.classList.add('campo-vazio');
+            camposRef.current.dp_area?.classList.add('campo-vazio');
+            setExibirModal('dpIsTask');
+            return false;
+        }
+
         if (depData?.gantt_data[0]?.end > objEnviado.start) {
             camposRef.current.dp_item?.classList.add('campo-vazio');
             camposRef.current.dp_area?.classList.add('campo-vazio');
             camposRef.current.start?.classList.add('campo-vazio');
             camposRef.current.end?.classList.add('campo-vazio');
             setExibirModal('dpNotOkay');
-            return true;
+            return false;
         }
         if (areaSelecionadaDp && !obj.dp_item) {
             setExibirModal('depFaltando');
             camposRef.current.dp_item.classList.add('campo-vazio');
-            return true;
+            return false;
         }
+        return true;
     }
 
     const atualizarItensPorArea = (area, setter, isDp) => {
@@ -114,43 +125,37 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
         fetchElementos();
     }, []);
 
-    useEffect(() => {
-        if (loaded == true) {
-            setAreas([...new Map(
-                elementosWBS
-                    .filter(item => funcoes?.checkAreaDisponivel(item.wbs_area.id, item.id, false))
-                    .map(item => [
-                        item.wbs_area.id,
-                        { id: item.wbs_area.id, name: item.wbs_area.name }])
-            ).values()
-            ]);
-            setAreasDp([...new Map(
-                elementosWBS
-                    .filter(item => funcoes?.checkAreaDisponivel(item.wbs_area.id, item.id, true))
-                    .map(item => [
-                        item.wbs_area.id,
-                        { id: item.wbs_area.id, name: item.wbs_area.name }])
-            ).values()
-            ]);
-            setItensDaArea([]);
-            setItensDaAreaDp([]);
-        }
+    const getAreas = (elementosWBS, isDp) => [...new Map(
+        elementosWBS
+            .filter(item => funcoes?.checkAreaDisponivel(item.wbs_area.id, item.id, isDp))
+            .map(item => [
+                item.wbs_area.id,
+                { id: item.wbs_area.id, name: item.wbs_area.name }])
+    ).values()]
 
+    useEffect(() => {
+        if (!loaded) return;
+
+        setAreas(getAreas(elementosWBS, false));
+        setAreasDp(getAreas(elementosWBS, true));
+        setItensDaArea([]);
+        setItensDaAreaDp([]);
     }, [loaded, elementosWBS]);
 
     useEffect(() => {
-        if (obj?.dependency_id !== "" && tipo !== 'updatemonitoring') {
-            const depItem = funcoes?.findGanttById(obj.dependency_id);
-            if (depItem) {
-                const areaSelecionada = depItem.wbs_item.wbs_area.id;
-                setAreaSelecionadaDp(areaSelecionada);
-                atualizarItensPorArea(areaSelecionada, setItensDaAreaDp, true);
-                objSetter({
-                    ...obj,
-                    dp_item: funcoes?.findGanttById(obj.dependency_id).wbs_item.id
-                })
-            }
+        if (obj?.dependency_id === "" || tipo === 'updatemonitoring') return;
+
+        const depItem = funcoes?.findGanttById(obj.dependency_id);
+        if (depItem) {
+            const areaSelecionada = depItem.wbs_item.wbs_area.id;
+            setAreaSelecionadaDp(areaSelecionada);
+            atualizarItensPorArea(areaSelecionada, setItensDaAreaDp, true);
+            objSetter({
+                ...obj,
+                dp_item: funcoes?.findGanttById(obj.dependency_id).wbs_item.id
+            })
         }
+
     }, [obj?.dependency_id, elementosWBS]);
 
 
@@ -192,24 +197,9 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
             elementos = data?.data ?? [];
         } finally {
             if (tipo != 'updatemonitoring') {
-                setAreas([...new Map(
-                    elementos
-                        .filter(item => funcoes?.checkAreaDisponivel(item.wbs_area.id, item.id, false))
-                        .map(item => [
-                            item.wbs_area.id,
-                            { id: item.wbs_area.id, name: item.wbs_area.name }])
-                ).values()
-                ]);
-                setAreasDp([...new Map(
-                    elementos
-                        .filter(item => funcoes?.checkAreaDisponivel(item.wbs_area.id, item.id, true))
-                        .map(item => [
-                            item.wbs_area.id,
-                            { id: item.wbs_area.id, name: item.wbs_area.name }])
-                ).values()
-                ]);
+                setAreas(getAreas(elementosWBS, false));
+                setAreasDp(getAreas(elementosWBS, true));
             }
-
             setElementosWBS(elementos);
         }
     }
@@ -218,8 +208,8 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
     //funcao que valida os dados e executa ou nao a funcao de submit
     const handleSubmit = async () => {
         funcoes?.setLoading(true);
-        const isInvalido = await validaDados();
-        if (isInvalido) { funcoes?.setLoading(false); return; }
+        const isValido = await validaDados();
+        if (!isValido) { funcoes?.setLoading(false); return; }
         funcoes?.enviar();
         setAreaSelecionada('');
         setAreaSelecionadaDp('');
@@ -311,7 +301,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
             ) : (
                 <React.Fragment>
                     <td>{obj.dependency_id ? funcoes?.findGanttById(obj.dependency_id).wbs_item.wbs_area.name : '-'}</td>
-                    <td>{obj.dependency_id ? funcoes?.findGanttById(obj.dependency_id).wbs_item .name : '-'}</td>
+                    <td>{obj.dependency_id ? funcoes?.findGanttById(obj.dependency_id).wbs_item.name : '-'}</td>
                 </React.Fragment>
             )}
 
@@ -331,10 +321,10 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
             )}
             <td className={tipo !== 'cadastro' ? 'botoes_acoes' : undefined}>
                 {tipo === 'cadastro' ? (
-                    <button className={styles.botaoCadastro} onClick={(e) => handleSubmit(e)} disabled={disabled}>Add new</button>
+                    <button className={styles.botaoCadastro} onClick={(e) => handleSubmit(e)} disabled={!isEditor}>Add new</button>
                 ) : (
                     <React.Fragment>
-                        <button onClick={handleSubmit} disabled={disabled}>✔️</button>
+                        <button onClick={handleSubmit} disabled={!isEditor}>✔️</button>
                         <button onClick={funcoes?.cancelar}>✖️</button>
                     </React.Fragment>
                 )}

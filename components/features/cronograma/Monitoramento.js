@@ -11,34 +11,11 @@ import useAuth from '../../../hooks/useAuth';
 import usePerm from '../../../hooks/usePerm';
 import HelpBubble from '../../ui/HelpBubble/cronograma/Monitoramento';
 
-/*
-
-⡴⠒⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⠉⠳⡆⠀
-⣇⠰⠉⢙⡄⠀⠀⣴⠖⢦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⣆⠁⠙⡆
-⠘⡇⢠⠞⠉⠙⣾⠃⢀⡼⠀⠀⠀⠀⠀⠀⠀⢀⣼⡀⠄⢷⣄⣀⠀⠀⠀⠀⠀⠀⠀⠰⠒⠲⡄⠀⣏⣆⣀⡍
-⠀⢠⡏⠀⡤⠒⠃⠀⡜⠀⠀⠀⠀⠀⢀⣴⠾⠛⡁⠀⠀⢀⣈⡉⠙⠳⣤⡀⠀⠀⠀⠘⣆⠀⣇⡼⢋⠀⠀⢱
-⠀⠘⣇⠀⠀⠀⠀⠀⡇⠀⠀⠀⠀⡴⢋⡣⠊⡩⠋⠀⠀⠀⠣⡉⠲⣄⠀⠙⢆⠀⠀⠀⣸⠀⢉⠀⢀⠿⠀⢸
-⠀⠀⠸⡄⠀⠈⢳⣄⡇⠀⠀⢀⡞⠀⠈⠀⢀⣴⣾⣿⣿⣿⣿⣦⡀⠀⠀⠀⠈⢧⠀⠀⢳⣰⠁⠀⠀⠀⣠⠃
-⠀⠀⠀⠘⢄⣀⣸⠃⠀⠀⠀⡸⠀⠀⠀⢠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣆⠀⠀⠀⠈⣇⠀⠀⠙⢄⣀⠤⠚⠁⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⠀⠀⢠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄⠀⠀⠀⢹⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡀⠀⠀⢘⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⠀⢰⣿⣿⣿⡿⠛⠁⠀⠉⠛⢿⣿⣿⣿⣧⠀⠀⣼⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡀⣸⣿⣿⠟⠀⠀⠀⠀⠀⠀⠀⢻⣿⣿⣿⡀⢀⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⡇⠹⠿⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⢿⡿⠁⡏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠻⣤⣞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢢⣀⣠⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠲⢤⣀⣀⠀⢀⣀⣀⠤⠒⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-
-
-CORRIGIR PRA EVITAR ATUALIZACAO DE PREDESCESSOR PRA DEPOIS DO SUCESSOR
-
-*/
-
 const Tabela = () => {
     const { user, token } = useAuth();
     const { isEditor } = usePerm();
 
     const [cronogramas, setCronogramas] = useState([]);
-    const [loaded, setLoaded] = useState(false);
     const [loading, setLoading] = useState(true);
     const [isMobile, setIsMobile] = useState(false);
     const [exibirModal, setExibirModal] = useState(null);
@@ -78,7 +55,6 @@ const Tabela = () => {
     };
 
     const fetchCronogramas = async () => {
-        setLoaded(false);
         setLoading(true);
         try {
             const data = await handleFetch({
@@ -116,7 +92,6 @@ const Tabela = () => {
             setPaleta(paleta);
         } finally {
             generateReport();
-            setLoaded(true);
             setLoading(false);
         }
     }
@@ -146,9 +121,19 @@ const Tabela = () => {
 
     const handleUpdateItem = async () => {
         setLoading(true);
-        const updatedData = {
-            ...novosDados
-        };
+
+        let depOkay = true;
+        
+        const tarefasDependentes = cronogramas.filter(c => c.gantt_dependency[0]?.dependency_id === novosDados.gantt_id);
+        tarefasDependentes.forEach(t => {
+            if(t.gantt_data[0]?.start < novosDados.end){
+                setExibirModal("dpNotOkay");
+                depOkay = false;
+                return;
+            }
+        })
+
+        if(!depOkay) return;
 
         const dependencia = cronogramas.find(item => item.id == novosDados?.dependency_id) || null;
 
@@ -157,9 +142,7 @@ const Tabela = () => {
             return;
         }
 
-        delete updatedData?.dependency_id;
-        delete updatedData?.dp_item;
-        delete updatedData?.item_id;
+        const {dependency_id, dp_item, item_id, ...updatedData} = novosDados;
         if (novosDados) {
             try {
                 await handleReq({
@@ -225,7 +208,7 @@ const Tabela = () => {
 
         try {
             const itemParaAtualizar = cronogramas.find(item => item.wbs_item.id == itemSelecionado);
-            const dependencia = cronogramas.find(item => item.id == itemParaAtualizar.gantt_dependency[0]?.dependency_id) || null;
+            const dependencia = cronogramas.find(item => item.id == itemParaAtualizar.gantt_dependency[0]?.dependency_id) ?? null;
 
             if (!itemParaAtualizar) {
                 setExibirModal('semtarefa');

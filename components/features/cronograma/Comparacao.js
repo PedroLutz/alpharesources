@@ -8,6 +8,7 @@ import chroma from 'chroma-js';
 import HelpBubble from '../../ui/HelpBubble/cronograma/Comparacao';
 import Link from 'next/link';
 import styles from "../../../styles/modules/cronograma.module.css"
+import { getTextColor } from '../../../functions/colors';
 
 const Tabela = () => {
     const { token } = useAuth();
@@ -181,17 +182,10 @@ const Tabela = () => {
         }, "")
     }
 
-    const handleResize = () => {
-        if (window.innerWidth < 1024) {
-            setIsMobile(true)
-        } else {
-            setIsMobile(false)
-        }
-    }
 
     useEffect(() => {
-        handleResize();
-        window.addEventListener("resize", handleResize);
+        setIsMobile(window.innerWidth < 1024);
+        window.addEventListener("resize", () => setIsMobile(window.innerWidth < 1024));
     }, []);
 
     const calculateRowSpan = (currentArea, currentIndex) => {
@@ -233,7 +227,8 @@ const Tabela = () => {
                                         borderStyle: 'solid',
                                         borderWidth: '0.01rem',
                                         borderRightWidth: '0rem',
-                                        backgroundColor: item.wbs_item.wbs_area.color
+                                        backgroundColor: item.wbs_item.wbs_area.color,
+                                        color: getTextColor(item.wbs_item.wbs_area.color)
                                     }}>
                                     {index === 0 || cronogramas[index - 1].wbs_item.wbs_area.id !== item.wbs_item.wbs_area.id ? (
                                         <td style={{ fontSize: tamanhoDaFonte(item.wbs_item.wbs_area.name.length < 28 ? item.wbs_item.wbs_area.name.length : reduceLabel(item.wbs_item.wbs_area.name).length), minWidth: '6rem', maxWidth: '8rem', borderRightWidth: '0.1rem', borderRightStyle: 'solid' }}
@@ -259,7 +254,7 @@ const Tabela = () => {
                         width: '100%'
                     }}>
                         <tbody>
-                            {cronogramas.map((item, index) => (
+                            {cronogramas.map((_, index) => (
                                 <tr key={index}
                                     style={{ height: '30px', borderColor: 'black', borderStyle: 'solid', borderWidth: '0.1rem', borderLeftWidth: '0rem' }}>
                                     <td></td>
