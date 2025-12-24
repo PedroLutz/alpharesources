@@ -4,7 +4,7 @@ import styles from '../../../styles/modules/cronograma.module.css';
 import useAuth from "../../../hooks/useAuth";
 import usePerm from "../../../hooks/usePerm";
 
-const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, loaded }) => {
+const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, loaded, backgroundColor }) => {
     const [elementosWBS, setElementosWBS] = useState([]);
     const [areas, setAreas] = useState([]);
     const [areasDp, setAreasDp] = useState([]);
@@ -52,9 +52,9 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
             }
         }
 
-        const camposVazios = Object.entries(camposConsiderados)
-            .filter(([key, value]) => value === null || value === "")
-            .map(([key]) => key);
+        const camposVazios = Object.keys(camposConsiderados).filter(
+            key => camposConsiderados[key] === null || camposConsiderados[key] === ""
+        );
 
         if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
@@ -220,7 +220,7 @@ const CadastroInputs = ({ tipo, obj, objSetter, funcoes, setExibirModal, gantt, 
     }
 
     return (
-        <React.Fragment>
+        <React.Fragment style={{backgroundColor}}>
             {tipo === 'cadastro' && (
                 <React.Fragment>
                     <td>

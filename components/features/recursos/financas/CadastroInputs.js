@@ -2,9 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import styles from '../../../../styles/modules/financas.module.css'
 import { handleFetch } from "../../../../functions/crud_s";
 import useAuth from "../../../../hooks/useAuth";
+import usePerm from '../../../../hooks/usePerm';
 
-const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal, isEditor }) => {
+const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
     const [areas, setAreas] = useState([]);
+    const { isEditor } = usePerm();
     const camposRef = useRef({
         type: null,
         description: null,
@@ -52,29 +54,27 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal, isEdito
         if (obj.value < 0) {
             camposRef.current['value'].classList.add('campo-vazio');
             setExibirModal('valorNegativo')
-            return true;
+            return false;
         }
-        const camposVazios = Object.entries(obj)
-            .filter(([key, value]) => value === null || value === "")
-            .map(([key]) => key);
+        const camposVazios = Object.keys(obj).filter(
+            key => obj[key] === null || obj[key] === ""
+        );
 
         if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
-                if (camposRef.current[campo]) {
-                    camposRef.current[campo].classList.add('campo-vazio');
-                }
+                    camposRef.current?.[campo]?.classList.add('campo-vazio');
             });
             setExibirModal('inputsVazios');
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     //funcao que chama as funcoes de submit de acordo com o tipo de funcao, e apenas se os dados forem validos
     const handleSubmit = async () => {
-        const isInvalido = validaDados();
-        if (isInvalido) return;
+        const isValid = validaDados();
+        if (!isValid) return;
         funcoes?.enviar();
     }
 
@@ -124,7 +124,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal, isEdito
 
                 >
                     <option value="" defaultValue>Area</option>
-                    {areas.map((area, index) => (
+                    {areas.map((area, _) => (
                         <option key={area.id} value={area.id}>{area.name}</option>
                     ))};
                     <option value={-1}>Others</option>
@@ -150,12 +150,11 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal, isEdito
                     <button onClick={(e) => handleSubmit(e)} disabled={!isEditor}>Add new</button>
                 ) : (
                     <React.Fragment>
-                        <button onClick={handleSubmit}>✔️</button>
-                        <button onClick={funcoes?.cancelar}>✖️</button>
+                        <button onClick={handleSubmit} disabled={!isEditor}>✔️</button>
+                        <button onClick={funcoes?.cancelar} disabled={!isEditor}>✖️</button>
                     </React.Fragment>
                 )}
             </td>
-
         </tr>
     )
 }

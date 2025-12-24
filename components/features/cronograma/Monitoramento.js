@@ -10,6 +10,7 @@ import chroma from 'chroma-js';
 import useAuth from '../../../hooks/useAuth';
 import usePerm from '../../../hooks/usePerm';
 import HelpBubble from '../../ui/HelpBubble/cronograma/Monitoramento';
+import { getTextColor } from '../../../functions/colors';
 
 const Tabela = () => {
     const { user, token } = useAuth();
@@ -613,7 +614,7 @@ const Tabela = () => {
                                 </thead>
                                 <tbody>
                                     {cronogramas.map((item, index) => (
-                                        <tr key={index} style={{ backgroundColor: item?.wbs_item?.wbs_area?.color }}>
+                                        <tr key={index} style={{ backgroundColor: item?.wbs_item?.wbs_area?.color, color: getTextColor(item?.wbs_item?.wbs_area?.color) }}>
                                             {index === 0 || cronogramas[index - 1].wbs_item.wbs_area.name !== item?.wbs_item?.wbs_area?.name ? (
                                                 <td rowSpan={calculateRowSpan(cronogramas, item?.wbs_item?.wbs_area?.name, index)}
                                                 >{item?.wbs_item?.wbs_area?.name}</td>
@@ -632,7 +633,8 @@ const Tabela = () => {
                                                         findGanttById,
                                                         findGanttByItemId
                                                     }}
-                                                    setExibirModal={setExibirModal} />
+                                                    setExibirModal={setExibirModal}
+                                                    backgroundColor={item.wbs_item.wbs_area.color} />
                                             ) : (
                                                 <React.Fragment>
                                                     <td>{jsDateToEuDate(item?.gantt_data[0]?.start) || '-'}</td>

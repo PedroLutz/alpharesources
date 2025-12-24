@@ -142,8 +142,8 @@ const Tabela = () => {
             setLoading(true);
             const isExpense = confirmItemAction.item.type === 'Expense';
             const valorInverso = isExpense ? novosDados.value * -1 : novosDados.value;
-            const updatedItem = { ...novosDados, value: valorInverso };
-            delete updatedItem.balance;
+            const {balance, ...updatedItem} = novosDados;
+            updatedItem.valor = valorInverso;
             setConfirmItemAction({ action: '', item: null })
             try {
                 await handleReq({
@@ -193,7 +193,6 @@ const Tabela = () => {
                                 }}
                                 setExibirModal={setExibirModal}
                                 tipo='cadastro'
-                                isEditor={isEditor}
                             />
                             {lancamentos.map((item, index) => (
                                 <React.Fragment key={item.id}>
@@ -207,8 +206,7 @@ const Tabela = () => {
                                                     cancelar: () => setLinhaVisivel()
                                                 }}
                                                 setExibirModal={setExibirModal}
-                                                tipo='update'
-                                                isEditor={isEditor} />
+                                                tipo='update' />
                                         </React.Fragment>
                                     ) : (
                                         <React.Fragment>
