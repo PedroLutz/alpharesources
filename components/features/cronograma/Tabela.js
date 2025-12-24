@@ -586,8 +586,8 @@ const Tabela = () => {
                           <td>{item.gantt_dependency[0]?.dependency_id ? tabela.find(t => t.id == item.gantt_dependency[0]?.dependency_id).wbs_item.name : '-'}</td>
                           <td className="botoes_acoes">
                             <button onClick={() => setConfirmDeleteItem(item)}
-                            >❌</button>
-                            <button onClick={() => {
+                            disabled={!isEditor}>❌</button>
+                            <button disabled={!isEditor} onClick={() => {
                               setLinhaVisivel(item.id); handleUpdateClick(item)
                             }}
                             >⚙️</button>
@@ -603,7 +603,6 @@ const Tabela = () => {
           </div>
         </div>
       </div>
-
     </div>
   );
 };
