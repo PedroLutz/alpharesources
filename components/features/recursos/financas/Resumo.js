@@ -366,11 +366,16 @@ const Resumo = () => {
     const mesesGastos = new Set(despesasPorMes.map((despesaMes) => despesaMes.month));
     const todosMeses = sortBy(Array.from(new Set([...mesesGanhos, ...mesesGastos])));
     todosMeses.forEach((mesNome) => {
-      const receitaMes = receitasPorMes.find((receita) => receita.month === mesNome);
-      const receitaValor = receitaMes?.total || 0;
+      const receitasMap = new Map(
+        receitasPorMes.map(r => [r.month, r.total])
+      );
 
-      const despesaMes = despesasPorMes.find((despesa) => despesa.month === mesNome);
-      const despesaValor = despesaMes?.total || 0;
+      const despesasMap = new Map(
+        despesasPorMes.map(d => [d.month, d.total])
+      );
+
+      const receitaValor = receitasMap.get(mesNome) ?? 0;
+      const despesaValor = despesasMap.get(mesNome) ?? 0;
 
       const saldoMes = receitaValor - despesaValor;
 
