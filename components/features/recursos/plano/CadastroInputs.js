@@ -3,8 +3,9 @@ import React from "react";
 import styles from '../../../../styles/modules/planoAquisicao.module.css'
 import { handleFetch } from '../../../../functions/crud_s';
 import useAuth from '../../../../hooks/useAuth';
+import usePerm from "../../../../hooks/usePerm";
 
-const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEditor }) => {
+const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     const [areaSelecionada, setAreaSelecionada] = useState("");
     const [recursoSelecionado, setRecursoSelecionado] = useState('');
     const [areas, setAreas] = useState([]);
@@ -29,6 +30,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEdito
     });
     const isFirstRender = useRef(true);
     const { token } = useAuth();
+    const { isEditor } = usePerm();
 
     const fetchAreas = async () => {
         const data = await handleFetch({
@@ -47,11 +49,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEdito
             token
         });
         setRecursos(data.data);
-        var todosOsRecursos = [];
-        data.data.forEach((recurso) => {
-            todosOsRecursos.push(recurso)
-        })
-        setRecursosPorArea(todosOsRecursos);
+        setRecursosPorArea(data.data);
     };
 
     //useEffect que usa apenas na primeira render
@@ -103,7 +101,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEdito
 
     //useEffect que so roda quando areaSelecionada eh atualizado, para apagar o valor de recurso no obj
     useEffect(() => {
-        if (isFirstRender.current === true) {
+        if (isFirstRender.current) {
             isFirstRender.current = false;
             return;
         }
@@ -137,34 +135,29 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEdito
             camposRef.current.expected_date.classList.add('campo-vazio');
             camposRef.current.critical_date.classList.add('campo-vazio');
             setExibirModal('datasSemSentido');
-            return true;
+            return false;
         }
-        const camposConsiderados = { ...obj, resource_id: recursoSelecionado };
-        delete camposConsiderados.plan_real;
-        delete camposConsiderados.value_real;
-        delete camposConsiderados.date_real;
-        const camposVazios = Object.entries(camposConsiderados)
-            .filter(([key, value]) => value === null || value === "")
-            .map(([key]) => key);
-        console.log(camposVazios)
+        const {plan_real, value_real, date_real, ...camposConsiderados} = obj;
+        camposConsiderados.resource_id = recursoSelecionado;
+        const camposVazios = Object.keys(camposConsiderados).filter(
+            key => camposConsiderados[key] === null || camposConsiderados[key] === ""
+        );
 
         if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
-                if (camposRef.current[campo]) {
-                    camposRef.current[campo].classList.add('campo-vazio');
-                }
+                camposRef.current?.[campo]?.classList.add('campo-vazio');
             });
             setExibirModal('inputsVazios');
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     };
 
     //funcao que chama validaDados, e se os dados estao ok, chama as funcoes de submit
     const handleSubmit = async () => {
-        const isInvalido = validaDados();
-        if (isInvalido) return;
+        const isValid = validaDados();
+        if (!!isValid) return;
 
         const sentObj = {
             ...obj,

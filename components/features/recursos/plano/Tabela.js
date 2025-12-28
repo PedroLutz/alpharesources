@@ -10,6 +10,7 @@ import useAuth from '../../../../hooks/useAuth';
 import usePerm from '../../../../hooks/usePerm';
 import { Chart } from 'react-google-charts';
 import HelpBubble from "../../../ui/HelpBubble/recursos/Plano";
+import { getTextColor } from "../../../../functions/colors";
 
 const { pie_direita, pie_esquerda, pie_container, custom_span } = stylesResumo;
 
@@ -57,8 +58,8 @@ const PlanoAquisicao = () => {
             token,
             data: {
                 ...obj,
-                date_real: obj.date_real || null,
-                value_real: obj.value_real || null,
+                date_real: obj.date_real ?? null,
+                value_real: obj.value_real ?? null,
                 user_id: user.id,
             },
             fetchData: fetchPlanos
@@ -69,6 +70,8 @@ const PlanoAquisicao = () => {
 
     //funcao que recebe o item, insere em confirmUpdateItem e insere os dados corretamente em novosDados
     const handleUpdateClick = (item) => {
+        setLinhaVisivel(item.id); 
+        setIsUpdating(item.resource.resource)
         setNovosDados({
             ...item
         });
@@ -134,11 +137,10 @@ const PlanoAquisicao = () => {
         });
         var cores = {};
         data.data.forEach((area) => {
-            cores = { ...cores, [area.name]: area.color || '' }
+            cores[area.name] = area.color ?? '';
         })
-        cores = { ...cores, Others: '#cccccc'};
+        cores.Others = '#cccccc';
         setCores(cores);
-        console.log(cores)
     }
 
     const [planosPorArea_Essencial_graph, planosPorArea_all_graph, planosPorArea_reserve_graph] = useMemo(() => {
@@ -226,15 +228,13 @@ const PlanoAquisicao = () => {
     //funcao que trata e envia os dados para atualizacao no banco
     const handleUpdateItem = async (obj) => {
         setLoading(true);
-        delete obj.date_diference;
-        delete obj.value_diference;
-        delete obj.resource;
+        const {date_difference, value_difference, resource, ...usedObj} = obj;
         try {
             await handleReq({
                 table: 'resource_acquisition_plan',
                 route: 'update',
                 token,
-                data: obj,
+                data: usedObj,
                 fetchData: fetchPlanos
             });
         } catch (error) {
@@ -279,10 +279,10 @@ const PlanoAquisicao = () => {
 
 
     //funcao que calcula o rowSpan dos tds de area de acordo com a quantidade de itens q a area possui
-    const calculateRowSpan = (itens, currentArea, currentIndex) => {
+    const calculateRowSpan = (currentArea, currentIndex) => {
         let rowSpan = 1;
-        for (let i = currentIndex + 1; i < itens.length; i++) {
-            if (itens[i].resource.resource === currentArea) {
+        for (let i = currentIndex + 1; i < planos.length; i++) {
+            if (planos[i].resource.resource === currentArea) {
                 rowSpan++;
             } else {
                 break;
@@ -357,7 +357,13 @@ const PlanoAquisicao = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {planos.map((plano, index) => (
+                            {planos.map((plano, index) => {
+                                const backgroundColor = plano?.resource?.wbs_item?.wbs_area?.color ?? 'white';
+
+                                const date_real = plano.date_real != 'NaN/NaN/NaN' && plano.date_real != null ? isoDateToEuDate(plano.date_real) : '-';
+                                const value_real = plano.value_real != null ? `R$${Number(plano.value_real).toFixed(2)}` : '-';
+
+                                return (
                                 <React.Fragment key={index}>
                                     {linhaVisivel === plano.id ? (
                                         <CadastroInputs tipo="update"
@@ -365,17 +371,16 @@ const PlanoAquisicao = () => {
                                             objSetter={setNovosDados}
                                             funcoes={{
                                                 enviar: handleUpdateItem,
-                                                cancelar: () => { linhaVisivel === plano._id ? setLinhaVisivel() : setLinhaVisivel(plano._id); setIsUpdating(false) }
+                                                cancelar: () => { setLinhaVisivel(); setIsUpdating(false) }
                                             }}
                                             setExibirModal={setExibirModal}
-                                            isEditor={isEditor}
                                         />
                                     ) : (
-                                        <tr style={{ backgroundColor: plano?.resource?.wbs_item?.wbs_area?.color || 'white' }}>
+                                        <tr style={{ backgroundColor, color: getTextColor(backgroundColor) }}>
                                             {!isUpdating || isUpdating !== plano.resource.resource ? (
                                                 <React.Fragment>
                                                     {index === 0 || planos[index - 1].recurso !== plano.resource.resource ? (
-                                                        <td rowSpan={calculateRowSpan(planos, plano.resource.resource, index)}
+                                                        <td rowSpan={calculateRowSpan(plano.resource.resource, index)}
                                                         >{plano.resource.resource}</td>
                                                     ) : null}
                                                 </React.Fragment>
@@ -393,24 +398,21 @@ const PlanoAquisicao = () => {
                                             <td>{plano.details_b}</td>
                                             <td>R${Number(plano.value_b).toFixed(2)}</td>
                                             <td>{plano.plan_real || '-'}</td>
-                                            <td>{plano.date_real != 'NaN/NaN/NaN' && plano.date_real != null ? isoDateToEuDate(plano.date_real) : '-'}</td>
-                                            <td>{plano.value_real != null ? `R$${Number(plano.value_real).toFixed(2)}` : '-'}</td>
+                                            <td>{date_real}</td>
+                                            <td>{value_real}</td>
                                             <td>{plano.date_diference}</td>
                                             <td>{plano.value_diference}
                                             </td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(plano)}
                                                     disabled={!isEditor}>❌</button>
-                                                <button onClick={() => {
-                                                    setLinhaVisivel(plano.id); handleUpdateClick(plano); setIsUpdating(plano.resource.resource)
-                                                }
-                                                }
-                                                    disabled={!isEditor}>⚙️</button>
+                                                <button onClick={() => { handleUpdateClick(plano) }
+                                                } disabled={!isEditor}>⚙️</button>
                                             </td>
                                         </tr>
                                     )}
                                 </React.Fragment>
-                            ))}
+                            )})}
                             <CadastroInputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
@@ -418,7 +420,6 @@ const PlanoAquisicao = () => {
                                     enviar
                                 }}
                                 setExibirModal={setExibirModal}
-                                isEditor={isEditor}
                             />
                         </tbody>
                     </table>
@@ -441,7 +442,7 @@ const PlanoAquisicao = () => {
                         options={{
                             ...estiloGraph,
                             title: 'Essencial Scenario',
-                            slices: planosPorArea_Essencial_graph.slice(1).map((row, index) => ({
+                            slices: planosPorArea_Essencial_graph.slice(1).map((row, _) => ({
                                 color: cores[row[0]] || '#ffffff',
                             })),
                             pieSliceTextStyle: {
@@ -462,7 +463,7 @@ const PlanoAquisicao = () => {
                         options={{
                             ...estiloGraph,
                             title: 'Ideal Scenario',
-                            slices: planosPorArea_reserve_graph.slice(1).map((row, index) => ({
+                            slices: planosPorArea_reserve_graph.slice(1).map((row, _) => ({
                                 color: cores[row[0]] || '#ccc',
                             })),
                             pieSliceTextStyle: {
