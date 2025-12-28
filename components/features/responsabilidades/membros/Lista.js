@@ -65,7 +65,9 @@ const Tabela = () => {
     };
 
     const isMembroCadastrado = (nome) => {
-        return membros.some((m) => m.name.trim().toLowerCase() == nome.trim().toLowerCase());
+        const normalize = (n) => n.trim().toLowerCase();
+        const nomeNormalizado = normalize(nome);
+        return membros.some((m) => normalize(m.name) == nomeNormalizado);
     }
 
     const modalLabels = {
@@ -121,7 +123,6 @@ const Tabela = () => {
                         isMembroCadastrado,
                         enviar
                     }}
-                    isEditor={isEditor}
                     setExibirModal={setExibirModal}
                 />
                 {membros.map((item, index) => (
@@ -136,8 +137,8 @@ const Tabela = () => {
                                     funcoes={{
                                         enviar: handleUpdateItem,
                                         cancelar: () => setLinhaVisivel()
-                                    }}
-                                    isEditor={isEditor} />
+                                    }} 
+                                    />
                             </React.Fragment>
                         ) : (
                             <React.Fragment>

@@ -1,7 +1,10 @@
 import { useRef } from "react"
 import styles from '../../../../styles/modules/responsabilidades.module.css'
+import usePerm from "../../../../hooks/usePerm"
 
-const CadastroInputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, isEditor }) => {
+const CadastroInputs = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
+    const { isEditor } = usePerm();
+
     const camposRef = useRef({
         name: null,
         softskills: null,
@@ -22,29 +25,27 @@ const CadastroInputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, isEdito
         if(funcoes?.isMembroCadastrado?.(obj.name) ?? false){
             camposRef.current.name.classList.add('campo-vazio');
             setExibirModal('membroRepetido');
-            return true;
+            return false;
         }
 
-        const camposVazios = Object.entries(obj)
-            .filter(([key, value]) => value === null || value === "")
-            .map(([key]) => key);
+        const camposVazios = Object.keys(obj).filter(
+            key => obj[key] === null || obj[key] === ""
+        );
 
         if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
-                if (camposRef.current[campo]) {
-                    camposRef.current[campo].classList.add('campo-vazio');
-                }
+                camposRef.current?.[campo]?.classList.add('campo-vazio');
             });
             setExibirModal('inputsVazios');
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     const handleSubmit = async () => {
-        const isInvalido = validaDados();
-        if(isInvalido == true) return;
+        const isValid = validaDados();
+        if(!isValid) return;
         funcoes?.enviar();
     }
 
@@ -77,14 +78,18 @@ const CadastroInputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, isEdito
                     ref={el => (camposRef.current.hardskills = el)} />
             </div>
             <div className={styles.membrosBotoesAcoes}>
-                {tipo !== 'update' ? (
-                    <button className={styles.membrosBotaoAddNew} onClick={(e) => handleSubmit(e)} disabled={!isEditor}>Add new</button>
-                ) : (
+                
+                {tipo !== 'update' && (
+                    <button className={styles.membrosBotaoAddNew} onClick={handleSubmit} disabled={!isEditor}>Add new</button>
+                )}
+
+                {tipo === 'update' && (
                     <div className={styles.membrosBotoesAcoes}>
                         <button onClick={handleSubmit}>✔️</button>
                         <button onClick={funcoes?.cancelar}>✖️</button>
                     </div>
                 )}
+
             </div>
         </div>
     )
