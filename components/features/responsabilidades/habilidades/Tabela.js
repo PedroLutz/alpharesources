@@ -194,26 +194,32 @@ const Tabela = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {habilidades.map((habilidade, index) => (
-                                <tr key={index}>
-                                    
-                                        {index === 0 || !compareArraysOfObjects(habilidades[index - 1].role?.wbs_area, habilidade.role?.wbs_area) ? (
-                                            <td rowSpan={calculateRowSpan(habilidade?.role?.wbs_area, index, 'role.wbs_area')}
-                                            >{habilidade?.role?.wbs_area?.reduce((acc, cur) => {
-                                                if (acc == "") return acc + cur.name;
-                                                return acc + ", " + cur.name;
-                                            }, "")}</td>
-                                        ) : null}
-                                    
-                                    {index === 0 || habilidades[index - 1].role?.role !== habilidade?.role?.role ? (
-                                            <td rowSpan={calculateRowSpan(habilidade?.role?.role, index, 'role.role')}
-                                            >{habilidade?.role?.role}</td>
-                                        ) : null}
+                            {habilidades.map((habilidade, index) => {
+                                const shouldMergeArea = index === 0 || !compareArraysOfObjects(habilidades[index - 1].role?.wbs_area, habilidade.role?.wbs_area);
+                                const shouldMergeRole = index === 0 || habilidades[index - 1].role?.role !== habilidade?.role?.role;
+                                const shouldMergeMember = index === 0 || habilidades[index - 1]?.role?.member?.name !== habilidade?.role?.member?.name;
 
-                                    {index === 0 || habilidades[index - 1]?.role?.member?.name !== habilidade?.role?.member?.name ? (
-                                            <td rowSpan={calculateRowSpan(habilidade?.role?.member?.name, index, 'role.member.name')}
-                                            >{habilidade?.role?.member?.name}</td>
-                                        ) : null}
+                                return (
+                                <tr key={index}>
+
+                                    {shouldMergeArea ? (
+                                        <td rowSpan={calculateRowSpan(habilidade?.role?.wbs_area, index, 'role.wbs_area')}
+                                        >{habilidade?.role?.wbs_area?.reduce((acc, cur) => {
+                                            if (acc == "") return acc + cur.name;
+                                            return acc + ", " + cur.name;
+                                        }, "")}</td>
+                                    ) : null}
+
+                                    {shouldMergeRole ? (
+                                        <td rowSpan={calculateRowSpan(habilidade?.role?.role, index, 'role.role')}
+                                        >{habilidade?.role?.role}</td>
+                                    ) : null}
+
+                                    {shouldMergeMember ? (
+                                        <td rowSpan={calculateRowSpan(habilidade?.role?.member?.name, index, 'role.member.name')}
+                                        >{habilidade?.role?.member?.name}</td>
+                                    ) : null}
+
                                     {linhaVisivel === habilidade.id ? (
                                         <Inputs tipo="update"
                                             obj={novosDados}
@@ -223,7 +229,6 @@ const Tabela = () => {
                                                 cancelar: () => setLinhaVisivel()
                                             }}
                                             setExibirModal={setExibirModal}
-                                            isEditor={isEditor}
                                         />
                                     ) : (
                                         <React.Fragment>
@@ -241,7 +246,7 @@ const Tabela = () => {
                                         </React.Fragment>
                                     )}
                                 </tr>
-                            ))}
+                            )})}
                             <tr>
                                 <Inputs
                                     obj={novoSubmit}
@@ -250,7 +255,6 @@ const Tabela = () => {
                                         enviar
                                     }}
                                     setExibirModal={setExibirModal}
-                                    isEditor={isEditor}
                                 />
                             </tr>
 

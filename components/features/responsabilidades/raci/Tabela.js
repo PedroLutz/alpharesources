@@ -9,6 +9,7 @@ import usePerm from '../../../../hooks/usePerm';
 import { handleFetch, handlePostFetch, handleReq } from '../../../../functions/crud_s';
 import HelpBubble from "../../../ui/HelpBubble/responsabilidades/Raci";
 import Link from 'next/link';
+import { getTextColor } from '../../../../functions/colors';
 
 const Tabela = () => {
   const { user, token } = useAuth();
@@ -22,7 +23,6 @@ const Tabela = () => {
   const [exibirModal, setExibirModal] = useState(null);
   const [linhaVisivel, setLinhaVisivel] = useState({});
   const [reload, setReload] = useState(false);
-  const [cores, setCores] = useState({});
   const [loaded, setLoaded] = useState(false);
   const camposVazios = {
     item_id: "",
@@ -32,27 +32,17 @@ const Tabela = () => {
   const [oldDados, setOldDados] = useState(camposVazios);
   const [showHelp, setShowHelp] = useState(false);
 
+  const [inputToMemberMap, setInputToMemberMap] = useState({});
+
   const handleUpdateClick = (item) => {
-    let obj = { item_id: item.item_id };
+    setLinhaVisivel(item.item_id); 
+    const obj = { item_id: item.item_id };
     item?.raci?.forEach((r) => {
       obj["input" + r.member_id] = r.responsibility;
     })
     setNovosDados(obj);
     setOldDados(item);
   };
-
-  const fetchCores = async () => {
-    const data = await handleFetch({
-      table: "wbs_area",
-      query: 'colors',
-      token
-    });
-    var cores = {};
-    data.data.forEach((area) => {
-      cores = { ...cores, [area.name]: area.color || '' }
-    })
-    setCores(cores);
-  }
 
   const fetchItensRaci = async () => {
     const data = await handlePostFetch({
@@ -86,10 +76,10 @@ const Tabela = () => {
   const enviar = async () => {
     if (!validarDados(novoSubmit)) return false;
     try {
-      for (let key in novoSubmit) {
+      for (const key in novoSubmit) {
         if (key != 'item_id') {
           const responsibility = novoSubmit[key];
-          const member_id = key.split("input")[1];
+          const member_id = inputToMemberMap[key];
           await handleReq({
             table: 'raci_item',
             route: 'create',
@@ -145,14 +135,14 @@ const Tabela = () => {
   };
 
   const generateFormData = () => {
-    var objTemp = novoSubmit;
+    const objTemp = novoSubmit;
+    const inputToMemberObj = {};
     nomesMembros.forEach((membro) => {
-      objTemp = {
-        ...objTemp,
-        [`input${membro.id}`]: ''
-      }
+      objTemp[`input${membro.id}`] = '';
+      inputToMemberObj[`input${membro.id}`] = membro.id;
     });
     setNovoSubmit(objTemp);
+    setInputToMemberMap(inputToMemberObj);
   };
 
   useEffect(() => {
@@ -164,7 +154,6 @@ const Tabela = () => {
           await Promise.all([
             fetchNomesMembros(),
             fetchItensRaci(),
-            fetchCores()
           ]);
         } catch (err) {
           console.error("Erro ao recarregar dados:", err);
@@ -185,8 +174,7 @@ const Tabela = () => {
       try {
         await Promise.all([
           fetchNomesMembros(),
-          fetchItensRaci(),
-          fetchCores()
+          fetchItensRaci()
         ]);
       } catch (err) {
         console.error("Erro ao carregar dados:", err);
@@ -250,7 +238,7 @@ const Tabela = () => {
     return [headers, fullNames];
   }, [nomesMembros])
 
-  const calculateRowSpan = (itensRaci, currentArea, currentIndex) => {
+  const calculateRowSpan = (currentArea, currentIndex) => {
     let rowSpan = 1;
     for (let i = currentIndex + 1; i < itensRaci.length; i++) {
       if (itensRaci[i].area_name === currentArea) {
@@ -275,11 +263,11 @@ const Tabela = () => {
   const handleUpdateItem = async () => {
     if (!validarDados(novosDados)) return;
     setLoading(true);
-    for (let key in novosDados) {
+    for (const key in novosDados) {
       if (key != 'item_id' && key != 'id') {
         const responsibility = novosDados[key];
-        const member_id = key.split("input")[1];
-        const dadoOriginal = oldDados?.raci?.find(i => i.member_id == member_id) || undefined;
+        const member_id = inputToMemberMap[key];
+        const dadoOriginal = oldDados?.raci?.find(i => i.member_id == member_id) ?? undefined;
         if (dadoOriginal !== undefined && dadoOriginal?.responsibility != responsibility) {
           await handleReq({
             table: 'raci_item',
@@ -350,15 +338,20 @@ const Tabela = () => {
                         checkAreaDisponivel
                       }}
                       setExibirModal={setExibirModal}
-                      isEditor={isEditor}
                       loaded={loaded}
                       tipo='cadastro' />
                   </tr>
                 )}
-                {itensRaci.map((item, index) => (
-                  <tr key={index} style={{ backgroundColor: item?.area_color }}>
+                {itensRaci.map((item, index) => {
+                  const raciByMemberId = new Map()
+                  item.raci?.forEach(r => {
+                    raciByMemberId.set(r.member_id, r)
+                  })
+
+                  return (
+                  <tr key={index} style={{ backgroundColor: item?.area_color, color: getTextColor(item?.area_color) }}>
                     {index === 0 || itensRaci[index - 1].area_name !== item?.area_name ? (
-                      <td rowSpan={calculateRowSpan(itensRaci, item?.area_name, index)}
+                      <td rowSpan={calculateRowSpan(item?.area_name, index)}
                         className={styles.raciTdArea}>{item?.area_name}</td>
                     ) : null}
                     <td className={styles.raciTdItem}>{item.item_name}</td>
@@ -375,14 +368,17 @@ const Tabela = () => {
                           }}
                           setExibirModal={setExibirModal}
                           loaded={loaded}
-                          isEditor={isEditor}
                           tipo='update' />
                       </React.Fragment>
                     ) : (
                       <React.Fragment>
-                        {nomesMembros.map((membro, index) => {
-                          const membroObj = item.raci?.find(m => m.member_id === membro.id)
-                          return <td key={index}>{membroObj?.responsibility[0].toUpperCase() || "-"}</td>
+                        {nomesMembros.map((membro, _) => {
+                          const raci = raciByMemberId.get(membro.id)
+                          return (
+                            <td key={membro.id}>
+                              {raci?.responsibility?.[0]?.toUpperCase() ?? "-"}
+                            </td>
+                          )
                         })}
                         {verOpcoes && (
                           <td className="botoes_acoes lastMaior">
@@ -391,7 +387,7 @@ const Tabela = () => {
                               onClick={() => setConfirmDeleteItem(item)}
                               disabled={!isEditor}>❌</button>
                             <button onClick={() => {
-                              setLinhaVisivel(item.item_id); handleUpdateClick(item)
+                              handleUpdateClick(item)
                             }} disabled={!isEditor}>⚙️</button>
 
                           </td>
@@ -401,7 +397,7 @@ const Tabela = () => {
                     )
                     }
                   </tr>
-                ))}
+                )})}
               </tbody>
             </table>
           </div>

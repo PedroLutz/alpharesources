@@ -2,14 +2,16 @@ import React, { useState, useRef, useEffect, useContext, useMemo } from 'react';
 import { handleFetch } from '../../../../functions/crud_s';
 import styles from '../../../../styles/modules/responsabilidades.module.css'
 import useAuth from '../../../../hooks/useAuth';
+import usePerm from '../../../../hooks/usePerm';
 
-const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal, isEditor, loaded }) => {
+const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal, loaded }) => {
     const [elementosWBS, setElementosWBS] = useState([]);
     const [nomesMembros, setNomesMembros] = useState([])
     const [itensPorArea, setItensPorArea] = useState([]);
     const [areaSelecionada, setAreaSelecionada] = useState('');
     const [areas, setAreas] = useState([]);
     const { token } = useAuth();
+    const {isEditor} = usePerm();
 
     const camposRef = useRef({
         area: null,
@@ -101,25 +103,22 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal, isEdito
     };
 
     const validaDados = () => {
-        const camposVazios = Object.entries(obj)
-            .filter(([key, value]) => value === null || value === "")
-            .map(([key]) => key);
+        const camposVazios = Object.keys(obj)
+        .filter(key => obj[key] === null || obj[key] === "");
 
         if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
-                if (camposRef.current[campo]) {
-                    camposRef.current[campo].classList.add('campo-vazio');
-                }
+                camposRef.current?.[campo]?.classList.add('campo-vazio');   
             });
             setExibirModal('inputsVazios');
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     const handleSubmit = async () => {
-        const isInvalido = validaDados();
-        if (isInvalido == true) return;
+        const isValid = validaDados();
+        if (!isValid) return;
         if(await funcoes?.enviar()){
             setAreaSelecionada('');
             setItensPorArea([]);
@@ -133,8 +132,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal, isEdito
             token
         });
         setNomesMembros(data.data);
-    };
-   
+    };   
 
     useEffect(() => {
         fetchNomesMembros();

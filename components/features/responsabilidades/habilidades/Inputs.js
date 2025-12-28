@@ -3,9 +3,11 @@ import React from "react";
 import { handleFetch } from '../../../../functions/crud_s';
 import useAuth from "../../../../hooks/useAuth";
 import styles from '../../../../styles/modules/responsabilidades.module.css'
+import usePerm from "../../../../hooks/usePerm";
 
-const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEditor }) => {
+const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     const { token } = useAuth();
+    const {isEditor} = usePerm();
     const [nomesFuncoes, setNomesFuncoes] = useState([]);
     const camposRef = useRef({
         funcao: null,
@@ -48,37 +50,33 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEdito
             if (value < 0) {
                 camposRef.current[key].classList.add('campo-vazio');
                 setExibirModal('valorNegativo');
-                return true;
+                return false;
             }
             if (value > 5) {
                 camposRef.current[key].classList.add('campo-vazio');
                 setExibirModal('maiorQueCinco');
-                return true;
+                return false;
             }
         }
 
-        const camposConsiderados = { ...obj };
-        delete camposConsiderados.acao;
-        const camposVazios = Object.entries(camposConsiderados)
-            .filter(([key, value]) => value === null || value === "")
-            .map(([key]) => key);
+        const { acao, ...camposConsiderados } = obj;
+        const camposVazios = Object.keys(camposConsiderados)
+            .filter(key => camposConsiderados[key] === null || camposConsiderados[key] === "")
 
         if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
-                if (camposRef.current[campo]) {
-                    camposRef.current[campo].classList.add('campo-vazio');
-                }
+                camposRef.current?.[campo]?.classList.add('campo-vazio');
             });
             setExibirModal('inputsVazios');
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     const handleSubmit = () => {
-        const isInvalido = validaDados();
-        if (isInvalido == true) return;
+        const isValid = validaDados();
+        if (!isValid) return;
         funcoes?.enviar();
     }
 

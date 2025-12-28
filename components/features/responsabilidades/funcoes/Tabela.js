@@ -61,9 +61,8 @@ const Tabela = () => {
     const handleUpdateClick = (item) => {
         setLinhaVisivel(item.id)
         setOldDados(item);
-        const obj = {...item, areas: []};
-        delete obj.wbs_area;
-        delete obj.member;
+        const {wbs_area, member, ...obj} = item;
+        obj.areas = [];
         obj.member_id = item?.member?.id;
         item?.wbs_area?.forEach(a => {
             obj.areas.push(a.id);
@@ -202,7 +201,6 @@ const Tabela = () => {
                                                 cancelar: () => setLinhaVisivel()
                                             }}
                                             setExibirModal={setExibirModal}
-                                            isEditor={isEditor}
                                         />
                                     ) : (
                                         <tr>
@@ -225,10 +223,9 @@ const Tabela = () => {
                                 objSetter={setNovoSubmit}
                                 funcoes={{
                                     isFuncaoCadastrada,
-                                    enviar: enviar
+                                    enviar
                                 }}
                                 setExibirModal={setExibirModal}
-                                isEditor={isEditor}
                             />
                         </tbody>
                     </table>
