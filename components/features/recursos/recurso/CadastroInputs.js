@@ -3,8 +3,9 @@ import React from "react";
 import styles from '../../../../styles/modules/recursos.module.css'
 import { handleFetch } from '../../../../functions/crud_s';
 import useAuth from '../../../../hooks/useAuth';
+import usePerm from "../../../../hooks/usePerm";
 
-const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEditor }) => {
+const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, backgroundColor }) => {
     const [elementosWBS, setElementosWBS] = useState([]);
     const [itensPorArea, setItensPorArea] = useState([]);
     const [areaSelecionada, setAreaSelecionada] = useState('');
@@ -17,8 +18,8 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEdito
         type: null,
         is_essential: null
     });
-    const isFirstRender = useRef(true);
     const { token } = useAuth();
+    const { isEditor } = usePerm();
 
     //funcao que busca no banco os elementos da WBS
     const fetchElementos = async () => {
@@ -117,35 +118,33 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEdito
 
     //funcao que valida os dados, verificando quais campos estao vazios e inserindo a classe campo-vazio para destacá-los
     const validaDados = () => {
-        const camposVazios = Object.entries(obj)
-            .filter(([key, value]) => value === null || value === "")
-            .map(([key]) => key);
+        const camposVazios = Object.keys(obj).filter(
+            key => obj[key] === null || obj[key] === ""
+        );
 
         if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
-                if (camposRef.current[campo]) {
-                    camposRef.current[campo].classList.add('campo-vazio');
-                }
+                camposRef.current?.[campo]?.classList.add('campo-vazio');
             });
             setExibirModal('inputsVazios');
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     };
 
 
     //funcao que detecta se os dados sao validos, e se sao, utiliza a funcao de submit
     const handleSubmit = async () => {
-        const isInvalido = validaDados();
-        if (isInvalido) return;
+        const isValid = validaDados();
+        if (!isValid) return;
         funcoes?.enviar();
         setAreaSelecionada("");
         setItensPorArea([]);
     };
 
     return (
-        <tr className={`linha-cadastro ${styles.camposMaiores}`}>
+        <tr className={`linha-cadastro ${styles.camposMaiores}`} style={{backgroundColor}}>
             <td>
                 <select
                     name="area"
