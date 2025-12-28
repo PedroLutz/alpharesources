@@ -4,6 +4,7 @@ import { handlePostFetch, handleFetch } from "../../../../functions/crud_s";
 import styles from '../../../../styles/modules/cbs.module.css'
 import useAuth from "../../../../hooks/useAuth";
 import HelpBubble from '../../../ui/HelpBubble/recursos/Cbs';
+import { getTextColor } from "../../../../functions/colors";
 
 const Tabela = () => {
     const [dadosCbs, setDadosCbs] = useState([]);
@@ -27,13 +28,13 @@ const Tabela = () => {
                 const isUndefined = obj === undefined;
                 if (isUndefined) obj = {
                     area_color: item.area_color,
-                    area_id: item.area_id || -1,
-                    area_name: item.area_name || "Others",
-                    item_id: item.item_id || -1,
-                    item_name: item.item_name || "Others",
+                    area_id: item.area_id ?? -1,
+                    area_name: item.area_name ?? "Others",
+                    item_id: item.item_id ?? -1,
+                    item_name: item.item_name ?? "Others",
                     essential_cost: 0,
                     ideal_cost: 0,
-                    real_cost: item.total_real || 0
+                    real_cost: item.total_real ?? 0
                 }
                 if (item.is_essential) {
                     obj.essential_cost = (item.total_a * 2 + item.total_b) / 3
@@ -71,7 +72,6 @@ const Tabela = () => {
                 obj.contingency = contingencies[key];
                 if(isUndefined) array.push(obj);
             }
-            console.log(array)
             array.sort((a, b) => {
                 const areaComparison = a.area_name.localeCompare(b.area_name);
                 if(areaComparison !== 0) return areaComparison;
@@ -128,9 +128,16 @@ const Tabela = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {dadosCbs.map((cbs, index) => (
+                            {dadosCbs.map((cbs, index) => { 
+                                const contingency = cbs.contingency ? parseFloat(cbs.contingency).toFixed(2) : "0.00";
+
+                                const comparisonIdeal = parseFloat(cbs.real_cost - cbs.ideal_cost).toFixed(2);
+                                const comparisonEssential = parseFloat(cbs.essential_cost - cbs.ideal_cost).toFixed(2);
+                                const comparisonContingency = parseFloat(cbs.real_cost - (cbs.contingency || 0) - cbs.ideal_cost).toFixed(2);
+
+                                return (
                                 <React.Fragment key={index}>
-                                    <tr style={{ backgroundColor: cbs.area_color }}>
+                                    <tr style={{ backgroundColor: cbs.area_color, color: getTextColor(cbs.area_color) }}>
                                         {index === 0 || dadosCbs[index - 1].area_id !== cbs.area_id ? (
                                             <td rowSpan={calculateRowSpan(cbs.area_id, index, 'area_id')}
                                             >{cbs.area_name}</td>
@@ -138,16 +145,16 @@ const Tabela = () => {
                                         <td>{cbs.item_name}</td>
                                         <td className={styles.td_custos}>R${parseFloat(cbs.ideal_cost).toFixed(2)}</td>
                                         <td className={styles.td_custos}>R${parseFloat(cbs.essential_cost).toFixed(2)}</td>
-                                        <td className={styles.td_custos}>R${cbs.contingency ? parseFloat(cbs.contingency).toFixed(2) : "0.00"}</td>
+                                        <td className={styles.td_custos}>R${contingency}</td>
                                         <td className={styles.td_custos}>R${parseFloat(cbs.real_cost).toFixed(2)}</td>
                                         <td className={styles.tdComparacao}>In relation to: <br />
-                                            Ideal cost: R${parseFloat(cbs.real_cost - cbs.ideal_cost).toFixed(2)}<br />
-                                            Essencial cost: R${parseFloat(cbs.essential_cost - cbs.ideal_cost).toFixed(2)}<br />
-                                            Ideal cost + contingency: R${parseFloat(cbs.real_cost - (cbs.contingency || 0) - cbs.ideal_cost).toFixed(2)}<br />
+                                            Ideal cost: R${comparisonIdeal}<br />
+                                            Essential cost: R${comparisonEssential}<br />
+                                            Ideal cost + contingency: R${comparisonContingency}<br />
                                         </td>
                                     </tr>
                                 </React.Fragment>
-                            ))}
+                            )})}
                         </tbody>
                     </table>
                 </div>

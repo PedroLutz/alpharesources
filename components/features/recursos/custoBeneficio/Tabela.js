@@ -51,13 +51,13 @@ const Tabela = () => {
     //funcao que trata os dados e os envia para atualizacao
     const handleUpdateItem = async () => {
         setLoading(true);
-        delete novosDados.mediaBeneficios;
+        const {mediaBeneficios, ...usedObj} = novosDados;
         try {
             await handleReq({
                 table: 'cost_benefit',
                 route: 'update',
                 token,
-                data: novosDados,
+                data: usedObj,
                 fetchData: fetchCustoBeneficios
             });
         } catch (error) {
@@ -119,7 +119,7 @@ const Tabela = () => {
     };
 
     const getCustosBeneficios = (cus, ben) => {
-        let custoBen = []
+        const custoBen = []
         if (custoBeneficios) {
             custoBeneficios.forEach((cb) => {
                 if (cb.cost_ranking === cus && cb.mediaBeneficios > ben - 1 && cb.mediaBeneficios <= ben) {
@@ -184,7 +184,15 @@ const Tabela = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {custoBeneficios.map((custoBeneficio, index) => (
+                            {custoBeneficios.map((custoBeneficio, index) => { 
+                                const benefitAverage =  parseFloat((custoBeneficio.area_impact
+                                                    + custoBeneficio.impact
+                                                    + custoBeneficio.urgency
+                                                    + custoBeneficio.edge)
+                                                    / 4);
+                                const benefitIndex = parseFloat(benefitAverage / custoBeneficio.cost_ranking);
+                                
+                                return (
                                 <React.Fragment key={index}>
                                     {linhaVisivel === custoBeneficio.id ? (
                                         <Inputs tipo="update"
@@ -192,7 +200,7 @@ const Tabela = () => {
                                             objSetter={setNovosDados}
                                             funcoes={{
                                                 enviar: handleUpdateItem,
-                                                cancelar: () => linhaVisivel === custoBeneficio._id ? setLinhaVisivel() : setLinhaVisivel(custoBeneficio._id)
+                                                cancelar: () => setLinhaVisivel()
                                             }}
                                             setExibirModal={setExibirModal}
                                         />
@@ -206,16 +214,8 @@ const Tabela = () => {
                                             <td className={styles.tdUrgencia}>{custoBeneficio.urgency}</td>
                                             <td className={styles.tdDiferencial}>{custoBeneficio.edge}</td>
                                             <td className={styles.tdAreas}>{custoBeneficio.area_impact}</td>
-                                            <td className={styles.tdMediaBeneficios}>{
-                                                parseFloat((custoBeneficio.area_impact
-                                                    + custoBeneficio.impact
-                                                    + custoBeneficio.urgency
-                                                    + custoBeneficio.edge)
-                                                    / 4).toFixed(2)}</td>
-                                            <td className={styles.tdIndice}>{
-                                                parseFloat(((custoBeneficio.area_impact + custoBeneficio.impact
-                                                    + custoBeneficio.urgency + custoBeneficio.edge)
-                                                    / 4) / custoBeneficio.cost_ranking).toFixed(2)}</td>
+                                            <td className={styles.tdMediaBeneficios}>{benefitAverage.toFixed(2)}</td>
+                                            <td className={styles.tdIndice}>{benefitIndex.toFixed(2)}</td>
                                             <td className={styles.tdExplicacao}>{custoBeneficio.explanation}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(custoBeneficio)} disabled={!isEditor}>❌</button>
@@ -227,12 +227,12 @@ const Tabela = () => {
                                         </tr>
                                     )}
                                 </React.Fragment>
-                            ))}
+                            )})}
                             <Inputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
                                 funcoes={{
-                                    enviar: enviar
+                                    enviar
                                 }}
                                 setExibirModal={setExibirModal}
                             />
@@ -310,7 +310,6 @@ const Tabela = () => {
                     </table>
                 </div>
             </div>
-
         </div>
     )
 };
