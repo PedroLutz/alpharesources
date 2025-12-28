@@ -263,16 +263,15 @@ const Resumo = () => {
     setCurvaSTabela(curvaStabelaArray);
 
     //------------------------------------------------KPIs TABLE--------------------------------------------------
-    const valoresPlanejadosAreasReduced = valoresPlanejadosAreas.reduce((acc, cur) => {
-      const found = acc.find(i => i.area_id == cur.area_id);
-      if (found == undefined) {
-        acc.push(cur);
-      } else {
-        found.total_a = cur.total_a;
-        found.total_b = cur.total_b;
-      }
-      return acc;
-    }, [])
+    const valoresPlanejadosAreasReduced = [
+      ...valoresPlanejadosAreas.reduce((map, cur) => {
+        map.set(cur.area_id, {
+          ...map.get(cur.area_id),
+          ...cur,
+        });
+        return map;
+      }, new Map()).values()
+    ];
 
     valoresPlanejadosAreasReduced.sort((a, b) => a.area_name > b.area_name)
 
@@ -329,11 +328,16 @@ const Resumo = () => {
     const todasAreas = Array.from(new Set([...areasGanhos, ...areasGastos]));
 
     todasAreas.forEach((areaNome) => {
-      const receitaArea = receitasPorArea.find((receita) => receita.area_name === areaNome);
-      const receitaValor = receitaArea?.total || 0;
+      const receitasMap = new Map(
+        receitasPorArea.map(r => [r.area_name, r.total])
+      );
 
-      const despesaArea = despesasPorArea.find((despesa) => despesa.area_name === areaNome);
-      const despesaValor = despesaArea?.total || 0;
+      const despesasMap = new Map(
+        despesasPorArea.map(d => [d.area_name, d.total])
+      );
+
+      const receitaValor = receitasMap.get(areaNome) ?? 0;
+      const despesaValor = despesasMap.get(areaNome) ?? 0;
 
       graph.push([areaNome, receitaValor, despesaValor]);
     });
@@ -362,11 +366,16 @@ const Resumo = () => {
     const mesesGastos = new Set(despesasPorMes.map((despesaMes) => despesaMes.month));
     const todosMeses = sortBy(Array.from(new Set([...mesesGanhos, ...mesesGastos])));
     todosMeses.forEach((mesNome) => {
-      const receitaMes = receitasPorMes.find((receita) => receita.month === mesNome);
-      const receitaValor = receitaMes?.total || 0;
+      const receitasMap = new Map(
+        receitasPorMes.map(r => [r.month, r.total])
+      );
 
-      const despesaMes = despesasPorMes.find((despesa) => despesa.month === mesNome);
-      const despesaValor = despesaMes?.total || 0;
+      const despesasMap = new Map(
+        despesasPorMes.map(d => [d.month, d.total])
+      );
+
+      const receitaValor = receitasMap.get(mesNome) ?? 0;
+      const despesaValor = despesasMap.get(mesNome) ?? 0;
 
       const saldoMes = receitaValor - despesaValor;
 
@@ -703,7 +712,7 @@ const Resumo = () => {
                 data={CaixaMensalGraph}
                 options={{
                   ...estiloGraph,
-                  colors: ["#ff00e3"],
+                  colors: ["#a0a0a0"],
                   series: {
                     0: {
                       lineWidth: 5,
@@ -733,7 +742,7 @@ const Resumo = () => {
                 loader={<div>Loading graph</div>}
                 data={CrescimentoDosGastosGraph}
                 options={{
-                  ...estiloGraph, colors: ["#ff00e3"],
+                  ...estiloGraph, colors: ["#a0a0a0"],
                   series: {
                     0: {
                       lineWidth: 5,
