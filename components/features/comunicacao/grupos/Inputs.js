@@ -33,30 +33,27 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
         if(funcoes?.isGrupoCadastrado?.(obj.group) ?? false){
             camposRef.current.group.classList.add('campo-vazio');
             setExibirModal('groupRepetido');
-            return true;
+            return false;
         }
-        const camposVazios = Object.entries(obj)
-        .filter(([key, value]) => value === null || value === "")
-        .map(([key]) => key);
+
+        const camposVazios = Object.keys(obj)
+        .filter(key => obj[key] === null || obj[key] === "");
 
         if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
-                if (camposRef.current[campo]) {
-                    camposRef.current[campo].classList.add('campo-vazio');
-                }
+                camposRef.current?.[campo]?.classList.add('campo-vazio');               
             });
             setExibirModal('inputsVazios');
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     //funcao que, caso os dados sejam validos, executa a funcao de submit
     const handleSubmit = () => {
-        const isInvalido = validaDados();
-        
-        if(isInvalido) return;
+        const isValid = validaDados();
+        if(!isValid) return;
         funcoes?.enviar();
     }
 
@@ -66,7 +63,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                 <textarea
                     name="group"
                     onChange={handleChange}
-                    value={obj.group}
+                    value={obj?.group ?? ""}
                     placeholder="Stakeholder Group"
                     ref={el => (camposRef.current.group = el)}
                 />
@@ -75,7 +72,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                 <textarea
                     name="involvement"
                     onChange={handleChange}
-                    value={obj.involvement}
+                    value={obj?.involvement ?? ""}
                     placeholder="Involvement"
                     ref={el => (camposRef.current.involvement = el)}
                 />
@@ -84,7 +81,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                 <textarea
                     name="influence"
                     onChange={handleChange}
-                    value={obj.influence}
+                    value={obj?.influence ?? ""}
                     placeholder="Potencial Influence"
                     ref={el => (camposRef.current.influence = el)}
                 />
@@ -93,7 +90,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                 <textarea
                     name="impact"
                     onChange={handleChange}
-                    value={obj.impact}
+                    value={obj?.impact ?? ""}
                     placeholder="Potencial Impact"
                     ref={el => (camposRef.current.impact = el)}
                 />
@@ -102,7 +99,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                 <textarea
                     name="power"
                     onChange={handleChange}
-                    value={obj.power}
+                    value={obj?.power ?? ""}
                     placeholder="Power"
                     ref={el => (camposRef.current.power = el)}
                 />
@@ -111,7 +108,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                 <textarea
                     name="interest"
                     onChange={handleChange}
-                    value={obj.interest}
+                    value={obj?.interest ?? ""}
                     placeholder="Interest"
                     ref={el => (camposRef.current.interest = el)}
                 />
@@ -120,7 +117,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                 <textarea
                     name="expectations"
                     onChange={handleChange}
-                    value={obj.expectations}
+                    value={obj?.expectations ?? ""}
                     placeholder="Expectations"
                     ref={el => (camposRef.current.expectations = el)}
                 />
@@ -129,7 +126,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                 <textarea
                     name="requisites"
                     onChange={handleChange}
-                    value={obj.requisites}
+                    value={obj?.requisites ?? ""}
                     placeholder="Requisites"
                     ref={el => (camposRef.current.requisites = el)}
                 />
@@ -138,7 +135,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                 <textarea
                     name="positive_eng"
                     onChange={handleChange}
-                    value={obj.positive_eng}
+                    value={obj?.positive_eng ?? ""}
                     placeholder="Positive Engagement"
                     ref={el => (camposRef.current.positive_eng = el)}
                 />
@@ -147,15 +144,17 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                 <textarea
                     name="negative_eng"
                     onChange={handleChange}
-                    value={obj.negative_eng}
+                    value={obj?.negative_eng ?? ""}
                     placeholder="Negative Engagement"
                     ref={el => (camposRef.current.negative_eng = el)}
                 />
             </td>   
             <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
-                {tipo !== 'update' ? (
+                {tipo !== 'update' && (
                     <button onClick={handleSubmit} disabled={!isEditor}>Add new</button>
-                ) : (
+                )} 
+                
+                {tipo === 'update' && (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>
                         <button onClick={funcoes?.cancelar}>✖️</button>

@@ -73,17 +73,18 @@ const Tabela = () => {
 
     //funcao que gera o mapeamento de poder e interesse
     const generateMapping = (p, i) => {
-        if (p && i) {
-            return "Close Management"
-        }
-        if (!p && i) {
-            return "Keep informed"
-        }
-        if (p && !i) {
-            return "Keep satisfied"
-        }
-        if (!p && !p) {
-            return "Monitor"
+        if(p){
+            if(i){
+                return "Close Management"
+            } else {
+                return "Keep satisfied"
+            }
+        } else {
+            if(i){
+                return "Keep informed"
+            } else {
+                return "Monitor"
+            }
         }
     }
 
@@ -136,9 +137,7 @@ const Tabela = () => {
                 }} />
             )}
 
-            {engajamentos.length != 0 ? (
-
-
+            {engajamentos.length != 0 && (
                 <div className={styles.tabelaComunicacao_container}>
                     <div className={styles.tabelaComunicacao_wrapper}>
                         <table className={`${styles.tabelaEngajamento} tabela`}>
@@ -194,14 +193,15 @@ const Tabela = () => {
                                                 </td>
                                             </React.Fragment>
                                         )}
-
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     </div>
                 </div>
-            ) : (
+            )}
+            
+            { engajamentos.length == 0 (
                 <div>No Stakeholders registered! Please register a stakeholder first.</div>
             )}
         </div>

@@ -3,8 +3,8 @@ import React from "react";
 
 const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     const camposRef = useRef({
-        nivel_engajamento: null,
-        nivel_eng_desejado: null
+        eng_level: null,
+        eng_target_level: null
     })
 
     //funcao que insere os dados no obj
@@ -19,26 +19,23 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
 
     //funcao que verifica a validez dos dados
     const validaDados = () => {
-        const camposVazios = Object.entries(obj)
-        .filter(([key, value]) => value === null || value === "")
-        .map(([key]) => key);
+        const camposVazios = Object.keys(obj)
+        .filter(key => obj[key] === null || obj[key] === "")
 
         if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
-                if (camposRef.current[campo]) {
-                    camposRef.current[campo].classList.add('campo-vazio');
-                }
+                camposRef.current?.[campo]?.classList.add('campo-vazio');
             });
             setExibirModal('inputsVazios');
-            return true;
+            return false;
         }
+        return true;
     }
 
     //funcao que executa a funcao de submit caso os dados sejam validos
     const handleSubmit = () => {
-        const isInvalido = validaDados();
-        if(isInvalido) return;
-        
+        const isValid = validaDados();
+        if(!isValid) return;
         funcoes?.enviar();
     }
 
@@ -46,7 +43,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
         <React.Fragment>
             <td>
                 <select
-                    value={obj.eng_level}
+                    value={obj?.eng_level ?? ""}
                     name='eng_level'
                     onChange={handleChange}
                     ref={el => (camposRef.current.eng_level = el)} >
@@ -61,7 +58,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
 
             <td>
                 <select
-                    value={obj.eng_target_level}
+                    value={obj?.eng_target_level ?? ""}
                     name='eng_target_level'
                     onChange={handleChange}
                     ref={el => (camposRef.current.eng_target_level = el)} >

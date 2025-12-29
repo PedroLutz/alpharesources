@@ -95,9 +95,9 @@ const Tabela = () => {
                 data: { id: confirmDeleteItem.id },
                 fetchData: fetchStakeholders
             });
+            setExibirModal("deleteSuccess");
+            setConfirmDeleteItem(null);
         }
-        setExibirModal("deleteSuccess");
-        setConfirmDeleteItem(null)
     };
 
     const fetchStakeholders = async () => {
