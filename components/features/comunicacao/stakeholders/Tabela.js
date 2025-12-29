@@ -118,9 +118,9 @@ const Tabela = () => {
                     data: { id: confirmDeleteItem.id },
                     fetchData: fetchStakeholders
                 });
+                setExibirModal("deleteSuccess");
+                setConfirmDeleteItem(null)
             }
-            setExibirModal("deleteSuccess");
-            setConfirmDeleteItem(null)
         };
 
     //funcao que busca os stakeholders
