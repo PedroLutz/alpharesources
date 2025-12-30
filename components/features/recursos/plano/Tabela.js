@@ -376,7 +376,7 @@ const PlanoAquisicao = () => {
                                             setExibirModal={setExibirModal}
                                         />
                                     ) : (
-                                        <tr style={{ backgroundColor, color: getTextColor(backgroundColor) }}>
+                                        <tr style={{ backgroundColor, color: getTextColor(backgroundColor  ?? "#ffffff") }}>
                                             {!isUpdating || isUpdating !== plano.resource.resource ? (
                                                 <React.Fragment>
                                                     {index === 0 || planos[index - 1].recurso !== plano.resource.resource ? (

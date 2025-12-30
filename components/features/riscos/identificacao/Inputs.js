@@ -3,9 +3,11 @@ import React from "react";
 import { handleFetch } from "../../../../functions/crud_s";
 import styles from '../../../../styles/modules/risco.module.css'
 import useAuth from "../../../../hooks/useAuth";
+import usePerm from "../../../../hooks/usePerm";
 
-const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEditor, loaded }) => {
+const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, loaded, backgroundColor }) => {
     const { token } = useAuth();
+    const {isEditor} = usePerm();
     const [elementosWBS, setElementosWBS] = useState([]);
     const [itensPorArea, setItensPorArea] = useState([]);
     const [areas, setAreas] = useState([]);
@@ -36,9 +38,9 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEdito
         fetchMembros();
     }, []);
 
-    const atualizarItensPorArea = (area, setter) => {
+    const atualizarItensPorArea = (area) => {
         const itensDaArea = elementosWBS.filter(item => item.wbs_area.id == area);
-        setter(itensDaArea);
+        setItensPorArea(itensDaArea);
     }
 
     useEffect(() => {
@@ -46,21 +48,18 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEdito
             if (obj?.item_id !== '') {
                 const item = elementosWBS.find(item => item.id == obj?.item_id);
                 if (item) {
-                    const areaSelecionada = item?.wbs_area?.id || -1;
+                    const areaSelecionada = item?.wbs_area?.id ?? -1;
                     setAreaSelecionada(areaSelecionada);
-                    atualizarItensPorArea(areaSelecionada, setItensPorArea);
-                    // setRecursoSelecionado(item?.id);
                 }
             } else {
                 setAreaSelecionada(-1);
-                atualizarItensPorArea(-1, setItensPorArea);
             }
         }
     }, [obj?.item_id, elementosWBS]);
 
     useEffect(() => {
         if (areaSelecionada != '') {
-            atualizarItensPorArea(areaSelecionada, setItensPorArea);
+            atualizarItensPorArea(areaSelecionada);
         }
     }, [areaSelecionada, elementosWBS]);
 
@@ -97,7 +96,6 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEdito
     const handleAreaChange = (e) => {
         const areaSelecionada = e.target.value;
         objSetter({ ...obj, item_id: "" });
-        atualizarItensPorArea(areaSelecionada, setItensPorArea);
         setAreaSelecionada(areaSelecionada);
         camposRef.current.area.classList.remove('campo-vazio');
     };
@@ -137,34 +135,30 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEdito
         if (funcoes?.isRiscoCadastrado?.(obj.risk) ?? false) {
             camposRef.current.risco.classList.add('campo-vazio');
             setExibirModal('riscoRepetido');
-            return true;
+            return false;
         }
-        const camposVazios = Object.entries(obj)
-            .filter(([key, value]) => value === null || value === "")
-            .map(([key]) => key);
 
-        console.log(camposVazios, obj)
+        const camposVazios = Object.keys(obj).filter(key => obj[key] === null || obj[key] === "")
+
         if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
-                if (camposRef.current[campo]) {
-                    camposRef.current[campo].classList.add('campo-vazio');
-                }
+                camposRef.current?.[campo]?.classList.add('campo-vazio');
             });
             setExibirModal('inputsVazios');
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     const handleSubmit = () => {
-        const isInvalido = validaDados();
-        if (isInvalido == true) return;
+        const isValid = validaDados();
+        if (!isValid) return;
         funcoes?.enviar();
         setAreaSelecionada('');
     }
 
     return (
-        <tr>
+        <tr style={{backgroundColor}}>
             <td className={styles.riscoTdArea}>
                 <select
                     name="area"

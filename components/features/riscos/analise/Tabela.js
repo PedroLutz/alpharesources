@@ -8,6 +8,7 @@ import { cleanForm } from "../../../../functions/general";
 import useAuth from "../../../../hooks/useAuth";
 import usePerm from "../../../../hooks/usePerm";
 import HelpBubble from "../../../ui/HelpBubble/risco/Analise";
+import { getTextColor } from "../../../../functions/colors";
 
 const TabelaAnalise = () => {
     const { user, token } = useAuth();
@@ -61,13 +62,16 @@ const TabelaAnalise = () => {
                 }
             })
         }
-        return (
-            <ul>
-                {riscos.map((risco, index) => (
-                    <li key={index} style={{ fontSize: '0.65rem', textAlign: 'left' }}>{risco}</li>
-                ))}
-            </ul>
-        );
+        if(riscos.length > 0){
+            return (
+                <ul>
+                    {riscos.map((risco, index) => (
+                        <li key={index} style={{ fontSize: '0.65rem', textAlign: 'left', marginLeft: '-2rem' }}>{risco}</li>
+                    ))}
+                </ul>
+            );
+        }
+        return "-";
     }
 
     const handleUpdateClick = (item) => {
@@ -166,6 +170,8 @@ const TabelaAnalise = () => {
         return item.occurrence * item.impact * item.action * item.urgency;
     }
 
+    let lastAreaId = null, lastItemId = null, lastRiskId = null;
+
     return (
         <div className="centered-container">
             {loading && <Loading />}
@@ -218,12 +224,38 @@ const TabelaAnalise = () => {
                                 <th>Estimated Monetary Value</th>
                                 <th>Schedule Impact</th>
                                 <th>Estimated Time Impact</th>
-                                <th>Actions</th>
+                                <th className={styles.optionsTh}>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
+                            {analises.map((item, index) => {
+                                const { wbs_item } = item?.risk ?? {};
+                                const { wbs_area } = wbs_item ?? {};
 
-                            {analises.map((item, index) => (
+                                const shouldMergeArea = wbs_area?.id === lastAreaId;
+                                const shouldMergeItem = wbs_item?.id === lastItemId;
+
+                                lastAreaId = wbs_area?.id;
+                                lastItemId = wbs_item?.id;
+
+                                const { risk } = item;
+                                const shouldMergeRisk = risk?.id === lastRiskId;
+
+                                lastRiskId = risk?.id;
+
+                                const riskPriorityNumber = calculaRPN(item);
+                                const rpnBackgroundColor = riskPriorityNumber >= 150 ? '#f7b2b2' : (calculaRPN(item) >= 50 ? '#f7dcb2' : '#d2f5c6');
+
+                                const financialImpact = item?.financial_impact ?? 0;
+                                const financialImpactLabel = financialImpact != 0 ? `R$${financialImpact.toFixed(2)}` : '-';
+                                const emv = ((financialImpact ?? 0)  * (item.occurrence / 5)).toFixed(2);
+
+                                const scheduleImpact = item?.schedule_impact;
+                                const hasScheduleImpact = scheduleImpact != 0 && scheduleImpact != null;
+                                const scheduleImpactLabel = hasScheduleImpact ? `${scheduleImpact} days` : '-';
+                                const eti = hasScheduleImpact ? `${(scheduleImpact * (item.occurrence / 5)).toFixed()} days` : '-';
+
+                                return (
                                 <React.Fragment key={index}>
                                     {linhaVisivel === item.id ? (
                                         <CadastroInputs tipo="update"
@@ -234,47 +266,42 @@ const TabelaAnalise = () => {
                                                 cancelar: () => { setLinhaVisivel(); setIsUpdating(false) },
                                             }}
                                             setExibirModal={setExibirModal}
-                                            isEditor={isEditor}
                                             seeArea={seeArea}
+                                            backgroundColor={wbs_area?.color}
                                         />
                                     ) : (
-                                        <tr style={{ backgroundColor: item?.risk?.wbs_item?.wbs_area?.color || 'white' }}>
+                                        <tr style={{ backgroundColor: wbs_area?.color, color: getTextColor(wbs_area?.color ?? "#ffffff") }}>
                                             {seeArea && (
                                                 <React.Fragment>
-                                                    {index === 0 || analises[index - 1].risk?.wbs_item?.wbs_area?.id !== item?.risk?.wbs_item?.wbs_area?.id ? (
-                                                        <td rowSpan={calculateRowSpan(item?.risk?.wbs_item?.wbs_area?.id, index, 'risk.wbs_item.wbs_area.id')}
-                                                        >{item?.risk?.wbs_item?.wbs_area?.name || "Others"}</td>
+                                                    {!shouldMergeArea ? (
+                                                        <td rowSpan={calculateRowSpan(wbs_area?.id, index, 'risk.wbs_item.wbs_area.id')}
+                                                        >{wbs_area?.name || "Others"}</td>
                                                     ) : null}
-                                                    {index === 0 || analises[index - 1].risk?.wbs_item?.id !== item?.risk?.wbs_item?.id ? (
-                                                        <td rowSpan={calculateRowSpan(item?.risk?.wbs_item?.id, index, 'risk.wbs_item.id')}
-                                                        >{item?.risk?.wbs_item?.name || "Others"}</td>
+                                                    {!shouldMergeItem ? (
+                                                        <td rowSpan={calculateRowSpan(wbs_item?.id, index, 'risk.wbs_item.id')}
+                                                        >{wbs_item?.name || "Others"}</td>
                                                     ) : null}
                                                 </React.Fragment>
                                             )}
-                                            {!isUpdating || isUpdating !== item?.risk?.risk ? (
+                                            {!isUpdating || isUpdating !== risk?.risk ? (
                                                 <React.Fragment>
-                                                    {index === 0 || analises[index - 1].risk?.risk !== item?.risk?.risk ? (
-                                                        <td className={styles.riskTd} rowSpan={calculateRowSpan(item?.risk?.risk, index, 'risk.risk')}
-                                                        >{item?.risk?.risk}</td>
+                                                    {!shouldMergeRisk ? (
+                                                        <td className={styles.riskTd} rowSpan={calculateRowSpan(risk?.risk, index, 'risk.risk')}
+                                                        >{risk?.risk}</td>
                                                     ) : null}
                                                 </React.Fragment>
                                             ) : (
-                                                <td className={styles.analiseRiskTd}>{item?.risk?.risk}</td>
+                                                <td className={styles.analiseRiskTd}>{risk?.risk}</td>
                                             )}
                                             <td className={styles.analiseOcurrenceTd}>{item.occurrence}</td>
                                             <td>{item.impact}</td>
                                             <td>{item.action}</td>
                                             <td>{item.urgency}</td>
-                                            <td style={{
-                                                backgroundColor: calculaRPN(item) >= 150 ? '#f7b2b2' : (calculaRPN(item) >= 50 ? '#f7dcb2' : '#d2f5c6')
-                                            }}>{calculaRPN(item)}</td>
-                                            <td>{item.financial_impact != 0 ? `R$${(Number(item.financial_impact)).toFixed(2)}` : '-'}</td>
-                                            <td>{item.financial_impact != 0 ? `R$${(item.financial_impact * (item.occurrence / 5)).toFixed(2)}` : '-'}</td>
-                                            <td>{(item.schedule_impact != 0 && item.schedule_impact != null) ?
-                                                `${item.schedule_impact} days` : '-'}</td>
-                                            <td>{(item.schedule_impact != 0 && item.schedule_impact != null) ?
-                                                `${(item.schedule_impact * (item.occurrence / 5)).toFixed()} days` : '-'}
-                                            </td>
+                                            <td style={{backgroundColor: rpnBackgroundColor}}>{riskPriorityNumber}</td>
+                                            <td>{financialImpactLabel}</td>
+                                            <td>{emv}</td>
+                                            <td>{scheduleImpactLabel}</td>
+                                            <td>{eti}</td>
                                             <td className='botoes_acoes'>
                                                 <button onClick={() => setConfirmDeleteItem(item)} disabled={!isEditor}>❌</button>
                                                 <button onClick={() => {
@@ -285,13 +312,12 @@ const TabelaAnalise = () => {
                                         </tr>
                                     )}
                                 </React.Fragment>
-                            ))}
+                            )})}
                             <CadastroInputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
                                 funcoes={{ enviar, isRiscoCadastrado }}
                                 setExibirModal={setExibirModal}
-                                isEditor={isEditor}
                                 seeArea={seeArea}
                             />
                         </tbody>
@@ -325,43 +351,43 @@ const TabelaAnalise = () => {
                                         Occurrence
                                     </div></td>
                                 <th>5</th>
-                                <td style={{ backgroundColor: '#a5d68f' }}>{getRiscosMapeados(5, 1) || '-'}</td>
-                                <td style={{ backgroundColor: '#ffe990' }}>{getRiscosMapeados(5, 2) || '-'}</td>
-                                <td style={{ backgroundColor: '#ffb486' }}>{getRiscosMapeados(5, 3) || '-'}</td>
-                                <td style={{ backgroundColor: '#ff9595' }}>{getRiscosMapeados(5, 4) || '-'}</td>
-                                <td style={{ backgroundColor: '#ff9595' }}>{getRiscosMapeados(5, 5) || '-'}</td>
+                                <td style={{ backgroundColor: '#a5d68f' }}>{getRiscosMapeados(5, 1)}</td>
+                                <td style={{ backgroundColor: '#ffe990' }}>{getRiscosMapeados(5, 2)}</td>
+                                <td style={{ backgroundColor: '#ffb486' }}>{getRiscosMapeados(5, 3)}</td>
+                                <td style={{ backgroundColor: '#ff9595' }}>{getRiscosMapeados(5, 4)}</td>
+                                <td style={{ backgroundColor: '#ff9595' }}>{getRiscosMapeados(5, 5)}</td>
                             </tr>
                             <tr>
                                 <th>4</th>
-                                <td style={{ backgroundColor: '#78bf9d' }}>{getRiscosMapeados(4, 1) || '-'}</td>
-                                <td style={{ backgroundColor: '#a5d68f' }}>{getRiscosMapeados(4, 2) || '-'}</td>
-                                <td style={{ backgroundColor: '#ffe990' }}>{getRiscosMapeados(4, 3) || '-'}</td>
-                                <td style={{ backgroundColor: '#ffb486' }}>{getRiscosMapeados(4, 4) || '-'}</td>
-                                <td style={{ backgroundColor: '#ff9595' }}>{getRiscosMapeados(4, 5) || '-'}</td>
+                                <td style={{ backgroundColor: '#78bf9d' }}>{getRiscosMapeados(4, 1)}</td>
+                                <td style={{ backgroundColor: '#a5d68f' }}>{getRiscosMapeados(4, 2)}</td>
+                                <td style={{ backgroundColor: '#ffe990' }}>{getRiscosMapeados(4, 3)}</td>
+                                <td style={{ backgroundColor: '#ffb486' }}>{getRiscosMapeados(4, 4)}</td>
+                                <td style={{ backgroundColor: '#ff9595' }}>{getRiscosMapeados(4, 5)}</td>
                             </tr>
                             <tr>
                                 <th>3</th>
-                                <td style={{ backgroundColor: '#78bf9d' }}>{getRiscosMapeados(3, 1) || '-'}</td>
-                                <td style={{ backgroundColor: '#a5d68f' }}>{getRiscosMapeados(3, 2) || '-'}</td>
-                                <td style={{ backgroundColor: '#ffe990' }}>{getRiscosMapeados(3, 3) || '-'}</td>
-                                <td style={{ backgroundColor: '#ffb486' }}>{getRiscosMapeados(3, 4) || '-'}</td>
-                                <td style={{ backgroundColor: '#ff9595' }}>{getRiscosMapeados(3, 5) || '-'}</td>
+                                <td style={{ backgroundColor: '#78bf9d' }}>{getRiscosMapeados(3, 1)}</td>
+                                <td style={{ backgroundColor: '#a5d68f' }}>{getRiscosMapeados(3, 2)}</td>
+                                <td style={{ backgroundColor: '#ffe990' }}>{getRiscosMapeados(3, 3)}</td>
+                                <td style={{ backgroundColor: '#ffb486' }}>{getRiscosMapeados(3, 4)}</td>
+                                <td style={{ backgroundColor: '#ff9595' }}>{getRiscosMapeados(3, 5)}</td>
                             </tr>
                             <tr>
                                 <th>2</th>
-                                <td style={{ backgroundColor: '#78bf9d' }}>{getRiscosMapeados(2, 1) || '-'}</td>
-                                <td style={{ backgroundColor: '#a5d68f' }}>{getRiscosMapeados(2, 2) || '-'}</td>
-                                <td style={{ backgroundColor: '#a5d68f' }}>{getRiscosMapeados(2, 3) || '-'}</td>
-                                <td style={{ backgroundColor: '#ffe990' }}>{getRiscosMapeados(2, 4) || '-'}</td>
-                                <td style={{ backgroundColor: '#ffb486' }}>{getRiscosMapeados(2, 5) || '-'}</td>
+                                <td style={{ backgroundColor: '#78bf9d' }}>{getRiscosMapeados(2, 1)}</td>
+                                <td style={{ backgroundColor: '#a5d68f' }}>{getRiscosMapeados(2, 2)}</td>
+                                <td style={{ backgroundColor: '#a5d68f' }}>{getRiscosMapeados(2, 3)}</td>
+                                <td style={{ backgroundColor: '#ffe990' }}>{getRiscosMapeados(2, 4)}</td>
+                                <td style={{ backgroundColor: '#ffb486' }}>{getRiscosMapeados(2, 5)}</td>
                             </tr>
                             <tr>
                                 <th>1</th>
-                                <td style={{ backgroundColor: '#78bf9d' }}>{getRiscosMapeados(1, 1) || '-'}</td>
-                                <td style={{ backgroundColor: '#78bf9d' }}>{getRiscosMapeados(1, 2) || '-'}</td>
-                                <td style={{ backgroundColor: '#a5d68f' }}>{getRiscosMapeados(1, 3) || '-'}</td>
-                                <td style={{ backgroundColor: '#ffe990' }}>{getRiscosMapeados(1, 4) || '-'}</td>
-                                <td style={{ backgroundColor: '#ffe990' }}>{getRiscosMapeados(1, 5) || '-'}</td>
+                                <td style={{ backgroundColor: '#78bf9d' }}>{getRiscosMapeados(1, 1)}</td>
+                                <td style={{ backgroundColor: '#78bf9d' }}>{getRiscosMapeados(1, 2)}</td>
+                                <td style={{ backgroundColor: '#a5d68f' }}>{getRiscosMapeados(1, 3)}</td>
+                                <td style={{ backgroundColor: '#ffe990' }}>{getRiscosMapeados(1, 4)}</td>
+                                <td style={{ backgroundColor: '#ffe990' }}>{getRiscosMapeados(1, 5)}</td>
                             </tr>
                         </tbody>
                     </table>
