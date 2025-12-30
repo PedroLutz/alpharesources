@@ -34,14 +34,14 @@ const Tabela = () => {
         const obj = {
             id: item.id,
             group_id: item?.stakeholder_group?.id,
-            dependency: item.dependency || "",
-            influence: item.influence || "",
-            control: item.control || "",
-            impact: item.impact || "",
-            engagement: item.engagement || "",
-            alignment: item.alignment || "",
-            eng_level: item.eng_level || "",
-            eng_target_level: item.eng_target_level || ""
+            dependency: item.dependency ?? "",
+            influence: item.influence ?? "",
+            control: item.control ?? "",
+            impact: item.impact ?? "",
+            engagement: item.engagement ?? "",
+            alignment: item.alignment ?? "",
+            eng_level: item.eng_level ?? "",
+            eng_target_level: item.eng_target_level ?? ""
         }
         setNovosDados(obj);
         setLinhaVisivel(item.id);
@@ -125,8 +125,8 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
-            <h2 className="smallTitle">Stakeholder Group Engagement Matrix <button onClick={()=> setShowHelp(true)}>❔</button></h2>
+            {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
+            <h2 className="smallTitle">Stakeholder Group Engagement Matrix <button onClick={() => setShowHelp(true)}>❔</button></h2>
             {exibirModal != null && (
                 <Modal objeto={{
                     titulo: modalLabels[exibirModal],
@@ -136,79 +136,99 @@ const Tabela = () => {
                 }} />
             )}
 
-            {/* {engajamentos.length != 0 ? ( */}
-
-
-            <div className={styles.tabelaComunicacao_container}>
-                <div className={styles.tabelaComunicacao_wrapper}>
-                    <table className={`${styles.tabelaEngajamento} tabela`}>
-                        <thead>
-                            <tr>
-                                <th rowSpan={2}>Stakeholder Group</th>
-                                <th colSpan={4}>Power</th>
-                                <th colSpan={4}>Interest</th>
-                                <th className={styles.eng_mapping} rowSpan={2}>Mapping</th>
-                                <th className={styles.eng_engajamentoId} rowSpan={2}>Current Engagement Level</th>
-                                <th className={styles.eng_engajamentoId} rowSpan={2}>Expected Engagement Level</th>
-                                <th rowSpan={2}>Actions</th>
-                            </tr>
-                            <tr>
-                                <th className={styles.eng_camposMenores}>Dependency</th>
-                                <th className={styles.eng_camposMenores}>Influence</th>
-                                <th className={styles.eng_camposMenores}>Resource Control</th>
-                                <th className={styles.eng_average}>Avg.</th>
-                                <th className={styles.eng_camposMenores}>Impact</th>
-                                <th className={styles.eng_camposMenores}>Engagement</th>
-                                <th className={styles.eng_camposMenores}>Alignment of Values</th>
-                                <th className={styles.eng_average}>Avg.</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-
-                            {engajamentos.map((engajamento, index) => (
-                                <tr key={index}>
-                                    <td>{engajamento.stakeholder_group.group}</td>
-                                    {linhaVisivel === engajamento.id ? (
-                                        <Inputs tipo="update"
-                                            obj={novosDados}
-                                            objSetter={setNovosDados}
-                                            funcoes={{
-                                                enviar: handleUpdateItem,
-                                                cancelar: () => { setLinhaVisivel() }
-                                            }}
-                                            setExibirModal={setExibirModal}
-                                        />
-                                    ) : (
-                                        <React.Fragment>
-                                            <td>{engajamento.dependency}</td>
-                                            <td>{engajamento.influence}</td>
-                                            <td>{engajamento.control}</td>
-                                            <td>{engajamento.control ? ((engajamento.control + engajamento.influence + engajamento.dependency) / 3).toFixed(2) : "-"}</td>
-                                            <td>{engajamento.impact}</td>
-                                            <td>{engajamento.engagement}</td>
-                                            <td>{engajamento.alignment}</td>
-                                            <td>{engajamento.impact ? ((engajamento.impact + engajamento.engagement + engajamento.alignment) / 3).toFixed(2) : "-"}</td>
-                                            <td>{generateMapping(engajamento)}</td>
-                                            <td>{capitalizeFirstLetter(engajamento.eng_level)}</td>
-                                            <td>{capitalizeFirstLetter(engajamento.eng_target_level)}</td>
-                                            <td className='botoes_acoes'>
-                                                <button onClick={() => {
-                                                    handleUpdateClick(engajamento)
-                                                }
-                                                } disabled={!isEditor}>⚙️</button>
-                                            </td>
-                                        </React.Fragment>
-                                    )}
-
+            {engajamentos.length != 0 ? (
+                <div className={styles.tabelaComunicacao_container}>
+                    <div className={styles.tabelaComunicacao_wrapper}>
+                        <table className={`${styles.tabelaEngajamento} tabela`}>
+                            <thead>
+                                <tr>
+                                    <th rowSpan={2}>Stakeholder Group</th>
+                                    <th colSpan={4}>Power</th>
+                                    <th colSpan={4}>Interest</th>
+                                    <th className={styles.eng_mapping} rowSpan={2}>Mapping</th>
+                                    <th className={styles.eng_engajamentoId} rowSpan={2}>Current Engagement Level</th>
+                                    <th className={styles.eng_engajamentoId} rowSpan={2}>Expected Engagement Level</th>
+                                    <th rowSpan={2}>Actions</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                                <tr>
+                                    <th className={styles.eng_camposMenores}>Dependency</th>
+                                    <th className={styles.eng_camposMenores}>Influence</th>
+                                    <th className={styles.eng_camposMenores}>Resource Control</th>
+                                    <th className={styles.eng_average}>Avg.</th>
+                                    <th className={styles.eng_camposMenores}>Impact</th>
+                                    <th className={styles.eng_camposMenores}>Engagement</th>
+                                    <th className={styles.eng_camposMenores}>Alignment of Values</th>
+                                    <th className={styles.eng_average}>Avg.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                {engajamentos.map((engajamento, index) => { 
+                                    let powerAvg;
+                                    if (engajamento?.control == null || engajamento?.influence == null || engajamento?.dependency == null) {
+                                        powerAvg = "-";
+                                    } else {
+                                        powerAvg = ((
+                                            (engajamento?.control ?? 0) +
+                                            (engajamento?.influence ?? 0) +
+                                            (engajamento?.dependency ?? 0)
+                                        ) / 3).toFixed(2);
+                                    }
+
+                                    let influenceAvg;
+                                    if (engajamento?.impact == null || engajamento?.engagement == null || engajamento?.alignment == null) {
+                                        influenceAvg = "-";
+                                    } else {
+                                        influenceAvg = ((
+                                            (engajamento?.impact ?? 0) +
+                                            (engajamento?.engagement ?? 0) +
+                                            (engajamento?.alignment ?? 0)
+                                        ) / 3).toFixed(2);
+                                    }
+                                    
+                                    return (
+                                    <tr key={index}>
+                                        <td>{engajamento.stakeholder_group.group}</td>
+                                        {linhaVisivel === engajamento.id ? (
+                                            <Inputs tipo="update"
+                                                obj={novosDados}
+                                                objSetter={setNovosDados}
+                                                funcoes={{
+                                                    enviar: handleUpdateItem,
+                                                    cancelar: () => { setLinhaVisivel() }
+                                                }}
+                                                setExibirModal={setExibirModal}
+                                            />
+                                        ) : (
+                                            <React.Fragment>
+                                                <td>{engajamento.dependency}</td>
+                                                <td>{engajamento.influence}</td>
+                                                <td>{engajamento.control}</td>
+                                                <td>{powerAvg}</td>
+                                                <td>{engajamento.impact}</td>
+                                                <td>{engajamento.engagement}</td>
+                                                <td>{engajamento.alignment}</td>
+                                                <td>{influenceAvg}</td>
+                                                <td>{generateMapping(engajamento)}</td>
+                                                <td>{capitalizeFirstLetter(engajamento.eng_level)}</td>
+                                                <td>{capitalizeFirstLetter(engajamento.eng_target_level)}</td>
+                                                <td className='botoes_acoes'>
+                                                    <button onClick={() => {
+                                                        handleUpdateClick(engajamento)
+                                                    }
+                                                    } disabled={!isEditor}>⚙️</button>
+                                                </td>
+                                            </React.Fragment>
+                                        )}
+                                    </tr>
+                                )})}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
-            {/* ) : (
-                <div>No Stakeholders registered! Please register a stakeholder first.</div>
-            )} */}
+            ) : (
+                <div>No Stakeholder Groups registered! Please register a group first.</div>
+            )}
         </div>
     )
 };

@@ -154,6 +154,8 @@ const Tabela = () => {
         return rowSpan;
     };
 
+    let lastGroupId, lastStakeholderId = null;
+
     return (
         <div className="centered-container">
             {loading && <Loading />}
@@ -201,7 +203,25 @@ const Tabela = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {informacoes.map((informacao, index) => (
+                            {informacoes.map((informacao, index) => { 
+                                const { stakeholder_group } = informacao.stakeholder;
+                                const shouldMergeGroup = stakeholder_group.id !== lastGroupId;
+
+                                lastGroupId = stakeholder_group.id;
+
+                                const { stakeholder } = informacao;
+                                const shouldMergeStakeholder = stakeholder.id !== lastStakeholderId;
+
+                                lastStakeholderId = stakeholder.id;
+
+                                const register = informacao.register ?
+                                    (
+                                        <Link href={informacao.register}>{informacao.register}</Link>
+                                    ) : (
+                                        '-'
+                                    );
+
+                                return (
                                 <React.Fragment key={index}>
                                     {linhaVisivel === informacao.id ? (
                                         <Inputs tipo="update"
@@ -215,39 +235,32 @@ const Tabela = () => {
                                         />
                                     ) : (
                                         <tr>
-                                            {!isUpdating || isUpdating[0] !== informacao.stakeholder?.stakeholder_group?.id ? (
+                                            {!isUpdating || isUpdating[0] !== stakeholder_group?.id ? (
                                                 <React.Fragment>
-                                                    {index === 0 || informacoes[index - 1].stakeholder?.stakeholder_group?.id !== informacao.stakeholder?.stakeholder_group?.id ? (
-                                                        <td rowSpan={calculateRowSpan(informacao.stakeholder?.stakeholder_group?.id, index, 'stakeholder.stakeholder_group.id')}
-                                                        >{informacao.stakeholder?.stakeholder_group?.group}</td>
+                                                    {shouldMergeGroup ? (
+                                                        <td rowSpan={calculateRowSpan(stakeholder_group?.id, index, 'stakeholder.stakeholder_group.id')}
+                                                        >{stakeholder_group?.group}</td>
                                                     ) : null}
                                                 </React.Fragment>
                                             ) : (
-                                                <td>{informacao.stakeholder?.stakeholder_group?.group}</td>
+                                                <td>{stakeholder_group?.group}</td>
                                             )}
-                                            {!isUpdating || isUpdating[1] !== informacao.stakeholder?.id ? (
+                                            {!isUpdating || isUpdating[1] !== stakeholder?.id ? (
                                                 <React.Fragment>
-                                                    {index === 0 || informacoes[index - 1].stakeholder?.id !== informacao.stakeholder?.id ? (
-                                                        <td rowSpan={calculateRowSpan(informacao.stakeholder?.id, index, 'stakeholder.id')}
-                                                        >{informacao.stakeholder?.stakeholder}</td>
+                                                    {shouldMergeStakeholder ? (
+                                                        <td rowSpan={calculateRowSpan(stakeholder?.id, index, 'stakeholder.id')}
+                                                        >{stakeholder?.stakeholder}</td>
                                                     ) : null}
                                                 </React.Fragment>
                                             ) : (
-                                                <td>{informacao.stakeholder?.stakeholder}</td>
+                                                <td>{stakeholder?.stakeholder}</td>
                                             )}
                                             <td className={styles.infoTdInfo}>{informacao.information}</td>
                                             <td>{informacao.method}</td>
                                             <td>{informacao.frequency}</td>
                                             <td>{informacao.channel}</td>
                                             <td>{informacao?.member?.name || 'Circunstancial'}</td>
-                                            <td>
-                                                {informacao.register ? (
-                                                    <Link href={informacao.register}>{informacao.register}</Link>
-                                                ) : (
-                                                    '-'
-                                                )}
-
-                                            </td>
+                                            <td>{register}</td>
                                             <td>{informacao.feedback || '-'}</td>
                                             <td>{informacao.action || '-'}</td>
                                             <td className='botoes_acoes'>
@@ -260,7 +273,7 @@ const Tabela = () => {
                                         </tr>
                                     )}
                                 </React.Fragment>
-                            ))}
+                            )})}
                             <Inputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
