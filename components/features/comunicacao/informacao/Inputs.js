@@ -117,11 +117,9 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     //se esse valor for diferente dos preestabelecidos e nao for vazio, inicia o componente mostrando o input de opcao customizada
     useEffect(() => {
         const opcoesPreEstabelecidas = ["Daily", "Weekly", "Monthly", "On demand"];
-        console.log(obj.frequency)
         if (obj.frequency && !opcoesPreEstabelecidas.includes(obj.frequency)) {
             setVerOpcaoCustom(true);
         }
-
         fetchGruposENomes();
         fetchMembros();
     }, [obj.frequency]);
@@ -152,30 +150,24 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
 
 
     const validaDados = () => {
-        const camposConsiderados = { ...obj };
-        delete camposConsiderados.feedback;
-        delete camposConsiderados.action;
-        delete camposConsiderados.register;
-        const camposVazios = Object.entries(camposConsiderados)
-            .filter(([key, value]) => value === null || value === "")
-            .map(([key]) => key);
+        const {feedback, action, register, ...camposConsiderados} = obj;
+        const camposVazios = Object.keys(camposConsiderados)
+            .filter(key => camposConsiderados[key] === null || camposConsiderados[key] === "")
 
         if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
-                if (camposRef.current[campo]) {
-                    camposRef.current[campo].classList.add('campo-vazio');
-                }
+                camposRef.current?.[campo]?.classList.add('campo-vazio');
             });
             setExibirModal('inputsVazios');
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     const handleSubmit = async () => {
-        const isInvalido = validaDados();
-        if (isInvalido) return;
+        const isValid = validaDados();
+        if (!isValid) return;
         await funcoes?.enviar();
         setVerOpcaoCustom(false);
     }
@@ -300,7 +292,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.action = el)}
                 />
             </td>
-            <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
+            <td className={tipo === 'update' && 'botoes_acoes'}>
                 {tipo !== 'update' ? (
                     <button onClick={handleSubmit} disabled={!isEditor}>Add new</button>
                 ) : (

@@ -34,41 +34,39 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
             control: obj.control, 
             impact: obj.impact,
             engagement: obj.engagement,
-            alignment: obj.alignment };
+            alignment: obj.alignment
+        };
 
         for (const [key, value] of Object.entries(campos)) {
             if (value < 0) {
                 camposRef.current[key].classList.add('campo-vazio');
                 setExibirModal('valorNegativo');
-                return true;
+                return false;
             }
             if (value > 5) {
                 camposRef.current[key].classList.add('campo-vazio');
                 setExibirModal('maiorQueCinco');
-                return true;
+                return false;
             }
         }
 
-        const camposVazios = Object.entries(obj)
-        .filter(([key, value]) => value === null || value === "")
-        .map(([key]) => key);
+        const camposVazios = Object.keys(obj).filter(
+            key => obj[key] === null || obj[key] === "");
 
         if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
-                if (camposRef.current[campo]) {
-                    camposRef.current[campo].classList.add('campo-vazio');
-                }
+                camposRef.current?.[campo]?.classList.add('campo-vazio');
             });
             setExibirModal('inputsVazios');
-            return true;
+            return false;
         }
+        return true;
     }
 
     //funcao que executa a funcao de submit caso os dados sejam validos
     const handleSubmit = () => {
-        const isInvalido = validaDados();
-        if(isInvalido) return;
-        
+        const isValid = validaDados();
+        if(!isValid) return;
         funcoes?.enviar();
     }
 
@@ -76,9 +74,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
         <React.Fragment>
             <td>
                 <input
-                    min={1}
-                    max={5}
-                    value={obj.dependency}
+                    value={obj?.dependency ?? 0}
                     name='dependency'
                     onChange={(e) => handleChange(e, true)}
                     ref={el => (camposRef.current.dependency = el)}
@@ -86,9 +82,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
             </td>
             <td>
                 <input
-                    min={1}
-                    max={5}
-                    value={obj.influence}
+                    value={obj?.influence ?? 0}
                     name='influence'
                     onChange={(e) => handleChange(e, true)}
                     ref={el => (camposRef.current.influence = el)}
@@ -96,9 +90,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
             </td>
             <td>
                 <input
-                    min={1}
-                    max={5}
-                    value={obj.control}
+                    value={obj?.control ?? 0}
                     name='control'
                     onChange={(e) => handleChange(e, true)}
                     ref={el => (camposRef.current.control = el)}
@@ -107,9 +99,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
             <td>-</td>
             <td>
                 <input
-                    min={1}
-                    max={5}
-                    value={obj.impact}
+                    value={obj?.impact ?? 0}
                     name='impact'
                     onChange={(e) => handleChange(e, true)}
                     ref={el => (camposRef.current.impact = el)}
@@ -117,9 +107,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
             </td>
             <td>
                 <input
-                    min={1}
-                    max={5}
-                    value={obj.engagement}
+                    value={obj?.engagement ?? 0}
                     name='engagement'
                     onChange={(e) => handleChange(e, true)}
                     ref={el => (camposRef.current.engagement = el)}
@@ -127,9 +115,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
             </td>
             <td>
                 <input
-                    min={1}
-                    max={5}
-                    value={obj.alignment}
+                    value={obj?.alignment ?? 0}
                     name='alignment'
                     onChange={(e) => handleChange(e, true)}
                     ref={el => (camposRef.current.alignment = el)}
@@ -139,7 +125,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
             <td>-</td>
             <td>
                 <select
-                    value={obj.eng_level}
+                    value={obj?.eng_level}
                     name='eng_level'
                     onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.eng_level = el)} >
@@ -154,7 +140,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
 
             <td>
                 <select
-                    value={obj.eng_target_level}
+                    value={obj?.eng_target_level}
                     name='eng_target_level'
                     onChange={(e) => handleChange(e, false)}
                     ref={el => (camposRef.current.eng_target_level = el)} >
@@ -167,7 +153,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                 </select>
             </td>
    
-            <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
+            <td className={tipo === 'update' && 'botoes_acoes'}>
                 <button onClick={handleSubmit}>✔️</button>
                 <button onClick={funcoes?.cancelar}>✖️</button>  
             </td>
