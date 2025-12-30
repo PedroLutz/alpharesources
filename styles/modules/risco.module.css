@@ -171,7 +171,7 @@ ANALISE --------------------------
     width: 100%;
 }
 
-.tabelaAnalise th:not(.riskTd):not(:last-child) {
+.tabelaAnalise th:not(.riskTd):not(.optionsTh) {
     word-wrap: break-word;
     width: 2rem;
     font-size: 0.7rem;

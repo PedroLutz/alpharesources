@@ -8,6 +8,7 @@ import { cleanForm } from "../../../../functions/general";
 import useAuth from "../../../../hooks/useAuth";
 import usePerm from "../../../../hooks/usePerm";
 import HelpBubble from "../../../ui/HelpBubble/risco/Impacto";
+import { getTextColor } from "../../../../functions/colors";
 
 const TabelaAnalise = () => {
     const { user, token } = useAuth();
@@ -148,6 +149,8 @@ const TabelaAnalise = () => {
         return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
+    let lastAreaId = null, lastItemId = null, lastRiskId = null;
+
     return (
         <div className="centered-container">
             {loading && <Loading />}
@@ -197,7 +200,23 @@ const TabelaAnalise = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {impactos.map((item, index) => (
+                            {impactos.map((item, index) => {
+
+                                const { wbs_item } = item?.risk ?? {};
+                                const { wbs_area } = wbs_item ?? {};
+
+                                const shouldMergeArea = wbs_area?.id === lastAreaId;
+                                const shouldMergeItem = wbs_item?.id === lastItemId;
+
+                                lastAreaId = wbs_area?.id;
+                                lastItemId = wbs_item?.id;
+
+                                const { risk } = item;
+                                const shouldMergeRisk = risk?.id === lastRiskId;
+
+                                lastRiskId = risk?.id;
+                                
+                                return (
                                 <React.Fragment key={index}>
                                     {linhaVisivel === item.id ? (
                                         <CadastroInputs tipo="update"
@@ -210,30 +229,31 @@ const TabelaAnalise = () => {
                                             setExibirModal={setExibirModal}
                                             isEditor={isEditor}
                                             seeArea={seeArea}
+                                            backgroundColor={wbs_area?.color} 
                                         />
                                     ) : (
-                                        <tr style={{ backgroundColor: item?.risk?.wbs_item?.wbs_area?.color || 'white' }}>
+                                        <tr style={{ backgroundColor: wbs_area?.color || 'white', color: getTextColor(wbs_area?.color ?? "#ffffff") }}>
                                             {seeArea && (
                                                 <React.Fragment>
-                                                    {index === 0 || impactos[index - 1].risk?.wbs_item?.wbs_area?.id !== item?.risk?.wbs_item?.wbs_area?.id ? (
-                                                        <td rowSpan={calculateRowSpan(item?.risk?.wbs_item?.wbs_area?.id, index, 'risk.wbs_item.wbs_area.id')}
-                                                        >{item?.risk?.wbs_item?.wbs_area?.name}</td>
+                                                    {!shouldMergeArea ? (
+                                                        <td rowSpan={calculateRowSpan(wbs_area?.id, index, 'risk.wbs_item.wbs_area.id')}
+                                                        >{wbs_area?.name}</td>
                                                     ) : null}
-                                                    {index === 0 || impactos[index - 1].risk?.wbs_item?.id !== item?.risk?.wbs_item?.id ? (
-                                                        <td rowSpan={calculateRowSpan(item?.risk?.wbs_item?.id, index, 'risk.wbs_item.id')}
-                                                        >{item?.risk?.wbs_item?.name}</td>
+                                                    {!shouldMergeItem ? (
+                                                        <td rowSpan={calculateRowSpan(wbs_item?.id, index, 'risk.wbs_item.id')}
+                                                        >{wbs_item?.name}</td>
                                                     ) : null}
                                                 </React.Fragment>
                                             )}
-                                            {!isUpdating || isUpdating !== item?.risk?.id ? (
+                                            {!isUpdating || isUpdating !== risk?.id ? (
                                                 <React.Fragment>
-                                                    {index === 0 || impactos[index - 1].risk?.id !== item?.risk?.id ? (
-                                                        <td rowSpan={calculateRowSpan(item?.risk?.id, index, "risk.id")}
-                                                        >{item?.risk?.risk}</td>
+                                                    {!shouldMergeRisk ? (
+                                                        <td rowSpan={calculateRowSpan(risk?.id, index, "risk.id")}
+                                                        >{risk?.risk}</td>
                                                     ) : null}
                                                 </React.Fragment>
                                             ) : (
-                                                <td>{item?.risk?.risk}</td>
+                                                <td>{risk?.risk}</td>
                                             )}
                                             <td>{capitalizeFirstLetter(item.impact_area)}</td>
                                             <td style={{ width: '3rem', textAlign: 'center' }}>{item.score}</td>
@@ -248,7 +268,7 @@ const TabelaAnalise = () => {
                                         </tr>
                                     )}
                                 </React.Fragment>
-                            ))}
+                            )})}
                             <CadastroInputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}

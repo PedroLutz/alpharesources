@@ -249,7 +249,7 @@ const Tabela = () => {
                                             backgroundColor={backgroundColor}
                                         />
                                     ) : (
-                                        <tr style={{ backgroundColor, color: getTextColor(backgroundColor) }}>
+                                        <tr style={{ backgroundColor, color: getTextColor(backgroundColor ?? "#ffffff") }}>
                                             {isEditingThisArea ? (
                                                 <React.Fragment>
                                                     {index === 0 || prevAreaName !== curAreaName ? (

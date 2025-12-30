@@ -2,10 +2,12 @@ import { useEffect, useState, useRef } from "react";
 import React from "react";
 import { handleFetch } from "../../../../functions/crud_s";
 import useAuth from "../../../../hooks/useAuth";
+import usePerm from "../../../../hooks/usePerm";
 import styles from '../../../../styles/modules/risco.module.css'
 
-const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEditor, seeArea }) => {
+const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea, backgroundColor }) => {
     const { token } = useAuth();
+    const { isEditor } = usePerm();
 
     const [riscos, setRiscos] = useState([])
     const [riscosPorArea, setRiscosPorArea] = useState([]);
@@ -45,7 +47,7 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEditor, 
     const isFirstRender = useRef(true);
 
     useEffect(() => {
-        if (isFirstRender.current === true) {
+        if (isFirstRender.current) {
             isFirstRender.current = false;
             return;
         }
@@ -88,7 +90,7 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEditor, 
         if(funcoes?.isRiscoCadastrado?.(obj?.risk_id) ?? false){
             camposRef.current.risk_id.classList.add('campo-vazio');
             setExibirModal('riscoRepetido');
-            return true;
+            return false;
         }
         const campos = { occurrence: obj.occurrence, impact: obj.impact, urgency: obj.urgency, action: obj.action };
 
@@ -96,41 +98,38 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEditor, 
             if (value < 0) {
                 camposRef.current[key].classList.add('campo-vazio');
                 setExibirModal('valorNegativo');
-                return true;
+                return false;
             }
             if (value > 5) {
                 camposRef.current[key].classList.add('campo-vazio');
                 setExibirModal('maiorQueCinco');
-                return true;
+                return false;
             }
         }
         
-        const camposVazios = Object.entries(obj)
-            .filter(([key, value]) => value === null || value === "")
-            .map(([key]) => key);
+        const camposVazios = Object.keys(obj)
+            .filter(key => obj[key] === null || obj[key] === "")
 
         if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
-                if (camposRef.current[campo]) {
-                    camposRef.current[campo].classList.add('campo-vazio');
-                }
+                camposRef.current?.[campo]?.classList.add('campo-vazio');
             });
             setExibirModal('inputsVazios');
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     const handleSubmit = () => {
-        const isInvalido = validaDados();
-        if(isInvalido) return;
+        const isValid = validaDados();
+        if(!isValid) return;
         funcoes?.enviar();
         setAreaSelecionada('');
     }
 
     return (
-        <tr>
+        <tr style={{backgroundColor}}>
             {seeArea && (
                 <React.Fragment>
                     <td>-</td>
@@ -228,7 +227,7 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEditor, 
                 />
             </td>
             <td>-</td>
-            <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
+            <td className={tipo === 'update' && 'botoes_acoes'}>
                 {tipo !== 'update' ? (
                     <button onClick={handleSubmit} disabled={!isEditor}>Add new</button>
                 ) : (

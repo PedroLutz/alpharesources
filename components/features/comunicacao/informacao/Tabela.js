@@ -154,7 +154,7 @@ const Tabela = () => {
         return rowSpan;
     };
 
-    let lastGroupId, lastStakeholderId = null;
+    let lastGroupId = null, lastStakeholderId = null;
 
     return (
         <div className="centered-container">
@@ -205,12 +205,12 @@ const Tabela = () => {
                         <tbody>
                             {informacoes.map((informacao, index) => { 
                                 const { stakeholder_group } = informacao.stakeholder;
-                                const shouldMergeGroup = stakeholder_group.id !== lastGroupId;
+                                const shouldMergeGroup = stakeholder_group.id === lastGroupId;
 
                                 lastGroupId = stakeholder_group.id;
 
                                 const { stakeholder } = informacao;
-                                const shouldMergeStakeholder = stakeholder.id !== lastStakeholderId;
+                                const shouldMergeStakeholder = stakeholder.id === lastStakeholderId;
 
                                 lastStakeholderId = stakeholder.id;
 
@@ -237,7 +237,7 @@ const Tabela = () => {
                                         <tr>
                                             {!isUpdating || isUpdating[0] !== stakeholder_group?.id ? (
                                                 <React.Fragment>
-                                                    {shouldMergeGroup ? (
+                                                    {!shouldMergeGroup ? (
                                                         <td rowSpan={calculateRowSpan(stakeholder_group?.id, index, 'stakeholder.stakeholder_group.id')}
                                                         >{stakeholder_group?.group}</td>
                                                     ) : null}
@@ -247,7 +247,7 @@ const Tabela = () => {
                                             )}
                                             {!isUpdating || isUpdating[1] !== stakeholder?.id ? (
                                                 <React.Fragment>
-                                                    {shouldMergeStakeholder ? (
+                                                    {!shouldMergeStakeholder ? (
                                                         <td rowSpan={calculateRowSpan(stakeholder?.id, index, 'stakeholder.id')}
                                                         >{stakeholder?.stakeholder}</td>
                                                     ) : null}

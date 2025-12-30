@@ -7,6 +7,7 @@ import { handleReq, handleFetch } from "../../../../functions/crud_s";
 import { cleanForm } from "../../../../functions/general";
 import useAuth from "../../../../hooks/useAuth";
 import usePerm from "../../../../hooks/usePerm";
+import { getTextColor } from "../../../../functions/colors";
 import HelpBubble from "../../../ui/HelpBubble/risco/Identificacao";
 
 const TabelaRiscos = () => {
@@ -160,6 +161,8 @@ const TabelaRiscos = () => {
         return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
+    let lastAreaId = null, lastItemId = null;
+
     return (
         <div className="centered-container">
             {loading && <Loading />}
@@ -205,7 +208,16 @@ const TabelaRiscos = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {riscos.map((item, index) => (
+                            {riscos.map((item, index) => {
+                                const { wbs_item } = item;
+                                const { wbs_area } = wbs_item ?? {};
+                                const shouldMergeArea = wbs_area?.id === lastAreaId;
+                                const shouldMergeItem = wbs_item?.id === lastItemId;
+                                
+                                lastAreaId = wbs_area?.id;
+                                lastItemId = wbs_item?.id;
+                                
+                                return (
                                 <React.Fragment key={index}>
                                     {linhaVisivel === item.id ? (
                                         <CadastroInputs tipo="update"
@@ -217,33 +229,33 @@ const TabelaRiscos = () => {
                                                     setLinhaVisivel(); setIsUptading(false);
                                                 },
                                             }}
-                                            isEditor={isEditor}
                                             setExibirModal={setExibirModal}
                                             loaded={loaded}
+                                            backgroundColor={wbs_area?.color}
                                         />
                                     ) : (
-                                        <tr style={{ backgroundColor: item?.wbs_item?.wbs_area?.color || 'white' }}>
-                                            {!isUpdating || isUpdating[0] !== item?.wbs_item?.wbs_area?.id ? (
+                                        <tr style={{ backgroundColor: wbs_area?.color, color: getTextColor(wbs_area?.color ?? "#ffffff") }}>
+                                            {!isUpdating || isUpdating[0] !== wbs_area.id ? (
                                                 <React.Fragment>
-                                                    {index === 0 || riscos[index - 1].wbs_item?.wbs_area?.id !== item.wbs_item?.wbs_area?.id ? (
+                                                    {!shouldMergeArea ? (
                                                         <td className={styles.riscoTdArea}
-                                                            rowSpan={calculateRowSpan(item.wbs_item?.wbs_area?.id, index, 'wbs_item.wbs_area.id')}
-                                                        >{item?.wbs_item?.wbs_area?.name || 'Others'}</td>
+                                                            rowSpan={calculateRowSpan(wbs_area?.id, index, 'wbs_item.wbs_area.id')}
+                                                        >{wbs_area?.name ?? 'Others'}</td>
                                                     ) : null}
                                                 </React.Fragment>
                                             ) : (
-                                                <td className={styles.riscoTdArea}>{item?.wbs_item?.wbs_area?.name || 'Others'}</td>
+                                                <td className={styles.riscoTdArea}>{wbs_area?.name ?? 'Others'}</td>
                                             )}
-                                            {!isUpdating || isUpdating[1] !== item?.wbs_item?.id ? (
+                                            {!isUpdating || isUpdating[1] !== wbs_item?.id ? (
                                                 <React.Fragment>
-                                                    {index === 0 || riscos[index - 1].wbs_item?.id !== item.wbs_item?.id ? (
+                                                    {!shouldMergeItem ? (
                                                         <td className={styles.riscoTdItem}
-                                                            rowSpan={calculateRowSpan(item.wbs_item?.id, index, 'wbs_item.id')}
-                                                        >{item?.wbs_item?.name || 'Others'}</td>
+                                                            rowSpan={calculateRowSpan(wbs_item?.id, index, 'wbs_item.id')}
+                                                        >{wbs_item?.name || 'Others'}</td>
                                                     ) : null}
                                                 </React.Fragment>
                                             ) : (
-                                                <td className={styles.riscoTdItem}>{item?.wbs_item?.name || 'Others'}</td>
+                                                <td className={styles.riscoTdItem}>{wbs_item?.name || 'Others'}</td>
                                             )}
                                             <td>{item.risk}</td>
                                             <td>{capitalizeFirstLetter(item.classification)}</td>
@@ -262,13 +274,12 @@ const TabelaRiscos = () => {
                                         </tr>
                                     )}
                                 </React.Fragment>
-                            ))}
+                            )})}
                             <CadastroInputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}
                                 funcoes={{ enviar, isRiscoCadastrado }}
                                 setExibirModal={setExibirModal}
-                                isEditor={isEditor}
                                 loaded={loaded}
                             />
                         </tbody>

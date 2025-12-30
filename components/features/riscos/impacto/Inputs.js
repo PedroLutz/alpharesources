@@ -2,9 +2,10 @@ import { useEffect, useState, useRef } from "react";
 import React from "react";
 import { handleFetch } from "../../../../functions/crud_s";
 import useAuth from "../../../../hooks/useAuth";
+import usePerm from "../../../../hooks/usePerm";
 import styles from '../../../../styles/modules/risco.module.css'
 
-const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEditor, seeArea }) => {
+const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea, backgroundColor }) => {
     const [riscos, setRiscos] = useState([])
     const [riscosPorArea, setRiscosPorArea] = useState([]);
     const [areaSelecionada, setAreaSelecionada] = useState('');
@@ -16,6 +17,7 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEditor, 
         description: null
     })
     const { token } = useAuth();
+    const { isEditor } = usePerm();
 
     const fetchRiscos = async () => {
         const data = await handleFetch({
@@ -85,43 +87,40 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEditor, 
         if (funcoes?.isImpactoCadastrado?.(obj.risk_id, obj.impact_area) ?? false) {
             camposRef.current.impact_area.classList.add('campo-vazio');
             setExibirModal('impactoRepetido');
-            return true;
+            return false;
         }
         if (obj.score < 0) {
             camposRef.current.score.classList.add('campo-vazio');
             setExibirModal('scoreNegativo');
-            return true;
+            return false;
         }
         if (obj.score > 5) {
             camposRef.current.score.classList.add('campo-vazio');
             setExibirModal('maiorQueCinco');
-            return true;
+            return false;
         }
-        const camposVazios = Object.entries(obj)
-            .filter(([key, value]) => value === null || value === "")
-            .map(([key]) => key);
+        const camposVazios = Object.keys(obj)
+            .filter(key => obj[key] === null || obj[key] === "")
 
         if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
-                if (camposRef.current[campo]) {
-                    camposRef.current[campo].classList.add('campo-vazio');
-                }
+                camposRef.current?.[campo]?.classList.add('campo-vazio');
             });
             setExibirModal('inputsVazios');
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     const handleSubmit = () => {
-        const isInvalido = validaDados();
-        if (isInvalido == true) return;
+        const isValid = validaDados();
+        if (!isValid == true) return;
         funcoes?.enviar();
         setAreaSelecionada('');
     }
 
     return (
-        <tr>
+        <tr style={{backgroundColor}}>
             {seeArea && (
                 <React.Fragment>
                     <td>-</td>
@@ -192,7 +191,7 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, isEditor, 
                     ref={el => (camposRef.current.description = el)}
                 />
             </td>
-            <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
+            <td className={tipo === 'update' && 'botoes_acoes'}>
                 {tipo !== 'update' ? (
                     <button onClick={handleSubmit} disabled={!isEditor}>Add new</button>
                 ) : (
