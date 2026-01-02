@@ -8,28 +8,6 @@ import useAuth from "../../../hooks/useAuth";
 import { handlePostFetch, handleFetch } from "../../../functions/crud_s";
 import HelpBubble from "../../ui/HelpBubble/monitoramento/Relatorio";
 
-/*
-⢀⡴⠑⡄⠀⠀⠀⠀⠀⠀⠀⣀⣀⣤⣤⣤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ 
-⠸⡇⠀⠿⡀⠀⠀⠀⣀⡴⢿⣿⣿⣿⣿⣿⣿⣿⣷⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀ 
-⠀⠀⠀⠀⠑⢄⣠⠾⠁⣀⣄⡈⠙⣿⣿⣿⣿⣿⣿⣿⣿⣆⠀⠀⠀⠀⠀⠀⠀⠀ 
-⠀⠀⠀⠀⢀⡀⠁⠀⠀⠈⠙⠛⠂⠈⣿⣿⣿⣿⣿⠿⡿⢿⣆⠀⠀⠀⠀⠀⠀⠀ 
-⠀⠀⠀⢀⡾⣁⣀⠀⠴⠂⠙⣗⡀⠀⢻⣿⣿⠭⢤⣴⣦⣤⣹⠀⠀⠀⢀⢴⣶⣆ 
-⠀⠀⢀⣾⣿⣿⣿⣷⣮⣽⣾⣿⣥⣴⣿⣿⡿⢂⠔⢚⡿⢿⣿⣦⣴⣾⠁⠸⣼⡿ 
-⠀⢀⡞⠁⠙⠻⠿⠟⠉⠀⠛⢹⣿⣿⣿⣿⣿⣌⢤⣼⣿⣾⣿⡟⠉⠀⠀⠀⠀⠀ 
-⠀⣾⣷⣶⠇⠀⠀⣤⣄⣀⡀⠈⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀ 
-⠀⠉⠈⠉⠀⠀⢦⡈⢻⣿⣿⣿⣶⣶⣶⣶⣤⣽⡹⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀ 
-⠀⠀⠀⠀⠀⠀⠀⠉⠲⣽⡻⢿⣿⣿⣿⣿⣿⣿⣷⣜⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀ 
-⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣷⣶⣮⣭⣽⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀ 
-⠀⠀⠀⠀⠀⠀⣀⣀⣈⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠇⠀⠀⠀⠀⠀⠀⠀ 
-⠀⠀⠀⠀⠀⠀⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀ 
-⠀⠀⠀⠀⠀⠀⠀⠹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀ 
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠻⠿⠿⠿⠿⠛⠉
-
-
-FAZER SELECIONADOR DE CAMPOS A SEREM USADOS
-
-*/
-
 const Relatorio = () => {
     const [showTable, setShowTable] = useState(false);
     const objKpis = {
@@ -51,8 +29,11 @@ const Relatorio = () => {
     const [oportunidades, setOportunidades] = useState([]);
     const [flagExport, setFlagExport] = useState(false);
     const [interval, setInterval] = useState('');
-    const {user, token} = useAuth();
+    const { user, token } = useAuth();
+    const user_id = user?.id;
     const [showHelp, setShowHelp] = useState(false);
+
+    const [teamLogo, setTeamLogo] = useState(null);
 
     //transforma os dados em uma unica string
     const generateLabelsTarefas = (dados, setter) => {
@@ -96,7 +77,7 @@ const Relatorio = () => {
     const busca = async () => {
         setLoading(true);
         if (interval == "") {
-            setExibirModal(true);
+            setExibirModal(`Please select a valid interval!`);
             setLoading(false);
             return;
         }
@@ -104,7 +85,7 @@ const Relatorio = () => {
             table: "report",
             query: 'all',
             token,
-            data: { uid: user.id, interval_text: interval },
+            data: { uid: user_id, interval_text: interval },
         });
 
         generateLabelsTarefas(data.data.started, setTarefasIniciadas);
@@ -113,7 +94,7 @@ const Relatorio = () => {
         generateLabelsTarefas(data.data.planned, setTarefasPlanejadas);
         generateLabelsRiscos(data.data.threats, setRiscos);
         generateLabelsRiscos(data.data.opportunities, setOportunidades);
-        
+
         const responsePlano = await handleFetch({
             table: "gantt",
             query: "startAndEndPlans",
@@ -135,22 +116,22 @@ const Relatorio = () => {
 
         var primeiroEUltimoPlanos = [];
         var primeiroEUltimoGantts = [];
-        const areas = new Map(dadosPlano.map(item => [item.wbs_item.wbs_area.id, {id: item.wbs_item.wbs_area.id, name: item.wbs_item.wbs_area.name}]).values())
+        const areas = new Map(dadosPlano.map(item => [item.wbs_item.wbs_area.id, { id: item.wbs_item.wbs_area.id, name: item.wbs_item.wbs_area.name }]).values())
         areas.forEach((area) => {
             {
                 const primeiroInicio = dadosPlano.filter(dado => dado.wbs_item.wbs_area.id == area.id)
-                            .reduce((min, obj) => obj.gantt_data[0].start < min.gantt_data[0].start ? obj : min);
+                    .reduce((min, obj) => obj.gantt_data[0].start < min.gantt_data[0].start ? obj : min);
                 const ultimoTermino = dadosPlano.filter(dado => dado.wbs_item.wbs_area.id == area.id)
-                            .reduce((max, obj) => obj.gantt_data[0].end > max.gantt_data[0].end ? obj : max);
-                primeiroEUltimoPlanos.push({primeiro: primeiroInicio, ultimo: ultimoTermino});
-                
+                    .reduce((max, obj) => obj.gantt_data[0].end > max.gantt_data[0].end ? obj : max);
+                primeiroEUltimoPlanos.push({ primeiro: primeiroInicio, ultimo: ultimoTermino });
+
             }
             {
                 const primeiroInicio = dadosGantt.filter(dado => dado.wbs_item.wbs_area.id == area.id)
-                            .reduce((min, obj) => obj.gantt_data[0].start < min.gantt_data[0].start ? obj : min);
+                    .reduce((min, obj) => obj.gantt_data[0].start < min.gantt_data[0].start ? obj : min);
                 const ultimoTermino = dadosGantt.filter(dado => dado.wbs_item.wbs_area.id == area.id)
-                            .reduce((max, obj) => obj.gantt_data[0].end > max.gantt_data[0].end ? obj : max);
-                primeiroEUltimoGantts.push({primeiro: primeiroInicio, ultimo: ultimoTermino});
+                    .reduce((max, obj) => obj.gantt_data[0].end > max.gantt_data[0].end ? obj : max);
+                primeiroEUltimoGantts.push({ primeiro: primeiroInicio, ultimo: ultimoTermino });
             }
         })
 
@@ -255,7 +236,7 @@ const Relatorio = () => {
             img.style.width = '200px';
             img.style.margin = '-10px';
         });
-        
+
 
         document.getElementsByClassName('alphaLogo').forEach((a) => {
             a.style.width = '90%';
@@ -343,7 +324,7 @@ const Relatorio = () => {
     }, [flagExport]);
 
     const futurePerformanceLabel = () => {
-        switch(interval){
+        switch (interval) {
             case '1 week':
                 return "week";
             case "2 weeks":
@@ -355,25 +336,46 @@ const Relatorio = () => {
         }
     }
 
+    const handleFileChange = (e) => {
+        const file = e.target.files?.[0]
+        if (!file) return;
+        if (file.size > (3 * 1024 * 1024)) {
+            setExibirModal('Please select a smaller image!');
+        }
+
+        const url = URL.createObjectURL(file)
+        const img = new Image();
+        img.src = url;
+        img.onload = () => {
+            if (img.width != img.height) {
+                setExibirModal(`Please select a square image!`)
+                return;
+            } else {
+                setTeamLogo(url);
+            }
+        }
+    }
+
     return (
         <div className="centered-container">
             {exibirModal && (
                 <Modal objeto={{
-                    titulo: "Please select a valid interval!",
+                    titulo: `${exibirModal}`,
                     botao1: {
                         funcao: () => setExibirModal(false), texto: 'Okay'
                     },
                 }} />
             )}
 
-            <h2 className="smallTitle">Status Report Generator <button onClick={()=> setShowHelp(true)}>❔</button></h2>
+            <h2 className="smallTitle">Status Report Generator <button onClick={() => setShowHelp(true)}>❔</button></h2>
             {loading && <Loading />}
-            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
+            {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
+            <div style={{display: `flex`, gap: `1rem`}}>
             <div className={styles.menu}>
                 <h3>Select Interval</h3>
                 <div>
                     <select
-                        style={{backgroundColor: 'transparent', borderColor: 'gray', borderStyle: 'solid', borderWidth: '0.1rem', borderRadius: '0.4rem'}}
+                        style={{ backgroundColor: 'transparent', borderColor: 'gray', borderStyle: 'solid', borderWidth: '0.1rem', borderRadius: '0.4rem' }}
                         onChange={(e) => setInterval(e.target.value)}>
                         <option defaultValue value="">Interval</option>
                         <option value="2 months">2 months</option>
@@ -386,6 +388,23 @@ const Relatorio = () => {
                 {showTable && (
                     <button className="botao-padrao" onClick={() => setFlagExport(true)}>Export</button>)}
             </div>
+
+                {showTable && <div className={styles.customize_report}>
+                    <h3>Customize report</h3>
+                    <label htmlFor="fileUpload" className={styles.uploadLabel}>
+                        Upload Team Logo
+                    </label>
+                    <input
+                        id="fileUpload"
+                        type="file"
+                        onChange={handleFileChange}
+                        className={styles.hiddenInput}
+                    />
+                </div>}
+            </div>
+            
+
+
             {showTable && (
                 <div className={styles.report_container}>
                     <div className={`reportToPrint`} style={{ padding: '1rem', maxWidth: '95vw' }}>
@@ -425,7 +444,7 @@ const Relatorio = () => {
                                         </tbody>
                                     </table>
                                     <div className={styles.alphaLogo}>
-                                        <img src={'/images/logo.png'} alt="Logo" />
+                                        <img src={teamLogo || '/images/logo_border.png'} alt="Logo" />
                                     </div>
                                 </div>
 
@@ -458,7 +477,7 @@ const Relatorio = () => {
                                         </tr>
                                         <tr>
                                             <td>Issues</td>
-                                            <td><textarea/></td>
+                                            <td><textarea /></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -479,8 +498,8 @@ const Relatorio = () => {
                                             {tarefasConcluidas.split(', ').map((tarefa, index) => (
                                                 <tr key={index}>
                                                     <td style={{ textAlign: 'left', padding: '0.3rem' }}>{tarefa}</td>
-                                                    <td><textarea/></td>
-                                                    <td><textarea/></td>
+                                                    <td><textarea /></td>
+                                                    <td><textarea /></td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -518,7 +537,7 @@ const Relatorio = () => {
                                             ))}
                                         </tr>
                                         <tr>
-                                            {Object.keys(objKpis).map((key, index) => (
+                                            {Object.keys(objKpis).map((_, index) => (
                                                 <td key={index}>
                                                     <textarea />
                                                 </td>

@@ -10,7 +10,7 @@ import usePerm from "../../../../hooks/usePerm";
 import HelpBubble from "../../../ui/HelpBubble/risco/Impacto";
 import { getTextColor } from "../../../../functions/colors";
 
-const TabelaAnalise = () => {
+const TabelaImpacto = () => {
     const { user, token } = useAuth();
     const user_id = user.id;
     const { isEditor } = usePerm();
@@ -237,11 +237,11 @@ const TabelaAnalise = () => {
                                                 <React.Fragment>
                                                     {!shouldMergeArea ? (
                                                         <td rowSpan={calculateRowSpan(wbs_area?.id, index, 'risk.wbs_item.wbs_area.id')}
-                                                        >{wbs_area?.name}</td>
+                                                        >{wbs_area?.name || "Others"}</td>
                                                     ) : null}
                                                     {!shouldMergeItem ? (
                                                         <td rowSpan={calculateRowSpan(wbs_item?.id, index, 'risk.wbs_item.id')}
-                                                        >{wbs_item?.name}</td>
+                                                        >{wbs_item?.name || "Others"}</td>
                                                     ) : null}
                                                 </React.Fragment>
                                             )}
@@ -285,4 +285,4 @@ const TabelaAnalise = () => {
     )
 };
 
-export default TabelaAnalise;
+export default TabelaImpacto;
