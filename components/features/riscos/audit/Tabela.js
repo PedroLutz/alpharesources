@@ -8,6 +8,7 @@ import { cleanForm } from "../../../../functions/general";
 import usePerm from "../../../../hooks/usePerm";
 import useAuth from "../../../../hooks/useAuth";
 import HelpBubble from "../../../ui/HelpBubble/risco/Audit";
+import { getTextColor } from "../../../../functions/colors";
 
 const TabelaAnalise = () => {
     const { isEditor } = usePerm();
@@ -52,7 +53,7 @@ const TabelaAnalise = () => {
 
     const handleUpdateClick = async (item) => {
         setLinhaVisivel(item.id);
-        var obj = {};
+        const obj = {};
         for (const key in camposVazios) {
             if (key == 'risk_id') {
                 obj[key] = item?.risk?.id
@@ -140,11 +141,13 @@ const TabelaAnalise = () => {
         return rowSpan;
     };
 
+    let lastAreaId = null, lastItemId = null, lastRiskId = null;
+
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
-            <h2 className="smallTitle">Risk Audit <button onClick={()=> setShowHelp(true)}>❔</button></h2>
+            {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
+            <h2 className="smallTitle">Risk Audit <button onClick={() => setShowHelp(true)}>❔</button></h2>
             <button className="botao-bonito" style={{ marginBottom: '1rem', width: 'fit-content' }}
                 onClick={() => { !isUpdating && setSeeArea(!seeArea) }}
             >See areas and items</button>
@@ -195,77 +198,93 @@ const TabelaAnalise = () => {
                         </thead>
                         <tbody>
 
-                            {audits.map((item, index) => (
-                                <React.Fragment key={index}>
-                                    {linhaVisivel === item.id ? (
-                                        <CadastroInputs tipo="update"
-                                            obj={novosDados}
-                                            objSetter={setNovosDados}
-                                            funcoes={{
-                                                enviar: handleUpdateItem,
-                                                cancelar: () => { setLinhaVisivel(); setIsUpdating(false) }
-                                            }}
-                                            setExibirModal={setExibirModal}
-                                            seeArea={seeArea}
-                                        />
-                                    ) : (
-                                        <tr style={{ backgroundColor: item?.risk?.wbs_item?.wbs_area?.color || 'white' }}>
-                                            {seeArea && (
-                                                <React.Fragment>
-                                                    {index === 0 || audits[index - 1].risk?.wbs_item?.wbs_area?.id !== item?.risk?.wbs_item?.wbs_area?.id ? (
-                                                        <td rowSpan={calculateRowSpan(item?.risk?.wbs_item?.wbs_area?.id, index, 'risk.wbs_item.wbs_area.id')}
-                                                        >{item?.risk?.wbs_item?.wbs_area?.name}</td>
-                                                    ) : null}
-                                                    {index === 0 || audits[index - 1].risk?.wbs_item?.id !== item?.risk?.wbs_item?.id ? (
-                                                        <td rowSpan={calculateRowSpan(item?.risk?.wbs_item?.id, index, 'risk.wbs_item.id')}
-                                                        >{item?.risk?.wbs_item?.name}</td>
-                                                    ) : null}
-                                                </React.Fragment>
-                                            )}
-                                            {!isUpdating || isUpdating !== item.risk?.id ? (
-                                                <React.Fragment>
-                                                    {index === 0 || audits[index - 1].risk?.id !== item.risk?.id ? (
-                                                        <td rowSpan={calculateRowSpan(item.risk?.id, index, 'risk.id')}
-                                                        >{item.risk?.risk}</td>
-                                                    ) : null}
-                                                </React.Fragment>
-                                            ) : (
-                                                <td>{item.risk?.risk}</td>
-                                            )}
-                                            <td className={styles.auditTdText}>{item.impact_description}</td>
-                                            <td className={styles.auditTdComparacao}>
-                                                Plan: R${Number(item?.risk?.risk_analysis[0]?.financial_impact || '0').toFixed(2)}<br />
-                                                Actual: R${Number(item.financial_impact).toFixed(2)}
-                                            </td>
-                                            <td className={styles.auditTdComparacao}>
-                                                Plan: <br />{item?.risk?.risk_analysis[0]?.schedule_impact || '-'} days<br />
-                                                Actual: <br />{item.schedule_impact} days
-                                            </td>
-                                            <td className={styles.auditTdText}>{item.response}</td>
-                                            <td className={styles.auditTdComparacao}>
-                                                Plan: {item?.risk?.risk_analysis[0]?.impact || '-'}<br />
-                                                Actual: {item.impact}<br />
-                                            </td>
-                                            <td className={styles.auditTdComparacao}>
-                                                Plan: {item?.risk?.risk_analysis[0]?.action || '-'}<br />
-                                                Actual: {item.action}<br />
-                                            </td>
-                                            <td className={styles.auditTdComparacao}>
-                                                Plan: {item?.risk?.risk_analysis[0]?.urgency || '-'}<br />
-                                                Actual: {item.urgency}<br />
-                                            </td>
-                                            <td className={styles.auditTdText}>{item.evaluation_description}</td>
-                                            <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(item)} disabled={!isEditor}>❌</button>
-                                                <button onClick={() => {
-                                                    handleUpdateClick(item)
-                                                }
-                                                } disabled={!isEditor}>⚙️</button>
-                                            </td>
-                                        </tr>
-                                    )}
-                                </React.Fragment>
-                            ))}
+                            {audits.map((item, index) => {
+                                const { wbs_item } = item?.risk ?? {};
+                                const { wbs_area } = wbs_item ?? {};
+
+                                const shouldMergeArea = wbs_area?.id === lastAreaId;
+                                const shouldMergeItem = wbs_item?.id === lastItemId;
+
+                                lastAreaId = wbs_area?.id;
+                                lastItemId = wbs_item?.id;
+
+                                const { risk } = item;
+                                const shouldMergeRisk = risk?.id === lastRiskId;
+
+                                lastRiskId = risk?.id;
+
+                                return (
+                                    <React.Fragment key={index}>
+                                        {linhaVisivel === item.id ? (
+                                            <CadastroInputs tipo="update"
+                                                obj={novosDados}
+                                                objSetter={setNovosDados}
+                                                funcoes={{
+                                                    enviar: handleUpdateItem,
+                                                    cancelar: () => { setLinhaVisivel(); setIsUpdating(false) }
+                                                }}
+                                                setExibirModal={setExibirModal}
+                                                seeArea={seeArea}
+                                            />
+                                        ) : (
+                                            <tr style={{ backgroundColor: wbs_area?.color || 'white', color: getTextColor(wbs_area?.color ?? "#ffffff") }}>
+                                                {seeArea && (
+                                                    <React.Fragment>
+                                                        {!shouldMergeArea ? (
+                                                            <td rowSpan={calculateRowSpan(wbs_area?.id, index, 'risk.wbs_item.wbs_area.id')}
+                                                            >{wbs_area?.name || "Others"}</td>
+                                                        ) : null}
+                                                        {!shouldMergeItem ? (
+                                                            <td rowSpan={calculateRowSpan(wbs_item?.id, index, 'risk.wbs_item.id')}
+                                                            >{wbs_item?.name  || "Others"}</td>
+                                                        ) : null}
+                                                    </React.Fragment>
+                                                )}
+                                                {!isUpdating || isUpdating !== item?.risk?.id ? (
+                                                    <React.Fragment>
+                                                        {!shouldMergeRisk ? (
+                                                            <td rowSpan={calculateRowSpan(item?.risk?.id, index, "risk.id")}
+                                                            >{risk?.risk}</td>
+                                                        ) : null}
+                                                    </React.Fragment>
+                                                ) : (
+                                                    <td>{risk?.risk}</td>
+                                                )}
+                                                <td className={styles.auditTdText}>{item.impact_description}</td>
+                                                <td className={styles.auditTdComparacao}>
+                                                    Plan: R${Number(item?.risk?.risk_analysis[0]?.financial_impact || '0').toFixed(2)}<br />
+                                                    Actual: R${Number(item.financial_impact).toFixed(2)}
+                                                </td>
+                                                <td className={styles.auditTdComparacao}>
+                                                    Plan: <br />{item?.risk?.risk_analysis[0]?.schedule_impact || '-'} days<br />
+                                                    Actual: <br />{item.schedule_impact} days
+                                                </td>
+                                                <td className={styles.auditTdText}>{item.response}</td>
+                                                <td className={styles.auditTdComparacao}>
+                                                    Plan: {item?.risk?.risk_analysis[0]?.impact || '-'}<br />
+                                                    Actual: {item.impact}<br />
+                                                </td>
+                                                <td className={styles.auditTdComparacao}>
+                                                    Plan: {item?.risk?.risk_analysis[0]?.action || '-'}<br />
+                                                    Actual: {item.action}<br />
+                                                </td>
+                                                <td className={styles.auditTdComparacao}>
+                                                    Plan: {item?.risk?.risk_analysis[0]?.urgency || '-'}<br />
+                                                    Actual: {item.urgency}<br />
+                                                </td>
+                                                <td className={styles.auditTdText}>{item.evaluation_description}</td>
+                                                <td className='botoes_acoes'>
+                                                    <button onClick={() => setConfirmDeleteItem(item)} disabled={!isEditor}>❌</button>
+                                                    <button onClick={() => {
+                                                        handleUpdateClick(item)
+                                                    }
+                                                    } disabled={!isEditor}>⚙️</button>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </React.Fragment>
+                                )
+                            })}
                             <CadastroInputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}

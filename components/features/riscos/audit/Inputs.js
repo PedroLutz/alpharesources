@@ -5,7 +5,7 @@ import { handleFetch } from "../../../../functions/crud_s";
 import useAuth from "../../../../hooks/useAuth";
 import usePerm from "../../../../hooks/usePerm";
 
-const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea }) => {
+const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea, backgroundColor }) => {
     const [riscos, setRiscos] = useState([])
     const [riscosPorArea, setRiscosPorArea] = useState([]);
     const [areaSelecionada, setAreaSelecionada] = useState('');
@@ -95,41 +95,38 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea })
             if (value < 0) {
                 camposRef.current[key].classList.add('campo-vazio');
                 setExibirModal('valorNegativo');
-                return true;
+                return false;
             }
             if (value > 5) {
                 camposRef.current[key].classList.add('campo-vazio');
                 setExibirModal('maiorQueCinco');
-                return true;
+                return false;
             }
         }
 
-        const camposVazios = Object.entries(obj)
-            .filter(([key, value]) => value === null || value === "")
-            .map(([key]) => key);
+        const camposVazios = Object.keys(obj)
+            .filter(key => obj[key] === null || obj[key] === "");
 
         if (camposVazios.length > 0) {
             camposVazios.forEach(campo => {
-                if (camposRef.current[campo]) {
-                    camposRef.current[campo].classList.add('campo-vazio');
-                }
+                camposRef.current?.[campo]?.classList.add('campo-vazio');  
             });
             setExibirModal('inputsVazios');
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     const handleSubmit = () => {
-        const isInvalido = validaDados();
-        if (isInvalido == true) return;
+        const isValid = validaDados();
+        if (!isValid) return;
         funcoes?.enviar();
         setAreaSelecionada('');
     }
 
     return (
-        <tr>
+        <tr style={{backgroundColor}}>
             {seeArea && (
                 <React.Fragment>
                     <td>-</td>

@@ -8,6 +8,7 @@ import { cleanForm } from "../../../../functions/general";
 import useAuth from "../../../../hooks/useAuth";
 import usePerm from "../../../../hooks/usePerm";
 import HelpBubble from "../../../ui/HelpBubble/risco/Resposta";
+import { getTextColor } from "../../../../functions/colors";
 
 const TabelaPlanos = () => {
     const { user, token } = useAuth();
@@ -56,23 +57,23 @@ const TabelaPlanos = () => {
     }
 
     const handleUpdateItem = async () => {
-            setLoading(true);
-            try {
-                await handleReq({
-                    table: 'risk_response',
-                    route: 'update',
-                    token,
-                    data: novosDados,
-                    fetchData: fetchRespostas
-                });
-            } catch (error) {
-                console.error("Update failed:", error);
-            }
-            setIsUpdating(false);
-            setLinhaVisivel();
-            setLoading(false);
-            setNovosDados(camposVazios);
-        };
+        setLoading(true);
+        try {
+            await handleReq({
+                table: 'risk_response',
+                route: 'update',
+                token,
+                data: novosDados,
+                fetchData: fetchRespostas
+            });
+        } catch (error) {
+            console.error("Update failed:", error);
+        }
+        setIsUpdating(false);
+        setLinhaVisivel();
+        setLoading(false);
+        setNovosDados(camposVazios);
+    };
 
     const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
@@ -135,11 +136,13 @@ const TabelaPlanos = () => {
         return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
+    let lastAreaId = null, lastItemId = null, lastRiskId = null;
+
     return (
         <div className="centered-container">
             {loading && <Loading />}
-            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
-            <h2 className="smallTitle">Risk Response Planning <button onClick={()=> setShowHelp(true)}>❔</button></h2>
+            {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
+            <h2 className="smallTitle">Risk Response Planning <button onClick={() => setShowHelp(true)}>❔</button></h2>
             <button className="botao-bonito" style={{ marginBottom: '1rem', width: 'fit-content' }}
                 onClick={() => { !isUpdating && setSeeArea(!seeArea) }}
             >See areas and items</button>
@@ -183,56 +186,73 @@ const TabelaPlanos = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {respostas.map((item, index) => (
-                                <React.Fragment key={index}>
-                                    {linhaVisivel === item.id ? (
-                                        <CadastroInputs tipo="update"
-                                            obj={novosDados}
-                                            objSetter={setNovosDados}
-                                            funcoes={{
-                                                enviar: handleUpdateItem,
-                                                cancelar: () => { setLinhaVisivel(); setIsUpdating(false) }
-                                            }}
-                                            setExibirModal={setExibirModal}
-                                            seeArea={seeArea}
-                                        />
-                                    ) : (
-                                        <tr style={{ backgroundColor: item?.risk?.wbs_item?.wbs_area?.color || 'white' }}>
-                                            {seeArea && (
-                                                <React.Fragment>
-                                                    {index === 0 || respostas[index - 1].risk?.wbs_item?.wbs_area?.id !== item?.risk?.wbs_item?.wbs_area?.id ? (
-                                                        <td rowSpan={calculateRowSpan(item?.risk?.wbs_item?.wbs_area?.id, index, 'risk.wbs_item.wbs_area.id')}
-                                                        >{item?.risk?.wbs_item?.wbs_area?.name}</td>
-                                                    ) : null}
-                                                    {index === 0 || respostas[index - 1].risk?.wbs_item?.id !== item?.risk?.wbs_item?.id ? (
-                                                        <td rowSpan={calculateRowSpan(item?.risk?.wbs_item?.id, index, 'risk.wbs_item.id')}
-                                                        >{item?.risk?.wbs_item?.name}</td>
-                                                    ) : null}
-                                                </React.Fragment>
-                                            )}
-                                            {!isUpdating || isUpdating !== item?.risk?.id ? (
-                                                <React.Fragment>
-                                                    {index === 0 || respostas[index - 1].risk?.id !== item?.risk?.id ? (
-                                                        <td rowSpan={calculateRowSpan(item?.risk?.id, index, "risk.id")}
-                                                        >{item?.risk?.risk}</td>
-                                                    ) : null}
-                                                </React.Fragment>
-                                            ) : (
-                                                <td>{item?.risk?.risk}</td>
-                                            )}
-                                            <td>{capitalizeFirstLetter(item.strategy)}</td>
-                                            <td className={styles.planoTdResponse}>{item.details}</td>
-                                            <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(item)} disabled={!isEditor}>❌</button>
-                                                <button onClick={() => {
-                                                    handleUpdateClick(item)
-                                                }
-                                                } disabled={!isEditor}>⚙️</button>
-                                            </td>
-                                        </tr>
-                                    )}
-                                </React.Fragment>
-                            ))}
+                            {respostas.map((item, index) => {
+                                const { wbs_item } = item?.risk ?? {};
+                                const { wbs_area } = wbs_item ?? {};
+
+                                const shouldMergeArea = wbs_area?.id === lastAreaId;
+                                const shouldMergeItem = wbs_item?.id === lastItemId;
+
+                                lastAreaId = wbs_area?.id;
+                                lastItemId = wbs_item?.id;
+
+                                const { risk } = item;
+                                const shouldMergeRisk = risk?.id === lastRiskId;
+
+                                lastRiskId = risk?.id;
+
+                                return (
+                                    <React.Fragment key={index}>
+                                        {linhaVisivel === item.id ? (
+                                            <CadastroInputs tipo="update"
+                                                obj={novosDados}
+                                                objSetter={setNovosDados}
+                                                funcoes={{
+                                                    enviar: handleUpdateItem,
+                                                    cancelar: () => { setLinhaVisivel(); setIsUpdating(false) }
+                                                }}
+                                                setExibirModal={setExibirModal}
+                                                seeArea={seeArea}
+                                                backgroundColor={wbs_area?.color}
+                                            />
+                                        ) : (
+                                            <tr style={{ backgroundColor: wbs_area?.color || 'white', color: getTextColor(wbs_area?.color ?? "#ffffff") }}>
+                                                {seeArea && (
+                                                    <React.Fragment>
+                                                        {!shouldMergeArea ? (
+                                                            <td rowSpan={calculateRowSpan(wbs_area?.id, index, 'risk.wbs_item.wbs_area.id')}
+                                                            >{wbs_area?.name || "Others"}</td>
+                                                        ) : null}
+                                                        {!shouldMergeItem ? (
+                                                            <td rowSpan={calculateRowSpan(wbs_item?.id, index, 'risk.wbs_item.id')}
+                                                            >{wbs_item?.name || "Others"}</td>
+                                                        ) : null}
+                                                    </React.Fragment>
+                                                )}
+                                                {!isUpdating || isUpdating !== item?.risk?.id ? (
+                                                    <React.Fragment>
+                                                        {!shouldMergeRisk ? (
+                                                            <td rowSpan={calculateRowSpan(item?.risk?.id, index, "risk.id")}
+                                                            >{risk?.risk}</td>
+                                                        ) : null}
+                                                    </React.Fragment>
+                                                ) : (
+                                                    <td>{risk?.risk}</td>
+                                                )}
+                                                <td>{capitalizeFirstLetter(item.strategy)}</td>
+                                                <td className={styles.planoTdResponse}>{item.details}</td>
+                                                <td className='botoes_acoes'>
+                                                    <button onClick={() => setConfirmDeleteItem(item)} disabled={!isEditor}>❌</button>
+                                                    <button onClick={() => {
+                                                        handleUpdateClick(item)
+                                                    }
+                                                    } disabled={!isEditor}>⚙️</button>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </React.Fragment>
+                                )
+                            })}
                             <CadastroInputs
                                 obj={novoSubmit}
                                 objSetter={setNovoSubmit}

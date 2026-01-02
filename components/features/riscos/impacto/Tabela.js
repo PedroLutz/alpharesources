@@ -237,11 +237,11 @@ const TabelaImpacto = () => {
                                                 <React.Fragment>
                                                     {!shouldMergeArea ? (
                                                         <td rowSpan={calculateRowSpan(wbs_area?.id, index, 'risk.wbs_item.wbs_area.id')}
-                                                        >{wbs_area?.name}</td>
+                                                        >{wbs_area?.name || "Others"}</td>
                                                     ) : null}
                                                     {!shouldMergeItem ? (
                                                         <td rowSpan={calculateRowSpan(wbs_item?.id, index, 'risk.wbs_item.id')}
-                                                        >{wbs_item?.name}</td>
+                                                        >{wbs_item?.name || "Others"}</td>
                                                     ) : null}
                                                 </React.Fragment>
                                             )}

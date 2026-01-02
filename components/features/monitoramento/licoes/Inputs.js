@@ -24,28 +24,24 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     };
 
     const validaDados = () => {
-        const camposVazios = Object.entries(obj)
-            .filter(([key, value]) => value === null || value === "")
-            .map(([key]) => key);
+        const camposVazios = Object.keys(obj)
+            .filter(key => obj[key] === null || obj[key] === "");
 
         if (camposVazios.length > 0) {
-            console.log(camposVazios)
             camposVazios.forEach(campo => {
-                if (camposRef.current[campo]) {
-                    camposRef.current[campo].classList.add('campo-vazio');
-                }
+                camposRef.current?.[campo]?.classList.add('campo-vazio');            
             });
             setExibirModal('inputsVazios');
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     //funcao que roda a funcao de envio de acordo com o type da funcao
     const handleSubmit = () => {
-        const isInvalido = validaDados();
-        if (isInvalido) return;
+        const isValid = validaDados();
+        if (!isValid) return;
         funcoes?.enviar();
     }
 

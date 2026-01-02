@@ -56,11 +56,9 @@ const Tabela = () => {
 
     //funcao que recebe o item, o insere no estado confirmUpdateItem e como objeto de novosDados
     const handleUpdateClick = (item) => {
-        const obj = {
-            ...item,
-            area_id: item?.wbs_area?.id || -1,
-        }
-        delete obj.wbs_area;
+        const {wbs_area, ...obj} = item;
+        obj.area_id = item?.wbs_area?.id ?? -1;
+        
         setNovosDados(obj);
         setLinhaVisivel(item.id);
     };
@@ -103,7 +101,6 @@ const Tabela = () => {
             setConfirmDeleteItem(null);
         }
     };
-
 
     //funcao que busca os dados
     const fetchMudancas = async () => {
