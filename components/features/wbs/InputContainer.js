@@ -4,7 +4,9 @@ import usePerm from "../../../hooks/usePerm";
 
 const InputContainer = ({ op, functions, isNew, obj, objSetter, setExibirModal, area_id, style }) => {
     const {isEditor} = usePerm();
+    
     const camposItemVazios = {
+        area_id,
         name: ''
     };
     const [newItem, setNewItem] = useState(camposItemVazios);
