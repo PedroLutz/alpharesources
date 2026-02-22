@@ -66,7 +66,7 @@ const FormularioLogin = () => {
     }
 
   const getAlertMessage = {
-    'Invalid login credentials': 'Invalid login credentials!',
+    'Invalid login credentials': 'Wrong password!',
     'Email not confirmed': 'Check your email to verify your account!',
     'Email rate limit exceeded': 'Please try again later!',
     'User not found': 'User not found!',
