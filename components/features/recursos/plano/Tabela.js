@@ -58,8 +58,8 @@ const PlanoAquisicao = () => {
             token,
             data: {
                 ...obj,
-                date_real: obj.date_real ?? null,
-                value_real: obj.value_real ?? null,
+                date_real: obj.date_real !== "" ? obj.date_real : null,
+                value_real: obj.value_real !== "" ? obj.value_real : null,
                 user_id: user.id,
             },
             fetchData: fetchPlanos
@@ -228,7 +228,7 @@ const PlanoAquisicao = () => {
     //funcao que trata e envia os dados para atualizacao no banco
     const handleUpdateItem = async (obj) => {
         setLoading(true);
-        const {date_difference, value_difference, resource, ...usedObj} = obj;
+        const {date_diference, value_diference, resource, ...usedObj} = obj;
         try {
             await handleReq({
                 table: 'resource_acquisition_plan',
