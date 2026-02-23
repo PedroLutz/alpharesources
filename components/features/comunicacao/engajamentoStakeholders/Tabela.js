@@ -201,7 +201,7 @@ const Tabela = () => {
                 </div>
             )}
             
-            { engajamentos.length == 0 (
+            { engajamentos.length == 0 && (
                 <div>No Stakeholders registered! Please register a stakeholder first.</div>
             )}
         </div>
