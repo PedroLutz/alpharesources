@@ -117,7 +117,7 @@ const Tabela = () => {
     //funcao que trata o item e o insere em novosDados
     const handleUpdateClick = (item) => {
         let valorCorrigido = 0;
-        if (Number(item.valor) < 0) {
+        if (Number(item.value) < 0) {
             valorCorrigido = item.value * -1;
         } else {
             valorCorrigido = item.value;
@@ -140,10 +140,11 @@ const Tabela = () => {
     const handleUpdateItem = async () => {
         if (confirmItemAction.action === 'update' && confirmItemAction.item) {
             setLoading(true);
-            const isExpense = confirmItemAction.item.type === 'Expense';
+            const isExpense = confirmItemAction.item.type === 'cost';
+            console.log(confirmItemAction.item)
             const valorInverso = isExpense ? novosDados.value * -1 : novosDados.value;
             const {balance, ...updatedItem} = novosDados;
-            updatedItem.valor = valorInverso;
+            updatedItem.value = valorInverso;
             setConfirmItemAction({ action: '', item: null })
             try {
                 await handleReq({

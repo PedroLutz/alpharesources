@@ -157,7 +157,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     //funcao que chama validaDados, e se os dados estao ok, chama as funcoes de submit
     const handleSubmit = async () => {
         const isValid = validaDados();
-        if (!!isValid) return;
+        if (!isValid) return;
 
         const sentObj = {
             ...obj,

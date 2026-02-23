@@ -58,8 +58,8 @@ const PlanoAquisicao = () => {
             token,
             data: {
                 ...obj,
-                date_real: obj.date_real ?? null,
-                value_real: obj.value_real ?? null,
+                date_real: obj.date_real !== "" ? obj.date_real : null,
+                value_real: obj.value_real !== "" ? obj.value_real : null,
                 user_id: user.id,
             },
             fetchData: fetchPlanos
