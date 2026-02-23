@@ -358,7 +358,7 @@ const PlanoAquisicao = () => {
                         </thead>
                         <tbody>
                             {planos.map((plano, index) => {
-                                const backgroundColor = plano?.resource?.wbs_item?.wbs_area?.color ?? 'white';
+                                const backgroundColor = plano?.resource?.wbs_item?.wbs_area?.color;
 
                                 const date_real = plano.date_real != 'NaN/NaN/NaN' && plano.date_real != null ? isoDateToEuDate(plano.date_real) : '-';
                                 const value_real = plano.value_real != null ? `R$${Number(plano.value_real).toFixed(2)}` : '-';
@@ -376,10 +376,10 @@ const PlanoAquisicao = () => {
                                             setExibirModal={setExibirModal}
                                         />
                                     ) : (
-                                        <tr style={{ backgroundColor, color: getTextColor(backgroundColor  ?? "#ffffff") }}>
+                                        <tr style={{ backgroundColor, color: getTextColor(backgroundColor ?? '#ffffff') }}>
                                             {!isUpdating || isUpdating !== plano.resource.resource ? (
                                                 <React.Fragment>
-                                                    {index === 0 || planos[index - 1].recurso !== plano.resource.resource ? (
+                                                    {index === 0 || planos[index - 1].resource.resource !== plano.resource.resource ? (
                                                         <td rowSpan={calculateRowSpan(plano.resource.resource, index)}
                                                         >{plano.resource.resource}</td>
                                                     ) : null}

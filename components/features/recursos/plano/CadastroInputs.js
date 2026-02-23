@@ -306,7 +306,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.date_real = el)} />
             </td>
             <td className={styles.tdValor}>
-                <input type='number'
+                <input
                     value={obj.value_real || ""}
                     name='value_real'
                     placeholder='Value'
