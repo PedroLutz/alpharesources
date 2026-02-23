@@ -59,7 +59,7 @@ const Tabela = () => {
                 if(isUndefined){
                     const found = data_emvs.data.find(i => i?.risk?.wbs_item?.id == key);
                     obj = {
-                        area_color: found?.risk?.wbs_item?.wbs_area?.color || 'white',
+                        area_color: found?.risk?.wbs_item?.wbs_area?.color || '#ffffff',
                         area_id: found?.risk?.wbs_item?.wbs_area?.id || -1,
                         area_name: found?.risk?.wbs_item?.wbs_area?.name || "Others",
                         item_id: found?.risk?.wbs_item?.id || -1,
