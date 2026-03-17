@@ -98,7 +98,7 @@ const Dashboard = () => {
             token
         });
         var cores = {};
-        data.data.forEach((area) => {
+        data?.data.forEach((area) => {
             cores = { ...cores, [area.name]: area.color || '' }
         })
         setCores(cores);

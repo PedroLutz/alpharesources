@@ -1,4 +1,4 @@
-import React, { useEffect, useState,  useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import styles from '../../../../styles/modules/responsabilidades.module.css'
 import Loading from '../../../ui/Loading';
 import Modal from '../../../ui/Modal';
@@ -35,7 +35,7 @@ const Tabela = () => {
   const [inputToMemberMap, setInputToMemberMap] = useState({});
 
   const handleUpdateClick = (item) => {
-    setLinhaVisivel(item.item_id); 
+    setLinhaVisivel(item.item_id);
     const obj = { item_id: item.item_id };
     item?.raci?.forEach((r) => {
       obj["input" + r.member_id] = r.responsibility;
@@ -210,7 +210,7 @@ const Tabela = () => {
   };
 
   const [tableHeaders, tableNames] = useMemo(() => {
-    const firstNames = new Map();
+    const firstNames = new Set();
     const fullNames = [];
     const headers = [];
 
@@ -218,22 +218,19 @@ const Tabela = () => {
       const nomeCompleto = membro.name;
       const firstName = nomeCompleto.split(' ')[0];
       const lastName = nomeCompleto.split(' ')[1];
-      const corrigirNomeCompleto = () => {
-        let index = fullNames.findIndex(x => x.includes(firstName));
-        let otherLastName = fullNames[index].split(' ')[1];
-        headers[index] = `${firstName.charAt(0)}${otherLastName.charAt(0)}`;
-      };
 
       if (firstNames.has(firstName)) {
-        const existingHeader = firstNames.get(firstName);
-        headers.push(existingHeader.charAt(0) + lastName.charAt(0));
+        headers.push(`${firstName} ${lastName.charAt(0)}.`);
         fullNames.push(`${firstName} ${lastName}`);
-        corrigirNomeCompleto();
+        const index = fullNames.findIndex(x => x.includes(firstName));
+        const otherLastName = fullNames[index].split(' ')[1];
+        headers[index] = `${firstName} ${otherLastName.charAt(0)}.`;
       } else {
-        firstNames.set(firstName, nomeCompleto.split(' ')[0]);
-        headers.push(firstName.charAt(0));
+        firstNames.add(firstName);
+        headers.push(firstName);
         lastName != undefined ? fullNames.push(`${firstName} ${lastName}`) : fullNames.push(`${firstName}`);
       };
+
     });
     return [headers, fullNames];
   }, [nomesMembros])
@@ -312,12 +309,12 @@ const Tabela = () => {
                   {!verOpcoes ? (
                     <React.Fragment>
                       {tableHeaders.map((membro, index) => (
-                        <th key={index} className='notLast'>{membro}</th>
+                        <th key={index} className='notLast' style={{ writingMode: "sideways-lr", fontSize: "0.7rem" }}>{membro}</th>
                       ))}
                     </React.Fragment>
                   ) : (
                     <React.Fragment>
-                      {tableNames.map((membro, index) => (
+                      {[...tableNames].map((membro, index) => (
                         <th key={index}>{membro}</th>
                       ))}
                       <th style={{ width: '5rem' }}>Actions</th>
@@ -349,55 +346,56 @@ const Tabela = () => {
                   })
 
                   return (
-                  <tr key={index} style={{ backgroundColor: item?.area_color, color: getTextColor(item?.area_color) }}>
-                    {index === 0 || itensRaci[index - 1].area_name !== item?.area_name ? (
-                      <td rowSpan={calculateRowSpan(item?.area_name, index)}
-                        className={styles.raciTdArea}>{item?.area_name}</td>
-                    ) : null}
-                    <td className={styles.raciTdItem}>{item.item_name}</td>
-                    {linhaVisivel === item.item_id ? (
-                      <React.Fragment>
-                        <CadastroInputs
-                          obj={novosDados}
-                          objSetter={setNovosDados}
-                          funcoes={{
-                            enviar: handleUpdateItem,
-                            cancelar: () => setLinhaVisivel(null),
-                            checkItemDisponivel,
-                            checkAreaDisponivel
-                          }}
-                          setExibirModal={setExibirModal}
-                          loaded={loaded}
-                          tipo='update' />
-                      </React.Fragment>
-                    ) : (
-                      <React.Fragment>
-                        {nomesMembros.map((membro, _) => {
-                          const raci = raciByMemberId.get(membro.id)
-                          return (
-                            <td key={membro.id}>
-                              {raci?.responsibility?.[0]?.toUpperCase() ?? "-"}
+                    <tr key={index} style={{ backgroundColor: item?.area_color, color: getTextColor(item?.area_color) }}>
+                      {index === 0 || itensRaci[index - 1].area_name !== item?.area_name ? (
+                        <td rowSpan={calculateRowSpan(item?.area_name, index)}
+                          className={styles.raciTdArea}>{item?.area_name}</td>
+                      ) : null}
+                      <td className={styles.raciTdItem}>{item.item_name}</td>
+                      {linhaVisivel === item.item_id ? (
+                        <React.Fragment>
+                          <CadastroInputs
+                            obj={novosDados}
+                            objSetter={setNovosDados}
+                            funcoes={{
+                              enviar: handleUpdateItem,
+                              cancelar: () => setLinhaVisivel(null),
+                              checkItemDisponivel,
+                              checkAreaDisponivel
+                            }}
+                            setExibirModal={setExibirModal}
+                            loaded={loaded}
+                            tipo='update' />
+                        </React.Fragment>
+                      ) : (
+                        <React.Fragment>
+                          {nomesMembros.map((membro, _) => {
+                            const raci = raciByMemberId.get(membro.id)
+                            return (
+                              <td key={membro.id}>
+                                {raci?.responsibility?.[0]?.toUpperCase() ?? "-"}
+                              </td>
+                            )
+                          })}
+                          {verOpcoes && (
+                            <td className="botoes_acoes lastMaior">
+
+                              <button type="button"
+                                onClick={() => setConfirmDeleteItem(item)}
+                                disabled={!isEditor}>❌</button>
+                              <button onClick={() => {
+                                handleUpdateClick(item)
+                              }} disabled={!isEditor}>⚙️</button>
+
                             </td>
-                          )
-                        })}
-                        {verOpcoes && (
-                          <td className="botoes_acoes lastMaior">
+                          )}
 
-                            <button type="button"
-                              onClick={() => setConfirmDeleteItem(item)}
-                              disabled={!isEditor}>❌</button>
-                            <button onClick={() => {
-                              handleUpdateClick(item)
-                            }} disabled={!isEditor}>⚙️</button>
-
-                          </td>
-                        )}
-
-                      </React.Fragment>
-                    )
-                    }
-                  </tr>
-                )})}
+                        </React.Fragment>
+                      )
+                      }
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>
