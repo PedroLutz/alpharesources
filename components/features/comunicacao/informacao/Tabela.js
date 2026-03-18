@@ -38,12 +38,14 @@ const Tabela = () => {
 
     //funcao que envia os dados para registro no backend
     const enviar = async () => {
+        console.log(novoSubmit);
+        
         await handleReq({
             table: 'information',
             route: 'create',
             token,
             data: {...novoSubmit, 
-                responsible_id: novoSubmit.responsible_id == -1 ? novoSubmit.responsible_id : null,
+                responsible_id: novoSubmit.responsible_id != -1 ? novoSubmit.responsible_id : null,
                 user_id},
             fetchData: fetchInformacoes
         });

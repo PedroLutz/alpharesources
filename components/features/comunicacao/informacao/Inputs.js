@@ -47,6 +47,8 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     useEffect(() => {
         if (grupoSelecionado != '') {
             atualizarStakeholdersDoGrupo(grupoSelecionado);
+        } else {
+            setStakeholdersDoGrupo(stakeholders);
         }
     }, [grupoSelecionado, stakeholders]);
 
@@ -170,6 +172,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
         if (!isValid) return;
         await funcoes?.enviar();
         setVerOpcaoCustom(false);
+        setGrupoSelecionado("");
     }
 
     return (
