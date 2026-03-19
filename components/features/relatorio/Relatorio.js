@@ -81,35 +81,29 @@ const Relatorio = () => {
             setLoading(false);
             return;
         }
-        const data = await handlePostFetch({
-            table: "report",
-            query: 'all',
-            token,
-            data: { uid: user_id, interval_text: interval },
-        });
 
-        generateLabelsTarefas(data.data.started, setTarefasIniciadas);
-        generateLabelsTarefas(data.data.completed, setTarefasConcluidas);
-        generateLabelsTarefas(data.data.execution, setTarefasEmAndamento);
-        generateLabelsTarefas(data.data.planned, setTarefasPlanejadas);
-        generateLabelsRiscos(data.data.threats, setRiscos);
-        generateLabelsRiscos(data.data.opportunities, setOportunidades);
+        const [
+            responseReport, 
+            responsePlano, 
+            responseGantt, 
+            responseSituacoesGantt
+        ] = await Promise.all([
+            handlePostFetch({table: "report", query: 'all', token,
+                data: { uid: user_id, interval_text: interval },
+            }),
+            handleFetch({table: "gantt", query: "startAndEndPlans", token}),
+            handleFetch({table: "gantt",query: "startAndEndMonitors",token}),
+            handleFetch({table: "gantt",query: "monitorsAndStatus",token})
+        ])
 
-        const responsePlano = await handleFetch({
-            table: "gantt",
-            query: "startAndEndPlans",
-            token
-        });
-        const responseGantt = await handleFetch({
-            table: "gantt",
-            query: "startAndEndMonitors",
-            token
-        });
-        const responseSituacoesGantt = await handleFetch({
-            table: "gantt",
-            query: "monitorsAndStatus",
-            token
-        });
+        const dadosReport = responseReport.data;
+        generateLabelsTarefas(dadosReport.started, setTarefasIniciadas);
+        generateLabelsTarefas(dadosReport.completed, setTarefasConcluidas);
+        generateLabelsTarefas(dadosReport.execution, setTarefasEmAndamento);
+        generateLabelsTarefas(dadosReport.planned, setTarefasPlanejadas);
+        generateLabelsRiscos(dadosReport.threats, setRiscos);
+        generateLabelsRiscos(dadosReport.opportunities, setOportunidades);
+
         const dadosPlano = responsePlano.data;
         const dadosGantt = responseGantt.data;
         const dadosSituacoesGantt = responseSituacoesGantt.data;
@@ -370,24 +364,24 @@ const Relatorio = () => {
             <h2 className="smallTitle">Status Report Generator <button onClick={() => setShowHelp(true)}>❔</button></h2>
             {loading && <Loading />}
             {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
-            <div style={{display: `flex`, gap: `1rem`}}>
-            <div className={styles.menu}>
-                <h3>Select Interval</h3>
-                <div>
-                    <select
-                        style={{ backgroundColor: 'transparent', borderColor: 'gray', borderStyle: 'solid', borderWidth: '0.1rem', borderRadius: '0.4rem' }}
-                        onChange={(e) => setInterval(e.target.value)}>
-                        <option defaultValue value="">Interval</option>
-                        <option value="2 months">2 months</option>
-                        <option defaultValue value="1 month">1 month</option>
-                        <option value="2 weeks">2 weeks</option>
-                        <option value="1 week">1 week</option>
-                    </select>
+            <div style={{ display: `flex`, gap: `1rem` }}>
+                <div className={styles.menu}>
+                    <h3>Select Interval</h3>
+                    <div>
+                        <select
+                            style={{ backgroundColor: 'transparent', borderColor: 'gray', borderStyle: 'solid', borderWidth: '0.1rem', borderRadius: '0.4rem' }}
+                            onChange={(e) => setInterval(e.target.value)}>
+                            <option defaultValue value="">Interval</option>
+                            <option value="2 months">2 months</option>
+                            <option defaultValue value="1 month">1 month</option>
+                            <option value="2 weeks">2 weeks</option>
+                            <option value="1 week">1 week</option>
+                        </select>
+                    </div>
+                    <button className="botao-padrao" onClick={busca}>Get data</button>
+                    {showTable && (
+                        <button className="botao-padrao" onClick={() => setFlagExport(true)}>Export</button>)}
                 </div>
-                <button className="botao-padrao" onClick={busca}>Get data</button>
-                {showTable && (
-                    <button className="botao-padrao" onClick={() => setFlagExport(true)}>Export</button>)}
-            </div>
 
                 {showTable && <div className={styles.customize_report}>
                     <h3>Customize report</h3>
@@ -402,7 +396,7 @@ const Relatorio = () => {
                     />
                 </div>}
             </div>
-            
+
 
 
             {showTable && (
