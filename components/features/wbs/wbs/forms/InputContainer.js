@@ -1,15 +1,9 @@
-import styles from "../../../styles/modules/wbs.module.css"
-import { useRef, useState, useEffect } from "react";
-import usePerm from "../../../hooks/usePerm";
+import styles from "../../../../../styles/modules/wbs.module.css"
+import { useRef, useEffect } from "react";
+import usePerm from "../../../../../hooks/usePerm";
 
 const InputContainer = ({ op, functions, isNew, obj, objSetter, setExibirModal, area_id, style }) => {
-    const {isEditor} = usePerm();
-    
-    const camposItemVazios = {
-        area_id,
-        name: ''
-    };
-    const [newItem, setNewItem] = useState(camposItemVazios);
+    const { isEditor } = usePerm();
 
     const camposRef = useRef({
         name: null,
@@ -18,9 +12,9 @@ const InputContainer = ({ op, functions, isNew, obj, objSetter, setExibirModal, 
 
     useEffect(() => {
         if (area_id) {
-            if(op == 'item' && isNew == true){
-                setNewItem({
-                    ...newItem,
+            if (op == 'item') {
+                objSetter({
+                    ...obj,
                     area_id
                 })
             } else {
@@ -41,10 +35,10 @@ const InputContainer = ({ op, functions, isNew, obj, objSetter, setExibirModal, 
         e.target.classList.remove('campo-vazio');
     }
 
-    const handleSubmit = (isItem) => {
-        const usedObj = op == 'item' && isNew == true ? newItem : obj;
+    const handleSubmit = async () => {
+        const usedObj = obj;
 
-        const {id, ...camposConsiderados} = usedObj;
+        const { id, ...camposConsiderados } = usedObj;
         const camposVazios = Object.keys(camposConsiderados).filter(
             key => camposConsiderados[key] === null || camposConsiderados[key] === ""
         );
@@ -57,45 +51,16 @@ const InputContainer = ({ op, functions, isNew, obj, objSetter, setExibirModal, 
             return;
         }
 
-        let submitSuccess;
-
-        if(isItem) submitSuccess = functions?.submit(newItem);
-        else submitSuccess = functions?.submit();
-
-        if(!submitSuccess){
-            camposRef.current.name.classList.add('campo-vazio');
-            return;
-        }
-
-        if(functions?.hide) functions?.hide();
-        if(isItem) setNewItem(camposItemVazios);
+        await functions?.submit();
+        if (functions?.hide) functions?.hide();
     }
 
-    if(isNew == true && op == 'item'){
-        return (
+    return (
         <div className={styles.block} style={style}>
             <div className={styles.new_inputs}>
                 <input
                     name="name"
-                    value={newItem.name}
-                    onChange={(e) => handleChange(e, newItem, setNewItem)}
-                    placeholder="New item"
-                    ref={el => (camposRef.current.name = el)}
-                />
-            </div>
-            <div className={styles.action_buttons}>
-                <button onClick={() => handleSubmit(true)} disabled={!isEditor}>✔️</button>
-            </div>
-        </div>
-        )
-    }
-
-    return (
-        <div className={styles.block} style={{...style, backgroundColor: obj.color}}>
-            <div className={styles.new_inputs}>
-                <input
-                    name="name"
-                    value={obj.name}
+                    value={obj?.name}
                     onChange={(e) => handleChange(e, obj, objSetter)}
                     placeholder={`New ${op == 'area' ? 'area' : 'item'}`}
                     ref={el => (camposRef.current.name = el)}
@@ -105,7 +70,7 @@ const InputContainer = ({ op, functions, isNew, obj, objSetter, setExibirModal, 
                         <label>Color: </label>
                         <input
                             name="color"
-                            value={obj.color ?? '#FFFFFF'}
+                            value={obj?.color ?? '#FFFFFF'}
                             type="color"
                             onChange={(e) => handleChange(e, obj, objSetter)}
                             ref={el => (camposRef.current.color = el)}
@@ -115,7 +80,7 @@ const InputContainer = ({ op, functions, isNew, obj, objSetter, setExibirModal, 
             </div>
             <div className={styles.action_buttons}>
                 <button onClick={() => handleSubmit(op === "item")} disabled={!isEditor}>✔️</button>
-                {isNew == false &&
+                {!isNew &&
                     <button onClick={functions?.hide}>✖️</button>
                 }
             </div>
