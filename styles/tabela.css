@@ -14,8 +14,17 @@
     word-wrap: break-word;
 }
 
-.tabela td:last-child {
+.tabela td:last-child,
+.tabela th:last-child {
     text-align: center;
+    /* position: sticky;
+    right: 0;
+    z-index: 10;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.1); */
+}
+
+.tabela td:last-child{
+    background-color: inherit;
 }
 
 .tabela th {

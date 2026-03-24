@@ -1,104 +1,34 @@
-import React, { useEffect, useState } from "react"
+import { useState } from "react"
 import styles from '../../../../styles/modules/wbs.module.css'
-import CadastroInputs from "./InputsContainer";
 import Modal from "../../../ui/Modal";
 import Loading from "../../../ui/Loading";
-import { handleFetch, handleReq } from '../../../../functions/crud_s';
-import { cleanForm } from "../../../../functions/general";
+import { handleReq } from '../../../../functions/crud_s';
 import useAuth from "../../../../hooks/useAuth";
-import usePerm from "../../../../hooks/usePerm";
 import HelpBubble from "../../../ui/HelpBubble/wbs/wbsDictionary";
-import { getTextColor } from "../../../../functions/colors";
+import { useDictionary } from "./DictionaryContext";
+import NewDictionaryCreator from "./forms/NewDictionaryCreator";
+import DictionaryBlock from "./blocks/DictionaryBlock";
+import { DictionaryProvider } from "./DictionaryContext";
 
-const TabelaAnalise = () => {
-    const { user, token } = useAuth();
-    const {isEditor} = usePerm();
-    const camposVazios = {
-        item_id: '',
-        description: '',
-        purpose: '',
-        criteria: '',
-        inspection: '',
-        timing: '',
-        responsible: '',
-        approval_responsible: '',
-        premises: '',
-        restrictions: '',
-        resources: '',
-        user_id: user?.id
-    }
-    const [novoSubmit, setNovoSubmit] = useState(camposVazios);
-    const [novosDados, setNovosDados] = useState(camposVazios);
+const TabelaContent = () => {
+    const { token } = useAuth();
+
+    const {
+        dicionarios,
+        isLoading,
+        refetchData,
+    } = useDictionary();
+
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
-    const [dicionarios, setDicionarios] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
-    const [linhaVisivel, setLinhaVisivel] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [isUpdating, setIsUpdating] = useState(false);
+    const modalLabels = {
+        'inputsVazios': 'Fill out all fields before adding new data!',
+        'deleteSuccess': 'Deletion Successful!',
+        'deleteFail': 'Deletion Failed!',
+    };
+
     const [showHelp, setShowHelp] = useState(false);
-
-
-    //essa funcao chama handleSubmit() e envia os dados para cadastro
-    const enviar = async () => {
-        const objSent = {
-            ...novoSubmit,
-            user_id: user?.id
-        }
-        await handleReq({
-            table: 'wbs_dictionary',
-            route: 'create',
-            token,
-            data: objSent,
-            fetchData: fetchDicionarios
-        });
-        cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-        return true;
-
-    };
-
-    const isItemCadastrado = (item_id) => {
-        return dicionarios.some((e) => e.item_id == item_id);
-    }
-
-    //essa funcao chama realiza um tratamento de dados de confirmUpdateItem para garantir que
-    //os dados enviados sejam condizentes com o modelo, e depois chama handleUpdate() para
-    //cadastrar as mudancas no banco
-    const handleUpdateItem = async () => {
-        setLoading(true);
-        await handleReq({
-            table: 'wbs_dictionary',
-            route: 'update',
-            token,
-            data: novosDados,
-            fetchData: fetchDicionarios
-        });
-        setLoading(false);
-        setIsUpdating(false);
-        cleanForm(novosDados, setNovosDados, camposVazios);
-        setLinhaVisivel();
-    };
-
-    const handleClickUpdate = (item) => {
-        setNovosDados({
-            ...novosDados,
-            id: item.id,
-            item_id: item.wbs_item.id,
-            description: item.description,
-            purpose: item.purpose,
-            criteria: item.criteria,
-            inspection: item.inspection,
-            timing: item.timing,
-            responsible: item.responsible,
-            approval_responsible: item.approval_responsible,
-            premises: item.premises,
-            restrictions: item.restrictions,
-            resources: item.resources
-        })
-        setLinhaVisivel(item.id);
-        setIsUpdating(item.wbs_item.wbs_area.name);
-    }
-
-    //essa funcao chama handleDelete e deleta o que estiver em confirmDeleteItem
+    
     const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
             var getDeleteSuccess = false;
@@ -108,7 +38,7 @@ const TabelaAnalise = () => {
                     route: 'delete',
                     token,
                     data: { id: confirmDeleteItem.id },
-                    fetchData: fetchDicionarios
+                    fetchData: refetchData
                 });
             } finally {
                 if (getDeleteSuccess?.success) {
@@ -121,57 +51,15 @@ const TabelaAnalise = () => {
         setConfirmDeleteItem(null);
     };
 
-
-    //essa funcao busca todos os itens do dicionario
-    const fetchDicionarios = async () => {
-        try {
-            const data = await handleFetch({
-                table: 'wbs_dictionary',
-                query: 'all',
-                token
-            })
-            setDicionarios(data.data);
-        } finally {
-            setLoading(false);
-        }
-
-    };
-
-    //esse useEffect so executa na primeira render
-    useEffect(() => {
-        fetchDicionarios();
-    }, []);
-
-    const modalLabels = {
-        'inputsVazios': 'Fill out all fields before adding new data!',
-        'deleteSuccess': 'Deletion Successful!',
-        'deleteFail': 'Deletion Failed!',
-        'valorNegativo': 'No fields can have negative values!',
-        'maiorQueCinco': 'Classifications must be between 1 and 5!',
-        'itemRepetido': 'You have already register the dictionary for this WBS item!'
-    };
-
-    //essa funcao calcula a quantidade de tds que o td de cada area deve ocupar
-    const calculateRowSpan = (itens, currentArea, currentIndex) => {
-        let rowSpan = 1;
-        for (let i = currentIndex + 1; i < itens.length; i++) {
-            if (itens[i].wbs_item.wbs_area.name === currentArea) {
-                rowSpan++;
-            } else {
-                break;
-            }
-        }
-        return rowSpan;
-    };
-
     return (
         <div className="centered-container">
-            {loading && <Loading />}
-            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
+            {isLoading && <Loading />}
+            {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
             <h2 className="smallTitle">
-                WBS Dictionary 
-                <button onClick={()=>setShowHelp(true)}>❔</button>
+                WBS Dictionary
+                <button onClick={() => setShowHelp(true)}>❔</button>
             </h2>
+            
             {exibirModal != null && (
                 <Modal objeto={{
                     titulo: modalLabels[exibirModal],
@@ -216,54 +104,13 @@ const TabelaAnalise = () => {
                         </thead>
                         <tbody>
                             {dicionarios.map((item, index) => (
-                                <React.Fragment key={index}>
-                                    {linhaVisivel === item.id ? (
-                                        <CadastroInputs tipo="update"
-                                            obj={novosDados}
-                                            objSetter={setNovosDados}
-                                            funcoes={{
-                                                enviar: handleUpdateItem,
-                                                cancelar: () => { setLinhaVisivel(null) ; setIsUpdating(false) }
-                                            }}
-                                            area_id={item.wbs_item.wbs_area.id}
-                                            setExibirModal={setExibirModal}
-                                            backgroundColor={item.wbs_item.wbs_area.color}
-                                        />
-                                    ) : (
-                                        <tr style={{ backgroundColor: item.wbs_item.wbs_area.color, color: getTextColor(item.wbs_item.wbs_area.color) }}>
-                                            {!isUpdating || isUpdating !== item.wbs_item.wbs_area.name ? (
-                                                <React.Fragment>
-                                                    {index === 0 || dicionarios[index - 1].wbs_item.wbs_area.name !== item.wbs_item.wbs_area.name ? (
-                                                        <td rowSpan={calculateRowSpan(dicionarios, item.wbs_item.wbs_area.name, index)}
-                                                            className={styles.td_area}>{item.wbs_item.wbs_area.name}</td>
-                                                    ) : null}
-                                                </React.Fragment>
-                                            ) : (
-                                                <td className={styles.td_area}>{item.wbs_item.wbs_area.name}</td>
-                                            )}
-                                            <td className={styles.td_item}>{item.wbs_item.name}</td>
-                                            <td className={styles.td_descricao}>{item.description}</td>
-                                            <td className={styles.td_proposito}>{item.purpose}</td>
-                                            <td className={styles.td_premissas}>{item.premises}</td>
-                                            <td className={styles.td_restricoes}>{item.restrictions}</td>
-                                            <td className={styles.td_recursos}>{item.resources}</td>
-                                            <td className={styles.td_criterio}>{item.criteria}</td>
-                                            <td className={styles.td_verificacao}>{item.inspection}</td>
-                                            <td className={styles.td_timing}>{item.timing}</td>
-                                            <td className={styles.td_responsavel}>{item.responsible}</td>
-                                            <td className={styles.td_responsavel_aprovacao}>{item.approval_responsible}</td>
-                                            <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(item)} disabled={!isEditor}>❌</button>
-                                                <button onClick={() => handleClickUpdate(item)} disabled={!isEditor}>⚙️</button>
-                                            </td>
-                                        </tr>
-                                    )}
-                                </React.Fragment>
+                                <DictionaryBlock
+                                    item={item}
+                                    index={index}
+                                    setConfirmDeleteItem={setConfirmDeleteItem}
+                                />
                             ))}
-                            <CadastroInputs
-                                obj={novoSubmit}
-                                objSetter={setNovoSubmit}
-                                funcoes={{ enviar, isItemCadastrado }}
+                            <NewDictionaryCreator
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>
@@ -274,4 +121,12 @@ const TabelaAnalise = () => {
     )
 };
 
-export default TabelaAnalise;
+const Index = () => {
+    return (
+        <DictionaryProvider>
+            <TabelaContent/>
+        </DictionaryProvider>
+    )
+};
+
+export default Index;

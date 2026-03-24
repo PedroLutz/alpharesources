@@ -3,8 +3,10 @@ import InputContainer from "./InputContainer";
 import useAuth from "../../../../../hooks/useAuth";
 import styles from "../../../../../styles/modules/wbs.module.css"
 import { handleReq } from "../../../../../functions/crud_s";
+import { useWbs } from "../WbsContext";
 
-const NewAreaCreator = ({ areas, refetchData, setExibirModal }) => {
+const NewAreaCreator = ({ setExibirModal }) => {
+    const {areas, refetchData} = useWbs();
     const { token } = useAuth();
     const [newArea, setNewArea] = useState({ name: '', color: '#FFFFFF' });
 

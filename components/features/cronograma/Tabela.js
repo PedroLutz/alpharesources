@@ -140,8 +140,11 @@ const Tabela = () => {
       return !isDp;
     }
     return cronogramas.some((c) => {
-      return isDp ? c.wbs_item.wbs_area.id == area_id
-        : (c.wbs_item.wbs_area.id != area_id || c.wbs_item.wbs_area.id == area_id && c.wbs_item.id != item_id)
+      if(isDp){
+        return c.wbs_item.wbs_area.id == area_id
+      } else {
+        return c.wbs_item.wbs_area.id != area_id || c.wbs_item.wbs_area.id == area_id && c.wbs_item.id != item_id
+      }
     }
     );
   }

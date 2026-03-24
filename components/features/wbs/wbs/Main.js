@@ -5,13 +5,13 @@ import { handleReq } from "../../../../functions/crud_s";
 import styles from "../../../../styles/modules/wbs.module.css"
 import useAuth from "../../../../hooks/useAuth";
 import HelpBubble from "../../../ui/HelpBubble/wbs/wbs";
-import { useWbsData } from "./useWbsData";
 import NewAreaCreator from "./forms/NewAreaCreator";
 import AreaBlock from "./blocks/AreaBlock";
 import NewItemCreator from "./forms/NewItemCreator";
 import ItemBlock from "./blocks/ItemBlock";
+import { WbsProvider, useWbs } from "./WbsContext";
 
-const Main = () => {
+const MainContent = () => {
     const { token } = useAuth();
 
     const {
@@ -20,13 +20,13 @@ const Main = () => {
         isLoading,
         setIsLoading,
         refetchData
-    } = useWbsData();
+    } = useWbs();
 
     const [exibirModal, setExibirModal] = useState(null);
     const modalLabels = {
         'inputsVazios': 'Fill out all fields before adding new data!',
         'areaDup': 'This area is already registered!',
-        'itemDup': 'This item is already registered in another area!'
+        'itemDup': 'This item is already registered somewhere else!'
     };
 
     const [deleteAreaConfirm, setDeleteAreaConfirm] = useState(null);
@@ -61,8 +61,6 @@ const Main = () => {
             <div className={styles.main_container}>
                 <div className={styles.main_wrapper}>
                     <NewAreaCreator
-                        areas={areas}
-                        refetchData={refetchData}
                         setExibirModal={setExibirModal}
                     />
 
@@ -70,9 +68,7 @@ const Main = () => {
                         <div key={index} className={styles.wbs_container}>
                             <AreaBlock
                                 area={area}
-                                refetchData={refetchData}
                                 setExibirModal={setExibirModal}
-                                setIsLoading={setIsLoading}
                                 setDeleteAreaConfirm={setDeleteAreaConfirm}
                             />
 
@@ -81,18 +77,14 @@ const Main = () => {
                                     key={item.id}
                                     area={area}
                                     item={item}
-                                    setIsLoading={setIsLoading}
                                     setExibirModal={setExibirModal}
-                                    refetchData={refetchData}
                                     setDeleteItemConfirm={setDeleteItemConfirm}
                                 />
                             ))}
 
                             <div key={index} className={styles.item_outer_block}>
                                 <NewItemCreator
-                                    items={items}
                                     area={area}
-                                    refetchData={refetchData}
                                     setExibirModal={setExibirModal}
                                 />
                             </div>
@@ -137,6 +129,14 @@ const Main = () => {
             )}
 
         </div>
+    )
+}
+
+const Main = () => {
+    return (
+        <WbsProvider>
+            <MainContent/>
+        </WbsProvider>
     )
 }
 

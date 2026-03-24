@@ -5,8 +5,10 @@ import styles from "../../../../../styles/modules/wbs.module.css"
 import InputContainer from "../forms/InputContainer";
 import { getTextColor } from "../../../../../functions/colors";
 import { handleReq } from "../../../../../functions/crud_s";
+import { useWbs } from "../WbsContext";
 
-const ItemBlock = ({ area, item, setIsLoading, setExibirModal, refetchData, setDeleteItemConfirm }) => {
+const ItemBlock = ({ area, item, setExibirModal, setDeleteItemConfirm }) => {
+    const { setIsLoading, refetchData} = useWbs();
     const { token } = useAuth();
     const { isEditor } = usePerm();
 

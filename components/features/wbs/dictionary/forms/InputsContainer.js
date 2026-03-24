@@ -1,13 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
-import styles from '../../../../styles/modules/wbs.module.css'
-import { handleFetch } from '../../../../functions/crud_s';
-import useAuth from '../../../../hooks/useAuth';
-import usePerm from '../../../../hooks/usePerm';
+import styles from '../../../../../styles/modules/wbs.module.css'
+import usePerm from '../../../../../hooks/usePerm';
+import { useDictionary } from '../DictionaryContext';
 
-const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, area_id,  backgroundColor }) => {
-    const [elementosWBS, setElementosWBS] = useState([]);
-    const { token } = useAuth();
-    const {isEditor} = usePerm();
+const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, area_id, backgroundColor }) => {
+    const { isEditor } = usePerm();
+
+    const {areasSet, itensSet, elementosWBS, isLoading} = useDictionary();
+
     const [itensPorArea, setItensPorArea] = useState([]);
     const [areasUnicas, setAreasUnicas] = useState([]);
     const [areaSelecionada, setAreaSelecionada] = useState(area_id ?? '');
@@ -25,29 +25,45 @@ const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, area_id,  backg
         resources: null
     });
 
-    const fetchElementos = async () => {
-        const data = await handleFetch({
-            table: 'wbs_item',
-            query: 'with_areas',
-            token
-        })
-        const elementos = data.data;
-        setAreasUnicas([...new Map(
-                elementos.map(item => [
+    const checkItemDisponivel = (item_id) => {
+        if (itensSet.size == 0) {
+            return true;
+        }
+
+        return !itensSet.has(item_id);
+    }
+
+    const checkAreaDisponivel = (area_id, item_id) => {
+        if (areasSet.size == 0) {
+            return true;
+        }
+
+        if (areasSet.has(area_id)) {
+            return checkItemDisponivel(item_id);
+        }
+
+        return true;
+    }
+
+    const getAreas = () => [...new Map(
+                elementosWBS
+                ?.filter(item => checkAreaDisponivel(item.wbs_area.id, item.id))
+                ?.map(item => [
                     item.wbs_area.id, 
                     { id: item.wbs_area.id, name: item.wbs_area.name }])
             ).values()
-        ]);
-        setElementosWBS(elementos);
-    }
+        ]
 
     //esse useEffect só roda na primeira render
     useEffect(() => {
-        fetchElementos();
-    }, []);
+        if (!isLoading){
+            setAreasUnicas(getAreas())
+        }   
+    }, [isLoading]);
 
     const atualizarItensPorArea = (area) => {
-        const itensDaArea = elementosWBS.filter(item => item.wbs_area.id == area);
+        const itensDaArea = elementosWBS?.filter(item => item.wbs_area.id == area
+            && checkItemDisponivel(item.id));
         setItensPorArea(itensDaArea);
     }
 
@@ -57,7 +73,7 @@ const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, area_id,  backg
     }, [areaSelecionada, elementosWBS])
 
     const handleAreaChange = (e) => {
-        objSetter({...obj, item_id: ""});
+        objSetter({ ...obj, item_id: "" });
         const areaSelecionada = e.target.value;
         setAreaSelecionada(areaSelecionada);
     };
@@ -75,12 +91,6 @@ const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, area_id,  backg
     //essa funcao verifica os casos de invalidez, e se algum deles for verdadeiro,
     //chama a funcao setExibirModal para levantar um modal avisando o problema
     const validaDados = () => {
-        const itemRepetido = funcoes?.isItemCadastrado?.(obj.item_id) === true
-        if (itemRepetido) {
-            camposRef.current.item.classList.add('campo-vazio');
-            setExibirModal('itemRepetido');
-            return false;
-        }
         const { id, user_id, ...camposConsiderados } = obj;
 
         const camposVazios = Object.keys(camposConsiderados).filter(
@@ -109,33 +119,38 @@ const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, area_id,  backg
     };
 
     return (
-        <tr className='linha-cadastro' style={{backgroundColor}}>
-            <td className={styles.td_area}>
-                <select
-                    name="area"
-                    onChange={handleAreaChange}
-                    value={areaSelecionada}
-                    ref={el => (camposRef.current.area = el)}
-                >
-                    <option value="" defaultValue>Area</option>
-                    {areasUnicas.map((area, index) => (
-                        <option key={index} value={area.id}>{area.name}</option>
-                    ))};
-                </select>
-            </td>
-            <td className={styles.td_item}>
-                <select
-                    value={obj.item_id}
-                    name='item_id'
-                    onChange={handleChange}
-                    ref={el => (camposRef.current.item = el)}
-                >
-                    <option value="" defaultValue>Item</option>
-                    {itensPorArea.map((item, index) => (
-                            <option key={index} value={item.id}>{item.name}</option>
-                        ))}
-                </select>
-            </td>
+        <>
+            {tipo != "update" &&
+                <>
+                    <td className={styles.td_area}>
+                        <select
+                            name="area"
+                            onChange={handleAreaChange}
+                            value={areaSelecionada}
+                            ref={el => (camposRef.current.area = el)}
+                        >
+                            <option value="" defaultValue>Area</option>
+                            {areasUnicas.map((area, index) => (
+                                <option key={index} value={area.id}>{area.name}</option>
+                            ))};
+                        </select>
+                    </td>
+                    <td className={styles.td_item}>
+                        <select
+                            value={obj.item_id}
+                            name='item_id'
+                            onChange={handleChange}
+                            ref={el => (camposRef.current.item = el)}
+                        >
+                            <option value="" defaultValue>Item</option>
+                            {itensPorArea.map((item, index) => (
+                                <option key={index} value={item.id}>{item.name}</option>
+                            ))}
+                        </select>
+                    </td>
+
+                </>}
+
             <td className={styles.td_descricao}>
                 <textarea type='text'
                     value={obj.description}
@@ -227,7 +242,7 @@ const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, area_id,  backg
                     onChange={handleChange}
                     ref={el => (camposRef.current.approval_responsible = el)} />
             </td>
-            <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
+            <td className={tipo === 'update' && 'botoes_acoes'} style={{backgroundColor: tipo === "submit" && "white"}}>
                 {tipo !== 'update' ? (
                     <button onClick={handleSubmit} disabled={!isEditor}>Add new</button>
                 ) : (
@@ -237,7 +252,7 @@ const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, area_id,  backg
                     </React.Fragment>
                 )}
             </td>
-        </tr>
+        </>
     )
 }
 

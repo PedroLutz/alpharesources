@@ -2,8 +2,10 @@ import { useState } from "react";
 import InputContainer from "./InputContainer";
 import useAuth from "../../../../../hooks/useAuth";
 import { handleReq } from "../../../../../functions/crud_s";
+import { useWbs } from "../WbsContext";
 
-const NewItemCreator = ({ items, area, refetchData, setExibirModal }) => {
+const NewItemCreator = ({ area, setExibirModal }) => {
+    const {items, refetchData} = useWbs();
     const { user, token } = useAuth();
     const [newItem, setNewItem] = useState({ area_id: area.id, name: '' });
 
