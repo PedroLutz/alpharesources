@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import styles from '../../../../styles/modules/financas.module.css'
-import { handleFetch } from "../../../../functions/crud_s";
-import useAuth from "../../../../hooks/useAuth";
-import usePerm from '../../../../hooks/usePerm';
+import styles from '../../../../../styles/modules/financas.module.css'
+import { handleFetch } from "../../../../../functions/crud_s";
+import useAuth from "../../../../../hooks/useAuth";
+import usePerm from '../../../../../hooks/usePerm';
 
-const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
+const InputContainer = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
     const [areas, setAreas] = useState([]);
     const { isEditor } = usePerm();
     const camposRef = useRef({
@@ -159,4 +159,4 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
     )
 }
 
-export default CadastroTabela;
+export default InputContainer;
