@@ -69,10 +69,6 @@ const ReleaseBlock = ({ item, setExibirModal, setDeleteItem }) => {
         setIsUpdating(false);
     };
 
-    useEffect(() => {
-        setCamposToNovosDados();
-    }, [])
-
     return (
         <>
             {isUpdating ? (

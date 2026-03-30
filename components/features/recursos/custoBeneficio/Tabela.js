@@ -1,114 +1,44 @@
-import React, { useEffect, useState } from "react"
+import { useState } from "react"
 import styles from '../../../../styles/modules/custoBeneficio.module.css'
-import Inputs from "./Inputs";
 import Modal from "../../../ui/Modal";
 import Loading from "../../../ui/Loading";
-import { handleFetch, handleReq } from '../../../../functions/crud_s';
-import { cleanForm } from "../../../../functions/general";
+import {  handleReq } from '../../../../functions/crud_s';
 import useAuth from '../../../../hooks/useAuth';
-import usePerm from '../../../../hooks/usePerm';
 import HelpBubble from '../../../ui/HelpBubble/recursos/CustoBeneficio';
+import { CBProvider } from "./CbDataContext";
+import { useCostBenefit } from "./CbDataContext";
+import NewCBCreator from "./forms/NewCBCreator";
+import CbBlock from "./blocks/CbBlock";
 
 const Tabela = () => {
-    const camposVazios = {
-        identification: "",
-        description: "",
-        cost: "",
-        cost_ranking: "",
-        impact: "",
-        urgency: "",
-        area_impact: "",
-        explanation: "",
-        edge: ""
-    }
-    const [novoSubmit, setNovoSubmit] = useState(camposVazios);
-    const [novosDados, setNovosDados] = useState(camposVazios);
+    const { custoBeneficios,
+        isLoading,
+        setIsLoading,
+        refetchData
+    } = useCostBenefit();
+
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
-    const [custoBeneficios, setCustoBeneficios] = useState([]);
     const [exibirModal, setExibirModal] = useState(null);
-    const [linhaVisivel, setLinhaVisivel] = useState();
-    const [loading, setLoading] = useState(true);
-    const { user, token } = useAuth();
-    const { isEditor } = usePerm();
+    const { token } = useAuth();
     const [showHelp, setShowHelp] = useState(false);
-
-
-    //funcao que envia os dados de novoSubmit para cadastro
-    const enviar = async () => {
-        await handleReq({
-            table: 'cost_benefit',
-            route: 'create',
-            token,
-            data: {
-                ...novoSubmit,
-                user_id: user.id,
-            },
-            fetchData: fetchCustoBeneficios
-        });
-        cleanForm(novoSubmit, setNovoSubmit, camposVazios);
-    };
-
-    //funcao que trata os dados e os envia para atualizacao
-    const handleUpdateItem = async () => {
-        setLoading(true);
-        const {mediaBeneficios, ...usedObj} = novosDados;
-        try {
-            await handleReq({
-                table: 'cost_benefit',
-                route: 'update',
-                token,
-                data: usedObj,
-                fetchData: fetchCustoBeneficios
-            });
-        } catch (error) {
-            console.error("Update failed:", error);
-        }
-        setLoading(false);
-        setLinhaVisivel();
-        setNovosDados(camposVazios);
-    };
 
     //funcao que envia o id para ser deletado
     const handleConfirmDelete = async () => {
+        setIsLoading(true);
         if (confirmDeleteItem) {
             await handleReq({
                 table: 'cost_benefit',
                 route: 'delete',
                 token,
                 data: { id: confirmDeleteItem.id },
-                fetchData: fetchCustoBeneficios
+                fetchData: refetchData
             });
             setExibirModal(`deleteSuccess`);
         }
         setConfirmDeleteItem(null);
+        setIsLoading(false);
     };
 
-
-    //funcao que busca os dados
-    const fetchCustoBeneficios = async () => {
-        try {
-            const data = await handleFetch({
-                table: 'cost_benefit',
-                query: 'all',
-                token
-            })
-            data.data.forEach((cb) => {
-                cb.mediaBeneficios = parseFloat((cb.area_impact
-                    + cb.impact
-                    + cb.urgency
-                    + cb.edge)
-                    / 4).toFixed(2)
-            })
-            setCustoBeneficios(data.data);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    //useEffect que so executa no primeiro render
-    useEffect(() => {
-        fetchCustoBeneficios();
-    }, []);
 
     const modalLabels = {
         'inputsVazios': 'Fill out all fields before adding new data!',
@@ -138,9 +68,9 @@ const Tabela = () => {
 
     return (
         <div className="centered-container">
-            {loading && <Loading />}
-            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
-            <h2 className='smallTitle'>Cost-Benefit Analysis <button onClick={()=>setShowHelp(true)}>❔</button></h2>
+            {isLoading && <Loading />}
+            {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
+            <h2 className='smallTitle'>Cost-Benefit Analysis <button onClick={() => setShowHelp(true)}>❔</button></h2>
 
             {exibirModal != null && (
                 <Modal objeto={{
@@ -184,58 +114,14 @@ const Tabela = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {custoBeneficios.map((custoBeneficio, index) => { 
-                                const benefitAverage =  parseFloat((custoBeneficio.area_impact
-                                                    + custoBeneficio.impact
-                                                    + custoBeneficio.urgency
-                                                    + custoBeneficio.edge)
-                                                    / 4);
-                                const benefitIndex = parseFloat(benefitAverage / custoBeneficio.cost_ranking);
-                                
-                                return (
-                                <React.Fragment key={index}>
-                                    {linhaVisivel === custoBeneficio.id ? (
-                                        <Inputs tipo="update"
-                                            obj={novosDados}
-                                            objSetter={setNovosDados}
-                                            funcoes={{
-                                                enviar: handleUpdateItem,
-                                                cancelar: () => setLinhaVisivel()
-                                            }}
-                                            setExibirModal={setExibirModal}
-                                        />
-                                    ) : (
-                                        <tr>
-                                            <td>{custoBeneficio.identification}</td>
-                                            <td className={styles.tdDescricao}>{custoBeneficio.description}</td>
-                                            <td className={styles.tdCusto}>R${parseFloat(custoBeneficio.cost).toFixed(2)}</td>
-                                            <td className={styles.tdEscala}>{custoBeneficio.cost_ranking}</td>
-                                            <td className={styles.tdImpacto}>{custoBeneficio.impact}</td>
-                                            <td className={styles.tdUrgencia}>{custoBeneficio.urgency}</td>
-                                            <td className={styles.tdDiferencial}>{custoBeneficio.edge}</td>
-                                            <td className={styles.tdAreas}>{custoBeneficio.area_impact}</td>
-                                            <td className={styles.tdMediaBeneficios}>{benefitAverage.toFixed(2)}</td>
-                                            <td className={styles.tdIndice}>{benefitIndex.toFixed(2)}</td>
-                                            <td className={styles.tdExplicacao}>{custoBeneficio.explanation}</td>
-                                            <td className='botoes_acoes'>
-                                                <button onClick={() => setConfirmDeleteItem(custoBeneficio)} disabled={!isEditor}>❌</button>
-                                                <button onClick={() => {
-                                                    setLinhaVisivel(custoBeneficio.id); setNovosDados(custoBeneficio);
-                                                }
-                                                } disabled={!isEditor}>⚙️</button>
-                                            </td>
-                                        </tr>
-                                    )}
-                                </React.Fragment>
-                            )})}
-                            <Inputs
-                                obj={novoSubmit}
-                                objSetter={setNovoSubmit}
-                                funcoes={{
-                                    enviar
-                                }}
-                                setExibirModal={setExibirModal}
-                            />
+                            {custoBeneficios.map((custoBeneficio, _) => (
+                                <CbBlock key={custoBeneficio.id}
+                                    custoBeneficio={custoBeneficio}
+                                    setExibirModal={setExibirModal}
+                                    setConfirmDeleteItem={setConfirmDeleteItem}
+                                />
+                            ))}
+                            <NewCBCreator setExibirModal={setExibirModal}/>
                         </tbody>
                     </table>
                 </div>
@@ -254,7 +140,7 @@ const Tabela = () => {
                                 <th>2</th>
                                 <th>3</th>
                                 <th>4</th>
-                                <th>5</th>
+                                <th style={{fontSize: '0.8rem'}}>5</th>
                             </tr>
                         </thead>
                         <tbody >
@@ -314,4 +200,12 @@ const Tabela = () => {
     )
 };
 
-export default Tabela;
+const Main = () => {
+    return (
+        <CBProvider>
+            <Tabela/>
+        </CBProvider>
+    )
+}
+
+export default Main;

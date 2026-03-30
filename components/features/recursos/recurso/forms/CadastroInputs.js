@@ -1,15 +1,12 @@
-import { useEffect, useState, useRef } from "react";
+import { useState, useRef } from "react";
 import React from "react";
-import styles from '../../../../styles/modules/recursos.module.css'
-import { handleFetch } from '../../../../functions/crud_s';
-import useAuth from '../../../../hooks/useAuth';
-import usePerm from "../../../../hooks/usePerm";
+import styles from '../../../../../styles/modules/recursos.module.css'
+import usePerm from "../../../../../hooks/usePerm";
+import { useRecurso } from "../RecursoContext";
 
 const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, backgroundColor }) => {
-    const [elementosWBS, setElementosWBS] = useState([]);
-    const [itensPorArea, setItensPorArea] = useState([]);
-    const [areaSelecionada, setAreaSelecionada] = useState('');
-    const [areas, setAreas] = useState([]);
+    const { areas, itensPorArea} = useRecurso();
+    const [areaSelecionada, setAreaSelecionada] = useState();
     const camposRef = useRef({
         area: null,
         item_id: null,
@@ -18,90 +15,12 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, backgro
         type: null,
         is_essential: null
     });
-    const { token } = useAuth();
     const { isEditor } = usePerm();
-
-    //funcao que busca no banco os elementos da WBS
-    const fetchElementos = async () => {
-        var elementos;
-        try {
-            const data = await handleFetch({
-                table: 'wbs_item',
-                query: 'with_areas',
-                token
-            })
-            elementos = data?.data ?? [];
-        } finally {
-            setAreas([...new Map(
-                elementos
-                    .map(item => [
-                        item.wbs_area.id,
-                        { id: item.wbs_area.id, name: item.wbs_area.name }])
-            ).values()
-            ]);
-            setElementosWBS(elementos);
-        }
-    };
-
-
-    //useEffect q so roda no primeiro render
-    useEffect(() => {
-        fetchElementos();
-    }, []);
-
-    const atualizarItensPorArea = (area) => {
-        var itensDaArea;
-        if(area != -1) {
-            itensDaArea = elementosWBS.filter(item => item.wbs_area.id == area);
-        } else {
-            itensDaArea = [{id: -1, name: 'Others'}]
-        }
-        setItensPorArea(itensDaArea);
-    }
-
-    useEffect(() => {
-        if (obj.area != '') {
-            atualizarItensPorArea(obj.area);
-        }
-    }, [obj.area, elementosWBS])
-
-    useEffect(() => {
-            if (areaSelecionada != '') {
-                atualizarItensPorArea(areaSelecionada, setItensPorArea);
-            }
-    }, [areaSelecionada, elementosWBS]);
-
-    useEffect(() => {
-            if (obj?.item_id !== undefined) {
-                const item = elementosWBS.find(item => item.id == obj?.item_id);
-                if(item){
-                    const areaSelecionada = item.wbs_area.id;
-                    setAreaSelecionada(areaSelecionada);
-                    atualizarItensPorArea(areaSelecionada, setItensPorArea);
-                    objSetter({
-                        ...obj,
-                        item_id: obj.item_id
-                    })
-                }
-            } else {
-                setAreaSelecionada(-1);
-                setItensPorArea([{id: -1, name: 'Others'}]);
-                objSetter({
-                        ...obj,
-                        item_id: -1
-                    })
-            }
-        }, [obj?.item_id, elementosWBS]);
 
     const handleAreaChange = (e) => {
         const areaSelecionada = e.target.value;
         objSetter({ ...obj, item_id: "" });
-        setAreaSelecionada(areaSelecionada);
-        if(areaSelecionada != -1){
-            atualizarItensPorArea(areaSelecionada, setItensPorArea);
-        } else {
-            setItensPorArea([{id: -1, name: 'Others'}]);
-        }
+        setAreaSelecionada(Number(areaSelecionada));
         camposRef.current.area.classList.remove('campo-vazio');
     };
 
@@ -139,8 +58,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, backgro
         const isInvalido = validaDados();
         if (isInvalido) return;
         funcoes?.enviar();
-        setAreaSelecionada("");
-        setItensPorArea([]);
+        setAreaSelecionada();
     };
 
     return (
@@ -154,7 +72,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, backgro
                 >
                     <option value="" defaultValue>Area</option>
                     {areas.map((area, index) => (
-                        <option key={index} value={area.id}>{area.name}</option>
+                        <option key={index} value={area[0]}>{area[1]}</option>
                     ))}
                     <option value={-1}>Others</option>
                 </select>
@@ -168,8 +86,8 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, backgro
 
                 >
                     <option value="" defaultValue>Item</option>
-                    {itensPorArea.map((item, index) => (
-                        <option key={index} value={item.id}>{item.name}</option>
+                    {itensPorArea.get(areaSelecionada)?.map((item, _) => (
+                        <option key={item.id} value={item.id}>{item.name}</option>
                     ))}
                 </select>
             </td>

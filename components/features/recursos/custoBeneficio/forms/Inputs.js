@@ -1,7 +1,7 @@
 import { useRef } from "react";
-import styles from '../../../../styles/modules/custoBeneficio.module.css'
+import styles from '../../../../../styles/modules/custoBeneficio.module.css'
 import React from "react";
-import usePerm from '../../../../hooks/usePerm';
+import usePerm from '../../../../../hooks/usePerm';
 
 const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     const camposRef = useRef({

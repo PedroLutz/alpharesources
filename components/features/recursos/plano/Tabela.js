@@ -116,8 +116,6 @@ const PlanoAquisicao = () => {
                 token
             })
 
-            
-
             const totalContin = dataContingencia.data.reduce((acc, cur) => acc += (cur.financial_impact * (cur.occurrence / 5)), 0);
 
             setPlanos(data.data);
@@ -147,7 +145,7 @@ const PlanoAquisicao = () => {
         const essentialGraph = [['Area', 'Value']];
         const allGraph = [['Area', 'Value']];
         const reserveGraph = [['Area', 'Value']];
-        if (resumo == 0) return [essentialGraph, allGraph, reserveGraph];
+        if (resumo.length == 0) return [essentialGraph, allGraph, reserveGraph];
         var objEssential = {};
         var objAll = {}
         var objReserve = {};

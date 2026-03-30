@@ -1,6 +1,7 @@
 const handleReq = async (o) => {
   if (!o.table) throw new Error('Request done without a table!');
   if (!o.route) throw new Error('Request done without a route!');
+  if (!o.token) throw new Error('Request done without a token!');
   
   const routeToMethod = {
     'create': 'POST',

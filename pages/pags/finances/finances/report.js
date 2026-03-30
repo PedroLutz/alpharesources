@@ -1,4 +1,4 @@
-import Resumo from '../../../../components/features/recursos/financas/Resumo';
+import Resumo from '../../../../components/features/recursos/financasResumo/Resumo';
 import PageWrapper from '../../../../components/layout/ResourcesWrapper';
 
 function ResumoPage() {
