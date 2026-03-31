@@ -1,16 +1,15 @@
 import { useEffect, useState, useRef } from "react";
 import React from "react";
-import styles from '../../../../styles/modules/planoAquisicao.module.css'
-import { handleFetch } from '../../../../functions/crud_s';
-import useAuth from '../../../../hooks/useAuth';
-import usePerm from "../../../../hooks/usePerm";
+import styles from '../../../../../styles/modules/planoAquisicao.module.css'
+import { handleFetch } from '../../../../../functions/crud_s';
+import useAuth from '../../../../../hooks/useAuth';
+import usePerm from "../../../../../hooks/usePerm";
+import { usePlano } from "../data/PlanoProvider";
 
 const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
+    const { areas, recursosPorArea } = usePlano();
     const [areaSelecionada, setAreaSelecionada] = useState("");
     const [recursoSelecionado, setRecursoSelecionado] = useState('');
-    const [areas, setAreas] = useState([]);
-    const [recursos, setRecursos] = useState([]);
-    const [recursosPorArea, setRecursosPorArea] = useState([]);
     const camposRef = useRef({
         area: null,
         resource_id: null,
@@ -29,73 +28,12 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
         value_real: null
     });
     const isFirstRender = useRef(true);
-    const { token } = useAuth();
     const { isEditor } = usePerm();
-
-    const fetchAreas = async () => {
-        const data = await handleFetch({
-            table: 'wbs_area',
-            query: 'all',
-            token
-        });
-        setAreas(data.data);
-    }
-
-    //funcao para buscar os nome dos recursos
-    const fetchRecursos = async () => {
-        const data = await handleFetch({
-            table: 'resource',
-            query: 'resourcesAndAreas',
-            token
-        });
-        setRecursos(data.data);
-        setRecursosPorArea(data.data);
-    };
-
-    //useEffect que usa apenas na primeira render
-    useEffect(() => {
-        fetchRecursos();
-        fetchAreas();
-    }, []);
-
-    const atualizarRecursosPorArea = (area) => {
-        var recursosDaArea;
-        if (area != -1) {
-            recursosDaArea = recursos.filter(item => item.wbs_item?.wbs_area?.id == area);
-        } else {
-            recursosDaArea = recursos.filter(item => item.wbs_item == null);
-        }
-        setRecursosPorArea(recursosDaArea);
-    }
-
-    useEffect(() => {
-        if (areaSelecionada != '') {
-            atualizarRecursosPorArea(areaSelecionada, setRecursosPorArea);
-        }
-    }, [areaSelecionada, recursos]);
-
-    useEffect(() => {
-        if (tipo == "update") {
-            if (obj?.resource?.id !== '') {
-                const item = recursos.find(item => item.id == obj?.resource?.id);
-                if (item) {
-                    const areaSelecionada = item?.wbs_area?.id || -1;
-                    setAreaSelecionada(areaSelecionada);
-                    atualizarRecursosPorArea(areaSelecionada, setRecursosPorArea);
-                    setRecursoSelecionado(item?.id);
-                }
-            } else {
-                setAreaSelecionada(-1);
-                atualizarRecursosPorArea(-1, setRecursosPorArea);
-            }
-        }
-    }, [obj?.resource?.id, recursos]);
 
     const handleAreaChange = (e) => {
         const areaSelecionada = e.target.value;
         objSetter({ ...obj, resource_id: "" });
-        setAreaSelecionada(areaSelecionada);
-        atualizarRecursosPorArea(areaSelecionada, setRecursosPorArea);
+        setAreaSelecionada(Number(areaSelecionada));
         camposRef.current.area.classList.remove('campo-vazio');
     };
 
@@ -111,6 +49,20 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
             resource_id: ''
         });
     }, [areaSelecionada]);
+
+    useEffect(() => {
+        if (tipo == "update") {
+            if (obj?.resource?.id !== null) {
+                const areaSelecionada = obj?.resource?.wbs_item?.wbs_area?.id || -1;
+                setAreaSelecionada(Number(areaSelecionada));
+
+                setRecursoSelecionado(obj?.resource?.id);
+            } else {
+                setAreaSelecionada(-1);
+                setRecursoSelecionado(-1);
+            }
+        }
+    }, [obj?.resource?.id]);
 
     //funcao geral para inserir os dados dos inputs no obj
     const handleChange = (e, isNumber) => {
@@ -137,7 +89,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
             setExibirModal('datasSemSentido');
             return false;
         }
-        const {plan_real, value_real, date_real, ...camposConsiderados} = obj;
+        const { plan_real, value_real, date_real, ...camposConsiderados } = obj;
         camposConsiderados.resource_id = recursoSelecionado;
         const camposVazios = Object.keys(camposConsiderados).filter(
             key => camposConsiderados[key] === null || camposConsiderados[key] === ""
@@ -179,7 +131,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                 >
                     <option value="" defaultValue>Area</option>
                     {areas.map((area, index) => (
-                        <option key={index} value={area.id}>{area.name}</option>
+                        <option key={index} value={area[0]}>{area[1]}</option>
                     ))}
                     <option value={-1}>Others</option>
                 </select>
@@ -192,8 +144,8 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.resource_id = el)}
                 >
                     <option value="" defaultValue>Resource</option>
-                    {recursosPorArea.map((item, index) => (
-                        <option key={index} value={item.id}>{item.resource}</option>
+                    {recursosPorArea.get(areaSelecionada)?.map((item, _) => (
+                        <option key={item.id} value={item.id}>{item.resource}</option>
                     ))}
                 </select>
             </td>

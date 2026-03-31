@@ -15,7 +15,9 @@ export default async function handler(req, res) {
         id,
         wbs_item (
             wbs_area (
-                id
+                id,
+                name,
+                color
             )
         ),
         resource`)

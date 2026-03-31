@@ -1,16 +1,17 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { handleFetch, handlePostFetch } from "../../../../../functions/crud_s";
 import useAuth from '../../../../../hooks/useAuth';
-import { isoDateToEuDate } from '../../../../../functions/general';
 import { generateGraphData } from './generateGraphData';
 
-export const useRecursoData = () => {
+export const usePlanoData = () => {
     const { user, token } = useAuth();
 
     const [planos, setPlanos] = useState([]);
-    const [itensPorArea, setItensPorArea] = useState(new Map());
+    const [recursosPorArea, setRecursosPorArea] = useState(new Map());
     const [areas, setAreas] = useState([]);
+    const [cores, setCores] = useState({})
     const [isLoading, setIsLoading] = useState(true);
+    const [contingencia, setContingencia] = useState([]);
     const [totalContingencia, setTotalContingencia] = useState(0);
     const [areaSummary, setAreaSummary] = useState([]);
 
@@ -42,6 +43,7 @@ export const useRecursoData = () => {
 
             setPlanos(planosRes?.data || []);
             setAreaSummary(areaSummaryRes?.data || []);
+            setContingencia(emvRes?.data || []);
             const totalContin = emvRes.data.reduce((acc, cur) => acc += (cur.financial_impact * (cur.occurrence / 5)), 0);
             setTotalContingencia(totalContin);
         } catch (err) {
@@ -49,27 +51,32 @@ export const useRecursoData = () => {
         }
     }, [token]);
 
-    const graphData = useMemo(() => { 
-        return {...generateGraphData(areaSummary), totalContingencia}
-    }, [areaSummary]);
+    const graphData = useMemo(() => {
+        return { ...generateGraphData(areaSummary, contingencia), totalContingencia }
+    }, [areaSummary, totalContingencia, contingencia]);
 
-    const fetchWbs = useCallback(async () => {
+    const fetchRecursos = useCallback(async () => {
         try {
-            const itemsRes = await handleFetch({ table: 'wbs_item', query: 'with_areas', token });
+            const recursosRes = await handleFetch({ table: 'resource', query: 'resourcesAndAreas', token });
             const areasMap = new Map();
-            const itensPorAreaMap = new Map();
-            itemsRes?.data?.forEach(item => {
-                areasMap.set(item.wbs_area.id, item.wbs_area.name);
-
-                if (itensPorAreaMap.has(item.wbs_area.id)) {
-                    itensPorAreaMap.get(item.wbs_area.id).push({ id: item.id, name: item.name });
-                } else {
-                    itensPorAreaMap.set(item.wbs_area.id, [{ id: item.id, name: item.name }]);
+            const cores = {};
+            const recursosPorAreaMap = new Map();
+            recursosRes?.data?.forEach(item => {
+                if (item?.wbs_item?.wbs_area.id != null) {
+                    areasMap.set(item?.wbs_item?.wbs_area.id, item?.wbs_item?.wbs_area.name);
+                    cores[item?.wbs_item?.wbs_area.name] = item?.wbs_item?.wbs_area.color ?? "";
+                    if (recursosPorAreaMap.has(item?.wbs_item?.wbs_area.id)) {
+                        recursosPorAreaMap.get(item?.wbs_item?.wbs_area.id).push({ id: item?.id, resource: item?.resource });
+                    } else {
+                        recursosPorAreaMap.set(item?.wbs_item?.wbs_area.id, [{ id: item?.id, resource: item?.resource }]);
+                    }
                 }
             });
-            itensPorAreaMap.set(-1, [{ id: -1, name: "Others" }]);
+            recursosPorAreaMap.set(-1, [{ id: -1, resource: "Others" }]);
+            console.log(recursosPorAreaMap)
             setAreas(Array.from(areasMap.entries()));
-            setItensPorArea(itensPorAreaMap);
+            setCores({ ...cores, Others: "#ccc" });
+            setRecursosPorArea(recursosPorAreaMap);
         } catch (err) {
             console.error("Error while loading WBS data: ", err);
         }
@@ -88,19 +95,20 @@ export const useRecursoData = () => {
             setIsLoading(true);
             await Promise.all([
                 fetchData(),
-                fetchWbs()
+                fetchRecursos()
             ]);
             setIsLoading(false);
         };
 
         fetchAll();
 
-    }, [fetchData, fetchWbs, user?.id, token]);
+    }, [fetchData, fetchRecursos, user?.id, token]);
 
     return {
         planos,
+        cores,
         areas,
-        itensPorArea,
+        recursosPorArea,
         isLoading,
         setIsLoading,
         graphData,

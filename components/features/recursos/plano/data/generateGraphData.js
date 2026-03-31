@@ -1,14 +1,14 @@
-export const generateGraphData = (resumo) => {
+export const generateGraphData = (areaSummary, contingencia) => {
     const essentialGraph = [['Area', 'Value']];
     const allGraph = [['Area', 'Value']];
     const reserveGraph = [['Area', 'Value']];
-    if (resumo.length == 0) return [essentialGraph, allGraph, reserveGraph];
+    if (areaSummary.length == 0) return [essentialGraph, allGraph, reserveGraph];
     var objEssential = {};
     var objAll = {}
     var objReserve = {};
     var sumEssencial = 0;
     var sumAll = 0;
-    resumo.forEach((item) => {
+    areaSummary.forEach((item) => {
         var somaAtual;
         const areaName = item.area_name || "Others";
         if (item.is_essential) {
