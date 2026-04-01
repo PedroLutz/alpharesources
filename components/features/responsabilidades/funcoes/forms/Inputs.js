@@ -1,13 +1,11 @@
-import { useEffect, useState, useRef } from "react";
+import { useState, useRef } from "react";
 import React from "react";
-import styles from '../../../../styles/modules/responsabilidades.module.css'
-import { handleFetch } from '../../../../functions/crud_s';
-import useAuth from '../../../../hooks/useAuth';
-import usePerm from "../../../../hooks/usePerm";
+import styles from '../../../../../styles/modules/responsabilidades.module.css'
+import usePerm from "../../../../../hooks/usePerm";
+import { useFuncoes } from "../data/FuncoesContext";
 
 const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
-    const [nomesMembros, setNomesMembros] = useState([]);
-    const [areas, setAreas] = useState([]);
+    const {nomesMembros, areas} = useFuncoes();
     const [areaEscrita, setAreaEscrita] = useState(''); 
     const camposRef = useRef({
         role: null,
@@ -16,31 +14,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
         member_id: null,
         area: null,
     })
-    const { token } = useAuth();
     const {isEditor} = usePerm();
-
-    const fetchMembros = async () => {
-        const data = await handleFetch({
-            table: "member",
-            query: 'names',
-            token
-            });
-        setNomesMembros(data.data);
-    };
-
-    const fetchAreas = async () => {
-        const data = await handleFetch({
-            table: "wbs_area",
-            query: 'all',
-            token
-            });
-        setAreas(data.data);
-    };
-
-    useEffect(() => {
-        fetchMembros();
-        fetchAreas();
-    }, []);
 
     const handleChange = (e) => {
         var { name, value } = e.target;
@@ -76,10 +50,10 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
         return true;
     }
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         const isValid = validaDados();
         if(!isValid) return;
-        funcoes?.enviar();
+        await funcoes?.enviar();
     }
 
     const addToAreaArray = () => {

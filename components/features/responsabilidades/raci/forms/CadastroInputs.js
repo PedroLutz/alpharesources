@@ -1,16 +1,15 @@
 import React, { useState, useRef, useEffect, useContext, useMemo } from 'react';
-import { handleFetch } from '../../../../functions/crud_s';
-import styles from '../../../../styles/modules/responsabilidades.module.css'
-import useAuth from '../../../../hooks/useAuth';
-import usePerm from '../../../../hooks/usePerm';
+import { handleFetch } from '../../../../../functions/crud_s';
+import styles from '../../../../../styles/modules/responsabilidades.module.css'
+import useAuth from '../../../../../hooks/useAuth';
+import usePerm from '../../../../../hooks/usePerm';
+import { useRaci } from '../data/RaciContext';
 
-const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal, loaded }) => {
-    const [elementosWBS, setElementosWBS] = useState([]);
-    const [nomesMembros, setNomesMembros] = useState([])
+const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
+    const {areasSet, itensSet, nomesMembros, elementosWbs} = useRaci();
     const [itensPorArea, setItensPorArea] = useState([]);
     const [areaSelecionada, setAreaSelecionada] = useState('');
     const [areas, setAreas] = useState([]);
-    const { token } = useAuth();
     const {isEditor} = usePerm();
 
     const camposRef = useRef({
@@ -19,9 +18,29 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal, loaded 
         responsabilidades: null
     });
 
+    const checkItemDisponivel = (item_id) => {
+        if (itensSet.size == 0) {
+            return true;
+        }
+
+        return !itensSet.has(item_id);
+    }
+
+    const checkAreaDisponivel = (area_id, item_id) => {
+        if (areasSet.size == 0) {
+            return true;
+        }
+
+        if (areasSet.has(area_id)) {
+            return checkItemDisponivel(item_id);
+        }
+
+        return true;
+    }
+
     const atualizarItensPorArea = (area, setter) => {
-        const itensDaArea = elementosWBS.filter(item => item.wbs_area.id == area
-            && funcoes?.checkItemDisponivel(item.id));
+        const itensDaArea = elementosWbs.filter(item => item.wbs_area.id == area
+            && checkItemDisponivel(item.id));
         setter(itensDaArea);
     }
 
@@ -29,26 +48,20 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal, loaded 
         if (areaSelecionada != '') {
             atualizarItensPorArea(areaSelecionada, setItensPorArea);
         }
-    }, [areaSelecionada, elementosWBS]);
-
-    //useEffect que roda apenas na primeira execucao
-    useEffect(() => {
-        fetchElementos();
-    }, []);
+    }, [areaSelecionada, elementosWbs]);
 
     useEffect(() => {
-        if (loaded == true) {
             setAreas([...new Map(
-                elementosWBS
-                    .filter(item => funcoes?.checkAreaDisponivel(item.wbs_area.id, item.id) )
+                elementosWbs
+                    .filter(item => checkAreaDisponivel(item.wbs_area.id, item.id) )
                     .map(item => [
                         item.wbs_area.id,
                         { id: item.wbs_area.id, name: item.wbs_area.name }])
             ).values()
             ]);
             setItensPorArea([]);
-        }
-    }, [loaded, elementosWBS]);
+        
+    }, [ elementosWbs]);
 
 
     //so executa quando o tipo for cadastro pq a atualizacao n altera nem a area nem o item
@@ -69,29 +82,6 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal, loaded 
         setAreaSelecionada(areaSelecionada);
         camposRef.current.area.classList.remove('campo-vazio');
     };
-
-    //funcao para buscar os elementos da WBS para inserção nos selects
-    const fetchElementos = async () => {
-        var elementos;
-        try {
-            const data = await handleFetch({
-                table: 'wbs_item',
-                query: 'with_areas',
-                token
-            })
-            elementos = data?.data ?? [];
-        } finally {
-            setAreas([...new Map(
-                elementos
-                    .filter(item => funcoes?.checkAreaDisponivel(item.wbs_area.id, item.id))
-                    .map(item => [
-                        item.wbs_area.id,
-                        { id: item.wbs_area.id, name: item.wbs_area.name }])
-            ).values()
-            ]);
-            setElementosWBS(elementos);
-        }
-    }
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -124,20 +114,6 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal, loaded 
             setItensPorArea([]);
         }
     };
-
-    const fetchNomesMembros = async () => {
-        const data = await handleFetch({
-            table: "member",
-            query: 'names',
-            token
-        });
-        setNomesMembros(data.data);
-    };   
-
-    useEffect(() => {
-        fetchNomesMembros();
-        fetchElementos();
-    }, []);
 
     return (
         <React.Fragment>
