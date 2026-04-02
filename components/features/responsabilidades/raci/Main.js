@@ -8,7 +8,7 @@ import HelpBubble from "../../../ui/HelpBubble/responsabilidades/Raci";
 import Link from 'next/link';
 import { RaciProvider, useRaci } from './data/RaciContext';
 import DynamicHeader from './blocks/DynamicHeader';
-import NewRaciCreator from './forms/newRaciCreator';
+import NewRaciCreator from './forms/NewRaciCreator';
 import RaciBlock from './blocks/RaciBlock';
 
   const modalLabels = {
