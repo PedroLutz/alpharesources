@@ -2,6 +2,7 @@ import { useState } from "react";
 import CadastroInputs from "./CadastroInputs";
 import useAuth from "../../../../../hooks/useAuth";
 import { usePlano } from "../data/PlanoProvider";
+import { handleReq } from "../../../../../functions/crud_s";
 
 const NewPlanoCreator = ({ setExibirModal }) => {
     const {user, token} = useAuth();

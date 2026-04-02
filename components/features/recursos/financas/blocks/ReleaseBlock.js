@@ -42,7 +42,7 @@ const ReleaseBlock = ({ item, setExibirModal, setDeleteItem }) => {
             description: item.description,
             value: valorCorrigido,
             date: euDateToIsoDate(item.date),
-            area_id: item.wbs_area.id,
+            area_id: item.wbs_area?.id || null,
             origin: item.origin,
             destination: item.destination,
         });
