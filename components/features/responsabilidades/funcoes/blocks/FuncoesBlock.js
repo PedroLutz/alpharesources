@@ -24,37 +24,41 @@ const FuncoesBlock = ({ funcao, setExibirModal, setConfirmDeleteItem}) => {
         setNovosDados(obj);
     }, [funcao]);
 
-    const deleteRemovedAreas = async () => {
+    const deleteRemovedAreas = () => {
+        const functions = [];
         for (const area of velhosDados?.wbs_area) {
             if (!novosDados?.areas?.some(a => a == area.id)) {
-                await handleReq({
+                functions.push(handleReq({
                     table: "rel_area_role",
                     route: 'delete',
                     token,
                     data: { role_id: velhosDados.id, area_id: area.id }
-                })
+                }))
             }
         }
+        return functions;
     }
 
-    const submitNewAreas = async () => {
+    const submitNewAreas = () => {
+        const functions = [];
         for (const area of novosDados?.areas) {
             if (!velhosDados?.wbs_area?.some(a => a.id == area)) {
-                await handleReq({
+                functions.push(handleReq({
                     table: "rel_area_role",
                     route: 'create',
                     token,
                     data: { role_id: velhosDados.id, area_id: area, user_id: user?.id }
-                })
+                }))
             }
         }
+        return functions;
     }
 
     const enviar = async () => {
         setIsLoading(true);
         await Promise.all([
-            deleteRemovedAreas(),
-            submitNewAreas(),
+            ...deleteRemovedAreas(),
+            ...submitNewAreas(),
             handleReq({
                 table: 'role',
                 route: 'update',

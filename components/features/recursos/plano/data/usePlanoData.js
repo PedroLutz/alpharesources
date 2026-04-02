@@ -73,7 +73,6 @@ export const usePlanoData = () => {
                 }
             });
             recursosPorAreaMap.set(-1, [{ id: -1, resource: "Others" }]);
-            console.log(recursosPorAreaMap)
             setAreas(Array.from(areasMap.entries()));
             setCores({ ...cores, Others: "#ccc" });
             setRecursosPorArea(recursosPorAreaMap);

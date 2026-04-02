@@ -52,28 +52,30 @@ const RaciBlock = ({ item, index, setExibirModal, setConfirmDeleteItem, verOpcoe
     const enviar = async () => {
         if (!isValid()) return;
         setIsLoading(true);
+        const functions = [];
         for (const key in novosDados) {
             if (key != 'item_id' && key != 'id') {
                 const responsibility = novosDados[key];
                 const member_id = inputToMember[key];
                 const dadoOriginal = velhosDados?.raci?.find(i => i.member_id == member_id) ?? undefined;
                 if (dadoOriginal !== undefined && dadoOriginal?.responsibility != responsibility) {
-                    await handleReq({
+                    functions.push(handleReq({
                         table: 'raci_item',
                         route: 'update',
                         token,
                         data: { id: dadoOriginal.id, item_id: novosDados.item_id, member_id, responsibility, user_id: user.id },
-                    });
+                    }));
                 } else {
-                    await handleReq({
+                    functions.push(handleReq({
                         table: 'raci_item',
                         route: 'create',
                         token,
                         data: { item_id: novosDados.item_id, member_id, responsibility, user_id: user.id },
-                    });
+                    }));
                 }
             }
         }
+        await Promise.all(functions);
         setIsLoading(false);
         await fetchData();
         setIsBeingUpdated(false);

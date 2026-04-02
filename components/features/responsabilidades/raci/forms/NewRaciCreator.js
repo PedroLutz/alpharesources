@@ -43,18 +43,20 @@ const NewRaciCreator = ({ setExibirModal }) => {
         }
         
         try {
+            const functions = [];
             for (const key in novoSubmit) {
                 if (key != 'item_id') {
                     const responsibility = novoSubmit[key];
                     const member_id = inputToMember[key];
-                    await handleReq({
+                    functions.push(handleReq({
                         table: 'raci_item',
                         route: 'create',
                         token,
                         data: { item_id: novoSubmit.item_id, member_id, responsibility, user_id: user.id },
-                    });
+                    }));
                 }
             }
+            await Promise.all(functions);
         } finally {
             setNovoSubmit({ ...memberInputData, ...camposVazios });
             await fetchData();

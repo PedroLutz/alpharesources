@@ -33,14 +33,16 @@ const Tabela = () => {
   const handleConfirmDelete = async () => {
     if (confirmDeleteItem) {
       try {
+        const functions = [];
         for (const item of confirmDeleteItem?.raci ?? []) {
-          await handleReq({
+          functions.push(handleReq({
             table: "raci_item",
             route: 'delete',
             token,
             data: { id: item.id },
-          });
+          }));
         }
+        await Promise.all(functions);
       } finally {
         setExibirModal("deleteSuccess");
         setConfirmDeleteItem(null);

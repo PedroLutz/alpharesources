@@ -33,12 +33,6 @@ export const useFuncoesData = () => {
         }
     }, [token]);
 
-    const refetchDataOnly = useCallback(async () => {
-        setIsLoading(true);
-        await fetchData();
-        setIsLoading(false);
-    }, [fetchData]);
-
     useEffect(() => {
         if (!user?.id || !token) return;
 
@@ -61,6 +55,6 @@ export const useFuncoesData = () => {
         areas,
         isLoading,
         setIsLoading,
-        fetchData: refetchDataOnly, 
+        fetchData, 
     }
 }

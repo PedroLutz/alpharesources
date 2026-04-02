@@ -1,75 +1,20 @@
-import React, { useEffect, useState } from "react"
+import { useState } from "react"
 import styles from '../../../../styles/modules/responsabilidades.module.css'
-import Inputs from "./forms/Inputs";
 import Modal from "../../../ui/Modal";
 import Loading from "../../../ui/Loading";
-import { handleFetch, handleReq } from '../../../../functions/crud_s';
+import { handleReq } from '../../../../functions/crud_s';
 import useAuth from '../../../../hooks/useAuth';
-import usePerm from '../../../../hooks/usePerm';
 import HelpBubble from "../../../ui/HelpBubble/responsabilidades/Funcoes";
 import { FuncoesProvider, useFuncoes } from "./data/FuncoesContext";
 import NewFuncaoCreator from "./forms/NewFuncaoCreator";
 import FuncoesBlock from "./blocks/FuncoesBlock";
 
 const Tabela = () => {
-    const { funcoes, isLoading, setIsLoading, fetchData} = useFuncoes();
-    const { user, token } = useAuth();
-    const user_id = user.id;
-    const { isEditor } = usePerm();
-
-    const camposVazios = {
-        role: '',
-        description: '',
-        skills: '',
-        member_id: '',
-        areas: []
-    }
-    const [novosDados, setNovosDados] = useState(camposVazios);
-    const [oldDados, setOldDados] = useState(camposVazios);
+    const { funcoes, isLoading, fetchData} = useFuncoes();
+    const { token } = useAuth();
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
     const [exibirModal, setExibirModal] = useState(null);
-    const [linhaVisivel, setLinhaVisivel] = useState();
     const [showHelp, setShowHelp] = useState(false);
-
-    const handleUpdateClick = (item) => {
-        setLinhaVisivel(item.id)
-        setOldDados(item);
-        const {wbs_area, member, ...obj} = item;
-        obj.areas = [];
-        obj.member_id = item?.member?.id;
-        item?.wbs_area?.forEach(a => {
-            obj.areas.push(a.id);
-        })
-        setNovosDados(obj);
-    }
-
-    const handleUpdateItem = async () => {
-        setIsLoading(true);
-        for(const area of oldDados?.wbs_area){
-            if(!novosDados?.areas?.some(a => a == area.id)){
-                await handleReq({
-                    table: "rel_area_role",
-                    route: 'delete',
-                    token,
-                    data: { role_id: oldDados.id, area_id: area.id}
-                })
-            }
-        }
-        for(const area of novosDados?.areas){
-            if(!oldDados?.wbs_area?.some(a => a.id == area)){
-                await handleReq({
-                    table: "rel_area_role",
-                    route: 'create',
-                    token,
-                    data: { role_id: oldDados.id, area_id: area, user_id}
-                })
-            }
-        }
-        await fetchData();
-        setIsLoading(false);
-        setNovosDados(camposVazios);
-        setLinhaVisivel();
-    };
 
     const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {

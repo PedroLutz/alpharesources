@@ -1,7 +1,5 @@
-import React, { useState, useRef, useEffect, useContext, useMemo } from 'react';
-import { handleFetch } from '../../../../../functions/crud_s';
+import React, { useState, useRef, useEffect } from 'react';
 import styles from '../../../../../styles/modules/responsabilidades.module.css'
-import useAuth from '../../../../../hooks/useAuth';
 import usePerm from '../../../../../hooks/usePerm';
 import { useRaci } from '../data/RaciContext';
 
@@ -61,7 +59,7 @@ const CadastroTabela = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
             ]);
             setItensPorArea([]);
         
-    }, [ elementosWbs]);
+    }, [ elementosWbs, itensSet, areasSet]);
 
 
     //so executa quando o tipo for cadastro pq a atualizacao n altera nem a area nem o item
