@@ -1,9 +1,17 @@
 import { useRef } from "react"
-import styles from '../../../../styles/modules/responsabilidades.module.css'
-import usePerm from "../../../../hooks/usePerm"
+import styles from '../../../../../styles/modules/responsabilidades.module.css'
+import usePerm from "../../../../../hooks/usePerm"
+import { useMembro } from "../data/MembroContext"
 
 const CadastroInputs = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
     const { isEditor } = usePerm();
+    const {membros} = useMembro();
+
+    const isMembroCadastrado = (nome) => {
+        const normalize = (n) => n.trim().toLowerCase();
+        const nomeNormalizado = normalize(nome);
+        return membros.some((m) => normalize(m.name) == nomeNormalizado);
+    }
 
     const camposRef = useRef({
         name: null,
@@ -22,7 +30,7 @@ const CadastroInputs = ({ obj, objSetter, tipo, funcoes, setExibirModal }) => {
     };
 
     const validaDados = () => {
-        if(funcoes?.isMembroCadastrado?.(obj.name) ?? false){
+        if(isMembroCadastrado(obj.name) ?? false){
             camposRef.current.name.classList.add('campo-vazio');
             setExibirModal('membroRepetido');
             return false;

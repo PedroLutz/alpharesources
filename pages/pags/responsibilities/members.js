@@ -1,11 +1,11 @@
-import Lista from '../../../components/features/responsabilidades/membros/Lista';
+import Main from '../../../components/features/responsabilidades/membros/Main';
 import PageWrapper from '../../../components/layout/ResponsabilidadeWrapper';
 
 function CadastroPage() {
   return (
     <div>
       <PageWrapper>
-        <Lista />
+        <Main />
       </PageWrapper>
     </div>
   );

@@ -1,14 +1,12 @@
-import { useEffect, useState, useRef } from "react";
+import { useRef } from "react";
 import React from "react";
-import { handleFetch } from '../../../../functions/crud_s';
-import useAuth from "../../../../hooks/useAuth";
-import styles from '../../../../styles/modules/responsabilidades.module.css'
-import usePerm from "../../../../hooks/usePerm";
+import styles from '../../../../../styles/modules/responsabilidades.module.css'
+import usePerm from "../../../../../hooks/usePerm";
+import { useHabilidade } from "../data/HabilidadeContext";
 
 const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
-    const { token } = useAuth();
+    const {nomesFuncoes} = useHabilidade();
     const {isEditor} = usePerm();
-    const [nomesFuncoes, setNomesFuncoes] = useState([]);
     const camposRef = useRef({
         funcao: null,
         area: null,
@@ -17,19 +15,6 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
         nivel_min: null,
         acao: null
     })
-
-    const fetchFuncoes = async () => {
-        const data = await handleFetch({
-            table: "role",
-            query: 'names',
-            token
-        });
-        setNomesFuncoes(data.data);
-    };
-
-    useEffect(() => {
-        fetchFuncoes();
-    }, []);
 
     const handleChange = (e, isNumber) => {
         var { name, value } = e.target;
