@@ -1,11 +1,11 @@
 import PageWrapper from '../../../components/layout/ComunicacaoWrapper';
-import Tabela from '../../../components/features/comunicacao/grupos/Tabela';
+import Main from '../../../components/features/comunicacao/grupos/Main';
 
 function Wbs() {
   return (
     <div>
       <PageWrapper>
-        <Tabela />
+        <Main />
       </PageWrapper>
     </div>
   );

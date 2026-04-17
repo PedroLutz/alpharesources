@@ -1,8 +1,11 @@
 import { useRef } from "react";
 import React from "react";
-import usePerm from "../../../../hooks/usePerm";
+import usePerm from "../../../../../hooks/usePerm";
+import { useGrupos } from "../data/GruposContext";
 
 const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
+    const {groupsSet} = useGrupos();
+
     const camposRef = useRef({
         group: null,
         involvement: null,
@@ -28,9 +31,13 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
         e.target.classList.remove('campo-vazio');
     };
 
+    const isGrupoCadastrado = (grupo) => {
+        return groupsSet.has(grupo.trim().toLowerCase());
+    }
+
     //funcao que valida os dados e insere nos campos vazios a classe "campo-vazio"
     const validaDados = () => {
-        if(funcoes?.isGrupoCadastrado?.(obj.group) ?? false){
+        if(tipo != "update" && isGrupoCadastrado(obj.group)){
             camposRef.current.group.classList.add('campo-vazio');
             setExibirModal('groupRepetido');
             return false;
@@ -50,11 +57,10 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
         return true;
     }
 
-    //funcao que, caso os dados sejam validos, executa a funcao de submit
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         const isValid = validaDados();
         if(!isValid) return;
-        funcoes?.enviar();
+        await funcoes?.enviar();
     }
 
     return (
