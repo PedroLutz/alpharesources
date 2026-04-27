@@ -1,13 +1,14 @@
 import { useEffect, useState, useRef } from "react";
 import React from "react";
-import { handleFetch } from "../../../../functions/crud_s";
-import usePerm from "../../../../hooks/usePerm";
-import useAuth from "../../../../hooks/useAuth";
+import { handleFetch } from "../../../../../functions/crud_s";
+import usePerm from "../../../../../hooks/usePerm";
+import useAuth from "../../../../../hooks/useAuth";
+import { useStakeholder } from "../data/StakeholderContext";
 
 const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
+    const { stakeholders, groups } = useStakeholder();
     const { isEditor } = usePerm();
     const { token } = useAuth();
-    const [nomesStakeholders, setNomesStakeholders] = useState([]);
     const camposRef = useRef({
         group_id: null,
         stakeholder: null,
@@ -21,21 +22,6 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
         negative_eng: null
     })
 
-    //funcao que busca os grupos de stakeholders
-    const fetchStakeholders = async () => {
-        const data = await handleFetch({
-            table: 'stakeholder_group',
-            query: 'groups_names',
-            token
-        });
-        setNomesStakeholders(data.data);
-    };
-
-    //useEffect que só roda na primeira render
-    useEffect(() => {
-        fetchStakeholders();
-    }, []);
-
     //funcao que insere os dados no obj
     const handleChange = (e) => {
         var { name, value } = e.target;
@@ -46,9 +32,16 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
         e.target.classList.remove('campo-vazio');
     };
 
+    const isStakeholderCadastrado = (grupo, stakeholder) => { 
+        return stakeholders.some(
+            (s) => s?.stakeholder_group?.id == grupo 
+            && s.stakeholder.trim().toLowerCase() == stakeholder.trim().toLowerCase()
+        ); 
+    }
+
     //funcao para validar os dados e inserir no modal o texto de aviso
     const validaDados = () => {
-        if (funcoes?.isStakeholderCadastrado?.(obj?.group_id, obj?.stakeholder) ?? false) {
+        if (tipo != "update" && isStakeholderCadastrado(obj?.group_id, obj?.stakeholder)) {
             camposRef.current.stakeholder.classList.add('campo-vazio');
             setExibirModal('stakeholderRepetido');
             return false;
@@ -85,7 +78,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.group_id = el)}
                 >
                     <option defaultValue value=''>Stakeholder Group</option>
-                    {nomesStakeholders.map((group, index) => (
+                    {groups.map((group, index) => (
                         <option key={index} value={group.id}>{group.group}</option>
                     ))};
                 </select>
