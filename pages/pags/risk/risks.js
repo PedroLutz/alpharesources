@@ -1,14 +1,12 @@
-import Tabela from '../../../components/features/riscos/identificacao/Tabela';
+import Main from '../../../components/features/riscos/identificacao/Main';
 import PageWrapper from '../../../components/layout/RiscoWrapper';
 
-function TabelaPage() {
+function MainPage() {
   return (
-    <div>
-      <PageWrapper>
-        <Tabela/>
-      </PageWrapper>
-    </div>
+    <PageWrapper>
+      <Main />
+    </PageWrapper>
   );
 }
 
-export default TabelaPage;
+export default MainPage;
