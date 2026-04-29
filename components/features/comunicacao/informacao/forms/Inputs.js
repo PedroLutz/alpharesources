@@ -2,17 +2,15 @@ import { useEffect, useState, useRef } from "react";
 import usePerm from "../../../../../hooks/usePerm";
 import useAuth from "../../../../../hooks/useAuth";
 import React from "react";
-import { handleFetch } from "../../../../../functions/crud_s";
 import styles from '../../../../../styles/modules/comunicacao.module.css'
+import { useInformacao } from "../data/InformacaoContext";
 
 const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
+    const { nomesMembros, stakeholders, groups } = useInformacao();
     const { token } = useAuth();
     const { isEditor } = usePerm();
-    const [stakeholders, setStakeholders] = useState([]);
-    const [grupos, setGrupos] = useState([]);
     const [grupoSelecionado, setGrupoSelecionado] = useState('');
     const [stakeholdersDoGrupo, setStakeholdersDoGrupo] = useState([]);
-    const [nomesMembros, setNomesMembros] = useState([]);
     const [verOpcaoCustom, setVerOpcaoCustom] = useState(false);
     const camposRef = useRef({
         grupo: null,
@@ -27,7 +25,9 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
         action: null
     })
 
-    //funcao que busca os grupos e nomes dos stakeholders
+    useEffect(() => {
+        setStakeholdersDoGrupo(stakeholders);
+    }, [stakeholders]);
 
     const atualizarStakeholdersDoGrupo = (group) => {
         const stakeholdersPorGrupo = stakeholders.filter(item => item.stakeholder_group.id == group);
@@ -44,76 +44,13 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
         }
     }, [obj?.stakeholder_id, stakeholders]);
 
-    useEffect(() => {
-        if (grupoSelecionado != '') {
-            atualizarStakeholdersDoGrupo(grupoSelecionado);
-        } else {
-            setStakeholdersDoGrupo(stakeholders);
-        }
-    }, [grupoSelecionado, stakeholders]);
-
-    useEffect(() => {
-        setGrupos([...new Map(
-            stakeholders
-                .map(item => [
-                    item.stakeholder_group.id,
-                    { id: item.stakeholder_group.id, name: item.stakeholder_group.group }])
-        ).values()
-        ]);
-        setStakeholdersDoGrupo(stakeholders);
-    }, [stakeholders]);
-
-
-    //so executa quando o tipo for cadastro pq a atualizacao n altera nem a area nem o item
-    //ent n pode mexer no obj
-    useEffect(() => {
-        if (tipo == 'cadastro') {
-            objSetter({
-                ...obj,
-                stakeholder_id: ''
-            })
-        }
-    }, [grupoSelecionado]);
-
     const handleGrupoChange = (e) => {
         const grupoSelecionado = e.target.value;
         objSetter({ ...obj, stakeholder_id: "" });
         atualizarStakeholdersDoGrupo(grupoSelecionado);
         setGrupoSelecionado(grupoSelecionado);
         camposRef.current.grupo.classList.remove('campo-vazio');
-    };
-
-    //funcao para buscar os elementos da WBS para inserção nos selects
-    const fetchGruposENomes = async () => {
-        var stakeholders;
-        try {
-            const data = await handleFetch({
-                table: 'stakeholder',
-                query: 'with_groups',
-                token
-            })
-            stakeholders = data?.data ?? [];
-        } finally {
-            setGrupos([...new Map(
-                stakeholders
-                    .map(item => [
-                        item.stakeholder_group.id,
-                        { id: item.stakeholder_group.id, name: item.stakeholder_group.group }])
-            ).values()
-            ]);
-            setStakeholders(stakeholders);
-        }
     }
-
-    //funcao que busca os nomes dos membros
-    const fetchMembros = async () => {
-        const data = await handleFetch({
-            table: 'member',
-            query: 'names',
-            token
-        })
-        setNomesMembros(data.data);
-    };
 
     //useEffect que roda na primeira render, e verifica se o campo obj.frequencia tem algum valor
     //se esse valor for diferente dos preestabelecidos e nao for vazio, inicia o componente mostrando o input de opcao customizada
@@ -122,8 +59,6 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
         if (obj.frequency && !opcoesPreEstabelecidas.includes(obj.frequency)) {
             setVerOpcaoCustom(true);
         }
-        fetchGruposENomes();
-        fetchMembros();
     }, [obj.frequency]);
 
     //funcao que insere os dados no obj
@@ -185,8 +120,8 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     ref={el => (camposRef.current.grupo = el)}
                 >
                     <option value="" defaultValue>Group</option>
-                    {grupos.map((grupo, index) => (
-                        <option key={index} value={grupo.id}>{grupo.name}</option>
+                    {groups.map((grupo, index) => (
+                        <option key={index} value={grupo.id}>{grupo.group}</option>
                     ))};
                 </select>
             </td>
@@ -199,7 +134,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
 
                 >
                     <option value="" defaultValue>Stakeholder</option>
-                    {stakeholdersDoGrupo.map((stakeholder, index) => (
+                    {stakeholdersDoGrupo?.map((stakeholder, index) => (
                         <option key={index} value={stakeholder.id}>{stakeholder.stakeholder}</option>
                     ))}
                 </select>

@@ -7,6 +7,8 @@ export const useInformacaoData = () => {
     const { user, token } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
     const [informacoes, setInformacoes] = useState([]);
+    const [nomesMembros, setNomesMembros] = useState([]);
+    const [stakeholders, setStakeholders] = useState([]);
     const [groups, setGroups] = useState([]);
 
     const fetchData = useCallback(async () => {
@@ -24,18 +26,20 @@ export const useInformacaoData = () => {
 
     const fetchOnce = useCallback(async () => {
         try {
-            const groupsRes = await handleFetch({
-                table: 'stakeholder_group',
-                query: 'groups_names',
-                token
-            });
-            setGroups(groupsRes.data);
+            const [ groupsRes, membrosRes, stakeholdersRes ] = await Promise.all([
+                handleFetch({ table: 'stakeholder_group', query: 'groups_names', token }),
+                handleFetch({ table: 'member', query: 'names', token }),
+                handleFetch({ table: 'stakeholder', query: 'with_groups', token })
+            ]);
+            setGroups(groupsRes?.data || []);
+            setNomesMembros(membrosRes?.data || []);
+            setStakeholders(stakeholdersRes?.data || []);
         } catch (err) {
             console.error("Error while loading data: ", err);
         }
     }, [token])
 
-    const refetchStakeholders = async () => {
+    const refetchInformacoes = async () => {
         setIsLoading(true);
         await fetchData();
         setIsLoading(false);
@@ -60,8 +64,10 @@ export const useInformacaoData = () => {
     return {
         informacoes,
         groups,
+        nomesMembros,
+        stakeholders,
         isLoading,
         setIsLoading,
-        fetchData: refetchStakeholders
+        fetchData: refetchInformacoes
     }
 };
