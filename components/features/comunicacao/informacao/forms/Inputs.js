@@ -1,9 +1,9 @@
 import { useEffect, useState, useRef } from "react";
-import usePerm from "../../../../hooks/usePerm";
-import useAuth from "../../../../hooks/useAuth";
+import usePerm from "../../../../../hooks/usePerm";
+import useAuth from "../../../../../hooks/useAuth";
 import React from "react";
-import { handleFetch } from "../../../../functions/crud_s";
-import styles from '../../../../styles/modules/comunicacao.module.css'
+import { handleFetch } from "../../../../../functions/crud_s";
+import styles from '../../../../../styles/modules/comunicacao.module.css'
 
 const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     const { token } = useAuth();

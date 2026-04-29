@@ -1,50 +1,61 @@
-import { useState } from "react"
+import React, { useEffect, useState } from "react"
 import styles from '../../../../styles/modules/comunicacao.module.css'
+import Inputs from "./forms/Inputs";
 import Modal from "../../../ui/Modal";
 import Loading from "../../../ui/Loading";
-import { handleReq } from "../../../../functions/crud_s";
-import { cleanForm } from "../../../../functions/general";
+import { handleFetch, handleReq } from "../../../../functions/crud_s";
+import usePerm from "../../../../hooks/usePerm";
 import useAuth from "../../../../hooks/useAuth";
-import HelpBubble from "../../../ui/HelpBubble/comunicacao/Stakeholders";
-import { StakeholderProvider, useStakeholder } from "./data/StakeholderContext";
-import NewStakeholderCreator from "./forms/NewStakeholderCreator";
-import StakeholderBlock from "./blocks/StakeholderBlock";
+import { cleanForm } from "../../../../functions/general";
+import Link from "next/link";
+import HelpBubble from "../../../ui/HelpBubble/comunicacao/Informacao";
+import { InformacaoProvider, useInformacao } from "./data/InformacaoContext";
+import NewInformacaoCreator from "./forms/NewInformacaoCreator";
+import InformacaoBlock from "./blocks/InformacaoBlock";
 
 const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',
     'deleteSuccess': 'Deletion Successful!',
     'deleteFail': 'Deletion Failed!',
-    'stakeholderRepetido': 'This stakeholder is already registered!'
+    'stakeholderRepetido': 'You have already registered the information for this stakeholder!'
 };
 
 const Tabela = () => {
+    const { isEditor } = usePerm();
     const { token } = useAuth();
-    const { stakeholders, isLoading, setIsLoading, fetchData } = useStakeholder();
+    
+    const { informacoes, setIsLoading, isLoading, fetchData } = useInformacao();
+    
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
     const [exibirModal, setExibirModal] = useState(null);
-    const [updatingGroup, setUpdatingGroup] = useState(null);
+    const [updatingLine, setUpdatingLine] = useState(false);
     const [showHelp, setShowHelp] = useState(false);
 
-    //funcao que envia os dados para serem deletados
+    //funcao que envia os dados para atualizacao no backend
     const handleConfirmDelete = async () => {
+        setIsLoading(true);
         if (confirmDeleteItem) {
             await handleReq({
-                table: "stakeholder",
+                table: "information",
                 route: 'delete',
                 token,
                 data: { id: confirmDeleteItem.id },
                 fetchData
             });
-            setExibirModal("deleteSuccess");
-            setConfirmDeleteItem(null)
         }
+        setExibirModal("deleteSuccess");
+        setConfirmDeleteItem(null)
+        setIsLoading(false);
     };
+
+    let lastGroupId = null, lastStakeholderId = null;
 
     return (
         <div className="centered-container">
             {isLoading && <Loading />}
             {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
-            <h2 className="smallTitle">Stakeholder Identification <button onClick={() => setShowHelp(true)}>❔</button></h2>
+            <h2 className="smallTitle">Communicated Information <button onClick={() => setShowHelp(true)}>❔</button></h2>
+
             {exibirModal != null && (
                 <Modal objeto={{
                     titulo: modalLabels[exibirModal],
@@ -56,7 +67,7 @@ const Tabela = () => {
 
             {confirmDeleteItem && (
                 <Modal objeto={{
-                    titulo: `Are you sure you want to PERMANENTLY delete "${confirmDeleteItem.stakeholder}"?`,
+                    titulo: `Are you sure you want to PERMANENTLY delete the information for "${confirmDeleteItem?.stakeholder?.stakeholder}"?`,
                     alerta: true,
                     botao1: {
                         funcao: handleConfirmDelete, texto: 'Confirm'
@@ -69,42 +80,37 @@ const Tabela = () => {
 
             <div className={styles.tabelaComunicacao_container}>
                 <div className={styles.tabelaComunicacao_wrapper}>
-                    <table className={`${styles.tabelaStakeholders} tabela`}>
+                    <table className={`${styles.tabelaInformacao} tabela`}>
                         <thead>
-                            <tr>
-                                <th colSpan="6">Basic info</th>
-                                <th colSpan="2">Needs</th>
-                                <th colSpan="2">Engagement</th>
-                                <th rowSpan="2">Actions</th>
-
-                            </tr>
                             <tr>
                                 <th>Stakeholder Group</th>
                                 <th>Stakeholder</th>
-                                <th>Potential Influence</th>
-                                <th>Potential Impact</th>
-                                <th>Power</th>
-                                <th>Interest</th>
-                                <th>Expectations</th>
-                                <th>Requisites</th>
-                                <th>Positive</th>
-                                <th>Negative</th>
+                                <th className={styles.infoTdInfo}>Information</th>
+                                <th>Method</th>
+                                <th>Frequency</th>
+                                <th>Channel</th>
+                                <th>Responsible</th>
+                                <th>Record *</th>
+                                <th>Feedback *</th>
+                                <th>Action taken *</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-
-                            {stakeholders.map((stakeholder, index) => (
-                                <StakeholderBlock
-                                    key={stakeholder.id}
+                            {informacoes.map((informacao, index) => (
+                                <InformacaoBlock
+                                    key={informacao.id}
                                     index={index}
-                                    stakeholder={stakeholder}
-                                    updatingGroup={updatingGroup}
-                                    setUpdatingGroup={setUpdatingGroup}
-                                    setExibirModal={setExibirModal}
+                                    informacao={informacao}
+                                    updatingLine={updatingLine}
+                                    setUpdatingLine={setUpdatingLine}
                                     setConfirmDeleteItem={setConfirmDeleteItem}
+                                    setExibirModal={setExibirModal}
+                                    lastStakeholderId={lastStakeholderId}
+                                    lastGroupId={lastGroupId}
                                 />
                             ))}
-                            <NewStakeholderCreator
+                            <NewInformacaoCreator
                                 setExibirModal={setExibirModal}
                             />
                         </tbody>
@@ -117,9 +123,9 @@ const Tabela = () => {
 
 const Main = () => {
     return (
-        <StakeholderProvider>
+        <InformacaoProvider>
             <Tabela />
-        </StakeholderProvider>
+        </InformacaoProvider>
     )
 }
 

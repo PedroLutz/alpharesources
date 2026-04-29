@@ -1,14 +1,14 @@
 import PageWrapper from '../../../components/layout/ComunicacaoWrapper';
-import Tabela from '../../../components/features/comunicacao/informacao/Tabela';
+import Main from '../../../components/features/comunicacao/informacao/Main';
 
-function Wbs() {
+function Page() {
   return (
     <div>
       <PageWrapper>
-        <Tabela />
+        <Main />
       </PageWrapper>
     </div>
   );
 }
 
-export default Wbs;
+export default Page;

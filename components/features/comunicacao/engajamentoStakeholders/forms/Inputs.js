@@ -1,5 +1,4 @@
 import { useRef} from "react";
-import React from "react";
 
 const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     const camposRef = useRef({
@@ -40,7 +39,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     }
 
     return (
-        <React.Fragment>
+        <>
             <td>
                 <select
                     value={obj?.eng_level ?? ""}
@@ -75,7 +74,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                 <button onClick={handleSubmit}>✔️</button>
                 <button onClick={funcoes?.cancelar}>✖️</button>  
             </td>
-        </React.Fragment>
+        </>
     )
 }
 

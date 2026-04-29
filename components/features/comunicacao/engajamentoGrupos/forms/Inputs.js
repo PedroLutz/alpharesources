@@ -1,6 +1,29 @@
 import { useRef} from "react";
 import React from "react";
 
+const generateMapping = (engajamento) => {
+    if (!engajamento.control  || !engajamento.influence || !engajamento.dependency || 
+        !engajamento.impact || !engajamento.engagement || !engajamento.alignment) {
+        return "-";
+    }
+    const poder = ((engajamento.control + engajamento.influence + engajamento.dependency) / 3).toFixed(2);
+    const interesse = ((engajamento.impact + engajamento.engagement + engajamento.alignment) / 3).toFixed(2);
+
+    if (poder < 2.5) {
+        if (interesse < 2.5) {
+            return "Monitor";
+        } else {
+            return "Keep informed"
+        }
+    } else {
+        if (interesse < 2.5) {
+            return "Keep satisfied";
+        } else {
+            return "Close Management"
+        }
+    }
+}
+
 const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     const camposRef = useRef({
         dependency: null,
@@ -122,7 +145,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                 />
             </td>
             <td>-</td>
-            <td>-</td>
+            <td>{generateMapping(obj)}</td>
             <td>
                 <select
                     value={obj?.eng_level}
