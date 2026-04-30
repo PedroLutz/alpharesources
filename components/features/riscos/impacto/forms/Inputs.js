@@ -1,15 +1,15 @@
 import { useEffect, useState, useRef } from "react";
 import React from "react";
-import { handleFetch } from "../../../../functions/crud_s";
-import useAuth from "../../../../hooks/useAuth";
-import usePerm from "../../../../hooks/usePerm";
-import styles from '../../../../styles/modules/risco.module.css'
+import { handleFetch } from "../../../../../functions/crud_s";
+import useAuth from "../../../../../hooks/useAuth";
+import usePerm from "../../../../../hooks/usePerm";
+import styles from '../../../../../styles/modules/risco.module.css'
+import { useImpacto } from "../data/ImpactoContext";
 
-const InputsImpacto = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea, backgroundColor }) => {
-    const [riscos, setRiscos] = useState([])
+const Inputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea, backgroundColor }) => {
     const [riscosPorArea, setRiscosPorArea] = useState([]);
     const [areaSelecionada, setAreaSelecionada] = useState('');
-    const [areas, setAreas] = useState([]);
+    const {impactos, riscos, areasWBS} = useImpacto();
     const camposRef = useRef({
         risk_id: null,
         impact_area: null,
@@ -19,25 +19,16 @@ const InputsImpacto = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea,
     const { token } = useAuth();
     const { isEditor } = usePerm();
 
-    const fetchRiscos = async () => {
-        const data = await handleFetch({
-            table: 'risk',
-            query: 'risks_and_areas',
-            token
-        })
-        setRiscos(data.data);
-        var todosOsRiscos = [];
-        var areas = [];
-        data.data.forEach((risco) => {
-            todosOsRiscos.push({ id: risco.id, risk: risco.risk })
-            if (risco?.wbs_item) {
-                if (!areas.some(a => a.id == risco?.wbs_item?.wbs_area?.id))
-                    areas.push({ id: risco?.wbs_item?.wbs_area?.id, name: risco?.wbs_item?.wbs_area?.name });
+    const isImpactoCadastrado = (risco, areaImpacto) => {
+        return impactos.some((i) => i.risk?.id == risco
+            && i.impact_area.trim().toLowerCase() === areaImpacto.trim().toLowerCase());
+    }
+
+    useEffect(() => {
+            if(tipo == "update"){
+                setRiscosPorArea(riscos)
             }
-        })
-        setAreas(areas);
-        setRiscosPorArea(todosOsRiscos);
-    };
+        }, [obj?.risk_id])
 
 
     const isFirstRender = useRef(true);
@@ -53,10 +44,6 @@ const InputsImpacto = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea,
             risk_id: ''
         });
     }, [areaSelecionada]);
-
-    useEffect(() => {
-        fetchRiscos();
-    }, []);
 
     const handleAreaChange = (e) => {
         setAreaSelecionada(e.target.value);
@@ -84,7 +71,7 @@ const InputsImpacto = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea,
     };
 
     const validaDados = () => {
-        if (funcoes?.isImpactoCadastrado?.(obj.risk_id, obj.impact_area) ?? false) {
+        if (isImpactoCadastrado(obj.risk_id, obj.impact_area) && tipo != "update") {
             camposRef.current.impact_area.classList.add('campo-vazio');
             setExibirModal('impactoRepetido');
             return false;
@@ -135,7 +122,7 @@ const InputsImpacto = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea,
                         value={areaSelecionada}
                     >
                         <option value="" defaultValue>Area</option>
-                        {areas.map((area, index) => (
+                        {areasWBS.map((area, index) => (
                             <option key={index} value={area.id}>{area.name}</option>
                         ))};
                         <option value={-1}>Others</option>
@@ -205,4 +192,4 @@ const InputsImpacto = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea,
     )
 }
 
-export default InputsImpacto;
+export default Inputs;
