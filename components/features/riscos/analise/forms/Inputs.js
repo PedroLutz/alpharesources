@@ -1,17 +1,16 @@
 import { useEffect, useState, useRef } from "react";
 import React from "react";
-import { handleFetch } from "../../../../functions/crud_s";
-import useAuth from "../../../../hooks/useAuth";
-import usePerm from "../../../../hooks/usePerm";
-import styles from '../../../../styles/modules/risco.module.css'
+import useAuth from "../../../../../hooks/useAuth";
+import usePerm from "../../../../../hooks/usePerm";
+import { useAnalise } from "../data/AnaliseContext";
+import styles from '../../../../../styles/modules/risco.module.css'
 
-const InputAnalises = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea, backgroundColor }) => {
+const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea, backgroundColor }) => {
     const { token } = useAuth();
     const { isEditor } = usePerm();
 
-    const [riscos, setRiscos] = useState([])
+    const {analises, riscos, areasWBS} = useAnalise();
     const [riscosPorArea, setRiscosPorArea] = useState([]);
-    const [areas, setAreas] = useState([]);
     const [areaSelecionada, setAreaSelecionada] = useState('');
     const camposRef = useRef({
         risk_id: null,
@@ -23,47 +22,22 @@ const InputAnalises = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea,
         schedule_impact: null
     })
 
-    const fetchRiscos = async () => {
-        const data = await handleFetch({
-            table: 'risk',
-            query: 'risks_and_areas',
-            token
-        })
-        setRiscos(data.data);
-        var todosOsRiscos = [];
-        var areas = [];
-        data.data.forEach((risco) => {
-            todosOsRiscos.push({id: risco.id, risk: risco.risk})
-            if(risco?.wbs_item) {
-                if(!areas.some(a=> a.id == risco?.wbs_item?.wbs_area?.id)) 
-                    areas.push({id: risco?.wbs_item?.wbs_area?.id ,name: risco?.wbs_item?.wbs_area?.name});
-            }
-        })
-        setAreas(areas);
-        setRiscosPorArea(todosOsRiscos);
-    };
-
-
-    const isFirstRender = useRef(true);
+    const isRiscoCadastrado = (risco) => {
+        return analises.some((r) => r.risk.id == risco);
+    }
 
     useEffect(() => {
-        if (isFirstRender.current) {
-            isFirstRender.current = false;
-            return;
+        if(tipo == "update"){
+            setRiscosPorArea(riscos)
         }
+    }, [obj?.risk_id])
 
+    const handleAreaChange = (e) => {
+        setAreaSelecionada(e.target.value);
         objSetter({
             ...obj,
             risk_id: ''
         });
-    }, [areaSelecionada]);
-
-    useEffect(() => {
-        fetchRiscos();
-    }, []);
-
-    const handleAreaChange = (e) => {
-        setAreaSelecionada(e.target.value);
         const areaSelect = e.target.value;
         const itensDaArea = riscos.filter(
             item => {
@@ -87,7 +61,7 @@ const InputAnalises = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea,
     };
 
     const validaDados = () => {
-        if(funcoes?.isRiscoCadastrado?.(obj?.risk_id) ?? false){
+        if(isRiscoCadastrado(obj?.risk_id) && tipo != "update"){
             camposRef.current.risk_id.classList.add('campo-vazio');
             setExibirModal('riscoRepetido');
             return false;
@@ -144,7 +118,7 @@ const InputAnalises = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea,
                         value={areaSelecionada}
                     >
                         <option value="" defaultValue>Area</option>
-                        {areas.map((area, index) => (
+                        {areasWBS.map((area, index) => (
                             <option key={index} value={area.id}>{area.name}</option>
                         ))};
                         <option value={-1}>Others</option>
@@ -227,7 +201,7 @@ const InputAnalises = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea,
                 />
             </td>
             <td>-</td>
-            <td className={tipo === 'update' && 'botoes_acoes'}>
+            <td className={tipo === 'update' ? 'botoes_acoes' : undefined}>
                 {tipo !== 'update' ? (
                     <button onClick={handleSubmit} disabled={!isEditor}>Add new</button>
                 ) : (
@@ -241,4 +215,4 @@ const InputAnalises = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea,
     )
 }
 
-export default InputAnalises;
+export default CadastroInputs;
