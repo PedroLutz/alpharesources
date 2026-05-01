@@ -7,9 +7,9 @@ import styles from '../../../../../styles/modules/risco.module.css'
 import { useImpacto } from "../data/ImpactoContext";
 
 const Inputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea, backgroundColor }) => {
-    const [riscosPorArea, setRiscosPorArea] = useState([]);
     const [areaSelecionada, setAreaSelecionada] = useState('');
     const {impactos, riscos, areasWBS} = useImpacto();
+    const [riscosPorArea, setRiscosPorArea] = useState(riscos);
     const camposRef = useRef({
         risk_id: null,
         impact_area: null,
@@ -23,12 +23,6 @@ const Inputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea, backgr
         return impactos.some((i) => i.risk?.id == risco
             && i.impact_area.trim().toLowerCase() === areaImpacto.trim().toLowerCase());
     }
-
-    useEffect(() => {
-            if(tipo == "update"){
-                setRiscosPorArea(riscos)
-            }
-        }, [obj?.risk_id])
 
 
     const isFirstRender = useRef(true);

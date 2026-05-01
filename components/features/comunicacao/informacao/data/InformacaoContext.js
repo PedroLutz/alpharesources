@@ -1,5 +1,5 @@
 import {createContext, useContext} from 'react';
-import { useInformacaoData } from './temp';
+import { useInformacaoData } from './useInformacaoData';
 
 const InformacaoContext = createContext(null);
 

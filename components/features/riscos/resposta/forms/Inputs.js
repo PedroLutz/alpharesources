@@ -1,44 +1,21 @@
 import { useEffect, useState, useRef } from "react";
-import React from "react";
-import { handleFetch } from "../../../../functions/crud_s";
-import useAuth from "../../../../hooks/useAuth";
-import usePerm from "../../../../hooks/usePerm";
-import styles from '../../../../styles/modules/risco.module.css'
+import useAuth from "../../../../../hooks/useAuth";
+import usePerm from "../../../../../hooks/usePerm";
+import styles from '../../../../../styles/modules/risco.module.css'
+import { useResposta } from "../data/RespostaContext";
 
-const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea, backgroundColor }) => {
+const Inputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea, backgroundColor }) => {
     const { token } = useAuth();
     const { isEditor } = usePerm();
-    const [riscos, setRiscos] = useState([])
-    const [riscosPorArea, setRiscosPorArea] = useState([]);
+    const {riscos, areasWBS} = useResposta();
+    const [riscosPorArea, setRiscosPorArea] = useState(riscos);
     const [areaSelecionada, setAreaSelecionada] = useState('');
-    const [areas, setAreas] = useState([]);
     const [estrategias, setEstrategias] = useState([]);
     const camposRef = useRef({
         risco: null,
         estrategia: null,
         detalhamento: null
     })
-
-    const fetchRiscos = async () => {
-        const data = await handleFetch({
-            table: 'risk',
-            query: 'risks_and_areas',
-            token
-        })
-        setRiscos(data.data);
-        var todosOsRiscos = [];
-        var areas = [];
-        data.data.forEach((risco) => {
-            todosOsRiscos.push({ id: risco.id, risk: risco.risk })
-            if (risco?.wbs_item) {
-                if (!areas.some(a => a.id == risco?.wbs_item?.wbs_area?.id))
-                    areas.push({ id: risco?.wbs_item?.wbs_area?.id, name: risco?.wbs_item?.wbs_area?.name });
-            }
-        })
-        setAreas(areas);
-        setRiscosPorArea(todosOsRiscos);
-    };
-
 
     const isFirstRender = useRef(true);
 
@@ -53,10 +30,6 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea, b
             risk_id: ''
         });
     }, [areaSelecionada]);
-
-    useEffect(() => {
-        fetchRiscos();
-    }, []);
 
     const handleAreaChange = (e) => {
         setAreaSelecionada(e.target.value);
@@ -136,10 +109,10 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea, b
     return (
         <tr style={{backgroundColor}}>
             {seeArea && (
-                <React.Fragment>
+                <>
                     <td>-</td>
                     <td>-</td>
-                </React.Fragment>
+                </>
             )}
             <td className={styles.planoTdRisk}>
                 <div>
@@ -149,7 +122,7 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea, b
                         value={areaSelecionada}
                     >
                         <option value="" defaultValue>Area</option>
-                        {areas.map((area, index) => (
+                        {areasWBS.map((area, index) => (
                             <option key={index} value={area.id}>{area.name}</option>
                         ))};
                         <option value={-1}>Others</option>
@@ -194,14 +167,14 @@ const InputPlanos = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea, b
                 {tipo !== 'update' ? (
                     <button onClick={handleSubmit} disabled={!isEditor}>Add new</button>
                 ) : (
-                    <React.Fragment>
+                    <>
                         <button onClick={handleSubmit}>✔️</button>
                         <button onClick={funcoes?.cancelar}>✖️</button>
-                    </React.Fragment>
+                    </>
                 )}
             </td>
         </tr>
     )
 }
 
-export default InputPlanos;
+export default Inputs;

@@ -10,7 +10,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea
     const { isEditor } = usePerm();
 
     const {analises, riscos, areasWBS} = useAnalise();
-    const [riscosPorArea, setRiscosPorArea] = useState([]);
+    const [riscosPorArea, setRiscosPorArea] = useState(riscos);
     const [areaSelecionada, setAreaSelecionada] = useState('');
     const camposRef = useRef({
         risk_id: null,
@@ -25,12 +25,6 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal, seeArea
     const isRiscoCadastrado = (risco) => {
         return analises.some((r) => r.risk.id == risco);
     }
-
-    useEffect(() => {
-        if(tipo == "update"){
-            setRiscosPorArea(riscos)
-        }
-    }, [obj?.risk_id])
 
     const handleAreaChange = (e) => {
         setAreaSelecionada(e.target.value);
