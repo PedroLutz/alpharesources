@@ -6,6 +6,7 @@ import useAuth from "../../../../../hooks/useAuth";
 import styles from '../../../../../styles/modules/comunicacao.module.css'
 import Link from "next/link";
 import CadastroInputs from "../forms/Inputs";
+import { calculateRowSpan } from "../../../../../functions/general";
 
 const camposVazios = {
     stakeholder_id: "",
@@ -44,23 +45,6 @@ const InformacaoBlock = (
             action: informacao.action
         });
     }, [])
-
-    //funcao que calcula o rowSpan de grupo de acordo com a quantidade de stakeholders nele
-    const calculateRowSpan = (currentArea, currentIndex, parametro) => {
-        let rowSpan = 1;
-        for (let i = currentIndex + 1; i < informacoes.length; i++) {
-            let comparedData = informacoes[i][parametro];
-            if (parametro.includes(".")) {
-                comparedData = parametro.split('.').reduce((acc, key) => acc?.[key], informacoes[i]);
-            }
-            if (comparedData === currentArea) {
-                rowSpan++;
-            } else {
-                break;
-            }
-        }
-        return rowSpan;
-    };
 
     //funcao que trata os dados e envia o conteudo para o backend para update
     const enviar = async () => {
@@ -111,7 +95,7 @@ const InformacaoBlock = (
                     {!updatingLine || updatingLine[0] !== stakeholder_group?.id ? (
                         <>
                             {!shouldMergeGroup ? (
-                                <td rowSpan={calculateRowSpan(stakeholder_group?.id, index, 'stakeholder.stakeholder_group.id')}
+                                <td rowSpan={calculateRowSpan(informacoes, stakeholder_group?.id, index, 'stakeholder.stakeholder_group.id')}
                                 >{stakeholder_group?.group}</td>
                             ) : null}
                         </>
@@ -121,7 +105,7 @@ const InformacaoBlock = (
                     {!updatingLine || updatingLine[1] !== stakeholder?.id ? (
                         <>
                             {!shouldMergeStakeholder ? (
-                                <td rowSpan={calculateRowSpan(stakeholder?.id, index, 'stakeholder.id')}
+                                <td rowSpan={calculateRowSpan(informacoes, stakeholder?.id, index, 'stakeholder.id')}
                                 >{stakeholder?.stakeholder}</td>
                             ) : null}
                         </>

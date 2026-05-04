@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import usePerm from "../../../../../hooks/usePerm";
 import useAuth from "../../../../../hooks/useAuth";
 import { handleReq } from "../../../../../functions/crud_s";
+import { calculateRowSpan } from "../../../../../functions/general";
 
 const labelsTypes = {
     physical: "Physical",
@@ -31,19 +32,6 @@ const RecursoBlock = ({ recurso, index, setExibirModal, updatingLine, setUpdatin
     useEffect(() => {
         setNovosDados(camposVazios);
     }, [])
-
-    const calculateRowSpan = (currentArea, currentIndex, parametro) => {
-        let rowSpan = 1;
-        for (let i = currentIndex + 1; i < recursos.length; i++) {
-            const parameter = parametro == 'area' ? recursos[i].wbs_item?.wbs_area?.name : recursos[i].wbs_item?.name
-            if (parameter === currentArea) {
-                rowSpan++;
-            } else {
-                break;
-            }
-        }
-        return rowSpan;
-    };
 
     const enviar = async () => {
         setIsLoading(true);
@@ -96,7 +84,7 @@ const RecursoBlock = ({ recurso, index, setExibirModal, updatingLine, setUpdatin
                     {!isEditingThisArea ? (
                         <>
                             {index === 0 || prevAreaName !== curAreaName ? (
-                                <td rowSpan={calculateRowSpan(curAreaName, index, 'area')}
+                                <td rowSpan={calculateRowSpan(recursos, curAreaName, index, 'wbs_item.wbs_area.name')}
                                 >{curAreaName || "Others"}</td>
                             ) : null}
                         </>
@@ -106,7 +94,7 @@ const RecursoBlock = ({ recurso, index, setExibirModal, updatingLine, setUpdatin
                     {!isEditingThisItem ? (
                         <>
                             {index === 0 || prevItemName !== curItemName ? (
-                                <td rowSpan={calculateRowSpan(curItemName, index, 'item')}
+                                <td rowSpan={calculateRowSpan(recursos, curItemName, index, 'wbs_item.name')}
                                 >{curItemName || "Others"}</td>
                             ) : null}
                         </>

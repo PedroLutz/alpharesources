@@ -5,6 +5,7 @@ import styles from '../../../../styles/modules/cbs.module.css'
 import useAuth from "../../../../hooks/useAuth";
 import HelpBubble from '../../../ui/HelpBubble/recursos/Cbs';
 import { getTextColor } from "../../../../functions/colors";
+import { calculateRowSpan } from "../../../../functions/general";
 
 const Tabela = () => {
     const [dadosCbs, setDadosCbs] = useState([]);
@@ -90,23 +91,6 @@ const Tabela = () => {
         fetchCbs();
     }, []);
 
-    //funcao para calcular o rowSpan do td de areas de acordo com a quantidade de itens q tem
-    const calculateRowSpan = (currentArea, currentIndex, parametro) => {
-        let rowSpan = 1;
-        for (let i = currentIndex + 1; i < dadosCbs.length; i++) {
-            let comparedData = dadosCbs[i][parametro];
-            if (parametro.includes(".")) {
-                comparedData = parametro.split('.').reduce((acc, key) => acc?.[key], dadosCbs[i]);
-            }
-            if (comparedData === currentArea) {
-                rowSpan++;
-            } else {
-                break;
-            }
-        }
-        return rowSpan;
-    };
-
     return (
         <div className="centered-container">
             {loading && <Loading />}
@@ -139,7 +123,7 @@ const Tabela = () => {
                                 <React.Fragment key={index}>
                                     <tr style={{ backgroundColor: cbs.area_color, color: getTextColor(cbs.area_color) }}>
                                         {index === 0 || dadosCbs[index - 1].area_id !== cbs.area_id ? (
-                                            <td rowSpan={calculateRowSpan(cbs.area_id, index, 'area_id')}
+                                            <td rowSpan={calculateRowSpan(dadosCbs, cbs.area_id, index, 'area_id')}
                                             >{cbs.area_name}</td>
                                         ) : null}
                                         <td>{cbs.item_name}</td>

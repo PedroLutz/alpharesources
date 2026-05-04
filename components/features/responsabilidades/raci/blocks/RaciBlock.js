@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import styles from '../../../../../styles/modules/responsabilidades.module.css'
 import { handleReq } from "../../../../../functions/crud_s";
 import useAuth from "../../../../../hooks/useAuth";
+import { calculateRowSpan } from "../../../../../functions/general";
 
 const RaciBlock = ({ item, index, setExibirModal, setConfirmDeleteItem, verOpcoes }) => {
     const [novosDados, setNovosDados] = useState({});
@@ -81,22 +82,10 @@ const RaciBlock = ({ item, index, setExibirModal, setConfirmDeleteItem, verOpcoe
         setIsBeingUpdated(false);
     };
 
-    const calculateRowSpan = (currentArea, currentIndex) => {
-        let rowSpan = 1;
-        for (let i = currentIndex + 1; i < itensRaci.length; i++) {
-            if (itensRaci[i].area_name === currentArea) {
-                rowSpan++;
-            } else {
-                break;
-            }
-        }
-        return rowSpan;
-    };
-
     return (
         <tr key={index} style={{ backgroundColor: item?.area_color, color: getTextColor(item?.area_color) }}>
             {index === 0 || itensRaci[index - 1].area_name !== item?.area_name ? (
-                <td rowSpan={calculateRowSpan(item?.area_name, index)}
+                <td rowSpan={calculateRowSpan(itensRaci, item.area_name, index, "area_name")}
                     className={styles.raciTdArea}>{item?.area_name}</td>
             ) : null}
             <td className={styles.raciTdItem}>{item.item_name}</td>

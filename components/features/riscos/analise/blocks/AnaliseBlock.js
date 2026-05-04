@@ -7,6 +7,7 @@ import styles from '../../../../../styles/modules/risco.module.css'
 import useAuth from "../../../../../hooks/useAuth";
 import usePerm from "../../../../../hooks/usePerm";
 import { getTextColor } from "../../../../../functions/colors";
+import { calculateRowSpan } from "../../../../../functions/general";
 
 const camposVazios = {
     risk_id: "",
@@ -62,22 +63,6 @@ const AnaliseBlock = ({ analise, index,
         return item.occurrence * item.impact * item.action * item.urgency;
     }
 
-    const calculateRowSpan = (currentArea, currentIndex, parametro) => {
-        let rowSpan = 1;
-        for (let i = currentIndex + 1; i < analises.length; i++) {
-            let comparedData = analises[i][parametro];
-            if (parametro.includes(".")) {
-                comparedData = parametro.split('.').reduce((acc, key) => acc?.[key], analises[i]);
-            }
-            if (comparedData === currentArea) {
-                rowSpan++;
-            } else {
-                break;
-            }
-        }
-        return rowSpan;
-    };
-
     const { risk } = analise;
     const { wbs_item } = risk ?? {};
     const { wbs_area } = wbs_item ?? {};
@@ -120,11 +105,11 @@ const AnaliseBlock = ({ analise, index,
                     {seeArea && (
                         <>
                             {!shouldMergeArea ? (
-                                <td rowSpan={calculateRowSpan(wbs_area?.id, index, 'risk.wbs_item.wbs_area.id')}
+                                <td rowSpan={calculateRowSpan(analises, wbs_area?.id, index, 'risk.wbs_item.wbs_area.id')}
                                 >{wbs_area?.name || "Others"}</td>
                             ) : null}
                             {!shouldMergeItem ? (
-                                <td rowSpan={calculateRowSpan(wbs_item?.id, index, 'risk.wbs_item.id')}
+                                <td rowSpan={calculateRowSpan(analises, wbs_item?.id, index, 'risk.wbs_item.id')}
                                 >{wbs_item?.name || "Others"}</td>
                             ) : null}
                         </>

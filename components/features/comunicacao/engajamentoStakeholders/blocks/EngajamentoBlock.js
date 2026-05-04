@@ -5,6 +5,7 @@ import { useEngajamentos } from "../data/EngajamentosContext";
 import { handleReq } from "../../../../../functions/crud_s";
 import CadastroInputs from "../forms/Inputs";
 import styles from '../../../../../styles/modules/comunicacao.module.css'
+import { calculateRowSpan } from "../../../../../functions/general";
 
 const generateMapping = (p, i) => {
     if (p) {
@@ -35,22 +36,6 @@ const EngajamentoBlock = ({ engajamento, index, updatingGroup, setUpdatingGroup,
     const { engajamentos, setIsLoading, fetchData } = useEngajamentos();
     const { isEditor } = usePerm();
     const { token } = useAuth();
-
-    const calculateRowSpan = (currentArea, currentIndex, parametro) => {
-        let rowSpan = 1;
-        for (let i = currentIndex + 1; i < engajamentos.length; i++) {
-            let comparedData = engajamentos[i][parametro];
-            if (parametro.includes(".")) {
-                comparedData = parametro.split('.').reduce((acc, key) => acc?.[key], engajamentos[i]);
-            }
-            if (comparedData === currentArea) {
-                rowSpan++;
-            } else {
-                break;
-            }
-        }
-        return rowSpan;
-    };
 
     useEffect(() => {
         setNovosDados({
@@ -83,7 +68,7 @@ const EngajamentoBlock = ({ engajamento, index, updatingGroup, setUpdatingGroup,
     return (
         <tr key={index}>
             {index === 0 || engajamentos[index - 1]?.stakeholder?.stakeholder_group?.id !== engajamento?.stakeholder?.stakeholder_group?.id ? (
-                <td rowSpan={calculateRowSpan(engajamento?.stakeholder?.stakeholder_group?.id, index, 'stakeholder.stakeholder_group.id')}
+                <td rowSpan={calculateRowSpan(engajamentos, engajamento?.stakeholder?.stakeholder_group?.id, index, 'stakeholder.stakeholder_group.id')}
                 >{engajamento?.stakeholder?.stakeholder_group?.group}</td>
             ) : null}
             <td>{engajamento.stakeholder?.stakeholder}</td>

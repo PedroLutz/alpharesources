@@ -7,6 +7,7 @@ import styles from '../../../../../styles/modules/risco.module.css'
 import Inputs from "../forms/Inputs";
 import useAuth from "../../../../../hooks/useAuth";
 import usePerm from "../../../../../hooks/usePerm";
+import { calculateRowSpan } from "../../../../../functions/general";
 
 function capitalizeFirstLetter(str) {
     if (typeof str !== 'string' || str.length === 0) {
@@ -59,22 +60,6 @@ const ImpactoBlock = ({ impacto, index, updatingRisk, setUpdatingRisk,
     const shouldMergeItem = wbs_item?.id === impactos[index - 1]?.risk?.wbs_item?.id;
     const shouldMergeRisk = risk?.id === impactos[index - 1]?.risk?.id;
 
-     const calculateRowSpan = (currentArea, currentIndex, parametro) => {
-        let rowSpan = 1;
-        for (let i = currentIndex + 1; i < impactos.length; i++) {
-            let comparedData = impactos[i][parametro];
-            if (parametro.includes(".")) {
-                comparedData = parametro.split('.').reduce((acc, key) => acc?.[key], impactos[i]);
-            }
-            if (comparedData === currentArea) {
-                rowSpan++;
-            } else {
-                break;
-            }
-        }
-        return rowSpan;
-    };
-
     return (
         <>
             {isBeingUpdated ? (
@@ -94,11 +79,11 @@ const ImpactoBlock = ({ impacto, index, updatingRisk, setUpdatingRisk,
                     {seeArea && (
                         <>
                             {!shouldMergeArea ? (
-                                <td rowSpan={calculateRowSpan(wbs_area?.id, index, 'risk.wbs_item.wbs_area.id')}
+                                <td rowSpan={calculateRowSpan(impactos, wbs_area?.id, index, 'risk.wbs_item.wbs_area.id')}
                                 >{wbs_area?.name || "Others"}</td>
                             ) : null}
                             {!shouldMergeItem ? (
-                                <td rowSpan={calculateRowSpan(wbs_item?.id, index, 'risk.wbs_item.id')}
+                                <td rowSpan={calculateRowSpan(impactos, wbs_item?.id, index, 'risk.wbs_item.id')}
                                 >{wbs_item?.name || "Others"}</td>
                             ) : null}
                         </>

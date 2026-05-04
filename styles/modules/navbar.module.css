@@ -99,6 +99,7 @@
   font-size: small;
   text-decoration: none;
   display: block;
+  transition: 0.2s;
 }
 
 .dropdownContent a:hover {

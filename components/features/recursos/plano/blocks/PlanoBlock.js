@@ -7,6 +7,7 @@ import CadastroInputs from "../forms/CadastroInputs";
 import { isoDateToEuDate } from "../../../../../functions/general";
 import styles from '../../../../../styles/modules/planoAquisicao.module.css'
 import { handleReq } from "../../../../../functions/crud_s";
+import { calculateRowSpan } from "../../../../../functions/general";
 
 const methodLabels = {
     purchase: 'Purchase',
@@ -53,17 +54,6 @@ const PlanoBlock = ({ plano, index, updatingLine, setUpdatingLine, setExibirModa
 
     const isEditingThisResource = updatingLine && updatingLine === plano.resource.resource;
 
-    const calculateRowSpan = (currentArea, currentIndex) => {
-        let rowSpan = 1;
-        for (let i = currentIndex + 1; i < planos.length; i++) {
-            if (planos[i].resource.resource === currentArea) {
-                rowSpan++;
-            } else {
-                break;
-            }
-        }
-        return rowSpan;
-    };
 
     return (
         <>
@@ -82,7 +72,7 @@ const PlanoBlock = ({ plano, index, updatingLine, setUpdatingLine, setExibirModa
                     {!isEditingThisResource ? (
                         <>
                             {index === 0 || planos[index - 1].resource.resource !== plano.resource.resource ? (
-                                <td rowSpan={calculateRowSpan(plano.resource.resource, index)}
+                                <td rowSpan={calculateRowSpan(planos, plano.resource.resource, index, "resource.resource")}
                                 >{plano.resource.resource}</td>
                             ) : null}
                         </>

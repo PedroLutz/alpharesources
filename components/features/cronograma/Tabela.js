@@ -11,6 +11,7 @@ import useAuth from '../../../hooks/useAuth';
 import usePerm from '../../../hooks/usePerm';
 import HelpBubble from '../../ui/HelpBubble/cronograma/Tabela';
 import { getTextColor } from '../../../functions/colors';
+import { calculateRowSpan } from '../../../functions/general';
 
 const Tabela = () => {
   const { user, token } = useAuth();
@@ -426,19 +427,6 @@ const Tabela = () => {
     setLinhaVisivel();
   };
 
-  //funcao que calcula o rowSpan do td da area de acordo com os itens 
-  const calculateRowSpan = (itens, currentArea, currentIndex) => {
-    let rowSpan = 1;
-    for (let i = currentIndex + 1; i < itens.length; i++) {
-      if (itens[i].wbs_item.wbs_area.name === currentArea) {
-        rowSpan++;
-      } else {
-        break;
-      }
-    }
-    return rowSpan;
-  };
-
   const handleResize = () => {
     if (window.innerWidth < 1024) {
       setIsMobile(true)
@@ -558,7 +546,7 @@ const Tabela = () => {
                   <tr key={index} style={{ backgroundColor: item.wbs_item.wbs_area.color, color: getTextColor(item.wbs_item.wbs_area.color) }}>
                     <React.Fragment>
                       {index === 0 || cronogramas[index - 1].wbs_item.wbs_area.name !== item.wbs_item.wbs_area.name ? (
-                        <td rowSpan={calculateRowSpan(cronogramas, item.wbs_item.wbs_area.name, index)}
+                        <td rowSpan={calculateRowSpan(cronogramas, item.wbs_item.wbs_area.name, index, "wbs_item.wbs_area.name")}
                         >{item.wbs_item.wbs_area.name}</td>
                       ) : null}
                       <td>

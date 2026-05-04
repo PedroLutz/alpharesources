@@ -14,6 +14,8 @@ const Atualizar = () => {
     const { colors } = useColor();
     const user_id = user.id;
 
+    const [loading, setLoading] = useState(true);
+
     const emailDataEmpty = {
         email: '',
         confirmEmail: ''
@@ -28,13 +30,16 @@ const Atualizar = () => {
     const [colorsData, setColorsData] = useState(colorsDataVazio);
 
     useEffect(() => {
-        setColorsData({
+        if(colors.main != null){
+            setColorsData({
             ...colors
         })
+        setLoading(false);
+        }
+        
     }, [colors])
 
-    const [showModal, setShowModal] = useState(null); 
-    const [loading, setLoading] = useState(false);
+    const [showModal, setShowModal] = useState(null);
 
     /**
     *  Detect the adequate state object and update the changes to the inputs
@@ -101,7 +106,15 @@ const Atualizar = () => {
 
     const updateColors = async () => {
         setLoading(true);
+        
         const isUpdate = colors?.main != null && colors?.secondary != null && colors?.table_header != null;
+
+        const regex = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/;
+        if(isUpdate && !regex.test(colorsData?.main) || !regex.test(colorsData?.secondary) || !regex.test(colorsData?.table_header)){
+            setLoading(false);
+            setShowModal("Please use valid colors!");
+            return;
+        }
 
         var obj = {
             main: colorsData?.main || "#fff",
@@ -113,6 +126,7 @@ const Atualizar = () => {
         } else {
             obj = {...obj, user_id};
         }
+
         await handleReq({
             table: 'color',
             route: isUpdate ? 'update' : 'create',
@@ -168,28 +182,61 @@ const Atualizar = () => {
                     <h2>Color palette</h2>
                     <div className={styles.block}> 
                         <h3>Main color</h3>
-                        <input
-                            type="color"
-                            name="main"
-                            value={colorsData.main || "#fff"}
-                            onChange={(e) => handleChange(e, "colors")}
-                        />
+                        <div className={styles.color_block}>
+                            <input
+                                className={styles.color_picker}
+                                type="color"
+                                name="main"
+                                value={colorsData.main || "#fff"}
+                                onChange={(e) => handleChange(e, "colors")}
+                            />
+                            <input
+                                className={styles.hex_code_picker}
+                                type="text"
+                                name="main"
+                                value={colorsData.main || "#fff"}
+                                onChange={(e) => handleChange(e, "colors")}
+                                maxLength={7}
+                            />
+                        </div>
 
                         <h3>Secondary color</h3>
-                        <input
-                            name="secondary"
-                            value={colorsData.secondary || "#fff"}
-                            onChange={(e) => handleChange(e, "colors")}
-                            type="color"
-                        />
+                        <div className={styles.color_block}>
+                            <input
+                                className={styles.color_picker}
+                                name="secondary"
+                                value={colorsData.secondary || "#fff"}
+                                onChange={(e) => handleChange(e, "colors")}
+                                type="color"
+                            />
+                            <input
+                                className={styles.hex_code_picker}
+                                name="secondary"
+                                value={colorsData.secondary || "#fff"}
+                                onChange={(e) => handleChange(e, "colors")}
+                                type="text"
+                            />
+                        </div>
+                        
 
                         <h3>Table header color</h3>
-                        <input
-                            name="table_header"
-                            value={colorsData.table_header || "#fff"}
-                            onChange={(e) => handleChange(e, "colors")}
-                            type="color"
-                        />
+                        <div className={styles.color_block}>
+                            <input
+                                className={styles.color_picker}
+                                name="table_header"
+                                value={colorsData.table_header || "#fff"}
+                                onChange={(e) => handleChange(e, "colors")}
+                                type="color"
+                            />
+                            <input
+                                className={styles.hex_code_picker}
+                                name="table_header"
+                                value={colorsData.table_header || "#fff"}
+                                onChange={(e) => handleChange(e, "colors")}
+                                type="text"
+                            />
+                        </div>
+                        
                         <button onClick={updateColors}>Update</button>
                     </div>
                 </div>

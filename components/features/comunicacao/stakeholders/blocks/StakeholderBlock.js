@@ -4,6 +4,7 @@ import { handleReq } from "../../../../../functions/crud_s";
 import usePerm from "../../../../../hooks/usePerm";
 import useAuth from "../../../../../hooks/useAuth";
 import CadastroInputs from "../forms/Inputs";
+import { calculateRowSpan } from "../../../../../functions/general";
 
 const StakeholderBlock = ({ stakeholder, index, updatingGroup, setUpdatingGroup, setExibirModal, setConfirmDeleteItem }) => {
     const { setIsLoading, fetchData, stakeholders } = useStakeholder();
@@ -45,22 +46,6 @@ const StakeholderBlock = ({ stakeholder, index, updatingGroup, setUpdatingGroup,
         setIsLoading(false);
     };
 
-    const calculateRowSpan = (currentArea, currentIndex, parametro) => {
-        let rowSpan = 1;
-        for (let i = currentIndex + 1; i < stakeholders.length; i++) {
-            let comparedData = stakeholders[i][parametro];
-            if (parametro.includes(".")) {
-                comparedData = parametro.split('.').reduce((acc, key) => acc?.[key], stakeholders[i]);
-            }
-            if (comparedData === currentArea) {
-                rowSpan++;
-            } else {
-                break;
-            }
-        }
-        return rowSpan;
-    };
-
     return (
         <>
             {isUpdating ? (
@@ -78,7 +63,7 @@ const StakeholderBlock = ({ stakeholder, index, updatingGroup, setUpdatingGroup,
                     {!updatingGroup || updatingGroup !== stakeholder?.stakeholder_group?.id ? (
                         <>
                             {index === 0 || stakeholders[index - 1].stakeholder_group?.id !== stakeholder.stakeholder_group?.id ? (
-                                <td rowSpan={calculateRowSpan(stakeholder.stakeholder_group?.id, index, 'stakeholder_group.id')}
+                                <td rowSpan={calculateRowSpan(stakeholders, stakeholder.stakeholder_group?.id, index, 'stakeholder_group.id')}
                                 >{stakeholder.stakeholder_group?.group}</td>
                             ) : null}
                         </>

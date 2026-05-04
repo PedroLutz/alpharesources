@@ -7,6 +7,7 @@ import CadastroInputs from "../forms/Inputs";
 import { getTextColor } from "../../../../../functions/colors";
 import usePerm from "../../../../../hooks/usePerm";
 import styles from '../../../../../styles/modules/risco.module.css'
+import { calculateRowSpan } from "../../../../../functions/general";
 
 function capitalizeFirstLetter(str) {
     if (typeof str !== 'string' || str.length === 0) {
@@ -32,22 +33,6 @@ const IdentificacaoBlock = ({ risco, index, setExibirModal, updatingLine, setUpd
     const { token } = useAuth();
     const { isEditor } = usePerm();
     const [isBeingUpdated, setIsBeingUpdated] = useState(false);
-
-    const calculateRowSpan = (currentArea, currentIndex, parametro) => {
-        let rowSpan = 1;
-        for (let i = currentIndex + 1; i < riscos.length; i++) {
-            let comparedData = riscos[i][parametro];
-            if (parametro.includes(".")) {
-                comparedData = parametro.split('.').reduce((acc, key) => acc?.[key], riscos[i]);
-            }
-            if (comparedData === currentArea) {
-                rowSpan++;
-            } else {
-                break;
-            }
-        }
-        return rowSpan;
-    };
 
     useEffect(() => {
         setNovosDados({
@@ -111,7 +96,7 @@ const IdentificacaoBlock = ({ risco, index, setExibirModal, updatingLine, setUpd
                         <>
                             {!shouldMergeArea ? (
                                 <td className={styles.riscoTdArea}
-                                    rowSpan={calculateRowSpan(wbs_area?.id, index, 'wbs_item.wbs_area.id')}
+                                    rowSpan={calculateRowSpan(riscos, wbs_area?.id, index, 'wbs_item.wbs_area.id')}
                                 >{wbs_area?.name ?? 'Others'}</td>
                             ) : null}
                         </>

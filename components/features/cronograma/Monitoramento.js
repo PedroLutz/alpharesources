@@ -11,6 +11,7 @@ import useAuth from '../../../hooks/useAuth';
 import usePerm from '../../../hooks/usePerm';
 import HelpBubble from '../../ui/HelpBubble/cronograma/Monitoramento';
 import { getTextColor } from '../../../functions/colors';
+import { calculateRowSpan } from '../../../functions/general';
 
 const Tabela = () => {
     const { user, token } = useAuth();
@@ -299,18 +300,6 @@ const Tabela = () => {
         } catch (error) {
             console.error('Erro ao atualizar a situação do cronograma', error);
         }
-    };
-
-    const calculateRowSpan = (itens, currentArea, currentIndex) => {
-        let rowSpan = 1;
-        for (let i = currentIndex + 1; i < itens.length; i++) {
-            if (itens[i].wbs_item.wbs_area.name === currentArea) {
-                rowSpan++;
-            } else {
-                break;
-            }
-        }
-        return rowSpan;
     };
 
     const findGanttById = (id) => {
@@ -616,7 +605,7 @@ const Tabela = () => {
                                     {cronogramas.map((item, index) => (
                                         <tr key={index} style={{ backgroundColor: item?.wbs_item?.wbs_area?.color, color: getTextColor(item?.wbs_item?.wbs_area?.color) }}>
                                             {index === 0 || cronogramas[index - 1].wbs_item.wbs_area.name !== item?.wbs_item?.wbs_area?.name ? (
-                                                <td rowSpan={calculateRowSpan(cronogramas, item?.wbs_item?.wbs_area?.name, index)}
+                                                <td rowSpan={calculateRowSpan(cronogramas, item?.wbs_item?.wbs_area?.name, index, "wbs_item.wbs_area.name")}
                                                 >{item?.wbs_item?.wbs_area?.name}</td>
                                             ) : null}
                                             <td>{item.wbs_item.name}</td>

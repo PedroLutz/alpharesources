@@ -7,6 +7,7 @@ import { getTextColor } from "../../../../../functions/colors";
 import { handleReq } from "../../../../../functions/crud_s";
 import { useDictionary } from "../DictionaryContext";
 import { useEffect } from "react";
+import { calculateRowSpan } from "../../../../../functions/general";
 
 const DictionaryBlock = ({item, index, setExibirModal, setConfirmDeleteItem }) => {
     const {dicionarios, setIsLoading, refetchData} = useDictionary(); 
@@ -35,7 +36,7 @@ const DictionaryBlock = ({item, index, setExibirModal, setConfirmDeleteItem }) =
         setNovosDados(camposVazios);
     }, [])
 
-    const handleUpdateItem = async () => {
+    const enviar = async () => {
         setIsLoading(true);
         await handleReq({
             table: 'wbs_dictionary',
@@ -48,22 +49,10 @@ const DictionaryBlock = ({item, index, setExibirModal, setConfirmDeleteItem }) =
         setIsUpdating(false);
     };
 
-    const calculateRowSpan = (currentArea, currentIndex) => {
-        let rowSpan = 1;
-        for (let i = currentIndex + 1; i < dicionarios.length; i++) {
-            if (dicionarios[i].wbs_item.wbs_area.name === currentArea) {
-                rowSpan++;
-            } else {
-                break;
-            }
-        }
-        return rowSpan;
-    };
-
     return (
         <tr style={{backgroundColor: item.wbs_item.wbs_area.color, color: getTextColor(item.wbs_item.wbs_area.color)}}>
             {index === 0 || dicionarios[index - 1].wbs_item.wbs_area.name !== item.wbs_item.wbs_area.name ? (
-                <td rowSpan={calculateRowSpan(item.wbs_item.wbs_area.name, index)}
+                <td rowSpan={calculateRowSpan(dicionarios, item.wbs_item.wbs_area.name, index, "wbs_item.wbs_area.name")}
                     className={styles.td_area}>{item.wbs_item.wbs_area.name}</td>
             ) : null}
             <td className={styles.td_item}>{item.wbs_item.name}</td>
@@ -73,7 +62,7 @@ const DictionaryBlock = ({item, index, setExibirModal, setConfirmDeleteItem }) =
                     obj={novosDados}
                     objSetter={setNovosDados}
                     funcoes={{
-                        enviar: handleUpdateItem,
+                        enviar,
                         cancelar: () => setIsUpdating(false)
                     }}
                     area_id={item.wbs_item.wbs_area.id}

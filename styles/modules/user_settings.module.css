@@ -22,6 +22,19 @@
     flex: 1; /* faz cada bloco crescer pra igualar altura */
 }
 
+.color_block {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.color_block input.color_picker{
+    width: max-content;
+}
+
+.color_block input.hex_code_picker {
+    width: 45%;
+}
+
 .block input,
 .block input[type="color"] {
     border: 0.1rem black solid;

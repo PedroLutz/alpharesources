@@ -65,4 +65,20 @@ function isoDateToJsDate(dateString) {
     return null;
 }
 
-export { cleanForm , jsDateToEuDate, euDateToIsoDate , euDateToJsDate, isoDateToJsDate, isoDateToEuDate };
+function calculateRowSpan(dados, currentArea, currentIndex, parametro){
+        let rowSpan = 1;
+        for (let i = currentIndex + 1; i < dados.length; i++) {
+            let comparedData = dados[i][parametro];
+            if (parametro.includes(".")) {
+                comparedData = parametro.split('.').reduce((acc, key) => acc?.[key], dados[i]);
+            }
+            if (comparedData === currentArea) {
+                rowSpan++;
+            } else {
+                break;
+            }
+        }
+        return rowSpan;
+    };
+
+export { cleanForm , jsDateToEuDate, euDateToIsoDate , euDateToJsDate, isoDateToJsDate, isoDateToEuDate, calculateRowSpan };

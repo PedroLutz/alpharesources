@@ -6,6 +6,7 @@ import { getTextColor } from "../../../../../functions/colors";
 import styles from '../../../../../styles/modules/risco.module.css'
 import usePerm from "../../../../../hooks/usePerm";
 import useAuth from "../../../../../hooks/useAuth";
+import { calculateRowSpan } from "../../../../../functions/general";
 
 function capitalizeFirstLetter(str) {
     if (typeof str !== 'string' || str.length === 0) {
@@ -48,22 +49,6 @@ const RespostaBlock = ({ resposta, index, updatingRisk, setUpdatingRisk, seeArea
         setIsLoading(false);
     };
 
-    const calculateRowSpan = (currentArea, currentIndex, parametro) => {
-        let rowSpan = 1;
-        for (let i = currentIndex + 1; i < respostas.length; i++) {
-            let comparedData = respostas[i][parametro];
-            if (parametro.includes(".")) {
-                comparedData = parametro.split('.').reduce((acc, key) => acc?.[key], respostas[i]);
-            }
-            if (comparedData === currentArea) {
-                rowSpan++;
-            } else {
-                break;
-            }
-        }
-        return rowSpan;
-    };
-
     const { risk } = resposta;
     const { wbs_item } = risk ?? {};
     const { wbs_area } = wbs_item ?? {};
@@ -91,11 +76,11 @@ const RespostaBlock = ({ resposta, index, updatingRisk, setUpdatingRisk, seeArea
                     {seeArea && (
                         <>
                             {!shouldMergeArea ? (
-                                <td rowSpan={calculateRowSpan(wbs_area?.id, index, 'risk.wbs_item.wbs_area.id')}
+                                <td rowSpan={calculateRowSpan(respostas, wbs_area?.id, index, 'risk.wbs_item.wbs_area.id')}
                                 >{wbs_area?.name || "Others"}</td>
                             ) : null}
                             {!shouldMergeItem ? (
-                                <td rowSpan={calculateRowSpan(wbs_item?.id, index, 'risk.wbs_item.id')}
+                                <td rowSpan={calculateRowSpan(respostas, wbs_item?.id, index, 'risk.wbs_item.id')}
                                 >{wbs_item?.name || "Others"}</td>
                             ) : null}
                         </>
@@ -103,7 +88,7 @@ const RespostaBlock = ({ resposta, index, updatingRisk, setUpdatingRisk, seeArea
                     {!updatingRisk || updatingRisk !== resposta?.risk?.id ? (
                         <>
                             {!shouldMergeRisk ? (
-                                <td rowSpan={calculateRowSpan(resposta?.risk?.id, index, "risk.id")}
+                                <td rowSpan={calculateRowSpan(respostas, resposta?.risk?.id, index, "risk.id")}
                                 >{risk?.risk}</td>
                             ) : null}
                         </>
