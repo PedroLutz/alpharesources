@@ -1,14 +1,15 @@
 import { useState, useRef, useEffect } from "react";
 import React from "react";
-import { handleFetch } from "../../../../functions/crud_s";
-import styles from '../../../../styles/modules/monitoramento.module.css'
-import usePerm from "../../../../hooks/usePerm";
-import useAuth from "../../../../hooks/useAuth";
+import { handleFetch } from "../../../../../functions/crud_s";
+import styles from '../../../../../styles/modules/monitoramento.module.css'
+import usePerm from "../../../../../hooks/usePerm";
+import useAuth from "../../../../../hooks/useAuth";
+import { useMudanca } from "../data/MudancaContext";
 
-const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
+const Inputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     const { token } = useAuth();
     const { isEditor } = usePerm();
-    const [areas, setAreas] = useState([]);
+    const {areasWBS} = useMudanca();
     const camposRef = useRef({
         date: null,
         area_id: null,
@@ -22,22 +23,6 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
         responsible_request: null,
         responsible_approval: null
     })
-
-    //funcao que busca os elementos da WBS
-    const fetchAreas = async () => {
-        const data = await handleFetch({
-            table: 'wbs_area',
-            query: 'all',
-            token
-        })
-        setAreas(data.data);
-    };
-
-
-    //useEffect que so roda no primeiro render
-    useEffect(() => {
-        fetchAreas();
-    }, []);
 
     //funcao que atualiza o obj. dependendo da natureza do dado, permite caracteres especificos apenas.
     const handleChange = (e) => {
@@ -89,7 +74,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
 
                 >
                     <option value="" defaultValue>Area</option>
-                    {areas.map((area, index) => (
+                    {areasWBS.map((area, index) => (
                         <option key={index} value={area.id}>{area.name}</option>
                     ))};
                     <option value={-1}>Others</option>
@@ -194,7 +179,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                 ) : (
                     <React.Fragment>
                         <button onClick={handleSubmit}>✔️</button>
-                        <button onClick={funcoes.funcao2}>✖️</button>
+                        <button onClick={funcoes?.cancelar}>✖️</button>
                     </React.Fragment>
                 )}
             </td>
@@ -202,4 +187,4 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     )
 }
 
-export default CadastroInputs;
+export default Inputs;

@@ -9,7 +9,8 @@ const HelpBubble = ({ setShowHelp }) => {
                     <b>Status Report Generator</b> is used for quickly generating a summary of the project's performance.<br /><br />
                     Firstly, select the <b>Interval</b>. The interval is the range of the dates of the information gathered for generating the report. For example: if the interval is 1 month, then <b>Tasks Initiated</b> lists all tasks initiated in the last month.<br/><br/>
                     The Project Manager should, ideally, decide on an interval in the beginning of the project and generating reports based on this interval. For example: if the interval decided on is 1 month, then the Project Manager should generate reports every month.<br/><br/>
-                    After filling out the fields of the report, click <b>Export</b> to automatically download a PDF file of the report.
+                    After filling out the fields of the report, click <b>Export</b> to automatically download a PDF file of the report. <b>This will make the page reload automatically</b>, and information written manually by the user will not be retained, 
+                    so <b>please check the data BEFORE exporting</b>.<br/><br/>
                     The areas of the report are as follows:
                     <div style={{textAlign: 'justify', marginLeft: '2rem', marginRight: '2rem'}}>
                         <ul>

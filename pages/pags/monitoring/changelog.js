@@ -1,14 +1,12 @@
-import Tabela from '../../../components/features/monitoramento/mudancas/Tabela';
+import Main from '../../../components/features/monitoramento/mudancas/Main';
 import PageWrapper from '../../../components/layout/MonitoramentoWrapper';
 
-function TabelaPage() {
+function MainPage() {
   return (
-    <div>
-      <PageWrapper>
-        <Tabela/>
-      </PageWrapper>
-    </div>
+    <PageWrapper>
+      <Main />
+    </PageWrapper>
   );
 }
 
-export default TabelaPage;
+export default MainPage;

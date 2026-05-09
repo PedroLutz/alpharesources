@@ -1,9 +1,9 @@
 import { useRef } from "react";
-import styles from '../../../../styles/modules/monitoramento.module.css'
+import styles from '../../../../../styles/modules/monitoramento.module.css'
 import React from "react";
-import usePerm from "../../../../hooks/usePerm";
+import usePerm from "../../../../../hooks/usePerm";
 
-const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
+const Inputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     const camposRef = useRef({
         date: null, 
         type: null,
@@ -66,7 +66,7 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
                     <option value={false}>Tacit</option>
                 </select>
             </td>
-            <td className={styles.licoesSituaction}>
+            <td className={styles.licoesSituacao}>
                 <textarea
                     name="situation"
                     onChange={handleChange}
@@ -107,4 +107,4 @@ const CadastroInputs = ({ obj, objSetter, funcoes, tipo, setExibirModal }) => {
     )
 }
 
-export default CadastroInputs;
+export default Inputs;

@@ -2,7 +2,7 @@ import GenericNavbar from "./GenericNavbar";
 
 const PageWrapper = ({ children }) => {
     return (
-        <div>
+        <>
             <GenericNavbar
                 base={{
                     titulo: 'Budget & Resource',
@@ -46,7 +46,7 @@ const PageWrapper = ({ children }) => {
                 ]}
             />
             {children}
-        </div>
+        </>
     )
 }
 

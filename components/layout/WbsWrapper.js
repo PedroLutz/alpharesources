@@ -2,7 +2,7 @@ import GenericNavbar from "./GenericNavbar";
 
 const PageWrapper = ({ children }) => {
     return (
-        <div>
+        <>
             <GenericNavbar
                 base={{
                     titulo: 'WBS',
@@ -25,7 +25,7 @@ const PageWrapper = ({ children }) => {
                 ]}
             />
             {children}
-        </div>
+        </>
     )
 }
 
