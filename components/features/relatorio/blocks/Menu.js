@@ -43,7 +43,7 @@ const Menu = ({ setTeamLogo, handleExportPDF }) => {
                 <Modal objeto={{
                     titulo: "Are you sure you want to export? The page will reload, and all data written by the user will be deleted. (information collected automatically by the website will not be affected)",
                     botao1: {
-                        funcao: () => {setConfirmExport(false), handleExportPDF}, texto: 'Export'
+                        funcao: () => {setConfirmExport(false), handleExportPDF()}, texto: 'Export'
                     },
                     botao2: {
                         funcao: () => setConfirmExport(false), texto: 'Go Back'

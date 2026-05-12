@@ -41,6 +41,7 @@ const handleReq = async (o) => {
   }
 };
 
+
 const handleFetch = async (o) => {
   if (!o.table) throw new Error('Request done without a table!');
 

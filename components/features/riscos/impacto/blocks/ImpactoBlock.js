@@ -91,7 +91,7 @@ const ImpactoBlock = ({ impacto, index, updatingRisk, setUpdatingRisk,
                     {!updatingRisk || updatingRisk !== risk?.id ? (
                         <>
                             {!shouldMergeRisk ? (
-                                <td rowSpan={calculateRowSpan(risk?.id, index, "risk.id")}
+                                <td rowSpan={calculateRowSpan(impactos, risk?.id, index, "risk.id")}
                                 >{risk?.risk}</td>
                             ) : null}
                         </>
