@@ -10,25 +10,63 @@ import { RaciProvider, useRaci } from './data/RaciContext';
 import DynamicHeader from './blocks/DynamicHeader';
 import NewRaciCreator from './forms/NewRaciCreator';
 import RaciBlock from './blocks/RaciBlock';
+import { useToolbar } from '../../../../hooks/useToolbar';
+import { useCallback } from 'react';
+import exportCSV from '../../../../functions/exportCsv';
+import { useEffect } from 'react';
 
-  const modalLabels = {
-    'deleteSuccess': 'Deletion Successful!',
-    'deleteFail': 'Deletion Failed!',
-    'inputsVazios': 'Fill out all fields before adding new data!',
-    'itemJaUsado': 'This item has already been registered!',
-    'semAprovador': 'A task needs to have one person accountable!',
-    'muitoAprovador': "A task can't have more than one person accountable!",
-    'semResponsavel': "A task needs to have at least one person responsible!"
-  };
+const modalLabels = {
+  'deleteSuccess': 'Deletion Successful!',
+  'deleteFail': 'Deletion Failed!',
+  'inputsVazios': 'Fill out all fields before adding new data!',
+  'itemJaUsado': 'This item has already been registered!',
+  'semAprovador': 'A task needs to have one person accountable!',
+  'muitoAprovador': "A task can't have more than one person accountable!",
+  'semResponsavel': "A task needs to have at least one person responsible!"
+};
 
 const Tabela = () => {
-  const {itensRaci, nomesMembros, isLoading, fetchData} = useRaci();
+  const { itensRaci, nomesMembros, isLoading, fetchData } = useRaci();
   const { token } = useAuth();
 
   const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
   const [verOpcoes, setVerOpcoes] = useState(false);
   const [exibirModal, setExibirModal] = useState(null);
   const [showHelp, setShowHelp] = useState(false);
+
+  const { setExportCSVClick, setHelpClick } = useToolbar();
+
+  useEffect(() => {
+    setHelpClick(() => () => setShowHelp(true));
+    setExportCSVClick(() => exportToCSV);
+
+    return (() => {
+      setHelpClick(null);
+      setExportCSVClick(null);
+    })
+  }, [itensRaci, exportCSV]);
+
+  const exportToCSV = useCallback(() => {
+    const headers = ["Area", "Item"];
+    nomesMembros.forEach(m => {
+      headers.push(m.name);
+    })
+    const lines = itensRaci.map(i => {
+      const _lines = [
+        `"${i.area_name}"`,
+        `"${i.item_name}"`
+      ]
+
+      nomesMembros.forEach(m => {
+        const responsibility = i.raci?.find(ir => ir.member_id == m.id)?.responsibility?.[0]?.toUpperCase() ?? "-";
+        _lines.push(responsibility);
+      })
+
+      return _lines;
+    }
+    )
+    exportCSV(headers, lines, "raci");
+  }, [itensRaci, exportCSV]);
 
   const handleConfirmDelete = async () => {
     if (confirmDeleteItem) {
@@ -117,7 +155,7 @@ const Tabela = () => {
 const Main = () => {
   return (
     <RaciProvider>
-      <Tabela/>
+      <Tabela />
     </RaciProvider>
   )
 }

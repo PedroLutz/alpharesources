@@ -1,0 +1,50 @@
+.toolbar_div {
+    background-color: #e6e6e6;
+    padding: 0.5rem;
+    border-radius: 1rem;
+    border: 0.1rem solid #cecece;
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    gap: 1rem;
+}
+
+.toolbar_button {
+    border: none;
+    background-color: transparent;
+    border-radius: 100%;
+    box-shadow: 1cap;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.toolbar_button::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 1%;
+  transform: translateX(-100%);
+  
+  background-color: #333;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: small;
+  white-space: nowrap;
+  
+  opacity: 0;
+  pointer-events: none; 
+  transition: opacity 0.1s ease-in-out;
+}
+
+/* 3. Reveal the Tooltip on Hover and Focus */
+.toolbar_button:hover::after,
+.toolbar_button:focus::after {
+  opacity: 1; /* Shows the box */
+}
+
+.toolbar_button:hover {
+    color: var(--main-color);
+    scale: 1.1;
+}
