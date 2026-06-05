@@ -11,7 +11,7 @@ import NewStakeholderCreator from "./forms/NewStakeholderCreator";
 import StakeholderBlock from "./blocks/StakeholderBlock";
 import { useCallback } from "react";
 import { useEffect } from "react";
-import exportCSV from "../../../../functions/exportCsv";
+import exportCSV from "../../../../functions/exportCSV";
 import { useToolbar } from "../../../../hooks/useToolbar";
 
 const modalLabels = {

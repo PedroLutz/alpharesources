@@ -10,7 +10,7 @@ import NewFuncaoCreator from "./forms/NewFuncaoCreator";
 import FuncoesBlock from "./blocks/FuncoesBlock";
 import { useToolbar } from "../../../../hooks/useToolbar";
 import { useEffect } from "react";
-import exportCSV from "../../../../functions/exportCsv";
+import exportCSV from "../../../../functions/exportCSV";
 import { useCallback } from "react";
 
 const Tabela = () => {

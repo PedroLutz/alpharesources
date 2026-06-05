@@ -13,7 +13,7 @@ import { ImpactoProvider, useImpacto } from "./data/ImpactoContext";
 import NewImpactoCreator from "./forms/NewImpactoCreator";
 import ImpactoBlock, { capitalizeFirstLetter } from "./blocks/ImpactoBlock";
 import { useToolbar } from "../../../../hooks/useToolbar";
-import exportCSV from "../../../../functions/exportCsv";
+import exportCSV from "../../../../functions/exportCSV";
 import { useCallback } from "react";
 
 const modalLabels = {

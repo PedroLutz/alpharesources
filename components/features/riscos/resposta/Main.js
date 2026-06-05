@@ -12,7 +12,7 @@ import NewRespostaCreator from "./forms/NewRespostaCreator";
 import RespostaBlock, { capitalizeFirstLetter } from "./blocks/RespostaBlock";
 import { useToolbar } from "../../../../hooks/useToolbar";
 import { useCallback } from "react";
-import exportCSV from "../../../../functions/exportCsv";
+import exportCSV from "../../../../functions/exportCSV";
 
 const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',

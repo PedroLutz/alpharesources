@@ -13,7 +13,7 @@ import { InformacaoProvider, useInformacao } from "./data/InformacaoContext";
 import NewInformacaoCreator from "./forms/NewInformacaoCreator";
 import InformacaoBlock from "./blocks/InformacaoBlock";
 import { useCallback } from "react";
-import exportCSV from "../../../../functions/exportCsv";
+import exportCSV from "../../../../functions/exportCSV";
 import { useToolbar } from "../../../../hooks/useToolbar";
 
 const modalLabels = {

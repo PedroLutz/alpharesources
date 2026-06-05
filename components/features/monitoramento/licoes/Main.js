@@ -13,7 +13,7 @@ import LicaoBlock from "./blocks/LicaoBlock";
 import NewLicaoCreator from "./forms/NewLicaoCreator";
 import { useCallback } from "react";
 import { useToolbar } from "../../../../hooks/useToolbar";
-import exportCSV from "../../../../functions/exportCsv";
+import exportCSV from "../../../../functions/exportCSV";
 
 const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',

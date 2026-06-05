@@ -9,7 +9,7 @@ import { GruposProvider, useGrupos } from "./data/GruposContext";
 import NewGrupoCreator from "./forms/NewGrupoCreator";
 import GroupBlock from "./blocks/GroupBlock";
 import { useToolbar } from "../../../../hooks/useToolbar";
-import exportCSV from "../../../../functions/exportCsv";
+import exportCSV from "../../../../functions/exportCSV";
 import { useCallback } from "react";
 import { useEffect } from "react";
 

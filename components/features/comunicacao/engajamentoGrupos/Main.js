@@ -8,7 +8,7 @@ import EngajamentoGrupoBlock, { capitalizeFirstLetter, generateMapping } from ".
 import { useToolbar } from "../../../../hooks/useToolbar";
 import { useCallback } from "react";
 import { useEffect } from "react";
-import exportCSV from "../../../../functions/exportCsv";
+import exportCSV from "../../../../functions/exportCSV";
 
 const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',

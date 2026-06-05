@@ -13,7 +13,7 @@ import { AuditProvider, useAudit } from "./data/AuditContext";
 import NewAuditCreator from "./forms/NewAuditCreator";
 import AuditBlock from "./blocks/AuditBlock";
 import { useCallback } from "react";
-import exportCSV from "../../../../functions/exportCsv";
+import exportCSV from "../../../../functions/exportCSV";
 import { useToolbar } from "../../../../hooks/useToolbar";
 
 const modalLabels = {

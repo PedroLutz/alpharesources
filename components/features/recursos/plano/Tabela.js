@@ -11,7 +11,7 @@ import { PlanoProvider, usePlano } from "./data/PlanoProvider";
 import NewPlanoCreator from "./forms/NewPlanoCreator";
 import PlanoBlock, { methodLabels } from "./blocks/PlanoBlock";
 import { useCallback } from "react";
-import exportCSV from "../../../../functions/exportCsv";
+import exportCSV from "../../../../functions/exportCSV";
 import { isoDateToEuDate } from "../../../../functions/general";
 import { useToolbar } from "../../../../hooks/useToolbar";
 import { useEffect } from "react";

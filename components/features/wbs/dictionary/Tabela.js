@@ -11,7 +11,7 @@ import DictionaryBlock from "./blocks/DictionaryBlock";
 import { DictionaryProvider } from "./DictionaryContext";
 import { useCallback } from "react";
 import { useToolbar } from "../../../../hooks/useToolbar";
-import exportCSV from "../../../../functions/exportCsv";
+import exportCSV from "../../../../functions/exportCSV";
 import { useEffect } from "react";
 
 const TabelaContent = () => {

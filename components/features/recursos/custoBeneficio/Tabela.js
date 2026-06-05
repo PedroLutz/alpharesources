@@ -11,7 +11,7 @@ import NewCBCreator from "./forms/NewCBCreator";
 import CbBlock from "./blocks/CbBlock";
 import { useToolbar } from "../../../../hooks/useToolbar";
 import { useCallback } from "react";
-import exportCSV from "../../../../functions/exportCsv";
+import exportCSV from "../../../../functions/exportCSV";
 import { useEffect } from "react";
 
 const Tabela = () => {

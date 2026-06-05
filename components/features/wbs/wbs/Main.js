@@ -10,7 +10,7 @@ import AreaBlock from "./blocks/AreaBlock";
 import NewItemCreator from "./forms/NewItemCreator";
 import ItemBlock from "./blocks/ItemBlock";
 import { WbsProvider, useWbs } from "./WbsContext";
-import exportCSV from "../../../../functions/exportCsv";
+import exportCSV from "../../../../functions/exportCSV";
 import { useToolbar } from "../../../../hooks/useToolbar";
 import { useEffect } from "react";
 import { useCallback } from "react";

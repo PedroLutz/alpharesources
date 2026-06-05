@@ -14,7 +14,7 @@ import NewReleaseCreator from './forms/NewReleaseCreator';
 import ReleaseBlock, { labelsTipo } from './blocks/ReleaseBlock';
 import { useCallback } from 'react';
 import { useToolbar } from '../../../../hooks/useToolbar';
-import exportCSV from '../../../../functions/exportCsv';
+import exportCSV from '../../../../functions/exportCSV';
 
 const Tabela = () => {
     const { token } = useAuth();

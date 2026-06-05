@@ -12,7 +12,7 @@ import NewRaciCreator from './forms/NewRaciCreator';
 import RaciBlock from './blocks/RaciBlock';
 import { useToolbar } from '../../../../hooks/useToolbar';
 import { useCallback } from 'react';
-import exportCSV from '../../../../functions/exportCsv';
+import exportCSV from '../../../../functions/exportCSV';
 import { useEffect } from 'react';
 
 const modalLabels = {

@@ -9,7 +9,7 @@ import { RecursoProvider, useRecurso } from "./RecursoContext";
 import NewRecursoCreator from "./forms/NewRecursoCreator";
 import RecursoBlock, { labelsTypes } from "./blocks/RecursoBlock";
 import { useCallback } from "react";
-import exportCSV from "../../../../functions/exportCsv";
+import exportCSV from "../../../../functions/exportCSV";
 import { useEffect } from "react";
 import { useToolbar } from "../../../../hooks/useToolbar";
 

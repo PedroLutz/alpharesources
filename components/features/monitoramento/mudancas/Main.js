@@ -12,7 +12,7 @@ import { MudancaProvider, useMudanca } from "./data/MudancaContext";
 import NewMudancaCreator from "./forms/NewMudancaCreator";
 import MudancaBlock, { statusLabels, typeLabels } from "./blocks/MudancaBlock";
 import { useToolbar } from "../../../../hooks/useToolbar";
-import exportCSV from "../../../../functions/exportCsv";
+import exportCSV from "../../../../functions/exportCSV";
 
 const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',

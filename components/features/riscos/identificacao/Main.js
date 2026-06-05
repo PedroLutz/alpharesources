@@ -11,7 +11,7 @@ import IdentificacaoBlock, { capitalizeFirstLetter } from "./blocks/Identificaca
 import { useToolbar } from "../../../../hooks/useToolbar";
 import { useCallback } from "react";
 import { useEffect } from "react";
-import exportCSV from "../../../../functions/exportCsv";
+import exportCSV from "../../../../functions/exportCSV";
 
 const TabelaRiscos = () => {
     const { token } = useAuth();

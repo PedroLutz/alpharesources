@@ -8,7 +8,7 @@ import HelpBubble from "../../../ui/HelpBubble/responsabilidades/Membros";
 import { MembroProvider, useMembro } from './data/MembroContext';
 import NewMembroCreator from './forms/NewMembroCreator';
 import MembroBlock from './blocks/MembroBlock';
-import exportCSV from '../../../../functions/exportCsv';
+import exportCSV from '../../../../functions/exportCSV';
 import { useEffect } from 'react';
 import { useToolbar } from '../../../../hooks/useToolbar';
 import { useCallback } from 'react';

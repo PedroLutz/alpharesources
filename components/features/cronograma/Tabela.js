@@ -14,7 +14,7 @@ import { getTextColor } from '../../../functions/colors';
 import { calculateRowSpan } from '../../../functions/general';
 import { useToolbar } from '../../../hooks/useToolbar';
 import { useCallback } from 'react';
-import exportCSV from '../../../functions/exportCsv';
+import exportCSV from '../../../functions/exportCSV';
 
 const Tabela = () => {
   const { user, token } = useAuth();
