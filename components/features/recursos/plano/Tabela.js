@@ -9,7 +9,12 @@ import { Chart } from 'react-google-charts';
 import HelpBubble from "../../../ui/HelpBubble/recursos/Plano";
 import { PlanoProvider, usePlano } from "./data/PlanoProvider";
 import NewPlanoCreator from "./forms/NewPlanoCreator";
-import PlanoBlock from "./blocks/PlanoBlock";
+import PlanoBlock, { methodLabels } from "./blocks/PlanoBlock";
+import { useCallback } from "react";
+import exportCSV from "../../../../functions/exportCSV";
+import { isoDateToEuDate } from "../../../../functions/general";
+import { useToolbar } from "../../../../hooks/useToolbar";
+import { useEffect } from "react";
 
 const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',
@@ -45,6 +50,46 @@ const PlanoAquisicao = () => {
     const [updatingLine, setUpdatingLine] = useState(false);
     const [verReserves, setVerReserves] = useState(false);
     const [showHelp, setShowHelp] = useState(false);
+
+    const { setExportCSVClick, setHelpClick } = useToolbar();
+
+    const exportToCSV = useCallback(() => {
+        const headers = ["Resource", "Plan A - Method", "Plan A - Supplier",
+            "Plan A - Details", "Plan A - Value", "Expected date", "Critical date",
+            "Plan B - Method", "Plan B - Supplier", "Plan B - Details", "Plan B - Value",
+            "Actual strategy", "Date", "Value", "Date difference", "Value difference"];
+        const lines = planos.map(plano => {
+            return [
+                `"${plano.resource.resource}"`,
+                `"${methodLabels[plano.method_a]}"`,
+                `"${plano.plan_a}"`,
+                `"${plano.details_a}"`,
+                `"R$${Number(plano.value_a).toFixed(2)}"`,
+                `"${isoDateToEuDate(plano.expected_date)}"`,
+                `"${isoDateToEuDate(plano.critical_date)}"`,
+                `"${methodLabels[plano.method_b]}"`,
+                `"${plano.plan_b}"`,
+                `"${plano.details_b}"`,
+                `"R$${Number(plano.value_b).toFixed(2)}"`,
+                `"${plano.plan_real || '-'}"`,
+                `"${plano.date_real != 'NaN/NaN/NaN' && plano.date_real != null ? isoDateToEuDate(plano.date_real) : '-'}"`,
+                `"${plano.value_real != null ? `R$${Number(plano.value_real).toFixed(2)}` : '-'}"`,
+                `"${plano.date_diference}"`,
+                `"${plano.value_diference}"`,
+            ]
+        });
+        exportCSV(headers, lines, "resource_acquisition_planning");
+    }, [planos, exportCSV]);
+
+    useEffect(() => {
+        setHelpClick(() => () => setShowHelp(true));
+        setExportCSVClick(() => exportToCSV);
+
+        return (() => {
+            setHelpClick(null);
+            setExportCSVClick(null);
+        })
+    }, [planos, exportToCSV]);
 
     //funcao que envia os dados do item para delecao do banco
     const handleConfirmDelete = async () => {

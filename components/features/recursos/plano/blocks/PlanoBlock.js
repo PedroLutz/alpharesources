@@ -9,7 +9,7 @@ import styles from '../../../../../styles/modules/planoAquisicao.module.css'
 import { handleReq } from "../../../../../functions/crud_s";
 import { calculateRowSpan } from "../../../../../functions/general";
 
-const methodLabels = {
+export const methodLabels = {
     purchase: 'Purchase',
     rental: 'Rental',
     borrowing: "Borrowing",

@@ -6,14 +6,14 @@ import useAuth from "../../../../../hooks/useAuth";
 import usePerm from "../../../../../hooks/usePerm";
 import CadastroInputs from "../forms/Inputs";
 
-function capitalizeFirstLetter(str) {
+export function capitalizeFirstLetter(str) {
     if (typeof str !== 'string' || str.length === 0) {
         return str;
     }
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-const generateMapping = (engajamento) => {
+export const generateMapping = (engajamento) => {
     if (!engajamento.control || !engajamento.impact) {
         return "-";
     }

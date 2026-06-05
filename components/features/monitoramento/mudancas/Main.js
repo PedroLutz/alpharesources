@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import styles from '../../../../styles/modules/monitoramento.module.css'
 import Inputs from "./forms/Inputs";
 import Modal from "../../../ui/Modal";
@@ -10,7 +10,9 @@ import { handleReq } from "../../../../functions/crud_s";
 import HelpBubble from "../../../ui/HelpBubble/monitoramento/Mudancas";
 import { MudancaProvider, useMudanca } from "./data/MudancaContext";
 import NewMudancaCreator from "./forms/NewMudancaCreator";
-import MudancaBlock from "./blocks/MudancaBlock";
+import MudancaBlock, { statusLabels, typeLabels } from "./blocks/MudancaBlock";
+import { useToolbar } from "../../../../hooks/useToolbar";
+import exportCSV from "../../../../functions/exportCSV";
 
 const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',
@@ -24,11 +26,43 @@ const Tabela = () => {
     const { user, token } = useAuth();
     const user_id = user.id;
     const { isEditor } = usePerm();
-    const {mudancas, fetchData, isLoading, setIsLoading} = useMudanca();
-    
+    const { mudancas, fetchData, isLoading, setIsLoading } = useMudanca();
+
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
     const [exibirModal, setExibirModal] = useState(null);
     const [showHelp, setShowHelp] = useState(false);
+
+    const { setExportCSVClick, setHelpClick } = useToolbar();
+
+    const exportToCSV = useCallback(() => {
+        const headers = ["Date", "Area",
+            "Type of change", "Configurated item", "Change", 
+            "Reasoning", "Impact", "Decision", "Status", "Applicant", "Responsible for approval"];
+        const lines = mudancas.map(mudanca => [
+            `"${isoDateToEuDate(mudanca.date)}"`,
+            `"${mudanca.wbs_area?.name || "Others"}"`,
+            `"${typeLabels[mudanca.type]}"`,
+            `"${mudanca.item}"`,
+            `"${mudanca.change}"`,
+            `"${mudanca.reasoning}"`,
+            `"${mudanca.impact}"`,
+            `"${mudanca.is_approved ? 'Approved' : 'Rejected'}"`,
+            `"${statusLabels[mudanca.status]}"`,
+            `"${mudanca.responsible_request}"`,
+            `"${mudanca.responsible_approval}"`,
+        ]);
+        exportCSV(headers, lines, "change_log");
+    }, [mudancas, exportCSV]);
+
+    useEffect(() => {
+        setHelpClick(() => () => setShowHelp(true));
+        setExportCSVClick(() => exportToCSV);
+
+        return (() => {
+            setHelpClick(null);
+            setExportCSVClick(null);
+        })
+    }, [mudancas, exportToCSV]);
 
     //funcao que envia o id para ser deletado
     const handleConfirmDelete = async () => {
@@ -50,9 +84,9 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {isLoading && <Loading />}
-            
+
             {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
-            <h2 className="smallTitle">Change Log <button onClick={() => setShowHelp(true)}>❔</button></h2>
+            <h2 className="smallTitle">Change Log</h2>
 
             {exibirModal != null && (
                 <Modal objeto={{
@@ -119,7 +153,7 @@ const Tabela = () => {
 const Main = () => {
     return (
         <MudancaProvider>
-            <Tabela/>
+            <Tabela />
         </MudancaProvider>
     )
 }

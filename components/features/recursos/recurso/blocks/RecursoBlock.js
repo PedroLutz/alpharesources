@@ -8,7 +8,7 @@ import useAuth from "../../../../../hooks/useAuth";
 import { handleReq } from "../../../../../functions/crud_s";
 import { calculateRowSpan } from "../../../../../functions/general";
 
-const labelsTypes = {
+export const labelsTypes = {
     physical: "Physical",
     financial: 'Financial',
     human: "Human"

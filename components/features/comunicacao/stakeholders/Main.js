@@ -9,6 +9,10 @@ import HelpBubble from "../../../ui/HelpBubble/comunicacao/Stakeholders";
 import { StakeholderProvider, useStakeholder } from "./data/StakeholderContext";
 import NewStakeholderCreator from "./forms/NewStakeholderCreator";
 import StakeholderBlock from "./blocks/StakeholderBlock";
+import { useCallback } from "react";
+import { useEffect } from "react";
+import exportCSV from "../../../../functions/exportCSV";
+import { useToolbar } from "../../../../hooks/useToolbar";
 
 const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',
@@ -24,6 +28,37 @@ const Tabela = () => {
     const [exibirModal, setExibirModal] = useState(null);
     const [updatingGroup, setUpdatingGroup] = useState(null);
     const [showHelp, setShowHelp] = useState(false);
+
+    const { setExportCSVClick, setHelpClick } = useToolbar();
+
+    const exportToCSV = useCallback(() => {
+        const headers = ["Stakeholder Group", "Stakeholder",
+            "Potential Influence", "Potential Impact", "Power", "Interest",
+            "Expectations", "Requisites", "Positive Engagement", "Negative Engagement"];
+        const lines = stakeholders.map(stakeholder => [
+            `"${stakeholder.stakeholder_group?.group}"`,
+            `"${stakeholder.stakeholder}"`,
+            `"${stakeholder.influence ? 'High' : 'Low'}"`,
+            `"${stakeholder.impact ? 'High' : 'Low'}"`,
+            `"${stakeholder.power ? 'High' : 'Low'}"`,
+            `"${stakeholder.interest ? 'High' : 'Low'}"`,
+            `"${stakeholder.expectations}"`,
+            `"${stakeholder.requisites}"`,
+            `"${stakeholder.positive_eng}"`,
+            `"${stakeholder.negative_eng}"`,
+        ]);
+        exportCSV(headers, lines, "stakeholders");
+    }, [stakeholders, exportCSV]);
+
+    useEffect(() => {
+        setHelpClick(() => () => setShowHelp(true));
+        setExportCSVClick(() => exportToCSV);
+
+        return (() => {
+            setHelpClick(null);
+            setExportCSVClick(null);
+        })
+    }, [stakeholders, exportToCSV]);
 
     //funcao que envia os dados para serem deletados
     const handleConfirmDelete = async () => {
@@ -44,7 +79,7 @@ const Tabela = () => {
         <div className="centered-container">
             {isLoading && <Loading />}
             {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
-            <h2 className="smallTitle">Stakeholder Identification <button onClick={() => setShowHelp(true)}>❔</button></h2>
+            <h2 className="smallTitle">Stakeholder Identification</h2>
             {exibirModal != null && (
                 <Modal objeto={{
                     titulo: modalLabels[exibirModal],

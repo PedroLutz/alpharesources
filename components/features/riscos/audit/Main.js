@@ -12,6 +12,9 @@ import { getTextColor } from "../../../../functions/colors";
 import { AuditProvider, useAudit } from "./data/AuditContext";
 import NewAuditCreator from "./forms/NewAuditCreator";
 import AuditBlock from "./blocks/AuditBlock";
+import { useCallback } from "react";
+import exportCSV from "../../../../functions/exportCSV";
+import { useToolbar } from "../../../../hooks/useToolbar";
 
 const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',
@@ -32,6 +35,55 @@ const TabelaAudit = () => {
     const [updatingRisk, setUpdatingRisk] = useState(null);
     const [seeArea, setSeeArea] = useState(false);
     const [showHelp, setShowHelp] = useState(false);
+
+    const { setExportCSVClick, setHelpClick } = useToolbar();
+
+    const exportToCSV = useCallback(() => {
+            const headers = ["Area", "Item", 
+                "Risk", "Impact description", "Financial impact", 
+                "Schedule impact", "Response", "Impact", "Action", 
+                "Urgency", "Evalutaion description"];
+            const lines = audits.map(analise => {
+    
+                const { risk } = audit;
+                const { wbs_item } = risk ?? {};
+                const { wbs_area } = wbs_item ?? {};
+
+                const shouldMergeArea = wbs_area?.id === audits[index - 1]?.risk?.wbs_item?.wbs_area?.id;
+                const shouldMergeItem = wbs_item?.id === audits[index - 1]?.risk?.wbs_item?.id;
+                const shouldMergeRisk = risk?.id === audits[index - 1]?.risk?.id;
+    
+                return [
+                    `"${wbs_area?.name || "Others"}"`,
+                    `"${wbs_item?.name || "Others"}"`,
+                    `"${risk?.risk}"`,
+                    `"${audit.impact_description}"`,
+                    `"Plan: R$${Number(audit?.risk?.risk_analysis[0]?.financial_impact || '0').toFixed(2)},
+                        Actual: R$${Number(audit.financial_impact).toFixed(2)}}"`,
+                    `"Plan: ${audit?.risk?.risk_analysis[0]?.schedule_impact || '-'} days,
+                        Actual: ${audit.schedule_impact} days"`,
+                    `"${audit.response}"`,
+                    `"Plan: ${audit?.risk?.risk_analysis[0]?.impact || '-'},
+                        Actual: ${audit.impact}}"`,
+                    `"Plan: ${audit?.risk?.risk_analysis[0]?.action || '-'},
+                        Actual: ${audit.action}"`,
+                    `"Plan: ${audit?.risk?.risk_analysis[0]?.urgency || '-'},
+                        Actual: ${audit.urgency}"`,
+                    `"${audit.evaluation_description}"`,
+                ]
+            });
+            exportCSV(headers, lines, "risk_audit");
+        }, [audits, exportCSV]);
+    
+        useEffect(() => {
+            setHelpClick(() => () => setShowHelp(true));
+            setExportCSVClick(() => exportToCSV);
+    
+            return (() => {
+                setHelpClick(null);
+                setExportCSVClick(null);
+            })
+        }, [audits, exportToCSV]);
 
     const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {

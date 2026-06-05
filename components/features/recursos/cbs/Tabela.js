@@ -6,6 +6,7 @@ import useAuth from "../../../../hooks/useAuth";
 import HelpBubble from '../../../ui/HelpBubble/recursos/Cbs';
 import { getTextColor } from "../../../../functions/colors";
 import { calculateRowSpan } from "../../../../functions/general";
+import { useToolbar } from "../../../../hooks/useToolbar";
 
 const Tabela = () => {
     const [dadosCbs, setDadosCbs] = useState([]);
@@ -13,6 +14,16 @@ const Tabela = () => {
     const { user, token } = useAuth();
     const user_id = user.id;
     const [showHelp, setShowHelp] = useState(false);
+
+    const { setHelpClick } = useToolbar();
+
+    useEffect(() => {
+        setHelpClick(() => () => setShowHelp(true));
+
+        return (() => {
+            setHelpClick(null);
+        })
+    }, [setShowHelp]);
 
     //funcao para puxar os dados e atribuilos ao estado dadosCBS
     const fetchCbs = async () => {
@@ -95,7 +106,7 @@ const Tabela = () => {
         <div className="centered-container">
             {loading && <Loading />}
             {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
-            <h2 className="smallTitle">Cost Breakdown Structure (CBS) <button onClick={()=>setShowHelp(true)}>❔</button></h2>
+            <h2 className="smallTitle">Cost Breakdown Structure (CBS)</h2>
 
             <div className={styles.tabela_cbs_container}>
                 <div className={styles.tabela_cbs_wrapper}>

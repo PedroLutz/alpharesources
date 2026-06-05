@@ -12,6 +12,9 @@ import usePerm from '../../../hooks/usePerm';
 import HelpBubble from '../../ui/HelpBubble/cronograma/Monitoramento';
 import { getTextColor } from '../../../functions/colors';
 import { calculateRowSpan } from '../../../functions/general';
+import { useToolbar } from '../../../hooks/useToolbar';
+import { useCallback } from 'react';
+import exportCSV from '../../../functions/exportCSV';
 
 const Tabela = () => {
     const { user, token } = useAuth();
@@ -42,6 +45,33 @@ const Tabela = () => {
     const [paleta, setPaleta] = useState([]);
     const [report, setReport] = useState([]);
     const [showHelp, setShowHelp] = useState(false);
+
+    const { setExportCSVClick, setHelpClick } = useToolbar();
+    
+      const exportToCSV = useCallback(() => {
+        const headers = ["Area", "Task",
+          "Start", "End", "Dependency: Area",
+          "Dependency: Item"];
+        const lines = cronogramas.map(item => [
+          item.wbs_item.wbs_area.name,
+          item.wbs_item.name,
+          jsDateToEuDate(item?.gantt_data[0]?.start),
+          jsDateToEuDate(item?.gantt_data[0]?.end),
+          item.gantt_dependency[0]?.dependency_id ? cronogramas.find(t => t.id == item.gantt_dependency[0]?.dependency_id).wbs_item.wbs_area.name : '-',
+          item.gantt_dependency[0]?.dependency_id ? cronogramas.find(t => t.id == item.gantt_dependency[0]?.dependency_id).wbs_item.name : '-'
+        ]);
+        exportCSV(headers, lines, "estimated_timeline");
+      }, [cronogramas, exportCSV]);
+    
+      useEffect(() => {
+        setHelpClick(() => () => setShowHelp(true));
+        setExportCSVClick(() => exportToCSV);
+    
+        return (() => {
+          setHelpClick(null);
+          setExportCSVClick(null);
+        })
+      }, [cronogramas, exportToCSV]);
 
     const handleUpdateClick = (item) => {
         setNovosDados({
@@ -476,7 +506,7 @@ const Tabela = () => {
                 }} />
             )}
 
-            <h2 className='smallTitle'>Timeline Monitoring <button onClick={()=>setShowHelp(true)}>❔</button></h2>
+            <h2 className='smallTitle'>Timeline Monitoring</h2>
 
             {chartDataLoaded ? (
                 <div style={{ width: '90%', height: chartHeight }}>

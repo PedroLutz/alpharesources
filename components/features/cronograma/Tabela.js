@@ -12,6 +12,9 @@ import usePerm from '../../../hooks/usePerm';
 import HelpBubble from '../../ui/HelpBubble/cronograma/Tabela';
 import { getTextColor } from '../../../functions/colors';
 import { calculateRowSpan } from '../../../functions/general';
+import { useToolbar } from '../../../hooks/useToolbar';
+import { useCallback } from 'react';
+import exportCSV from '../../../functions/exportCSV';
 
 const Tabela = () => {
   const { user, token } = useAuth();
@@ -46,6 +49,32 @@ const Tabela = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
 
+  const { setExportCSVClick, setHelpClick } = useToolbar();
+
+  const exportToCSV = useCallback(() => {
+    const headers = ["Area", "Task",
+      "Start", "End", "Dependency: Area",
+      "Dependency: Item"];
+    const lines = cronogramas.map(item => [
+      item.wbs_item.wbs_area.name,
+      item.wbs_item.name,
+      jsDateToEuDate(item?.gantt_data[0]?.start),
+      jsDateToEuDate(item?.gantt_data[0]?.end),
+      item.gantt_dependency[0]?.dependency_id ? cronogramas.find(t => t.id == item.gantt_dependency[0]?.dependency_id).wbs_item.wbs_area.name : '-',
+      item.gantt_dependency[0]?.dependency_id ? cronogramas.find(t => t.id == item.gantt_dependency[0]?.dependency_id).wbs_item.name : '-'
+    ]);
+    exportCSV(headers, lines, "timeline_monitoring");
+  }, [cronogramas, exportCSV]);
+
+  useEffect(() => {
+    setHelpClick(() => () => setShowHelp(true));
+    setExportCSVClick(() => exportToCSV);
+
+    return (() => {
+      setHelpClick(null);
+      setExportCSVClick(null);
+    })
+  }, [cronogramas, exportToCSV]);
 
   //funcao que recebe o item a ser atualizado e insere os campos relevantes em novosDados
   const handleUpdateClick = (item) => {
@@ -141,7 +170,7 @@ const Tabela = () => {
       return !isDp;
     }
     return cronogramas.some((c) => {
-      if(isDp){
+      if (isDp) {
         return c.wbs_item.wbs_area.id == area_id
       } else {
         return c.wbs_item.wbs_area.id != area_id || c.wbs_item.wbs_area.id == area_id && c.wbs_item.id != item_id
@@ -352,15 +381,15 @@ const Tabela = () => {
     setLoading(true);
 
     //verifica se as novas datas não rompem a ordem das dependendências
-    
+
 
     const old_dependency_id = cronogramas.find(c => c.id === novosDados.gantt_id)?.gantt_dependency[0]?.dependency_id;
     const new_dependency_id = cronogramas.find(c => c.wbs_item.id == novosDados?.dp_item)?.id;
-    if(new_dependency_id === novosDados.gantt_id){
+    if (new_dependency_id === novosDados.gantt_id) {
       setExibirModal("dpIsTask");
       return;
     };
-    if(old_dependency_id === new_dependency_id){
+    if (old_dependency_id === new_dependency_id) {
       let depOkay = true;
       const tarefasDependentes = cronogramas.filter(c => c.gantt_dependency[0]?.dependency_id === novosDados.gantt_id);
       tarefasDependentes.forEach(t => {
@@ -371,7 +400,7 @@ const Tabela = () => {
         }
       })
 
-    if (!depOkay) return;
+      if (!depOkay) return;
     }
 
     const { dependency_id, dp_item, item_id, ...updatedData } = novosDados;
@@ -385,14 +414,14 @@ const Tabela = () => {
         });
 
         //se a dependencia for nula, apaga por padrão
-        if(novosDados.dp_item == null || novosDados.dp_item === ""){
+        if (novosDados.dp_item == null || novosDados.dp_item === "") {
           await handleReq({
-              table: "gantt_dependency",
-              route: 'delete',
-              subroute: 'byGanttId',
-              token,
-              data: { id: novosDados.gantt_id },
-            });
+            table: "gantt_dependency",
+            route: 'delete',
+            subroute: 'byGanttId',
+            token,
+            data: { id: novosDados.gantt_id },
+          });
         } else {
           if (old_dependency_id !== new_dependency_id) {
             await handleReq({
@@ -444,7 +473,7 @@ const Tabela = () => {
     <div className="centered-container">
       {loading && <Loading />}
       {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
-      <h2 className='smallTitle'>Estimated timeline <button onClick={() => setShowHelp(true)}>❔</button></h2>
+      <h2 className='smallTitle'>Estimated timeline</h2>
       {confirmDeleteItem && (
         <div className="overlay">
           <div className="modal">
@@ -578,7 +607,7 @@ const Tabela = () => {
                           <td>{item.gantt_dependency[0]?.dependency_id ? tabela.find(t => t.id == item.gantt_dependency[0]?.dependency_id).wbs_item.name : '-'}</td>
                           <td className="botoes_acoes">
                             <button onClick={() => setConfirmDeleteItem(item)}
-                            disabled={!isEditor}>❌</button>
+                              disabled={!isEditor}>❌</button>
                             <button disabled={!isEditor} onClick={() => {
                               setLinhaVisivel(item.id); handleUpdateClick(item)
                             }}

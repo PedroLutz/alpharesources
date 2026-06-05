@@ -8,6 +8,10 @@ import HelpBubble from "../../../ui/HelpBubble/responsabilidades/Membros";
 import { MembroProvider, useMembro } from './data/MembroContext';
 import NewMembroCreator from './forms/NewMembroCreator';
 import MembroBlock from './blocks/MembroBlock';
+import exportCSV from '../../../../functions/exportCSV';
+import { useEffect } from 'react';
+import { useToolbar } from '../../../../hooks/useToolbar';
+import { useCallback } from 'react';
 
 const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',
@@ -19,10 +23,34 @@ const modalLabels = {
 const Tabela = () => {
     const { token } = useAuth();
     const { membros, isLoading, fetchData } = useMembro();
-
+    
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
     const [exibirModal, setExibirModal] = useState(null);
     const [showHelp, setShowHelp] = useState(false);
+
+    const { setExportCSVClick, setHelpClick } = useToolbar();
+    
+    const exportToCSV = useCallback(() => {
+        const headers = ["Name", "Softskills", "Hardskills"];
+        const lines = membros.map(m => [ 
+                m.name,
+                `"${m.softskills}"`,
+                `"${m.hardskills}"`
+            ]
+        )
+        exportCSV(headers, lines, "members");
+    }, [membros, exportCSV]);
+    
+    useEffect(() => {
+        setHelpClick(() => () => setShowHelp(true));
+        setExportCSVClick(() => exportToCSV);
+
+        return (() => {
+            setHelpClick(null);
+            setExportCSVClick(null);
+        })
+    }, [membros, exportToCSV]);
+
 
     const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
@@ -42,7 +70,10 @@ const Tabela = () => {
         <div className="centered-container">
             {isLoading && <Loading />}
             {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
-            <h2 className='smallTitle'>Team members <button onClick={() => setShowHelp(true)}>❔</button></h2>
+            <h2 className='smallTitle'>
+                Team members 
+            </h2>
+
             <div id="report" className={styles.membrosContainerPai}>
                 <NewMembroCreator
                     setExibirModal={setExibirModal}

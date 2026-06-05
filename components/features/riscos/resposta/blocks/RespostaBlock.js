@@ -8,7 +8,7 @@ import usePerm from "../../../../../hooks/usePerm";
 import useAuth from "../../../../../hooks/useAuth";
 import { calculateRowSpan } from "../../../../../functions/general";
 
-function capitalizeFirstLetter(str) {
+export function capitalizeFirstLetter(str) {
     if (typeof str !== 'string' || str.length === 0) {
         return str;
     }

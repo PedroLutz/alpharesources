@@ -10,6 +10,10 @@ import AreaBlock from "./blocks/AreaBlock";
 import NewItemCreator from "./forms/NewItemCreator";
 import ItemBlock from "./blocks/ItemBlock";
 import { WbsProvider, useWbs } from "./WbsContext";
+import exportCSV from "../../../../functions/exportCSV";
+import { useToolbar } from "../../../../hooks/useToolbar";
+import { useEffect } from "react";
+import { useCallback } from "react";
 
 const MainContent = () => {
     const { token } = useAuth();
@@ -33,6 +37,32 @@ const MainContent = () => {
     const [deleteItemConfirm, setDeleteItemConfirm] = useState(null);
 
     const [showHelp, setShowHelp] = useState(false);
+
+    const { setExportCSVClick, setHelpClick } = useToolbar();
+
+    const exportToCSV = useCallback(() => {
+        const headers = ["Area", "Item"];
+        const lines = [];
+        areas.forEach(a => {
+            const _items = items.filter(i => i.area_id == a.id);
+            _items.forEach(i => lines.push([
+                a.name,
+                i.name
+            ]));
+        })
+        exportCSV(headers, lines, "wbs");
+    }, [areas, items, exportCSV]);
+
+    useEffect(() => {
+        setHelpClick(() => () => setShowHelp(true));
+        setExportCSVClick(() => exportToCSV);
+
+        return (() => {
+            setHelpClick(null);
+            setExportCSVClick(null);
+        })
+    }, [areas, items, exportToCSV]);
+
 
     const submitDelete = async (table, id) => {
         setIsLoading(true);
@@ -135,7 +165,7 @@ const MainContent = () => {
 const Main = () => {
     return (
         <WbsProvider>
-            <MainContent/>
+            <MainContent />
         </WbsProvider>
     )
 }

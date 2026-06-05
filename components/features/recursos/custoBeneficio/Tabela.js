@@ -9,6 +9,10 @@ import { CBProvider } from "./CbDataContext";
 import { useCostBenefit } from "./CbDataContext";
 import NewCBCreator from "./forms/NewCBCreator";
 import CbBlock from "./blocks/CbBlock";
+import { useToolbar } from "../../../../hooks/useToolbar";
+import { useCallback } from "react";
+import exportCSV from "../../../../functions/exportCSV";
+import { useEffect } from "react";
 
 const Tabela = () => {
     const { custoBeneficios,
@@ -21,6 +25,47 @@ const Tabela = () => {
     const [exibirModal, setExibirModal] = useState(null);
     const { token } = useAuth();
     const [showHelp, setShowHelp] = useState(false);
+
+    const { setExportCSVClick, setHelpClick } = useToolbar();
+
+    const exportToCSV = useCallback(() => {
+        const headers = ["Identification", "Description",
+            "Cost", "Cost Ranking", "Impact", 
+            "Urgency", "Competitive Edge", "Affected Areas", "Benefit average", 
+            "Cost-Benefit index", "Explanation"];
+        const lines = custoBeneficios.map(custoBeneficio => {
+            const benefitAverage = parseFloat((custoBeneficio.area_impact
+                + custoBeneficio.impact
+                + custoBeneficio.urgency
+                + custoBeneficio.edge)
+                / 4);
+            const benefitIndex = parseFloat(benefitAverage / custoBeneficio.cost_ranking);
+
+            return [
+            `"${custoBeneficio.identification}"`,
+            `"${custoBeneficio.description}"`,
+            `"${parseFloat(custoBeneficio.cost).toFixed(2)}"`,
+            `"${custoBeneficio.cost_ranking}"`,
+            `"${custoBeneficio.impact}"`,
+            `"${custoBeneficio.urgency}"`,
+            `"${custoBeneficio.edge}"`,
+            `"${custoBeneficio.area_impact}"`,
+            `"${benefitAverage.toFixed(2)}"`,
+            `"${benefitIndex.toFixed(2)}"`,
+            `"${custoBeneficio.explanation}"`,
+        ]});
+        exportCSV(headers, lines, "cost_benefit");
+    }, [custoBeneficios, exportCSV]);
+
+    useEffect(() => {
+        setHelpClick(() => () => setShowHelp(true));
+        setExportCSVClick(() => exportToCSV);
+
+        return (() => {
+            setHelpClick(null);
+            setExportCSVClick(null);
+        })
+    }, [custoBeneficios, exportToCSV]);
 
     //funcao que envia o id para ser deletado
     const handleConfirmDelete = async () => {
@@ -70,7 +115,7 @@ const Tabela = () => {
         <div className="centered-container">
             {isLoading && <Loading />}
             {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
-            <h2 className='smallTitle'>Cost-Benefit Analysis <button onClick={() => setShowHelp(true)}>❔</button></h2>
+            <h2 className='smallTitle'>Cost-Benefit Analysis</h2>
 
             {exibirModal != null && (
                 <Modal objeto={{

@@ -8,14 +8,14 @@ import { useEffect } from "react";
 import styles from '../../../../../styles/modules/monitoramento.module.css'
 import { isoDateToEuDate } from "../../../../../functions/general";
 
-const typeLabels = {
+export const typeLabels = {
     corrective: 'Corrective Action',
     preventive: 'Preventive Action',
     repair: 'Defect Repair',
     update: 'Update'
 }
 
-const statusLabels = {
+export const statusLabels = {
     starting: 'Starting',
     progress: 'In progress',
     finalized: 'Finalized'

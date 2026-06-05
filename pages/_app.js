@@ -17,6 +17,8 @@ import '../styles/global.css';
 import '../styles/graficos.css';
 import '../styles/botoes.css';
 import '../styles/tabela.css';
+import { ToolbarProvider } from '../contexts/ToolbarContext';
+import { Toolbar } from '../components/ui/Toolbar/Toolbar';
 
 function AuthGuard({ children }) {
   const router = useRouter();
@@ -55,7 +57,9 @@ function MyApp({ Component, pageProps }) {
         <ColorProvider>
           <AuthGuard>
             <TituloProvider>
-              <InnerApp Component={Component} pageProps={pageProps} />
+              <ToolbarProvider>
+                <InnerApp Component={Component} pageProps={pageProps} />
+              </ToolbarProvider>
             </TituloProvider>
           </AuthGuard>
         </ColorProvider>
@@ -87,6 +91,7 @@ function InnerApp({ Component, pageProps }) {
         <title>{title}</title>
         <link rel="icon" href="/images/logo.png" />
       </Head>
+      <Toolbar />
       <Component {...pageProps} />
       <Footer />
     </div>

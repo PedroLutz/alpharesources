@@ -11,18 +11,21 @@ import HelpBubble from "../../../ui/HelpBubble/responsabilidades/Habilidades";
 import { HabilidadeProvider, useHabilidade } from "./data/HabilidadeContext";
 import NewHabilidadeCreator from "./forms/NewHabilidadeCreator";
 import HabilidadeBlock from "./blocks/HabilidadeBlock";
+import { useToolbar } from "../../../../hooks/useToolbar";
+import exportCSV from "../../../../functions/exportCSV";
+import { useCallback } from "react";
 
-    const modalLabels = {
-        'inputsVazios': 'Fill out all fields before adding new data!',
-        'deleteSuccess': 'Deletion Successful!',
-        'deleteFail': 'Deletion Failed!',
-        'valorNegativo': 'No fields can have negative values!',
-        'maiorQueCinco': 'Classifications must be between 1 and 5!',
-        'habilidadeRepetida': 'You have already registered this skill!'
-    };
+const modalLabels = {
+    'inputsVazios': 'Fill out all fields before adding new data!',
+    'deleteSuccess': 'Deletion Successful!',
+    'deleteFail': 'Deletion Failed!',
+    'valorNegativo': 'No fields can have negative values!',
+    'maiorQueCinco': 'Classifications must be between 1 and 5!',
+    'habilidadeRepetida': 'You have already registered this skill!'
+};
 
 const Tabela = () => {
-    const {isLoading, setIsLoading, fetchData, habilidades} = useHabilidade();
+    const { isLoading, setIsLoading, fetchData, habilidades } = useHabilidade();
     const { user, token } = useAuth();
     const { isEditor } = usePerm();
 
@@ -38,6 +41,40 @@ const Tabela = () => {
     const [exibirModal, setExibirModal] = useState(null);
     const [linhaVisivel, setLinhaVisivel] = useState();
     const [showHelp, setShowHelp] = useState(false);
+
+    const { setHelpClick, setExportCSVClick } = useToolbar();
+
+    const exportToCSV = useCallback(() => {
+        const headers = [
+            "Area", "Role", "Responsible",
+            "Skill", "Current Skill Level",
+            "Desired Skill Level", "Development Action"
+        ];
+        const lines = habilidades.map(h => [
+            `"${h?.role?.wbs_area?.reduce((acc, cur) => {
+                if (acc == "") return acc + cur.name;
+                return acc + ", " + cur.name;
+            }, "")}"`,
+            `"${h.role?.role}"`,
+            `"${h.role?.member?.name}"`,
+            `"${h.skill}"`,
+            `"${h.cur_level}"`,
+            `"${h.min_level}"`,
+            `"${h.action}"`,
+        ]
+        )
+        exportCSV(headers, lines, "skills");
+    }, [exportCSV, habilidades]);
+
+    useEffect(() => {
+        setHelpClick(() => () => setShowHelp(true));
+        setExportCSVClick(() => exportToCSV);
+
+        return (() => {
+            setHelpClick(null);
+            setExportCSVClick(null);
+        })
+    }, [habilidades, exportToCSV]);
 
     const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
@@ -56,8 +93,8 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {isLoading && <Loading />}
-            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
-            <h2 className="smallTitle">Skill evaluation <button onClick={()=> setShowHelp(true)}>❔</button></h2>
+            {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
+            <h2 className="smallTitle">Skill evaluation</h2>
 
             {exibirModal != null && (
                 <Modal objeto={{
@@ -121,7 +158,7 @@ const Tabela = () => {
 const Main = () => {
     return (
         <HabilidadeProvider>
-            <Tabela/>
+            <Tabela />
         </HabilidadeProvider>
     )
 }
