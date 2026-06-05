@@ -9,7 +9,7 @@ import usePerm from "../../../../../hooks/usePerm";
 import styles from '../../../../../styles/modules/risco.module.css'
 import { calculateRowSpan } from "../../../../../functions/general";
 
-function capitalizeFirstLetter(str) {
+export function capitalizeFirstLetter(str) {
     if (typeof str !== 'string' || str.length === 0) {
         return str;
     }

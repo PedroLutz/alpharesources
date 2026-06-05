@@ -7,7 +7,11 @@ import useAuth from "../../../../hooks/useAuth";
 import HelpBubble from "../../../ui/HelpBubble/risco/Identificacao";
 import { IdentificacaoProvider, useIdentificacao } from "./data/IdentificacaoContext";
 import NewRiscoCreator from "./forms/NewRiscoCreator";
-import IdentificacaoBlock from "./blocks/IdentificacaoBlock";
+import IdentificacaoBlock, { capitalizeFirstLetter } from "./blocks/IdentificacaoBlock";
+import { useToolbar } from "../../../../hooks/useToolbar";
+import { useCallback } from "react";
+import { useEffect } from "react";
+import exportCSV from "../../../../functions/exportCsv";
 
 const TabelaRiscos = () => {
     const { token } = useAuth();
@@ -17,6 +21,38 @@ const TabelaRiscos = () => {
     const [exibirModal, setExibirModal] = useState(null);
     const [updatingLine, setUpdatingLine] = useState(false);
     const [showHelp, setShowHelp] = useState(false);
+
+    const { setExportCSVClick, setHelpClick } = useToolbar();
+
+    const exportToCSV = useCallback(() => {
+        const headers = ["Area", "Item", "Risk", "Classification", "Category", "Effect", "Cause", "Trigger", "Owner"];
+        const lines = riscos.map(risco => {
+            const { wbs_item } = risco;
+            const { wbs_area } = wbs_item ?? {};
+
+            return [
+            `"${wbs_area?.name ?? 'Others'}"`,
+            `"${wbs_item?.name || 'Others'}"`,
+            `"${risco.risk}"`,
+            `"${capitalizeFirstLetter(risco.classification)}"`,
+            `"${risco.is_negative ? 'Threat' : 'Opportunity'}"`,
+            `"${risco.effect}"`,
+            `"${risco.cause}"`,
+            `"${risco.trigger}"`,
+            `"${risco.member?.name || 'Circunstancial'}"`
+        ]});
+        exportCSV(headers, lines, "risks");
+    }, [riscos, exportCSV]);
+
+    useEffect(() => {
+        setHelpClick(() => () => setShowHelp(true));
+        setExportCSVClick(() => exportToCSV);
+
+        return (() => {
+            setHelpClick(null);
+            setExportCSVClick(null);
+        })
+    }, [riscos, exportToCSV]);
 
     const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
@@ -45,7 +81,7 @@ const TabelaRiscos = () => {
         <div className="centered-container">
             {isLoading && <Loading />}
             {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
-            <h2 className="smallTitle">Risk Identification <button onClick={()=> setShowHelp(true)}>❔</button></h2>
+            <h2 className="smallTitle">Risk Identification</h2>
             {exibirModal != null && (
                 <Modal objeto={{
                     titulo: modalLabels[exibirModal],

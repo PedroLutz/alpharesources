@@ -10,12 +10,15 @@ export const Toolbar = ({ children }) => {
     return (
         <div className={styles.toolbar_div}>
             <button data-tooltip="Help"
+                hidden={!helpClick}
                 onClick={helpClick}
                 className={styles.toolbar_button}>
                 <CircleQuestionMark size={30} />
             </button>
 
-            <button data-tooltip="Export to .csv file"
+            <button 
+                hidden={!exportCSVClick}
+                data-tooltip="Export to .csv file"
                 onClick={exportCSVClick}
                 className={styles.toolbar_button}>
                 <Download size={30} />

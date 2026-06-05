@@ -7,6 +7,7 @@ import { handlePostFetch, handleFetch } from '../../../../functions/crud_s';
 import tabela from '../../../../styles/modules/financas.module.css'
 import useAuth from '../../../../hooks/useAuth';
 import HelpBubble from '../../../ui/HelpBubble/recursos/ResumoFinancas';
+import { useToolbar } from '../../../../hooks/useToolbar';
 
 const { grafico, pie_direita, pie_esquerda, pie_container, h3_resumo, custom_span } = styles;
 
@@ -28,6 +29,16 @@ const Resumo = () => {
   const [curvaS, setCurvaS] = useState([]);
   const [curvaSTabela, setCurvaSTabela] = useState([]);
   const [showHelp, setShowHelp] = useState(false);
+
+  const { setHelpClick } = useToolbar();
+
+  useEffect(() => {
+    setHelpClick(() => () => setShowHelp(true));
+
+    return (() => {
+      setHelpClick(null);
+    })
+  }, [setHelpClick]);
 
   const fetchResumos = async () => {
     const monthly_summary = await handlePostFetch({
@@ -442,7 +453,7 @@ const Resumo = () => {
       {loading && <Loading />}
       <div className="centered-container">
         {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
-        <h2 className="smallTitle">Report <button onClick={() => setShowHelp(true)}>❔</button></h2>
+        <h2 className="smallTitle">Report</h2>
 
         <div>
           <span className={custom_span}>Cash value:<br />R${Number(totalValor).toFixed(2)}</span>

@@ -8,6 +8,7 @@ import { Chart } from 'react-google-charts';
 import { isoDateToEuDate } from "../../functions/general";
 import HelpBubble from "../ui/HelpBubble/Dashboard";
 import { generateColorGradient } from "../../functions/colors";
+import { useToolbar } from "../../hooks/useToolbar";
 
 const Dashboard = () => {
     const [interval, setInterval] = useState("1 week");
@@ -26,6 +27,16 @@ const Dashboard = () => {
     const [showHelp, setShowHelp] = useState(false);
 
     const [ready, setReady] = useState(false);
+
+    const { setHelpClick } = useToolbar();
+
+    useEffect(() => {
+        setHelpClick(() => () => setShowHelp(true));
+
+        return (() => {
+            setHelpClick(null);
+        })
+    }, [setShowHelp]);
 
     useEffect(() => {
         const timeout = setTimeout(() => setReady(true), 0);
@@ -153,7 +164,7 @@ const Dashboard = () => {
 
     return (
         <div className="centered-container">
-            <h2 className="smallTitle">Dashboard <button onClick={() => setShowHelp(true)}>❔</button></h2>
+            <h2 className="smallTitle">Dashboard</h2>
             {loading && <Loading />}
             {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
             <div className={styles.super_container}>

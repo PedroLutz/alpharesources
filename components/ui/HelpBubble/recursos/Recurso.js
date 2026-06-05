@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const HelpBubble = ({ setShowHelp }) => {
     return (
         <div className="overlay">

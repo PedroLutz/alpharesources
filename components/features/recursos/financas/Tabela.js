@@ -11,7 +11,10 @@ import HelpBubble from '../../../ui/HelpBubble/recursos/Financas';
 import { useFinances } from './FinancesContext';
 import { FinancesProvider } from './FinancesContext';
 import NewReleaseCreator from './forms/NewReleaseCreator';
-import ReleaseBlock from './blocks/ReleaseBlock';
+import ReleaseBlock, { labelsTipo } from './blocks/ReleaseBlock';
+import { useCallback } from 'react';
+import { useToolbar } from '../../../../hooks/useToolbar';
+import exportCSV from '../../../../functions/exportCsv';
 
 const Tabela = () => {
     const { token } = useAuth();
@@ -25,6 +28,34 @@ const Tabela = () => {
     const [deleteItem, setDeleteItem] = useState();
     const [exibirModal, setExibirModal] = useState(null);
     const [showHelp, setShowHelp] = useState(false);
+
+    const { setExportCSVClick, setHelpClick } = useToolbar();
+
+    const exportToCSV = useCallback(() => {
+        const headers = ["Type", "Description", "Value", "Date", "Area", "Origin", "Destination", "Balance"];
+        const lines = lancamentos.map(item => {
+            return [
+            `"${labelsTipo[item.type]}"`,
+            `"${item.description}"`,
+            `"R$${Math.abs(item.value).toFixed(2)}"`,
+            `"${item.date}"`,
+            `"${item?.wbs_area?.name || 'Others'}"`,
+            `"${item.origin}"`,
+            `"${item.destination}"`,
+            `"${item.type === 'income' ? "▲" : item.type === 'exchange' ? "" : '▼'} R$${item.balance}"`
+        ]});
+        exportCSV(headers, lines, "financial_releases");
+    }, [lancamentos, exportCSV]);
+
+    useEffect(() => {
+        setHelpClick(() => () => setShowHelp(true));
+        setExportCSVClick(() => exportToCSV);
+
+        return (() => {
+            setHelpClick(null);
+            setExportCSVClick(null);
+        })
+    }, [lancamentos, exportToCSV]);
 
     //funcao que envia o id para deletar os itens
     const handleConfirmDelete = async () => {
@@ -51,7 +82,7 @@ const Tabela = () => {
         <div className="centered-container">
             {isLoading && <Loading />}
             {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
-            <h2 className='smallTitle'>Financial Releases Data <button onClick={()=>setShowHelp(true)}>❔</button></h2>
+            <h2 className='smallTitle'>Financial Releases Data</h2>
             <div id="report" className={styles.tabela_financas_container}>
                 <div className={styles.tabela_financas_wrapper}>
                     <table className={`tabela ${styles.tabela_financas}`}>

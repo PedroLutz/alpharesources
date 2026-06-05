@@ -7,7 +7,7 @@ import styles from '../../../../../styles/modules/financas.module.css'
 import usePerm from "../../../../../hooks/usePerm";
 import InputContainer from "../forms/CadastroInputs";
 
-const labelsTipo = {
+export const labelsTipo = {
     income: 'Income',
     cost: 'Cost',
     exchange: 'Exchange'

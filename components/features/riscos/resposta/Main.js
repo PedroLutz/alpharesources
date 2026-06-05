@@ -9,7 +9,10 @@ import usePerm from "../../../../hooks/usePerm";
 import HelpBubble from "../../../ui/HelpBubble/risco/Resposta";
 import { RespostaProvider, useResposta } from "./data/RespostaContext";
 import NewRespostaCreator from "./forms/NewRespostaCreator";
-import RespostaBlock from "./blocks/RespostaBlock";
+import RespostaBlock, { capitalizeFirstLetter } from "./blocks/RespostaBlock";
+import { useToolbar } from "../../../../hooks/useToolbar";
+import { useCallback } from "react";
+import exportCSV from "../../../../functions/exportCsv";
 
 const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',
@@ -22,12 +25,42 @@ const TabelaPlanos = () => {
     const { isEditor } = usePerm();
 
     const { respostas, isLoading, setIsLoading, fetchData } = useResposta();
-    
+
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
     const [exibirModal, setExibirModal] = useState(null);
     const [updatingRisk, setUpdatingRisk] = useState(false);
     const [seeArea, setSeeArea] = useState(false);
     const [showHelp, setShowHelp] = useState(false);
+
+    const { setExportCSVClick, setHelpClick } = useToolbar();
+
+    const exportToCSV = useCallback(() => {
+        const headers = ["Area", "Item", "Risk", "Strategy", "Response"];
+        const lines = respostas.map(resposta => {
+            const { risk } = resposta;
+            const { wbs_item } = risk ?? {};
+            const { wbs_area } = wbs_item ?? {};
+
+            return [
+                `"${wbs_area?.name || "Others"}"`,
+                `"${wbs_item?.name || 'Others'}"`,
+                `"${risk.risk}"`,
+                `"${capitalizeFirstLetter(resposta.strategy)}"`,
+                `"${resposta.details}"`,
+            ]
+        });
+        exportCSV(headers, lines, "risk_response");
+    }, [respostas, exportCSV]);
+
+    useEffect(() => {
+        setHelpClick(() => () => setShowHelp(true));
+        setExportCSVClick(() => exportToCSV);
+
+        return (() => {
+            setHelpClick(null);
+            setExportCSVClick(null);
+        })
+    }, [respostas, exportToCSV]);
 
     const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
@@ -47,7 +80,7 @@ const TabelaPlanos = () => {
         <div className="centered-container">
             {isLoading && <Loading />}
             {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
-            <h2 className="smallTitle">Risk Response Planning <button onClick={() => setShowHelp(true)}>❔</button></h2>
+            <h2 className="smallTitle">Risk Response Planning</h2>
             <button className="botao-bonito" style={{ marginBottom: '1rem', width: 'fit-content' }}
                 onClick={() => { !updatingRisk && setSeeArea(!seeArea) }}
             >See areas and items</button>
@@ -102,7 +135,7 @@ const TabelaPlanos = () => {
                                     setSeeArea={setSeeArea}
                                     setExibirModal={setExibirModal}
                                     setConfirmDeleteItem={setConfirmDeleteItem}
-                                />   
+                                />
                             ))}
                             <NewRespostaCreator
                                 setExibirModal={setExibirModal}

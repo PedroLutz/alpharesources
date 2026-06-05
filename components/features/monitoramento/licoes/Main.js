@@ -11,6 +11,9 @@ import HelpBubble from "../../../ui/HelpBubble/monitoramento/Licao";
 import { LicaoProvider, useLicao } from "./data/LicaoContext";
 import LicaoBlock from "./blocks/LicaoBlock";
 import NewLicaoCreator from "./forms/NewLicaoCreator";
+import { useCallback } from "react";
+import { useToolbar } from "../../../../hooks/useToolbar";
+import exportCSV from "../../../../functions/exportCsv";
 
 const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',
@@ -22,11 +25,36 @@ const modalLabels = {
 
 const Tabela = () => {
     const { token } = useAuth();
-    
-    const {licoes, isLoading, setIsLoading, fetchData} = useLicao();
+
+    const { licoes, isLoading, setIsLoading, fetchData } = useLicao();
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
     const [exibirModal, setExibirModal] = useState(null);
     const [showHelp, setShowHelp] = useState(false);
+
+    const { setExportCSVClick, setHelpClick } = useToolbar();
+
+    const exportToCSV = useCallback(() => {
+        const headers = ["Date", "Type",
+            "Situation", "Lesson Learned", "Action Taken"];
+        const lines = licoes.map(licao => [
+            `"${isoDateToEuDate(licao.date)}"`,
+            `"${licao.type ? 'Explicit' : 'Tacit'}"`,
+            `"${licao.situation}"`,
+            `"${licao.learning}"`,
+            `"${licao.action}"`,
+        ]);
+        exportCSV(headers, lines, "lessons_learned");
+    }, [licoes, exportCSV]);
+
+    useEffect(() => {
+        setHelpClick(() => () => setShowHelp(true));
+        setExportCSVClick(() => exportToCSV);
+
+        return (() => {
+            setHelpClick(null);
+            setExportCSVClick(null);
+        })
+    }, [licoes, exportToCSV]);
 
     const handleConfirmDelete = async () => {
         setIsLoading(true);
@@ -48,7 +76,7 @@ const Tabela = () => {
         <div className="centered-container">
             {isLoading && <Loading />}
             {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
-            <h2 className="smallTitle">Lessons learned <button onClick={() => setShowHelp(true)}>❔</button></h2>
+            <h2 className="smallTitle">Lessons learned</h2>
 
             {exibirModal != null && (
                 <Modal objeto={{
@@ -108,7 +136,7 @@ const Tabela = () => {
 const Main = () => {
     return (
         <LicaoProvider>
-            <Tabela/>
+            <Tabela />
         </LicaoProvider>
     )
 }

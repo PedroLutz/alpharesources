@@ -9,6 +9,10 @@ import { useDictionary } from "./DictionaryContext";
 import NewDictionaryCreator from "./forms/NewDictionaryCreator";
 import DictionaryBlock from "./blocks/DictionaryBlock";
 import { DictionaryProvider } from "./DictionaryContext";
+import { useCallback } from "react";
+import { useToolbar } from "../../../../hooks/useToolbar";
+import exportCSV from "../../../../functions/exportCsv";
+import { useEffect } from "react";
 
 const TabelaContent = () => {
     const { token } = useAuth();
@@ -28,7 +32,41 @@ const TabelaContent = () => {
     };
 
     const [showHelp, setShowHelp] = useState(false);
-    
+
+    const { setExportCSVClick, setHelpClick } = useToolbar();
+
+    const exportToCSV = useCallback(() => {
+        const headers = ["Area", "Item",
+            "Description", "Purpose", "Premises",
+            "Restrictions", "Expected Resources and Costs", "Acceptance Criteria",
+            "Inspection", "Timing", "Responsible for Criteria", "Responsible for Approval"];
+        const lines = dicionarios.map(d => [
+            d.wbs_item.wbs_area.name,
+            d.wbs_item.name,
+            d.description,
+            d.purpose,
+            d.premises,
+            d.restrictions,
+            d.resources,
+            d.criteria,
+            d.inspection,
+            d.timing,
+            d.responsible,
+            d.approval_responsible
+        ]);
+        exportCSV(headers, lines, "wbs_dictionary");
+    }, [dicionarios, exportCSV]);
+
+    useEffect(() => {
+        setHelpClick(() => () => setShowHelp(true));
+        setExportCSVClick(() => exportToCSV);
+
+        return (() => {
+            setHelpClick(null);
+            setExportCSVClick(null);
+        })
+    }, [dicionarios, exportToCSV]);
+
     const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
             var getDeleteSuccess = false;
@@ -57,9 +95,8 @@ const TabelaContent = () => {
             {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
             <h2 className="smallTitle">
                 WBS Dictionary
-                <button onClick={() => setShowHelp(true)}>❔</button>
             </h2>
-            
+
             {exibirModal != null && (
                 <Modal objeto={{
                     titulo: modalLabels[exibirModal],
@@ -124,7 +161,7 @@ const TabelaContent = () => {
 const Index = () => {
     return (
         <DictionaryProvider>
-            <TabelaContent/>
+            <TabelaContent />
         </DictionaryProvider>
     )
 };

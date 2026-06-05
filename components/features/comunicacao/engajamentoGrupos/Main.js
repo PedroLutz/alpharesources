@@ -4,7 +4,11 @@ import Modal from "../../../ui/Modal";
 import Loading from "../../../ui/Loading";
 import HelpBubble from "../../../ui/HelpBubble/comunicacao/EngajamentoGrupos";
 import { EngajamentoGruposProvider, useEngajamentoGrupos } from "./data/EngajamentoGruposContext";
-import EngajamentoGrupoBlock from "./blocks/EngajamentoGrupoBlock";
+import EngajamentoGrupoBlock, { capitalizeFirstLetter, generateMapping } from "./blocks/EngajamentoGrupoBlock";
+import { useToolbar } from "../../../../hooks/useToolbar";
+import { useCallback } from "react";
+import { useEffect } from "react";
+import exportCSV from "../../../../functions/exportCsv";
 
 const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',
@@ -18,6 +22,64 @@ const Tabela = () => {
     const { groupEngagements, fetchData, isLoading } = useEngajamentoGrupos();
     const [exibirModal, setExibirModal] = useState(null);
     const [showHelp, setShowHelp] = useState(false);
+
+    const { setExportCSVClick, setHelpClick } = useToolbar();
+
+    const exportToCSV = useCallback(() => {
+        const headers = ["Stakeholder Group", "Dependency",
+            "Influence", "Resource Control", "Avg.", "Impact",
+            "Engagement", "Alignment of Values", "Avg.", "Mapping", "Current Engagement Level", "Expected Engagement Level"];
+
+        const lines = groupEngagements.map(engajamento => {
+            let powerAvg;
+            if (engajamento?.control == null || engajamento?.influence == null || engajamento?.dependency == null) {
+                powerAvg = "-";
+            } else {
+                powerAvg = ((
+                    (engajamento?.control ?? 0) +
+                    (engajamento?.influence ?? 0) +
+                    (engajamento?.dependency ?? 0)
+                ) / 3).toFixed(2);
+            }
+
+            let influenceAvg;
+            if (engajamento?.impact == null || engajamento?.engagement == null || engajamento?.alignment == null) {
+                influenceAvg = "-";
+            } else {
+                influenceAvg = ((
+                    (engajamento?.impact ?? 0) +
+                    (engajamento?.engagement ?? 0) +
+                    (engajamento?.alignment ?? 0)
+                ) / 3).toFixed(2);
+            }
+
+            return [
+                `"${engajamento.stakeholder_group.group}"`,
+                `"${engajamento.dependency}"`,
+                `"${engajamento.influence}"`,
+                `"${engajamento.control}"`,
+                `"${powerAvg}"`,
+                `"${engajamento.impact}"`,
+                `"${engajamento.engagement}"`,
+                `"${engajamento.alignment}"`,
+                `"${influenceAvg}"`,
+                `"${generateMapping(engajamento)}"`,
+                `"${capitalizeFirstLetter(engajamento.eng_level)}"`,
+                `"${capitalizeFirstLetter(engajamento.eng_target_level)}"`,
+            ]
+        });
+        exportCSV(headers, lines, "stakeholder_group_engagement");
+    }, [groupEngagements, exportCSV]);
+
+    useEffect(() => {
+        setHelpClick(() => () => setShowHelp(true));
+        setExportCSVClick(() => exportToCSV);
+
+        return (() => {
+            setHelpClick(null);
+            setExportCSVClick(null);
+        })
+    }, [groupEngagements, exportToCSV]);
 
     return (
         <div className="centered-container">

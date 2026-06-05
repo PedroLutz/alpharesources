@@ -44,23 +44,12 @@ const Tabela = () => {
 
     const { setHelpClick, setExportCSVClick } = useToolbar();
 
-    useEffect(() => {
-        setHelpClick(() => () => setShowHelp(true));
-        setExportCSVClick(() => exportToCSV);
-
-        return (() => {
-            setHelpClick(null);
-            setExportCSVClick(null);
-        })
-    }, [habilidades, exportCSV]);
-
     const exportToCSV = useCallback(() => {
         const headers = [
             "Area", "Role", "Responsible",
             "Skill", "Current Skill Level",
             "Desired Skill Level", "Development Action"
         ];
-        console.log(habilidades)
         const lines = habilidades.map(h => [
             `"${h?.role?.wbs_area?.reduce((acc, cur) => {
                 if (acc == "") return acc + cur.name;
@@ -75,7 +64,17 @@ const Tabela = () => {
         ]
         )
         exportCSV(headers, lines, "skills");
-    }, [exportCSV, habilidades])
+    }, [exportCSV, habilidades]);
+
+    useEffect(() => {
+        setHelpClick(() => () => setShowHelp(true));
+        setExportCSVClick(() => exportToCSV);
+
+        return (() => {
+            setHelpClick(null);
+            setExportCSVClick(null);
+        })
+    }, [habilidades, exportToCSV]);
 
     const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
@@ -95,7 +94,7 @@ const Tabela = () => {
         <div className="centered-container">
             {isLoading && <Loading />}
             {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
-            <h2 className="smallTitle">Skill evaluation <button onClick={() => setShowHelp(true)}>❔</button></h2>
+            <h2 className="smallTitle">Skill evaluation</h2>
 
             {exibirModal != null && (
                 <Modal objeto={{

@@ -13,11 +13,22 @@ import KpiAnalysis from "./blocks/KpiAnalysis";
 import AreaAnalysis from "./blocks/AreaAnalysis";
 import PredictionsOfFuture from "./blocks/PredictionsOfFuture";
 import ProjectChanges from "./blocks/ProjectChanges";
+import { useToolbar } from "../../../hooks/useToolbar";
 
 const Relatorio = () => {
     const [exibirModal, setExibirModal] = useState(false);
     const [showHelp, setShowHelp] = useState(false);
-    const {styles, setIsLoading, isLoading, showReport } = useReport();
+    const { styles, setIsLoading, isLoading, showReport } = useReport();
+
+    const { setHelpClick } = useToolbar();
+
+    useEffect(() => {
+        setHelpClick(() => () => setShowHelp(true));
+
+        return (() => {
+            setHelpClick(null);
+        })
+    }, [setShowHelp]);
 
     const [teamLogo, setTeamLogo] = useState(null);
     const relatorioRef = useRef(null);
@@ -32,12 +43,12 @@ const Relatorio = () => {
     return (
         <div className="centered-container">
 
-            <h2 className="smallTitle">Status Report Generator <button onClick={() => setShowHelp(true)}>❔</button></h2>
+            <h2 className="smallTitle">Status Report Generator</h2>
 
             {isLoading && <Loading />}
             {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
 
-            <Menu handleExportPDF={handleExportPDF} setTeamLogo={setTeamLogo}/>
+            <Menu handleExportPDF={handleExportPDF} setTeamLogo={setTeamLogo} />
 
             {showReport && (
                 <div className={styles.report_container}>
@@ -45,11 +56,11 @@ const Relatorio = () => {
                         <div className={styles.report} id="innerReport">
                             <ProjectInformation teamLogo={teamLogo} />
                             <TaskAnalysis />
-                            <WorkCompletedVsResources/>
-                            <KpiAnalysis/>
-                            <AreaAnalysis/>
-                            <PredictionsOfFuture/>
-                            <ProjectChanges/>
+                            <WorkCompletedVsResources />
+                            <KpiAnalysis />
+                            <AreaAnalysis />
+                            <PredictionsOfFuture />
+                            <ProjectChanges />
                         </div>
                     </div>
                 </div>

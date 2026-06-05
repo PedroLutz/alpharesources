@@ -35,17 +35,7 @@ const Tabela = () => {
   const [showHelp, setShowHelp] = useState(false);
 
   const { setExportCSVClick, setHelpClick } = useToolbar();
-
-  useEffect(() => {
-    setHelpClick(() => () => setShowHelp(true));
-    setExportCSVClick(() => exportToCSV);
-
-    return (() => {
-      setHelpClick(null);
-      setExportCSVClick(null);
-    })
-  }, [itensRaci, exportCSV]);
-
+  
   const exportToCSV = useCallback(() => {
     const headers = ["Area", "Item"];
     nomesMembros.forEach(m => {
@@ -67,6 +57,17 @@ const Tabela = () => {
     )
     exportCSV(headers, lines, "raci");
   }, [itensRaci, exportCSV]);
+
+  useEffect(() => {
+    setHelpClick(() => () => setShowHelp(true));
+    setExportCSVClick(() => exportToCSV);
+    
+    return (() => {
+      setHelpClick(null);
+      setExportCSVClick(null);
+    })
+  }, [itensRaci, exportToCSV]);
+
 
   const handleConfirmDelete = async () => {
     if (confirmDeleteItem) {
@@ -93,7 +94,7 @@ const Tabela = () => {
     <div className="centered-container">
       {isLoading && <Loading />}
       {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
-      <h2 className="smallTitle">RACI Matrix <button onClick={() => setShowHelp(true)}>❔</button></h2>
+      <h2 className="smallTitle">RACI Matrix</h2>
       <button className="botao-bonito" style={{ width: '9rem' }} onClick={() => setVerOpcoes(!verOpcoes)}>Toggle options</button>
       {nomesMembros?.length == 0 ? (
         <div className={styles.no_members} style={{ marginBottom: '1rem' }}>

@@ -130,7 +130,7 @@ const AnaliseBlock = ({ analise, index,
                     <td>{analise.urgency}</td>
                     <td style={{ backgroundColor: rpnBackgroundColor }}>{riskPriorityNumber}</td>
                     <td>{financialImpactLabel}</td>
-                    <td>{emv}</td>
+                    <td>R${emv}</td>
                     <td>{scheduleImpactLabel}</td>
                     <td>{eti}</td>
                     <td className='botoes_acoes'>

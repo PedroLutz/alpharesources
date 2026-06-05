@@ -13,6 +13,9 @@ import { AnaliseProvider, useAnalise } from "./data/AnaliseContext";
 import NewAnaliseCreator from "./forms/NewAnaliseCreator";
 import AnaliseBlock from "./blocks/AnaliseBlock";
 import AssessmentMatrix from "./blocks/AssessmentMatrix";
+import { useCallback } from "react";
+import { useToolbar } from "../../../../hooks/useToolbar";
+import exportCSV from "../../../../functions/exportCsv";
 
 const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',
@@ -33,6 +36,53 @@ const TabelaAnalise = () => {
     const [updatingLine, setUpdatingLine] = useState(false);
     const [seeArea, setSeeArea] = useState(false);
     const [showHelp, setShowHelp] = useState(false);
+
+    const { setExportCSVClick, setHelpClick } = useToolbar();
+
+    const exportToCSV = useCallback(() => {
+        const headers = ["Area", "Item", "Risk",
+            "Occurrence", "Impact", "Action", "Urgency", "RPN", "Financial Impact",
+            "Estimated Monetary Value", "Schedule Impact", "Estimated Time Impact"];
+        const lines = analises.map(analise => {
+
+            const riskPriorityNumber = analise.occurrence * analise.impact * analise.action * analise.urgency;
+
+            const financialImpact = analise?.financial_impact ?? 0;
+            const financialImpactLabel = financialImpact != 0 ? `R$${financialImpact.toFixed(2)}` : '-';
+            const emv = ((financialImpact ?? 0) * (analise.occurrence / 5)).toFixed(2);
+
+            const scheduleImpact = analise?.schedule_impact;
+            const hasScheduleImpact = scheduleImpact != 0 && scheduleImpact != null;
+            const scheduleImpactLabel = hasScheduleImpact ? `${scheduleImpact} days` : '-';
+            const eti = hasScheduleImpact ? `${(scheduleImpact * (analise.occurrence / 5)).toFixed()} days` : '-';
+
+            return [
+                `"${analise.risk?.wbs_item?.wbs_area.name || "Others"}"`,
+                `"${analise.risk?.wbs_item?.name || "Others"}"`,
+                `"${analise.risk?.risk || "Others"}"`,
+                `"${analise.occurrence}"`,
+                `"${analise.impact}"`,
+                `"${analise.action}"`,
+                `"${analise.urgency}"`,
+                `"${riskPriorityNumber}"`,
+                `"${financialImpactLabel}"`,
+                `"R$${emv}"`,
+                `"${scheduleImpactLabel}"`,
+                `"${eti}"`,
+            ]
+        });
+        exportCSV(headers, lines, "risk_analysis");
+    }, [analises, exportCSV]);
+
+    useEffect(() => {
+        setHelpClick(() => () => setShowHelp(true));
+        setExportCSVClick(() => exportToCSV);
+
+        return (() => {
+            setHelpClick(null);
+            setExportCSVClick(null);
+        })
+    }, [analises, exportToCSV]);
 
     const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
@@ -125,7 +175,7 @@ const TabelaAnalise = () => {
                     </table>
                 </div>
             </div>
-            <AssessmentMatrix/>
+            <AssessmentMatrix />
         </div>
     )
 };

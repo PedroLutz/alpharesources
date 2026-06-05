@@ -12,6 +12,9 @@ import HelpBubble from "../../../ui/HelpBubble/comunicacao/Informacao";
 import { InformacaoProvider, useInformacao } from "./data/InformacaoContext";
 import NewInformacaoCreator from "./forms/NewInformacaoCreator";
 import InformacaoBlock from "./blocks/InformacaoBlock";
+import { useCallback } from "react";
+import exportCSV from "../../../../functions/exportCsv";
+import { useToolbar } from "../../../../hooks/useToolbar";
 
 const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',
@@ -30,6 +33,37 @@ const Tabela = () => {
     const [exibirModal, setExibirModal] = useState(null);
     const [updatingLine, setUpdatingLine] = useState(false);
     const [showHelp, setShowHelp] = useState(false);
+
+    const { setExportCSVClick, setHelpClick } = useToolbar();
+    
+        const exportToCSV = useCallback(() => {
+            const headers = ["Stakeholder Group", "Stakeholder",
+                "Information", "Method", "Frequency", "Channel",
+                "Responsible", "Record", "Feedback", "Action taken"];
+            const lines = informacoes.map(i => [
+                `"${i.stakeholder.stakeholder_group.group}"`,
+                `"${i.stakeholder.stakeholder}"`,
+                `"${i.information}"`,
+                `"${i.method}"`,
+                `"${i.frequency}"`,
+                `"${i.channel}"`,
+                `"${i.member?.name || 'Circunstancial'}"`,
+                `"${i.register || "-"}"`,
+                `"${i?.feedback || '-'}"`,
+                `"${i?.action || "-"}"`,
+            ]);
+            exportCSV(headers, lines, "communicated_information");
+        }, [informacoes, exportCSV]);
+    
+        useEffect(() => {
+            setHelpClick(() => () => setShowHelp(true));
+            setExportCSVClick(() => exportToCSV);
+    
+            return (() => {
+                setHelpClick(null);
+                setExportCSVClick(null);
+            })
+        }, [informacoes, exportToCSV]);
 
     //funcao que envia os dados para atualizacao no backend
     const handleConfirmDelete = async () => {
@@ -54,7 +88,7 @@ const Tabela = () => {
         <div className="centered-container">
             {isLoading && <Loading />}
             {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
-            <h2 className="smallTitle">Communicated Information <button onClick={() => setShowHelp(true)}>❔</button></h2>
+            <h2 className="smallTitle">Communicated Information</h2>
 
             {exibirModal != null && (
                 <Modal objeto={{

@@ -8,13 +8,48 @@ import HelpBubble from "../../../ui/HelpBubble/comunicacao/Grupos";
 import { GruposProvider, useGrupos } from "./data/GruposContext";
 import NewGrupoCreator from "./forms/NewGrupoCreator";
 import GroupBlock from "./blocks/GroupBlock";
+import { useToolbar } from "../../../../hooks/useToolbar";
+import exportCSV from "../../../../functions/exportCsv";
+import { useCallback } from "react";
+import { useEffect } from "react";
 
 const Tabela = () => {
     const { token } = useAuth();
-    const {groups, isLoading, fetchData} = useGrupos();
+    const { groups, isLoading, fetchData } = useGrupos();
     const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
     const [exibirModal, setExibirModal] = useState(null);
     const [showHelp, setShowHelp] = useState(false);
+
+    const { setExportCSVClick, setHelpClick } = useToolbar();
+
+    const exportToCSV = useCallback(() => {
+        const headers = ["Stakeholder Group", "Involvement",
+            "Potential Influence", "Potential Impact", "Power", "Interest",
+            "Expectations", "Requisites", "Positive Engagement", "Negative Engagement"];
+        const lines = groups.map(group => [
+            `"${group.group}"`,
+            `"${group.involvement}"`,
+            `"${group.influence}"`,
+            `"${group.impact}"`,
+            `"${group.power}"`,
+            `"${group.interest}"`,
+            `"${group.expectations}"`,
+            `"${group.requisites}"`,
+            `"${group.positive_eng}"`,
+            `"${group.negative_eng}"`,
+        ]);
+        exportCSV(headers, lines, "stakeholder_groups");
+    }, [groups, exportCSV]);
+
+    useEffect(() => {
+        setHelpClick(() => () => setShowHelp(true));
+        setExportCSVClick(() => exportToCSV);
+
+        return (() => {
+            setHelpClick(null);
+            setExportCSVClick(null);
+        })
+    }, [groups, exportToCSV]);
 
     const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
@@ -40,8 +75,8 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {isLoading && <Loading />}
-            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
-            <h2 className="smallTitle">Stakeholder Groups <button onClick={()=> setShowHelp(true)}>❔</button></h2>
+            {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
+            <h2 className="smallTitle">Stakeholder Groups</h2>
             {exibirModal != null && (
                 <Modal objeto={{
                     titulo: modalLabels[exibirModal],
@@ -111,10 +146,10 @@ const Tabela = () => {
 const Main = () => {
     return (
         <GruposProvider>
-            <Tabela/>
+            <Tabela />
         </GruposProvider>
     )
-    
+
 }
 
 export default Main;

@@ -11,7 +11,10 @@ import HelpBubble from "../../../ui/HelpBubble/risco/Impacto";
 import { getTextColor } from "../../../../functions/colors";
 import { ImpactoProvider, useImpacto } from "./data/ImpactoContext";
 import NewImpactoCreator from "./forms/NewImpactoCreator";
-import ImpactoBlock from "./blocks/ImpactoBlock";
+import ImpactoBlock, { capitalizeFirstLetter } from "./blocks/ImpactoBlock";
+import { useToolbar } from "../../../../hooks/useToolbar";
+import exportCSV from "../../../../functions/exportCsv";
+import { useCallback } from "react";
 
 const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',
@@ -33,6 +36,37 @@ const TabelaImpacto = () => {
     const [seeArea, setSeeArea] = useState(false);
     const [showHelp, setShowHelp] = useState(false);
 
+    const { setExportCSVClick, setHelpClick } = useToolbar();
+
+    const exportToCSV = useCallback(() => {
+        const headers = ["Area", "Item", "Risk", "Area of impact", "Score", "Description"];
+        const lines = impactos.map(risco => {
+            const { risk } = impacto;
+            const { wbs_item } = risk ?? {};
+            const { wbs_area } = wbs_item ?? {};
+
+            return [
+                `"${wbs_area?.name || "Others"}"`,
+                `"${wbs_item?.name || 'Others'}"`,
+                `"${risco.risk}"`,
+                `"${capitalizeFirstLetter(impacto.impact_area)}"`,
+                `"${impacto.score}"`,
+                `"${impacto.description}"`,
+            ]
+        });
+        exportCSV(headers, lines, "risk_impact");
+    }, [impactos, exportCSV]);
+
+    useEffect(() => {
+        setHelpClick(() => () => setShowHelp(true));
+        setExportCSVClick(() => exportToCSV);
+
+        return (() => {
+            setHelpClick(null);
+            setExportCSVClick(null);
+        })
+    }, [impactos, exportToCSV]);
+
     const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
             await handleReq({
@@ -51,7 +85,7 @@ const TabelaImpacto = () => {
         <div className="centered-container">
             {isLoading && <Loading />}
             {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
-            <h2 className="smallTitle">Risk Impact Analysis <button onClick={() => setShowHelp(true)}>❔</button></h2>
+            <h2 className="smallTitle">Risk Impact Analysis</h2>
             <button className="botao-bonito" style={{ marginBottom: '1rem', width: 'fit-content' }}
                 onClick={() => { !updatingRisk && setSeeArea(!seeArea) }}
             >See areas and items</button>
@@ -108,7 +142,7 @@ const TabelaImpacto = () => {
                                     setExibirModal={setExibirModal}
                                     setConfirmDeleteItem={setConfirmDeleteItem}
                                 />
-                                
+
                             ))}
                             <NewImpactoCreator
                                 setExibirModal={setExibirModal}

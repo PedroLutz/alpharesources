@@ -7,14 +7,19 @@ import { handleReq } from '../../../../functions/crud_s';
 import HelpBubble from "../../../ui/HelpBubble/recursos/Recurso";
 import { RecursoProvider, useRecurso } from "./RecursoContext";
 import NewRecursoCreator from "./forms/NewRecursoCreator";
-import RecursoBlock from "./blocks/RecursoBlock";
+import RecursoBlock, { labelsTypes } from "./blocks/RecursoBlock";
+import { useCallback } from "react";
+import exportCSV from "../../../../functions/exportCsv";
+import { useEffect } from "react";
+import { useToolbar } from "../../../../hooks/useToolbar";
 
 const Tabela = () => {
     const {
         recursos,
         setIsLoading,
         isLoading,
-        refetchData
+        refetchData,
+        datasPlanos
     } = useRecurso();
 
     const { token } = useAuth();
@@ -22,6 +27,35 @@ const Tabela = () => {
     const [exibirModal, setExibirModal] = useState(null);
     const [updatingLine, setUpdatingLine] = useState(null);
     const [showHelp, setShowHelp] = useState(false);
+
+    const { setExportCSVClick, setHelpClick } = useToolbar();
+
+    const exportToCSV = useCallback(() => {
+        const headers = ["Area", "Item", "Resource",
+            "Usage", "Type", "Utilization Forecast", "Essential?"];
+        const lines = recursos.map(recurso => {
+            return [
+                `"${recurso.wbs_item?.wbs_area.name || "Others"}"`,
+                `"${recurso.wbs_item?.name || "Others"}"`,
+                `"${recurso.resource}"`,
+                `"${recurso.usage}"`,
+                `"${labelsTypes[recurso.type]}"`,
+                `"${datasPlanos?.get(recurso?.wbs_item?.id) || "-"}"`,
+                `"${recurso.is_essential ? 'Yes' : 'No'}"`,
+            ]
+        });
+        exportCSV(headers, lines, "resource_identification");
+    }, [recursos, exportCSV]);
+
+    useEffect(() => {
+        setHelpClick(() => () => setShowHelp(true));
+        setExportCSVClick(() => exportToCSV);
+
+        return (() => {
+            setHelpClick(null);
+            setExportCSVClick(null);
+        })
+    }, [recursos, exportToCSV]);
 
     //funcao que envia o id para delecao
     const handleConfirmDelete = async () => {
@@ -49,11 +83,11 @@ const Tabela = () => {
     return (
         <div className="centered-container">
             {isLoading && <Loading />}
-            {showHelp && <HelpBubble setShowHelp={setShowHelp}/>}
-            
+            {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
+
             <h2 className="smallTitle">
-                Resource Identification 
-                <button onClick={()=> setShowHelp(true)}>❔</button>
+                Resource Identification
+                <button onClick={() => setShowHelp(true)}>❔</button>
             </h2>
 
             {exibirModal != null && (
@@ -97,7 +131,7 @@ const Tabela = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {recursos.map((recurso, index) => ( 
+                            {recursos.map((recurso, index) => (
                                 <RecursoBlock
                                     key={recurso.id}
                                     index={index}
@@ -122,7 +156,7 @@ const Tabela = () => {
 const Main = () => {
     return (
         <RecursoProvider>
-            <Tabela/>
+            <Tabela />
         </RecursoProvider>
     )
 }

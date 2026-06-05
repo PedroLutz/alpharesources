@@ -22,16 +22,6 @@ const Tabela = () => {
 
     const { setExportCSVClick, setHelpClick } = useToolbar();
 
-    useEffect(() => {
-        setHelpClick(() => () => setShowHelp(true));
-        setExportCSVClick(() => exportToCSV);
-
-        return (() => {
-            setHelpClick(null);
-            setExportCSVClick(null);
-        })
-    }, [funcoes, exportCSV]);
-
     const exportToCSV = useCallback(() => {
         const headers = ["Role", "Description", "Required Skills", "Responsible", "WBS Area"];
         const lines = funcoes.map(f => [
@@ -44,6 +34,16 @@ const Tabela = () => {
         )
         exportCSV(headers, lines, "roles");
     }, [funcoes, exportCSV]);
+
+    useEffect(() => {
+        setHelpClick(() => () => setShowHelp(true));
+        setExportCSVClick(() => exportToCSV);
+
+        return (() => {
+            setHelpClick(null);
+            setExportCSVClick(null);
+        })
+    }, [funcoes, exportToCSV]);
 
     const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {
@@ -70,7 +70,7 @@ const Tabela = () => {
         <div className="centered-container">
             {isLoading && <Loading />}
             {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
-            <h2 className="smallTitle">Roles <button onClick={() => setShowHelp(true)}>❔</button></h2>
+            <h2 className="smallTitle">Roles</h2>
 
             {exibirModal != null && (
                 <Modal objeto={{

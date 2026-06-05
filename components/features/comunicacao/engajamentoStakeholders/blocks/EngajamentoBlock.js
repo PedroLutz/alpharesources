@@ -7,10 +7,10 @@ import CadastroInputs from "../forms/Inputs";
 import styles from '../../../../../styles/modules/comunicacao.module.css'
 import { calculateRowSpan } from "../../../../../functions/general";
 
-const generateMapping = (p, i) => {
+export const generateMapping = (p, i) => {
     if (p) {
         if (i) {
-            return "Close Management"
+            return "Close management"
         } else {
             return "Keep satisfied"
         }
@@ -23,7 +23,7 @@ const generateMapping = (p, i) => {
     }
 }
 
-function capitalizeFirstLetter(str) {
+export function capitalizeFirstLetter(str) {
     if (typeof str !== 'string' || str.length === 0) {
         return str;
     }

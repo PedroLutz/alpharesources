@@ -29,17 +29,7 @@ const Tabela = () => {
     const [showHelp, setShowHelp] = useState(false);
 
     const { setExportCSVClick, setHelpClick } = useToolbar();
-
-    useEffect(() => {
-        setHelpClick(() => () => setShowHelp(true));
-        setExportCSVClick(() => exportToCSV);
-
-        return (() => {
-            setHelpClick(null);
-            setExportCSVClick(null);
-        })
-    }, [membros, exportCSV]);
-
+    
     const exportToCSV = useCallback(() => {
         const headers = ["Name", "Softskills", "Hardskills"];
         const lines = membros.map(m => [ 
@@ -50,6 +40,17 @@ const Tabela = () => {
         )
         exportCSV(headers, lines, "members");
     }, [membros, exportCSV]);
+    
+    useEffect(() => {
+        setHelpClick(() => () => setShowHelp(true));
+        setExportCSVClick(() => exportToCSV);
+
+        return (() => {
+            setHelpClick(null);
+            setExportCSVClick(null);
+        })
+    }, [membros, exportToCSV]);
+
 
     const handleConfirmDelete = async () => {
         if (confirmDeleteItem) {

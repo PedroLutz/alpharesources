@@ -6,7 +6,10 @@ import Loading from "../../../ui/Loading";
 import { cleanForm } from "../../../../functions/general";
 import HelpBubble from "../../../ui/HelpBubble/comunicacao/Engajamento";
 import { EngajamentosProvider, useEngajamentos } from "./data/EngajamentosContext";
-import EngajamentoBlock from "./blocks/EngajamentoBlock";
+import EngajamentoBlock, { capitalizeFirstLetter, generateMapping } from "./blocks/EngajamentoBlock";
+import { useCallback } from "react";
+import { useToolbar } from "../../../../hooks/useToolbar";
+import exportCSV from "../../../../functions/exportCsv";
 
 const modalLabels = {
     'inputsVazios': 'Fill out all fields before adding new data!',
@@ -20,11 +23,39 @@ const Tabela = () => {
     const [updatingGroup, setUpdatingGroup] = useState(false);
     const [showHelp, setShowHelp] = useState(false);
 
+    const { setExportCSVClick, setHelpClick } = useToolbar();
+
+    const exportToCSV = useCallback(() => {
+        const headers = ["Stakeholder Group", "Stakeholder",
+            "Power", "Interest", "Mapping", "Current Engagement Level",
+            "Expected Engagement Level"];
+        const lines = engajamentos.map(engajamento => [
+            `"${engajamento?.stakeholder?.stakeholder_group?.group}"`,
+            `"${engajamento.stakeholder?.stakeholder}"`,
+            `"${engajamento.stakeholder?.power ? 'High' : 'Low'}"`,
+            `"${engajamento.stakeholder?.interest ? 'High' : 'Low'}"`,
+            `"${generateMapping(engajamento.stakeholder?.power, engajamento.stakeholder?.interest)}"`,
+            `"${capitalizeFirstLetter(engajamento.eng_level)}"`,
+            `"${capitalizeFirstLetter(engajamento.eng_target_level)}"`,
+        ]);
+        exportCSV(headers, lines, "stakeholder_engagement");
+    }, [engajamentos, exportCSV]);
+
+    useEffect(() => {
+        setHelpClick(() => () => setShowHelp(true));
+        setExportCSVClick(() => exportToCSV);
+
+        return (() => {
+            setHelpClick(null);
+            setExportCSVClick(null);
+        })
+    }, [engajamentos, exportToCSV]);
+
     return (
         <div className="centered-container">
             {isLoading && <Loading />}
             {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
-            <h2 className="smallTitle">Stakeholder Engagement Matrix <button onClick={() => setShowHelp(true)}>❔</button></h2>
+            <h2 className="smallTitle">Stakeholder Engagement Matrix</h2>
             {exibirModal != null && (
                 <Modal objeto={{
                     titulo: modalLabels[exibirModal],
