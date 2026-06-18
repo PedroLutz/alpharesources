@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { handleFetch } from "../../../../functions/crud_s";
-import useAuth from '../../../../hooks/useAuth';
+import { handleFetch } from "../../../../../functions/crud_s";
+import useAuth from '../../../../../hooks/useAuth';
 
 export const useWbsData = () => {
     const { user, token } = useAuth();

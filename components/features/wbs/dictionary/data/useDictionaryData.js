@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { handleFetch } from "../../../../functions/crud_s";
-import useAuth from '../../../../hooks/useAuth';
+import { handleFetch } from "../../../../../functions/crud_s";
+import useAuth from '../../../../../hooks/useAuth';
 
 export const useDictionaryData = () => {
     const { user, token } = useAuth();
@@ -9,7 +9,7 @@ export const useDictionaryData = () => {
     const [elementosWBS, setElementosWBS] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    const fetchData = useCallback(async () => { //callback memoizes the function, avoiding re-renders
+    const fetchData = useCallback(async () => {
         setIsLoading(true);
         try {
             const [dicionarioRes, itemsRes] = await Promise.all([
@@ -26,12 +26,29 @@ export const useDictionaryData = () => {
         }
     }, [user?.id, token]);
 
-    const [areasSet, itensSet] = useMemo(() => {
+    const [areasSet, areasNames, itensSet, itensNames] = useMemo(() => {
         return [
             new Set(dicionarios.map(d => d.wbs_item.wbs_area.id)), 
-            new Set(dicionarios.map(d => d.wbs_item.id))
+            new Set(dicionarios.map(d => d.wbs_item.wbs_area.name)),
+            new Set(dicionarios.map(d => d.wbs_item.id)),
+            new Map(dicionarios.map(d => [d.wbs_item.name, d.wbs_item.id]))
         ]
-    }, [dicionarios])
+    }, [dicionarios]);
+
+    const elementosWBSMap = useMemo(() => {
+        const areas = new Map();
+
+        elementosWBS.forEach(e => {
+            const areaName = e.wbs_area.name;
+            
+            if (!areas.has(areaName)) {
+                areas.set(areaName, new Map());
+            }
+            areas.get(areaName).set(e.name, e.id);
+        });
+
+        return areas;
+    }, [elementosWBS])
 
     useEffect(() => {
         if (user?.id && token) {
@@ -43,6 +60,8 @@ export const useDictionaryData = () => {
         dicionarios,
         elementosWBS,
         areasSet, itensSet,
+        areasNames, itensNames,
+        elementosWBSMap,
         isLoading,
         setIsLoading,
         refetchData: fetchData,

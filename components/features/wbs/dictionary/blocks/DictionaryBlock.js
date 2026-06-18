@@ -5,7 +5,7 @@ import Inputs from "../forms/InputsContainer";
 import styles from '../../../../../styles/modules/wbs.module.css'
 import { getTextColor } from "../../../../../functions/colors";
 import { handleReq } from "../../../../../functions/crud_s";
-import { useDictionary } from "../DictionaryContext";
+import { useDictionary } from "../data/DictionaryContext";
 import { useEffect } from "react";
 import { calculateRowSpan } from "../../../../../functions/general";
 

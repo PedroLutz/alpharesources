@@ -5,14 +5,16 @@ import Loading from "../../../ui/Loading";
 import { handleReq } from '../../../../functions/crud_s';
 import useAuth from "../../../../hooks/useAuth";
 import HelpBubble from "../../../ui/HelpBubble/wbs/wbsDictionary";
-import { useDictionary } from "./DictionaryContext";
+import { useDictionary } from "./data/DictionaryContext";
 import NewDictionaryCreator from "./forms/NewDictionaryCreator";
 import DictionaryBlock from "./blocks/DictionaryBlock";
-import { DictionaryProvider } from "./DictionaryContext";
+import { DictionaryProvider } from "./data/DictionaryContext";
 import { useCallback } from "react";
 import { useToolbar } from "../../../../hooks/useToolbar";
 import exportCSV from "../../../../functions/exportCSV";
 import { useEffect } from "react";
+import { importCSV } from "../../../../functions/importCSV";
+import { ImportContainer } from "./data/import/ImportContainer";
 
 const TabelaContent = () => {
     const { token } = useAuth();
@@ -32,8 +34,9 @@ const TabelaContent = () => {
     };
 
     const [showHelp, setShowHelp] = useState(false);
+    const [showImportContainer, setShowImportContainer] = useState(false);
 
-    const { setExportCSVClick, setHelpClick } = useToolbar();
+    const { setExportCSVClick, setHelpClick, setImportCSVClick } = useToolbar();
 
     const exportToCSV = useCallback(() => {
         const headers = ["Area", "Item",
@@ -60,10 +63,12 @@ const TabelaContent = () => {
     useEffect(() => {
         setHelpClick(() => () => setShowHelp(true));
         setExportCSVClick(() => exportToCSV);
+        setImportCSVClick(() => () => setShowImportContainer(true));
 
         return (() => {
             setHelpClick(null);
             setExportCSVClick(null);
+            setImportCSVClick(null);
         })
     }, [dicionarios, exportToCSV]);
 
@@ -96,6 +101,8 @@ const TabelaContent = () => {
             <h2 className="smallTitle">
                 WBS Dictionary
             </h2>
+
+            {showImportContainer && <ImportContainer setHide={() => setShowImportContainer(false)}/>}
 
             {exibirModal != null && (
                 <Modal objeto={{
@@ -142,6 +149,7 @@ const TabelaContent = () => {
                         <tbody>
                             {dicionarios.map((item, index) => (
                                 <DictionaryBlock
+                                    key={item.id}
                                     item={item}
                                     index={index}
                                     setConfirmDeleteItem={setConfirmDeleteItem}

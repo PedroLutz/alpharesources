@@ -3,7 +3,7 @@ import InputContainer from "./InputContainer";
 import useAuth from "../../../../../hooks/useAuth";
 import styles from "../../../../../styles/modules/wbs.module.css"
 import { handleReq } from "../../../../../functions/crud_s";
-import { useWbs } from "../WbsContext";
+import { useWbs } from "../data/WbsContext";
 
 const NewAreaCreator = ({ setExibirModal }) => {
     const {areas, refetchData} = useWbs();

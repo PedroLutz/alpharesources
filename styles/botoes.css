@@ -52,6 +52,8 @@
 
 .botoes_acoes{
     min-width: 5rem;
+    text-align: center;
+    align-items: center;
 }
 
 .botoes_acoes button {

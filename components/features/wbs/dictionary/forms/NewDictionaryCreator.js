@@ -2,7 +2,7 @@ import { useState } from "react";
 import useAuth from "../../../../../hooks/useAuth";
 import CadastroInputs from "./InputsContainer"
 import { handleReq } from "../../../../../functions/crud_s";
-import { useDictionary } from "../DictionaryContext";
+import { useDictionary } from "../data/DictionaryContext";
 
 const NewDictionaryCreator = ({setExibirModal}) => {
     const {refetchData} = useDictionary();

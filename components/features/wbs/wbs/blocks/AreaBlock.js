@@ -5,7 +5,7 @@ import styles from "../../../../../styles/modules/wbs.module.css"
 import InputContainer from "../forms/InputContainer";
 import { getTextColor } from "../../../../../functions/colors";
 import { handleReq } from "../../../../../functions/crud_s";
-import { useWbs } from "../WbsContext";
+import { useWbs } from "../data/WbsContext";
 
 const AreaBlock = ({ area, setExibirModal, setDeleteAreaConfirm }) => {
     const {setIsLoading, refetchData} = useWbs();

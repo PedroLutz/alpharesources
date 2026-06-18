@@ -2,7 +2,7 @@ import { useState } from "react";
 import InputContainer from "./InputContainer";
 import useAuth from "../../../../../hooks/useAuth";
 import { handleReq } from "../../../../../functions/crud_s";
-import { useWbs } from "../WbsContext";
+import { useWbs } from "../data/WbsContext";
 
 const NewItemCreator = ({ area, setExibirModal }) => {
     const {items, refetchData} = useWbs();

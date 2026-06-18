@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styles from '../../../../../styles/modules/wbs.module.css'
 import usePerm from '../../../../../hooks/usePerm';
-import { useDictionary } from '../DictionaryContext';
+import { useDictionary } from '../data/DictionaryContext';
 
 const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, area_id, backgroundColor }) => {
     const { isEditor } = usePerm();
@@ -149,7 +149,8 @@ const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, area_id, backgr
                         </select>
                     </td>
 
-                </>}
+                </>
+            }
 
             <td className={styles.td_descricao}>
                 <textarea type='text'
@@ -242,7 +243,7 @@ const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, area_id, backgr
                     onChange={handleChange}
                     ref={el => (camposRef.current.approval_responsible = el)} />
             </td>
-            <td className={tipo === 'update' && 'botoes_acoes'} style={{backgroundColor: tipo === "submit" && "white"}}>
+            <td className={tipo === 'update' ? 'botoes_acoes' : undefined} style={{backgroundColor: tipo === "submit" && "white"}}>
                 {tipo !== 'update' ? (
                     <button onClick={handleSubmit} disabled={!isEditor}>Add new</button>
                 ) : (
