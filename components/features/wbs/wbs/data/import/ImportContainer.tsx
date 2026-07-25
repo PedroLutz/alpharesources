@@ -4,11 +4,10 @@ import { ImportCSVConfirmPreview } from "../../../../../ui/ImportCSV/ImportCSVCo
 import { ImportCSVFileSelector } from "../../../../../ui/ImportCSV/ImportCSVFileSelector";
 import useAuth from "../../../../../../hooks/useAuth";
 import {useWbs} from "../WbsContext";
+import { handleReq } from "../../../../../../functions/crud_s";
 
 export const ImportContainer = ({ setHide }: { setHide: () => void }) => {
-    const [showTable, setShowTable] = useState(false);
-    const {setIsLoading, areasNamesToIdsMap, itemsNamesToIdsMap, areasToItemsMap} = useWbs();
-    const [error, setError] = useState("");
+    const {areas, items, setIsLoading, areasNamesToIdsMap, itemsNamesToIdsMap, areasToItemsMap, refetchData} = useWbs();
     const { token, user } = useAuth();
 
     const tableHeaders = useRef(["Area", "Item"]);
@@ -16,117 +15,148 @@ export const ImportContainer = ({ setHide }: { setHide: () => void }) => {
     const uploadImport = async (lines) => {
         setIsLoading(true);
 
-        const existingLinesIds = [];
-        const editingLines = [];
-        const newLines = [];
-
-        const newAreas = new Set();
-        const newItens = new Map<string, string[]>();
+        const newAreas = new Set<string>();
+        const newItems = new Map<string, string[]>();
 
         const existingAreasIds = [];
-        const existingItensIds = [];
+        const existingItemsIds = [];
 
         lines.forEach(l => {
             if(!areasNamesToIdsMap.has(l["Area"])){
                 if(!newAreas.has(l["Area"])) {
                     newAreas.add(l["Area"])
-                    newItens.set(l["Area"], []);
+                    newItems.set(l["Area"], []);
                 };
 
-                newItens.get(l["Area"]).push(l["Item"]);
+                newItems.get(l["Area"]).push(l["Item"]);
                 
             } else {
                 existingAreasIds.push(areasNamesToIdsMap.get(l["Area"]))
                 if(!areasToItemsMap.get(l["Area"]).find(i => i.name === l["Item"])){
-                    if(!newItens.has(l["Area"])) newItens.set(l["Area"], []);
-                    newItens.get(l["Area"]).push(l["Item"]);
+                    if(!newItems.has(l["Area"])) newItems.set(l["Area"], []);
+                    newItems.get(l["Area"]).push(l["Item"]);
                 } else {
-                    existingItensIds.push(itemsNamesToIdsMap.get(l["Item"]));
+                    existingItemsIds.push(itemsNamesToIdsMap.get(l["Item"]));
                 }
             }
         })
 
-        
-        console.log(newAreas);
-        console.log(newItens);
-        console.log(existingAreasIds);
-        console.log(existingItensIds); 
+        const deleteAreasFunctionsArr = [];
+        areas.forEach(a => {
+            const area = existingAreasIds.find(i => i === a.id);
+            if(!area) deleteAreasFunctionsArr.push(
+                handleReq({
+                    table: "wbs_area",
+                    route: "delete",
+                    token,
+                    data: {id: a.id}
+                })
+            )
+        });
 
-        // const deleteFunctionsArr = [];
-        // dicionarios.forEach(d => {
-        //     const dicionario = existingLinesIds.find(i => i == d.id);
-        //     if (!dicionario) deleteFunctionsArr.push(
-        //         handleReq({
-        //             table: 'wbs_dictionary',
-        //             route: 'delete',
-        //             token,
-        //             data: { id: d.id },
-        //         })
-        //     )
-        // })
+        const deleteItemsFunctionsArr = [];
+        items.forEach(item => {
+            const _item = existingItemsIds.find(i => i === item.id);
+            if(!_item) deleteItemsFunctionsArr.push(
+                handleReq({
+                    table: "wbs_item",
+                    route: "delete",
+                    token,
+                    data: {id: item.id}
+                })
+            )
+        });
 
-        // setHide(true);
+        setHide();
 
-        // await Promise.all(deleteFunctionsArr);
+        await Promise.all(deleteAreasFunctionsArr);
+        await Promise.all(deleteItemsFunctionsArr);
 
-        // const submitFunctionsArr = newLines.map(l => (
-        //     handleReq({
-        //         table: 'wbs_dictionary',
-        //         route: 'create',
-        //         token,
-        //         data: {
-        //             item_id: elementosWBSMap.get(l["Area"]).get(l["Item"]),
-        //             description: l["Description"],
-        //             purpose: l["Purpose"],
-        //             criteria: l["Acceptance Criteria"],
-        //             inspection: l["Inspection"],
-        //             timing: l["Timing"],
-        //             responsible: l["Responsible for Criteria"],
-        //             approval_responsible: l["Responsible for Approval"],
-        //             premises: l["Premises"],
-        //             restrictions: l["Restrictions"],
-        //             resources: l["Expected Resources and Costs"],
-        //             user_id: user?.id
-        //         },
-        //     })
-        // )
-        // )
+        const newAreasNamesToIdsMap = new Map<string, number>(areasNamesToIdsMap);
+        const submitAreasFunctionsArr = Array.from(newAreas).map(async (a) => {
+            const res = await handleReq({
+                table: "wbs_area",
+                route: "createReturn",
+                token,
+                data: {
+                    name: a,
+                    user_id: user?.id,
+                    color: "#FFFFFF"
+                }
+            });
 
-        // const updateFunctionsArr = editingLines.map(([id, l]) =>
-        //     handleReq({
-        //         table: 'wbs_dictionary',
-        //         route: 'update',
-        //         token,
-        //         data: {
-        //             id,
-        //             description: l["Description"],
-        //             purpose: l["Purpose"],
-        //             criteria: l["Acceptance Criteria"],
-        //             inspection: l["Inspection"],
-        //             timing: l["Timing"],
-        //             responsible: l["Responsible for Criteria"],
-        //             approval_responsible: l["Responsible for Approval"],
-        //             premises: l["Premises"],
-        //             restrictions: l["Restrictions"],
-        //             resources: l["Expected Resources and Costs"],
-        //             user_id: user?.id
-        //         }
-        //     })
-        // )
+            if (res?.data?.id) {
+                newAreasNamesToIdsMap.set(a, res.data.id);
+            }
+        });
 
-        // await Promise.all([...submitFunctionsArr, ...updateFunctionsArr]);
+        await Promise.all(submitAreasFunctionsArr);
 
-        // await refetchData();
+        const submitItemsFunctionsArr = [];
+        Array.from(newItems).forEach(([area, items]) => {
+            if(!newAreasNamesToIdsMap.has(area)) return;
+            items.forEach(item => {
+                submitItemsFunctionsArr.push(
+                    handleReq({
+                        table: "wbs_item",
+                        route: 'create',
+                        token,
+                        data: {
+                            area_id: newAreasNamesToIdsMap.get(area),
+                            name: item,
+                            user_id: user?.id
+                        }
+                    })
+                )
+            })
+        })
+
+        await Promise.all([...submitItemsFunctionsArr]);
+
+        await refetchData();
 
         setIsLoading(false);
     }
     
+    const areLinesValid = (lines) : [boolean, string] => {
+        const analyzedLines = new Set();
+        const analyzedItems = new Set();
+        const repeatedLines = []
+        const repeatedItems = [];
+
+        for (const line in lines) {       
+            const item = lines[line]["Item"];
+            const areaAndItem = `${lines[line]["Area"]} - ${item}`;
+            if(analyzedLines.has(areaAndItem)){
+                repeatedLines.push(areaAndItem);
+            } else {
+                analyzedLines.add(areaAndItem);
+            }
+            if(analyzedItems.has(item) && !repeatedLines.includes(areaAndItem)){
+                repeatedItems.push(areaAndItem);
+            } else {
+                analyzedItems.add(item);
+            }
+        }
+
+        let error = "";
+        if(repeatedLines.length !== 0){
+            error += `Some lines are repeated (${repeatedLines.join(", ")}). `
+        }
+        if(repeatedLines.length !== 0){
+            error += `Some items are repeated in multiple lines (${repeatedItems.join(", ")}).`
+        }
+        
+        const hasError = error !== "";
+        return [hasError, error];
+    }
 
     return (
         <ImportCSV
             setHide={setHide}
             tableHeaders={tableHeaders.current}
             uploadImport={uploadImport}
+            areLinesValid={areLinesValid}
         >
             <ImportCSVFileSelector />
             <ImportCSVConfirmPreview />
