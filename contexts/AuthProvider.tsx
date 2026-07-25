@@ -3,21 +3,18 @@ import { createContext, useState, useEffect, ReactNode } from "react";
 import { User } from "@supabase/supabase-js";
 import client from "../lib/supabaseClient";
 
-// 1. Definimos os tipos de forma clara
 export interface AuthContextType {
     user: User | null;
     token: string | null;
     loading: boolean;
 }
 
-// 2. Criamos o contexto já com valores padrão e o tipo correto
 const AuthContext = createContext<AuthContextType>({
     user: null,
     token: null,
     loading: true,
 });
 
-// 3. Tipamos o children direto nos parâmetros
 const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [token, setToken] = useState<string | null>(null);
@@ -40,7 +37,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     }, []);
 
-    // 4. O retorno padrão
     return (
         <AuthContext.Provider value={{ user, token, loading }}>
             {children}

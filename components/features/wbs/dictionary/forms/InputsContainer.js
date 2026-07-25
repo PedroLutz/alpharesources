@@ -119,7 +119,7 @@ const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, area_id, backgr
     };
 
     return (
-        <>
+        <tr>
             {tipo != "update" &&
                 <>
                     <td className={styles.td_area}>
@@ -253,7 +253,7 @@ const Inputs = ({ obj, objSetter, tipo, funcoes, setExibirModal, area_id, backgr
                     </React.Fragment>
                 )}
             </td>
-        </>
+        </tr>
     )
 }
 

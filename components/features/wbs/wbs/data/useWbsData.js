@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { handleFetch } from "../../../../../functions/crud_s";
 import useAuth from '../../../../../hooks/useAuth';
 
@@ -9,7 +9,7 @@ export const useWbsData = () => {
     const [items, setItems] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    const fetchData = useCallback(async () => { //callback memoizes the function, avoiding re-renders
+    const fetchData = useCallback(async () => {
         setIsLoading(true);
         try {
             const [areasRes, itemsRes] = await Promise.all([
@@ -26,6 +26,17 @@ export const useWbsData = () => {
         }
     }, [user?.id, token]);
 
+    const [areasNamesToIdsMap, itemsNamesToIdsMap] = useMemo(() => 
+        [
+            new Map(areas.map(area => [area.name, area.id])), 
+            new Map(items.map(item => [item.name, item.id]))
+        ]
+    , [areas, items]);
+
+    const areasToItemsMap = useMemo(() => 
+        new Map(areas.map(area => [area.name, items.filter(item => item.area_id === area.id)]))
+    , [areas, items])
+
     useEffect(() => {
         if (user?.id && token) {
             fetchData();
@@ -35,6 +46,11 @@ export const useWbsData = () => {
     return {
         areas,
         items,
+
+        areasNamesToIdsMap,
+        itemsNamesToIdsMap,
+        areasToItemsMap,
+
         isLoading,
         setIsLoading,
         refetchData: fetchData,

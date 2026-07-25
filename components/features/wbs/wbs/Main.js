@@ -14,6 +14,7 @@ import { useToolbar } from "../../../../hooks/useToolbar";
 import { useEffect } from "react";
 import { useCallback } from "react";
 import { useWbs, WbsProvider } from "./data/WbsContext";
+import { ImportContainer } from "./data/import/ImportContainer"
 
 const MainContent = () => {
     const { token } = useAuth();
@@ -37,8 +38,9 @@ const MainContent = () => {
     const [deleteItemConfirm, setDeleteItemConfirm] = useState(null);
 
     const [showHelp, setShowHelp] = useState(false);
+    const [showImportContainer, setShowImportContainer] = useState(false);
 
-    const { setExportCSVClick, setHelpClick } = useToolbar();
+    const { setExportCSVClick, setHelpClick, setImportCSVClick } = useToolbar();
 
     const exportToCSV = useCallback(() => {
         const headers = ["Area", "Item"];
@@ -56,10 +58,12 @@ const MainContent = () => {
     useEffect(() => {
         setHelpClick(() => () => setShowHelp(true));
         setExportCSVClick(() => exportToCSV);
+        setImportCSVClick(() => () => setShowImportContainer(true));
 
         return (() => {
             setHelpClick(null);
             setExportCSVClick(null);
+            setImportCSVClick(null);
         })
     }, [areas, items, exportToCSV]);
 
@@ -82,6 +86,8 @@ const MainContent = () => {
         <div className="centered-container">
             {isLoading && <Loading />}
             {showHelp && <HelpBubble setShowHelp={setShowHelp} />}
+
+            {showImportContainer && <ImportContainer setHide={() => setShowImportContainer(false)}/>}
 
             <h2 className="smallTitle">
                 Work Breakdown Structure
