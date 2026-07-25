@@ -15,6 +15,7 @@ import { calculateRowSpan } from '../../../functions/general';
 import { useToolbar } from '../../../hooks/useToolbar';
 import { useCallback } from 'react';
 import exportCSV from '../../../functions/exportCSV';
+import { GanttChart } from '../../ui/GanttChart/GanttChart';
 
 const Tabela = () => {
   const { user, token } = useAuth();
@@ -625,6 +626,17 @@ const Tabela = () => {
         </div>
       </div>
 
+      <GanttChart tasks={[
+  { id: 1, name: "Pesquisa UI", start: new Date('2023-10-01'), end: new Date('2023-10-05') },
+  { id: 2, name: "Design Base", start: new Date('2023-10-04'), end: new Date('2023-10-10') },
+  { id: 3, name: "Design Base", start: new Date('2023-10-11'), end: new Date('2023-10-20'), color: "#ff00e3", dependencies: [1, 2] },
+  { id: 4, name: "Design Base", start: new Date('2023-10-21'), end: new Date('2023-10-25') },
+  { id: 5, name: "Design Base", start: new Date('2023-11-01'), end: new Date('2023-11-10') },
+  { id: 6, name: "Design Base", start: new Date('2023-11-11'), end: new Date('2023-11-20') },
+  { id: 7, name: "Design Base", start: new Date('2023-11-21'), end: new Date('2023-11-30') },
+  { id: 8, name: "Design Base", start: new Date('2023-12-01'), end: new Date('2023-12-10') },
+  { id: 9, name: "Design Base", start: new Date('2023-12-11'), end: new Date('2023-12-20') },
+]}/>
     </div>
   );
 };
