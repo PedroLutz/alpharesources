@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 
 export type Task = {
     id: number | string;
@@ -8,7 +8,7 @@ export type Task = {
     is_plan: boolean;
     start: Date | null;
     end: Date | null;
-    status?: 'Starting' | 'Executing' | 'Completed';
+    status?: 'Starting' | 'Executing' | 'Complete';
     color?: string;
     dependencies?: (number | string)[]; // Agora contém ganttIds
 }
@@ -27,10 +27,10 @@ type TableConfigProps = {
 type GanttChartProps = {
     tasks: Task[];
     onSave?: (plan: PlanData, real: RealData, deps: DepsData) => void;
-    onStart?: (ganttId: number | string) => void;
-    onExecute?: (ganttId: number | string) => void;
-    onComplete?: (ganttId: number | string) => void;
-    onReset?: (ganttId: number | string) => void;
+    onStart?: (id: number | string) => void;
+    onExecute?: (id: number | string) => void;
+    onComplete?: (id: number | string) => void;
+    onReset?: (id: number | string) => void;
     tableConfig?: TableConfigProps;
 }
 
@@ -62,6 +62,12 @@ const parseDateInput = (str: string) => {
     return new Date(`${str}T00:00:00Z`);
 };
 
+const labelsSituacao = {
+    start: 'Starting',
+    executing: 'Executing',
+    complete: 'Complete',
+}
+
 export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onReset, 
     tableConfig = {hide: false, showActions: true, showDates: true, showStatus: true} 
 }: GanttChartProps) => {
@@ -76,24 +82,83 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
         status: string; deps: string;
     } | null>(null);
 
-    const TOTAL_SVG_WIDTH = 1000;
+    // --- ESTADO DAS LARGURAS DAS COLUNAS E DO GANTT ---
+    const [colWidths, setColWidths] = useState({
+        area: 100,
+        actions: 40,
+        id: 35,
+        item: 100,
+        type: 30,
+        start: 55,
+        end: 55,
+        status: 75,
+        deps: 60
+    });
+    
+    const [svgWidth, setSvgWidth] = useState(1000); // Transformado em estado!
+
+    // Definindo quem está sendo redimensionado (colunas ou o próprio svg)
+    type ResizableElement = keyof typeof colWidths | 'svg';
+    const [resizingElement, setResizingElement] = useState<ResizableElement | null>(null);
+    const [startX, setStartX] = useState(0);
+    const [startWidth, setStartWidth] = useState(0);
+
+    // --- LÓGICA DE DRAG & DROP PARA COLUNAS E GANTT ---
+    const handleMouseDown = (e: React.MouseEvent, element: ResizableElement) => {
+        setResizingElement(element);
+        setStartX(e.clientX);
+        setStartWidth(element === 'svg' ? svgWidth : colWidths[element as keyof typeof colWidths]);
+        e.preventDefault(); // Evita selecionar texto durante o arrasto
+    };
+
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (!resizingElement) return;
+            const diff = e.clientX - startX;
+            
+            if (resizingElement === 'svg') {
+                // Impede que o gráfico fique menor que 300px
+                const newWidth = Math.max(300, startWidth + diff);
+                setSvgWidth(newWidth);
+            } else {
+                // Define uma largura mínima (30px) para não sumir com a coluna
+                const newWidth = Math.max(30, startWidth + diff);
+                setColWidths(prev => ({ ...prev, [resizingElement]: newWidth }));
+            }
+        };
+
+        const handleMouseUp = () => {
+            setResizingElement(null);
+        };
+
+        if (resizingElement) {
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', handleMouseUp);
+        }
+
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [resizingElement, startX, startWidth]);
+
+
     const ROW_HEIGHT = 25;
     const ROW_PADDING = 4;
     const HEADER_HEIGHT = 50; 
     const MONTH_HEIGHT = 25;
 
-    const AREA_CELL_WIDTH = 100;
-    const ACTION_CELL_WIDTH = tableConfig.showActions ? 40 : 0;
-    const ID_CELL_WIDTH = 35;
-    const ITEM_CELL_WIDTH = 100;
-    const TYPE_CELL_WIDTH = tableConfig.showDates ? 30 : 0;
-    const DATE_CELL_WIDTH = tableConfig.showDates ? 55 : 0;
-    const STATUS_CELL_WIDTH = tableConfig.showStatus ? 75 : 0;
-    const DEPS_CELL_WIDTH = 50;
+    // A Tabela agora soma as larguras atuais do Estado
+    const TABLE_WIDTH = colWidths.area 
+        + (tableConfig.showActions ? colWidths.actions : 0) 
+        + colWidths.id 
+        + colWidths.item 
+        + (tableConfig.showDates ? colWidths.type : 0) 
+        + (tableConfig.showDates ? colWidths.start : 0) 
+        + (tableConfig.showDates ? colWidths.end : 0) 
+        + (tableConfig.showStatus ? colWidths.status : 0) 
+        + colWidths.deps;
 
-    const TABLE_WIDTH = AREA_CELL_WIDTH + ACTION_CELL_WIDTH + ID_CELL_WIDTH + ITEM_CELL_WIDTH + TYPE_CELL_WIDTH + DATE_CELL_WIDTH * 2 + STATUS_CELL_WIDTH + DEPS_CELL_WIDTH;
-
-    // --- 0. AGRUPAMENTO E MAPA DE IDs (Agora baseados em ganttId) ---
     const { renderTasks, groupedData, ganttIdMap, displayIdToGanttIdMap, taskLookup } = useMemo(() => {
         const areas: GroupedArea[] = [];
         const areaMap = new Map<string, GroupedArea>();
@@ -103,7 +168,6 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
         const localDisplayIdToGanttIdMap = new Map<number, number | string>();
         const localTaskLookup = new Map<string, string | number>(); 
 
-        // 1. Agrupamento sequencial
         tasks.forEach(task => {
             if (!localGanttIdMap.has(task.ganttId)) {
                 localGanttIdMap.set(task.ganttId, currentDisplayId);
@@ -140,7 +204,6 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
             }
         });
 
-        // 2. Nivelamento (Flatten) para o SVG e extração de dependências Visuais
         const flatTasks: (Task & { flatIndex: number })[] = [];
         let flatIndexCounter = 0;
 
@@ -180,7 +243,6 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
         };
     }, [tasks]);
 
-    // --- 1. FILTRAGEM E SOLUÇÃO DO FUSO HORÁRIO (-1 DIA) ---
     const validTasks = renderTasks.filter(t => t.start != null && t.end != null);
     
     const startTimestamps = validTasks.map(t => (t.start as Date).getTime());
@@ -195,7 +257,9 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
 
     const ONE_DAY_IN_MS = 1000 * 60 * 60 * 24;
     const totalDays = Math.round((projectEndUTC - projectStartUTC) / ONE_DAY_IN_MS) || 1;
-    const dayWidth = TOTAL_SVG_WIDTH / totalDays;
+    
+    // Agora dayWidth reage dinamicamente ao arrasto do mouse!
+    const dayWidth = svgWidth / totalDays;
     const TOTAL_HEIGHT = HEADER_HEIGHT + (renderTasks.length * ROW_HEIGHT); 
 
     const getTaskX = (targetDate: Date) => {
@@ -209,7 +273,6 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
         return `${String(d.getUTCDate()).padStart(2, '0')}/${String(d.getUTCMonth()+1).padStart(2, '0')}/${String(d.getUTCFullYear()).slice(-2)}`;
     };
 
-    // --- 2. CONSTRUÇÃO DA TIMELINE (MESES E SEMANAS) ---
     const monthsData: { dateObj: Date, startX: number, width: number }[] = [];
     const weeksData: { label: string, startX: number }[] = [];
 
@@ -252,10 +315,9 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
     }
 
     if (monthsData.length > 0) {
-        monthsData[monthsData.length - 1].width = TOTAL_SVG_WIDTH - currentMonthStartX;
+        monthsData[monthsData.length - 1].width = svgWidth - currentMonthStartX;
     }
 
-    // --- 3. COORDENADAS E DEPENDÊNCIAS ---
     const taskCoordsMap = new Map<number | string, { startX: number, endX: number, centerY: number }>();
     
     renderTasks.forEach((task, index) => {
@@ -309,7 +371,6 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
         });
     });
 
-    // Função de Disparo (Save)
     const handleSave = () => {
         if (!editingContext || !onSave) return;
         const { item, planStart, planEnd, realStart, realEnd, status, deps } = editingContext;
@@ -339,13 +400,29 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
         setEditingContext(null); 
     };
 
-    // --- 4. RENDERIZAÇÃO DO LAYOUT ---
+    // --- COMPONENTE DE REDIMENSIONAMENTO ---
+    const Resizer = ({ element }: { element: ResizableElement }) => (
+        <div
+            onMouseDown={(e) => handleMouseDown(e, element)}
+            style={{
+                position: 'absolute', right: 0, top: 0, bottom: 0, width: '6px',
+                cursor: 'col-resize', zIndex: 10,
+                backgroundColor: 'transparent',
+                opacity: resizingElement === element ? 1 : 0.2
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#94a3b8'; e.currentTarget.style.opacity = '1'; }}
+            onMouseLeave={(e) => { 
+                if(resizingElement !== element) { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.opacity = '0.2'; }
+            }}
+        />
+    );
+
     return (
         <div style={{ maxWidth: "100%", width: "fit-content", margin: "0 auto", overflowX: "auto", paddingBottom: "16px" }}>
             
             <div style={{ 
                 display: "flex", 
-                width: `${(!tableConfig.hide ? TABLE_WIDTH : 0) + TOTAL_SVG_WIDTH}px`, 
+                width: `${(!tableConfig.hide ? TABLE_WIDTH : 0) + svgWidth}px`, 
                 border: '1px solid #e2e8f0', 
                 borderRadius: '8px', 
                 overflow: 'hidden', 
@@ -361,23 +438,58 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
                         backgroundColor: '#f1f5f9', borderBottom: '1px solid #cbd5e1',
                         fontSize: '0.75rem', fontWeight: 'bold', color: '#334155', boxSizing: 'border-box'
                     }}>
-                        <div style={{ width: `${AREA_CELL_WIDTH}px`, textAlign: 'center' }}>Área</div>
-                        {tableConfig.showActions && (<div title="Actions" style={{ width: `${ACTION_CELL_WIDTH}px`, textAlign: 'center' }}>⚙️</div>)}
-                        <div style={{ width: `${ID_CELL_WIDTH}px`, textAlign: 'center' }}>ID</div>
-                        <div style={{ width: `${ITEM_CELL_WIDTH}px`, paddingLeft: '8px' }}>Item</div>
-                        {tableConfig.showDates && (<div title="Type" style={{ width: `${TYPE_CELL_WIDTH}px`, textAlign: 'center' }}>T.</div>)}
-                        {tableConfig.showDates && (<div style={{ width: `${DATE_CELL_WIDTH}px`, textAlign: 'center' }}>Início</div>)}
-                        {tableConfig.showDates && (<div style={{ width: `${DATE_CELL_WIDTH}px`, textAlign: 'center' }}>Fim</div>)}
-                        {tableConfig.showStatus && (<div style={{ width: `${STATUS_CELL_WIDTH}px`, textAlign: 'center' }}>Status</div>)}
-                        <div title="Dependencies" style={{ flex: 1, textAlign: 'center', minWidth: `${DEPS_CELL_WIDTH}px` }}>Dep.</div>
+                        <div style={{ position: 'relative', width: `${colWidths.area}px`, textAlign: 'center', flexShrink: 0, borderRight: "0.1rem #c0c5cc solid" }}>
+                            Area <Resizer element="area" />
+                        </div>
+                        
+                        {tableConfig.showActions && (
+                        <div title="Actions" style={{ position: 'relative', width: `${colWidths.actions}px`, textAlign: 'center', flexShrink: 0, borderRight: "0.1rem #c0c5cc solid" }}>
+                            ⚙️ <Resizer element="actions" />
+                        </div>
+                        )}
+                        
+                        <div style={{ position: 'relative', width: `${colWidths.id}px`, textAlign: 'center', flexShrink: 0, borderRight: "0.1rem #c0c5cc solid" }}>
+                            ID
+                        </div>
+                        
+                        <div style={{ position: 'relative', width: `${colWidths.item}px`, paddingLeft: '8px', flexShrink: 0, textAlign: 'left', borderRight: "0.1rem #c0c5cc solid" }}>
+                            Item <Resizer element="item" />
+                        </div>
+                        
+                        {tableConfig.showDates && (
+                        <div title="Type" style={{ position: 'relative', width: `${colWidths.type}px`, textAlign: 'center', flexShrink: 0, borderRight: "0.1rem #c0c5cc solid" }}>
+                            T. <Resizer element="type" />
+                        </div>
+                        )}
+                        
+                        {tableConfig.showDates && (
+                        <div style={{ position: 'relative', width: `${colWidths.start}px`, textAlign: 'center', flexShrink: 0, borderRight: "0.1rem #c0c5cc solid" }}>
+                            Start <Resizer element="start" />
+                        </div>
+                        )}
+                        
+                        {tableConfig.showDates && (
+                        <div style={{ position: 'relative', width: `${colWidths.end}px`, textAlign: 'center', flexShrink: 0, borderRight: "0.1rem #c0c5cc solid" }}>
+                            End <Resizer element="end" />
+                        </div>
+                        )}
+                        
+                        {tableConfig.showStatus && (
+                        <div style={{ position: 'relative', width: `${colWidths.status}px`, textAlign: 'center', flexShrink: 0, borderRight: "0.1rem #c0c5cc solid" }}>
+                            Status <Resizer element="status" />
+                        </div>
+                        )}
+                        
+                        <div title="Dependencies" style={{ position: 'relative', width: `${colWidths.deps}px`, textAlign: 'center', flexShrink: 0 }}>
+                            Dep. <Resizer element="deps" />
+                        </div>
                     </div>
 
                     {groupedData.map((area, aIdx) => (
                         <div key={`area-${aIdx}`} style={{ display: 'flex' }}>
-                            {/* A CÉLULA DA ÁREA PROTEGIDA CONTRA OVERFLOW */}
                             <div 
                                 title={area.name} 
-                                style={{ width: `${AREA_CELL_WIDTH}px`, flexShrink: 0, display: 'flex', 
+                                style={{ width: `${colWidths.area}px`, flexShrink: 0, display: 'flex', 
                                     alignItems: 'center', justifyContent: 'center', borderRight: '1px solid #e2e8f0', 
                                     borderBottom: '1px solid #e2e8f0', padding: '0 4px', textAlign: 'center', fontSize: '0.75rem', 
                                     color: '#475569', fontWeight: 'bold', boxSizing: 'border-box', overflow: 'hidden' }}
@@ -387,15 +499,19 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
                                 </span>
                             </div>
                             
-                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 'fit-content' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
                                 {area.items.map((item, iIdx) => (
                                     <div key={`item-${iIdx}`} style={{ display: 'flex' }}>
                                         
                                         {tableConfig.showActions && (
-                                        <div style={{ width: `${ACTION_CELL_WIDTH}px`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRight: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0', boxSizing: 'border-box' }}>
+                                        <div style={{ width: `${colWidths.actions}px`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRight: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0', boxSizing: 'border-box' }}>
                                             <button 
                                                 style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '1rem', padding: '4px' }}
                                                 onClick={(e) => {
+                                                    if(editingContext){
+                                                        setEditingContext(null);
+                                                        return;
+                                                    }
                                                     const rect = e.currentTarget.getBoundingClientRect();
                                                     setEditingContext({
                                                         x: rect.left,
@@ -415,21 +531,20 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
                                         </div>
                                         )}
 
-                                        <div style={{ width: '35px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRight: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0', fontSize: '0.75rem', fontWeight: 'bold', color: '#0f172a', boxSizing: 'border-box' }}>
+                                        <div style={{ width: `${colWidths.id}px`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRight: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0', fontSize: '0.75rem', fontWeight: 'bold', color: '#0f172a', boxSizing: 'border-box' }}>
                                             {item.displayId}
                                         </div>
 
-                                        {/* A CÉLULA DO ITEM PROTEGIDA CONTRA OVERFLOW */}
                                         <div 
                                             title={item.name} 
-                                            style={{ width: `${ITEM_CELL_WIDTH}px`, flexShrink: 0, display: 'flex', alignItems: 'center', textAlign: "left", padding: '0 8px', borderRight: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0', fontSize: '0.75rem', color: '#475569', overflow: 'hidden', boxSizing: 'border-box' }}
+                                            style={{ width: `${colWidths.item}px`, flexShrink: 0, display: 'flex', alignItems: 'center', textAlign: "left", padding: '0 8px', borderRight: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0', fontSize: '0.75rem', color: '#475569', overflow: 'hidden', boxSizing: 'border-box' }}
                                         >
                                             <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
                                                 {item.name}
                                             </span>
                                         </div>
 
-                                        <div style={{ display: 'flex', flexDirection: 'column', width: `${TYPE_CELL_WIDTH + DATE_CELL_WIDTH*2}px`, flexShrink: 0 }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', width: `${(tableConfig.showDates ? colWidths.type : 0) + (tableConfig.showDates ? colWidths.start : 0) + (tableConfig.showDates ? colWidths.end : 0)}px`, flexShrink: 0 }}>
                                             {item.tasks.map((t, tIdx) => (
                                                 <div key={t.id} style={{ 
                                                     display: 'flex', height: `${ROW_HEIGHT}px`, boxSizing: 'border-box',
@@ -439,13 +554,13 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
                                                 }}>
                                                     {tableConfig.showDates && (
                                                         <>    
-                                                            <div style={{ width: `${TYPE_CELL_WIDTH}px`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }} title={t.is_plan ? "Planejado" : "Real"}>
-                                                                {t.is_plan ? 'P' : 'R'}
+                                                            <div style={{ width: `${colWidths.type}px`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }} title={t.is_plan ? "Planejado" : "Real"}>
+                                                                {t.is_plan ? 'P' : 'A'}
                                                             </div>
-                                                            <div style={{ width: `${DATE_CELL_WIDTH}px`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                            <div style={{ width: `${colWidths.start}px`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                                                                 {formatDateSafe(t.start)}
                                                             </div>
-                                                            <div style={{ width: `${DATE_CELL_WIDTH}px`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                            <div style={{ width: `${colWidths.end}px`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                                                                 {formatDateSafe(t.end)}
                                                             </div>
                                                         </>
@@ -454,22 +569,20 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
                                             ))}
                                         </div>
 
-                                        {/* A CÉLULA DE STATUS PROTEGIDA CONTRA OVERFLOW */}
                                         {tableConfig.showStatus && (
                                             <div 
-                                                title={item.realStatus}
-                                                style={{ width: `${STATUS_CELL_WIDTH}px`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderLeft: '1px solid #e2e8f0', borderRight: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0', fontSize: '0.75rem', color: '#475569', textAlign: 'center', padding: '0 4px', boxSizing: 'border-box', overflow: 'hidden' }}
+                                                title={labelsSituacao[item.realStatus as keyof typeof labelsSituacao] || item.realStatus}
+                                                style={{ width: `${colWidths.status}px`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderLeft: '1px solid #e2e8f0', borderRight: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0', fontSize: '0.75rem', color: '#475569', textAlign: 'center', padding: '0 4px', boxSizing: 'border-box', overflow: 'hidden' }}
                                             >
                                                 <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
-                                                    {item.realStatus}
+                                                    {labelsSituacao[item.realStatus as keyof typeof labelsSituacao] || item.realStatus}
                                                 </span>
                                             </div>
                                         )}
 
-                                        {/* A CÉLULA DE DEPENDÊNCIAS PROTEGIDA CONTRA OVERFLOW */}
                                         <div 
                                             title={item.depsStr || "-"}
-                                            style={{ flex: 1, minWidth: `${DEPS_CELL_WIDTH}px`, display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', fontSize: '0.75rem', color: '#475569', textAlign: 'center', padding: '0 4px', boxSizing: 'border-box', overflow: 'hidden' }}
+                                            style={{ width: `${colWidths.deps}px`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', fontSize: '0.75rem', color: '#475569', textAlign: 'center', padding: '0 4px', boxSizing: 'border-box', overflow: 'hidden' }}
                                         >
                                             <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
                                                 {item.depsStr || "-"}
@@ -483,9 +596,9 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
                 </div>
                 )}
 
-                {/* 4.B - GANTT CHART (SVG) */}
-                <div style={{ width: `${TOTAL_SVG_WIDTH}px`, flexShrink: 0, position: "relative", backgroundColor: "#fff" }}>
-                    <svg width={TOTAL_SVG_WIDTH} height={TOTAL_HEIGHT} viewBox={`0 0 ${TOTAL_SVG_WIDTH} ${TOTAL_HEIGHT}`} style={{ display: "block" }}>
+                {/* 4.B - GANTT CHART (SVG) COM ALÇA DE RESIZE */}
+                <div style={{ width: `${svgWidth}px`, flexShrink: 0, position: "relative", backgroundColor: "#fff" }}>
+                    <svg width={svgWidth} height={TOTAL_HEIGHT} viewBox={`0 0 ${svgWidth} ${TOTAL_HEIGHT}`} style={{ display: "block" }}>
                         <defs>
                             <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
                                 <path d="M 0 0 L 10 5 L 0 10 z" fill="#cbd5e1" />
@@ -499,8 +612,8 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
                             const y = HEADER_HEIGHT + (index * ROW_HEIGHT);
                             return (
                                 <g key={`grid-${index}`}>
-                                    <rect x={0} y={y} width={TOTAL_SVG_WIDTH} height={ROW_HEIGHT} fill={index % 2 === 0 ? "#ffffff" : "#f8fafc"} />
-                                    <line x1={0} y1={y + ROW_HEIGHT} x2={TOTAL_SVG_WIDTH} y2={y + ROW_HEIGHT} stroke="#e2e8f0" strokeWidth={1} />
+                                    <rect x={0} y={y} width={svgWidth} height={ROW_HEIGHT} fill={index % 2 === 0 ? "#ffffff" : "#f8fafc"} />
+                                    <line x1={0} y1={y + ROW_HEIGHT} x2={svgWidth} y2={y + ROW_HEIGHT} stroke="#e2e8f0" strokeWidth={1} />
                                 </g>
                             );
                         })}
@@ -527,12 +640,17 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
                             const coords = taskCoordsMap.get(task.id);
                             if (!coords) return null; 
                             const y = HEADER_HEIGHT + (index * ROW_HEIGHT);
+                            
+                            const baseColor = task.color || "#3b82f6";
+                            const barOpacity = task.is_plan ? 0.35 : 1; 
+                            const strokeColor = task.is_plan ? baseColor : "none";
+                            const strokeWidth = task.is_plan ? 1 : 0;
 
                             return (
                                 <rect
                                     key={`task-${task.id}`} x={coords.startX} y={y + ROW_PADDING}
                                     width={Math.max(coords.endX - coords.startX, 4)} height={ROW_HEIGHT - (ROW_PADDING * 2)}
-                                    fill={task?.color ?? (task.is_plan ? "#94a3b8" : "#3b82f6")} rx={4} ry={4}
+                                    fill={baseColor} fillOpacity={barOpacity} stroke={strokeColor} strokeWidth={strokeWidth} rx={4} ry={4}
                                     style={{ cursor: "pointer", transition: "filter 0.2s" }}
                                     onMouseMove={(e) => setPopover({ x: e.clientX, y: e.clientY, task: task })}
                                     onMouseLeave={() => setPopover(null)}
@@ -551,14 +669,14 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
                         })}
 
                         <g id="timeline-header">
-                            <rect x={0} y={0} width={TOTAL_SVG_WIDTH} height={HEADER_HEIGHT} fill="#f1f5f9" opacity={0.95} />
-                            <line x1={0} y1={HEADER_HEIGHT} x2={TOTAL_SVG_WIDTH} y2={HEADER_HEIGHT} stroke="#cbd5e1" strokeWidth={1} />
+                            <rect x={0} y={0} width={svgWidth} height={HEADER_HEIGHT} fill="#f1f5f9" opacity={0.95} />
+                            <line x1={0} y1={HEADER_HEIGHT} x2={svgWidth} y2={HEADER_HEIGHT} stroke="#cbd5e1" strokeWidth={1} />
                             
                             {monthsData.map((month, i) => {
                                 const rawCenter = month.startX + (month.width / 2);
-                                const safeX = Math.max(40, Math.min(rawCenter, TOTAL_SVG_WIDTH - 40));
-                                const shortMonths = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-                                const fullMonths = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+                                const safeX = Math.max(40, Math.min(rawCenter, svgWidth - 40));
+                                const shortMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dez"];
+                                const fullMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
                                 
                                 let label = "";
                                 if (month.width >= 120) label = `${fullMonths[month.dateObj.getUTCMonth()]} ${month.dateObj.getUTCFullYear()}`;
@@ -569,12 +687,15 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
                             })}
 
                             {weeksData.map((week, i) => {
-                                const isNearEnd = week.startX > TOTAL_SVG_WIDTH - 35;
+                                const isNearEnd = week.startX > svgWidth - 35;
                                 const safeX = isNearEnd ? week.startX - 5 : week.startX + 5;
                                 return <text key={`w-text-${i}`} x={safeX} y={MONTH_HEIGHT + 16} fontSize="10" fill="#64748b" textAnchor={isNearEnd ? "end" : "start"}>{week.label}</text>;
                             })}
                         </g>
                     </svg>
+                    
+                    {/* Alça interativa para redimensionar o gráfico SVG */}
+                    <Resizer element="svg" />
                 </div>
             </div>
 
@@ -582,9 +703,9 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
             {popover && !editingContext && (
                 <div style={{ position: "fixed", left: popover.x + 15, top: popover.y + 15, backgroundColor: "#1e293b", color: "#f8fafc", padding: "8px 12px", borderRadius: "6px", fontSize: "0.875rem", pointerEvents: "none", zIndex: 1000, boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }}>
                     <p style={{ margin: 0, fontWeight: "bold" }}>{ganttIdMap.get(popover.task.ganttId)} - {popover.task.area} / {popover.task.item}</p>
-                    <p style={{ margin: 0, fontSize: "0.75rem", color: "#38bdf8", fontWeight: "bold" }}>[{popover.task.is_plan ? "Planejado" : "Real"}]</p>
-                    <p style={{ margin: '4px 0 0 0', fontSize: "0.75rem", color: "#94a3b8" }}>Início: {formatDateSafe(popover.task.start)}</p>
-                    <p style={{ margin: 0, fontSize: "0.75rem", color: "#94a3b8" }}>Fim: {formatDateSafe(popover.task.end)}</p>
+                    <p style={{ margin: 0, fontSize: "0.75rem", color: "#38bdf8", fontWeight: "bold" }}>[{popover.task.is_plan ? "Planned" : "Actual"}]</p>
+                    <p style={{ margin: '4px 0 0 0', fontSize: "0.75rem", color: "#94a3b8" }}>Start: {formatDateSafe(popover.task.start)}</p>
+                    <p style={{ margin: 0, fontSize: "0.75rem", color: "#94a3b8" }}>End: {formatDateSafe(popover.task.end)}</p>
                 </div>
             )}
 
@@ -600,61 +721,65 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
                     borderRadius: '8px',
                     padding: '16px',
                     boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
-                    zIndex: 2000,
+                    zIndex: 999,
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '12px'
                 }}>
                     <div style={{ fontWeight: 'bold', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
-                        <span>Ações: {editingContext.item.name}</span>
+                        <span>Actions: {editingContext.item.name}</span>
                         <span style={{color: '#94a3b8', fontSize: '0.75rem'}}>ID: {editingContext.item.displayId}</span>
                     </div>
 
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                        <button onClick={() => { onStart?.(editingContext.item.ganttId); setEditingContext(null); }} style={{ flex: 1, padding: '4px', fontSize: '0.75rem', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Iniciar</button>
-                        <button onClick={() => { onExecute?.(editingContext.item.ganttId); setEditingContext(null); }} style={{ flex: 1, padding: '4px', fontSize: '0.75rem', background: '#eab308', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Executar</button>
-                        <button onClick={() => { onComplete?.(editingContext.item.ganttId); setEditingContext(null); }} style={{ flex: 1, padding: '4px', fontSize: '0.75rem', background: '#22c55e', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Concluir</button>
-                        <button onClick={() => { onReset?.(editingContext.item.ganttId); setEditingContext(null); }} style={{ flex: 1, padding: '4px', fontSize: '0.75rem', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Resetar</button>
+                        <button onClick={() => { onStart?.(editingContext.item.realTask?.id || ""); setEditingContext(null); }} style={{ flex: 1, padding: '4px', fontSize: '0.75rem', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Start</button>
+                        <button onClick={() => { onExecute?.(editingContext.item.realTask?.id || ""); setEditingContext(null); }} style={{ flex: 1, padding: '4px', fontSize: '0.75rem', background: '#eab308', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Execute</button>
+                        <button onClick={() => { onComplete?.(editingContext.item.realTask?.id || ""); setEditingContext(null); }} style={{ flex: 1, padding: '4px', fontSize: '0.75rem', background: '#22c55e', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Complete</button>
+                        <button onClick={() => { onReset?.(editingContext.item.realTask?.id || ""); setEditingContext(null); }} style={{ flex: 1, padding: '4px', fontSize: '0.75rem', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Reset</button>
                     </div>
 
                     <div style={{ display: 'flex', gap: '8px' }}>
                         <div style={{ flex: 1 }}>
-                            <label style={{ fontSize: '0.7rem', color: '#64748b' }}>Início (Plano)</label>
+                            <label style={{ fontSize: '0.7rem', color: '#64748b' }}>Start (Plan)</label>
                             <input type="date" value={editingContext.planStart} onChange={(e) => setEditingContext({ ...editingContext, planStart: e.target.value })} style={{ width: '100%', padding: '4px', fontSize: '0.75rem' }} />
                         </div>
                         <div style={{ flex: 1 }}>
-                            <label style={{ fontSize: '0.7rem', color: '#64748b' }}>Fim (Plano)</label>
+                            <label style={{ fontSize: '0.7rem', color: '#64748b' }}>End (Plan)</label>
                             <input type="date" value={editingContext.planEnd} onChange={(e) => setEditingContext({ ...editingContext, planEnd: e.target.value })} style={{ width: '100%', padding: '4px', fontSize: '0.75rem' }} />
                         </div>
                     </div>
 
                     <div style={{ display: 'flex', gap: '8px' }}>
                         <div style={{ flex: 1 }}>
-                            <label style={{ fontSize: '0.7rem', color: '#64748b' }}>Início (Real)</label>
+                            <label style={{ fontSize: '0.7rem', color: '#64748b' }}>Start (Actual)</label>
                             <input type="date" value={editingContext.realStart} onChange={(e) => setEditingContext({ ...editingContext, realStart: e.target.value })} style={{ width: '100%', padding: '4px', fontSize: '0.75rem' }} />
                         </div>
                         <div style={{ flex: 1 }}>
-                            <label style={{ fontSize: '0.7rem', color: '#64748b' }}>Fim (Real)</label>
+                            <label style={{ fontSize: '0.7rem', color: '#64748b' }}>End (Actual)</label>
                             <input type="date" value={editingContext.realEnd} onChange={(e) => setEditingContext({ ...editingContext, realEnd: e.target.value })} style={{ width: '100%', padding: '4px', fontSize: '0.75rem' }} />
                         </div>
                     </div>
 
                     <div>
-                        <label style={{ fontSize: '0.7rem', color: '#64748b' }}>Status (Real)</label>
-                        <input type="text" value={editingContext.status} onChange={(e) => setEditingContext({ ...editingContext, status: e.target.value })} placeholder="Ex: Em andamento" style={{ width: '100%', padding: '4px', fontSize: '0.75rem', boxSizing: 'border-box' }} />
+                        <label style={{ fontSize: '0.7rem', color: '#64748b' }}>Status (Actual)</label>
+                        <select value={editingContext.status} onChange={(e) => setEditingContext({ ...editingContext, status: e.target.value })} style={{ width: '100%', padding: '4px', fontSize: '0.75rem', boxSizing: 'border-box' }}>
+                            <option value={"start"}>Starting</option>
+                            <option value={"executing"}>Executing</option>
+                            <option value={"complete"}>Complete</option>
+                        </select>
                     </div>
 
                     <div>
-                        <label style={{ fontSize: '0.7rem', color: '#64748b' }}>Dependências (IDs visuais, ex: 1, 3)</label>
+                        <label style={{ fontSize: '0.7rem', color: '#64748b' }}>Predecessors (IDs)</label>
                         <input type="text" value={editingContext.deps} onChange={(e) => setEditingContext({ ...editingContext, deps: e.target.value })} placeholder="Ex: 1, 4" style={{ width: '100%', padding: '4px', fontSize: '0.75rem', boxSizing: 'border-box' }} />
                     </div>
 
                     <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                         <button onClick={() => setEditingContext(null)} style={{ flex: 1, padding: '6px', fontSize: '0.75rem', background: '#e2e8f0', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
-                            Cancelar
+                            Cancel
                         </button>
                         <button onClick={handleSave} style={{ flex: 1, padding: '6px', fontSize: '0.75rem', background: '#0f172a', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
-                            Salvar
+                            Save
                         </button>
                     </div>
                 </div>
