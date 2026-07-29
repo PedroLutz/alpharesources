@@ -1,0 +1,23 @@
+.quick_update_popover {
+    width: 290px;
+}
+
+.quick_update_popover input, .quick_update_popover select {
+    border-width: 0.1rem;
+    border-style: solid;
+    border-color: rgb(167, 167, 167);
+    border-radius: 0.4rem;
+    padding: 0.2rem;
+    transition: 0.2s;
+    outline: none;
+    font-size: small;
+    background-color: transparent;
+}
+
+.quick_update_popover input:hover, .quick_update_popover select:hover {
+    background-color: rgb(231, 231, 231);
+}
+
+.quick_update_popover input {
+    width: 120px;
+}

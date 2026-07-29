@@ -625,24 +625,6 @@ const Tabela = () => {
           </div>
         </div>
       </div>
-
-
-      <GanttChart 
-      tableConfig={{
-        showActions: false,
-        showDates: false,
-        showStatus: false
-      }}
-      tasks={[
-  { id: 1, ganttId: 1, area: "Project Management Documents", item: "Extra Document Printing", is_plan: true, start: new Date('2023-10-01'), end: new Date('2023-10-05') },
-  { id: 2, ganttId: 1, area: "Project Management Documents", item: "Extra Document Printing", is_plan: false, start: new Date('2023-10-02'), end: new Date('2023-10-10'), status: "Starting"},
-  { id: 3, ganttId: 2, area: "Project Management", item: "Six Seven", is_plan: true, start: new Date('2023-10-11'), end: new Date('2023-10-15') },
-  { id: 4, ganttId: 2, area: "Project Management", item: "Six Seven", is_plan: false, start: new Date('2023-10-12'), end: new Date('2023-10-17') },
-  { id: 5, ganttId: 3, area: "Engineering", item: "Car", is_plan: true, start: new Date('2023-10-07'), end: new Date('2023-10-20'), dependencies: [1] },
-  { id: 6, ganttId: 3, area: "Engineering", item: "Car", is_plan: false, start: new Date('2023-10-11'), end: new Date('2023-10-20'), dependencies: [1] },
-  { id: 7, ganttId: 4, area: "Engineering", item: "Sabores", is_plan: true, start: new Date('2023-10-21'), end: new Date('2023-10-30'), dependencies: [3] },
-  { id: 8, ganttId: 4, area: "Engineering", item: "Sabores", is_plan: false, start: new Date('2023-10-21'), end: new Date('2023-10-30'), dependencies: [3] },
-]}/>
     </div>
   );
 };

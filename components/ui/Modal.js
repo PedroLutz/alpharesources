@@ -2,7 +2,7 @@ const Modal = ({ objeto }) => {
   return (
     <div className="overlay">
       <div className="modal">
-        <p>{objeto.titulo}</p>
+        <p style={{ whiteSpace: 'pre-line' }}>{objeto.titulo}</p>
         {objeto.alerta && (
           <div>
             <p style={{color:'red'}}><b>WARNING! This action can't be undone.</b></p>

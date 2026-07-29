@@ -1,13 +1,13 @@
 import React, { createContext, useContext, ReactNode } from 'react';
-import { useTempoData } from './useTempoData';
+import { GanttResType, useTempoData } from './useTempoData';
 import { Task } from '../../../ui/GanttChart/GanttChart';
 
 export interface TempoContextType {
-    gantts: any[];
+    gantts: GanttResType[];
     isLoading: boolean;
     setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
     refetchData: () => Promise<void>;
-    chartData: Task[]
+    chartData: Task[];
 }
 
 const TempoContext = createContext<TempoContextType | null>(null);

@@ -19,7 +19,7 @@ const HelpBubble = ({ setShowHelp } : HelpBubbleProps) => {
                     <div style={{textAlign: 'justify', marginLeft: '2rem', marginRight: '2rem'}}>
                         <ol>
                             <li><b>Start</b>: set the starting date of the task as the current day and set status as "Executing".</li>
-                            <li><b>Execution</b>: set the last execution as the current day.</li>
+                            <li><b>Execute</b>: set the last execution as the current day.</li>
                             <li><b>Complete</b>: set the last execution as the current day and set status as "Complete".</li>
                             <li><b>Reset</b>: Reset the dates of task and set status as "starting". <b>Use only when necessary.</b></li>
                         </ol>

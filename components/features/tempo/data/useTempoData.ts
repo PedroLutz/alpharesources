@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { handleFetch } from "../../../../functions/crud_s";
 import useAuth from '../../../../hooks/useAuth';
+import { Task } from '../../../ui/GanttChart/GanttChart';
 
 type WbsAreaType = {
     id: number;
@@ -22,22 +23,24 @@ type GanttDataType = {
     status: "start" | "executing" | "complete";
 }
 
-type DependencyIdType = { dependency_id: number };
+type DependencyType = { dependency_id: number };
 
-type GanttResType = {
+export type GanttResType = {
     id: number;
     gantt_data: [GanttDataType, GanttDataType];
-    gantt_dependency: DependencyIdType[];
+    gantt_dependency: DependencyType[];
     wbs_item: WbsItemType;
 }
 
-const labelsSituacao = {
-    start: 'Starting',
-    executing: 'Executing',
-    complete: 'Complete',
+export type TempoDataType = {
+    gantts: GanttResType[];
+    isLoading: boolean;
+    chartData: Task[];
+    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+    refetchData: () => Promise<void>;
 }
 
-export const useTempoData = () => {
+export const useTempoData = () : TempoDataType => {
     const { user, token } = useAuth();
 
     const [gantts, setGantts] = useState<GanttResType[]>([]);

@@ -95,7 +95,7 @@ const MainContent = () => {
                     />
 
                     {areas.map((area, index) => (
-                        <div key={index} className={styles.wbs_container}>
+                        <div key={area.id} className={styles.wbs_container}>
                             <AreaBlock
                                 area={area}
                                 setExibirModal={setExibirModal}
@@ -112,7 +112,7 @@ const MainContent = () => {
                                 />
                             ))}
 
-                            <div key={index} className={styles.item_outer_block}>
+                            <div key={area.id} className={styles.item_outer_block}>
                                 <NewItemCreator
                                     area={area}
                                     setExibirModal={setExibirModal}

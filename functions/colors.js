@@ -60,4 +60,31 @@ function generateColorGradient(startHex, endHex, n) {
   return colors
 }
 
+/**
+ * Clareia uma cor hexadecimal.
+ * @param hex - A cor em formato '#RRGGBB' ou 'RRGGBB'
+ * @param percent - De 0 a 100 (quanto maior, mais clara)
+ */
+export const lightenHex = (hex, percent) => {
+    // Remove o '#' se existir
+    hex = hex.replace(/^#/, '');
+
+    // Converte para RGB
+    let r = parseInt(hex.substring(0, 2), 16);
+    let g = parseInt(hex.substring(2, 4), 16);
+    let b = parseInt(hex.substring(4, 6), 16);
+
+    // Calcula a nova cor, limitando em 255
+    r = Math.min(255, Math.floor(r + (255 - r) * (percent / 100)));
+    g = Math.min(255, Math.floor(g + (255 - g) * (percent / 100)));
+    b = Math.min(255, Math.floor(b + (255 - b) * (percent / 100)));
+
+    // Converte de volta para HEX
+    const toHex = (c) => c.toString(16).padStart(2, '0');
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+};
+
+// Exemplo de uso:
+// lightenHex('#3b82f6', 20) -> retorna uma versão 20% mais clara
+
 export {hexToRgb, getTextColor, generateColorGradient}

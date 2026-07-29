@@ -1,4 +1,6 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
+import { getTextColor, lightenHex } from "../../../functions/colors"
+import styles from "../../../styles/modules/ui/gantt_chart.module.css"
 
 export type Task = {
     id: number | string;
@@ -17,21 +19,14 @@ export type PlanData = { id: number | string; start: Date | null; end: Date | nu
 export type RealData = { id: number | string; start: Date | null; end: Date | null; status: string; };
 export type DepsData = { ganttId: number | string; dependencies: (number | string)[]; };
 
-type TableConfigProps = {
-    hide?: boolean;
-    showActions?: boolean;
-    showDates?: boolean;
-    showStatus?: boolean;
-}
-
 type GanttChartProps = {
     tasks: Task[];
-    onSave?: (plan: PlanData, real: RealData, deps: DepsData) => void;
-    onStart?: (id: number | string) => void;
-    onExecute?: (id: number | string) => void;
-    onComplete?: (id: number | string) => void;
+    onSave?: (plan: PlanData, real: RealData, deps: DepsData) => Promise<boolean>;
+    onStart?: (id: number | string) => Promise<boolean>;
+    onExecute?: (id: number | string) => Promise<boolean>;
+    onComplete?: (id: number | string) => Promise<boolean>;
     onReset?: (id: number | string) => void;
-    tableConfig?: TableConfigProps;
+    isEditor: boolean;
 }
 
 // Tipos internos para a estrutura agrupada da tabela
@@ -48,6 +43,7 @@ type GroupedItem = {
 
 type GroupedArea = {
     name: string;
+    color: string;
     items: GroupedItem[];
 };
 
@@ -68,13 +64,24 @@ const labelsSituacao = {
     complete: 'Complete',
 }
 
-export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onReset, 
-    tableConfig = {hide: false, showActions: true, showDates: true, showStatus: true} 
-}: GanttChartProps) => {
+export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onReset, isEditor }: GanttChartProps) => {
     const [hoveredDepId, setHoveredDepId] = useState<string | null>(null);
     const [popover, setPopover] = useState<{ x: number, y: number, task: Task } | null>(null);
     
-    // Estado do Popover de Configurações
+    // --- ESTADO DE CONFIGURAÇÃO DA TABELA ---
+    const [tableConfig, setTableConfig] = useState({
+        hide: false,
+        showActions: true,
+        showDates: true,
+        showStatus: true
+    });
+    const [showConfigMenu, setShowConfigMenu] = useState(false);
+
+    const toggleConfig = (key: keyof typeof tableConfig) => {
+        setTableConfig(prev => ({ ...prev, [key]: !prev[key] }));
+    };
+
+    // Estado do Popover de Configurações da Tarefa
     const [editingContext, setEditingContext] = useState<{
         x: number; y: number; item: GroupedItem;
         planStart: string; planEnd: string;
@@ -148,7 +155,7 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
     const HEADER_HEIGHT = 50; 
     const MONTH_HEIGHT = 25;
 
-    // A Tabela agora soma as larguras atuais do Estado
+    // A Tabela agora soma as larguras atuais do Estado E a configuração visual
     const TABLE_WIDTH = colWidths.area 
         + (tableConfig.showActions ? colWidths.actions : 0) 
         + colWidths.id 
@@ -179,7 +186,7 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
 
             let areaObj = areaMap.get(task.area);
             if (!areaObj) {
-                areaObj = { name: task.area, items: [] };
+                areaObj = { name: task.area, color: task.color || "#cccccc", items: [] };
                 areaMap.set(task.area, areaObj);
                 areas.push(areaObj);
             }
@@ -371,7 +378,22 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
         });
     });
 
-    const handleSave = () => {
+    const handleOnStart = useCallback(async () => {
+        const success = await onStart?.(editingContext?.item.realTask?.id || ""); 
+        if(success) setEditingContext(null);
+    }, [onStart, setEditingContext, editingContext]);
+
+    const handleOnExecute = useCallback(async () => {
+        const success = await onExecute?.(editingContext?.item.realTask?.id || ""); 
+        if(success) setEditingContext(null);
+    }, [onExecute, setEditingContext, editingContext]);
+
+    const handleOnComplete = useCallback(async () => {
+        const success = await onComplete?.(editingContext?.item.realTask?.id || ""); 
+        if(success) setEditingContext(null);
+    }, [onComplete, setEditingContext, editingContext]);
+
+    const handleSave = useCallback(async () => {
         if (!editingContext || !onSave) return;
         const { item, planStart, planEnd, realStart, realEnd, status, deps } = editingContext;
 
@@ -396,9 +418,9 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
             dependencies: rawGanttDeps
         };
 
-        onSave(planData, realData, depsData);
-        setEditingContext(null); 
-    };
+        const success = await onSave(planData, realData, depsData);
+        if(success) setEditingContext(null); 
+    }, [editingContext, displayIdToGanttIdMap, onSave, setEditingContext]);
 
     // --- COMPONENTE DE REDIMENSIONAMENTO ---
     const Resizer = ({ element }: { element: ResizableElement }) => (
@@ -420,6 +442,51 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
     return (
         <div style={{ maxWidth: "100%", width: "fit-content", margin: "0 auto", overflowX: "auto", paddingBottom: "16px" }}>
             
+            {/* --- CONTROLES DE EXIBIÇÃO --- */}
+            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "8px", position: "relative" }}>
+                <button 
+                    onClick={() => setShowConfigMenu(!showConfigMenu)}
+                    style={{ 
+                        padding: "6px 12px", fontSize: "0.75rem", background: "#f8fafc", border: "1px solid #cbd5e1", 
+                        borderRadius: "6px", cursor: "pointer", fontWeight: "bold", color: "#334155", 
+                        display: "flex", alignItems: "center", gap: "6px", transition: "all 0.2s" 
+                    }}
+                >
+                    <span style={{fontSize: "1rem"}}>👁️</span> Display Options
+                </button>
+
+                {showConfigMenu && (
+                    <div style={{
+                        position: "absolute", top: "100%", right: 0, marginTop: "6px",
+                        backgroundColor: "#ffffff", border: "1px solid #cbd5e1", borderRadius: "8px",
+                        padding: "12px", boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+                        zIndex: 2000, display: "flex", flexDirection: "column", gap: "10px", minWidth: "160px"
+                    }}>
+                        <div style={{ fontWeight: "bold", fontSize: "0.8rem", color: "#0f172a", borderBottom: "1px solid #e2e8f0", paddingBottom: "6px" }}>
+                            Table Columns
+                        </div>
+                        <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.75rem", cursor: "pointer", color: "#334155" }}>
+                            <input type="checkbox" checked={!tableConfig.hide} onChange={() => toggleConfig('hide')} />
+                            Show Sidebar Table
+                        </label>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "8px", paddingLeft: "8px", borderLeft: "2px solid #e2e8f0", marginLeft: "4px", opacity: tableConfig.hide ? 0.5 : 1, pointerEvents: tableConfig.hide ? 'none' : 'auto' }}>
+                            <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.75rem", cursor: "pointer", color: "#475569" }}>
+                                <input type="checkbox" checked={tableConfig.showActions} onChange={() => toggleConfig('showActions')} />
+                                Actions (⚙️)
+                            </label>
+                            <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.75rem", cursor: "pointer", color: "#475569" }}>
+                                <input type="checkbox" checked={tableConfig.showDates} onChange={() => toggleConfig('showDates')} />
+                                Dates (Start/End)
+                            </label>
+                            <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.75rem", cursor: "pointer", color: "#475569" }}>
+                                <input type="checkbox" checked={tableConfig.showStatus} onChange={() => toggleConfig('showStatus')} />
+                                Status
+                            </label>
+                        </div>
+                    </div>
+                )}
+            </div>
+
             <div style={{ 
                 display: "flex", 
                 width: `${(!tableConfig.hide ? TABLE_WIDTH : 0) + svgWidth}px`, 
@@ -486,13 +553,14 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
                     </div>
 
                     {groupedData.map((area, aIdx) => (
-                        <div key={`area-${aIdx}`} style={{ display: 'flex' }}>
+                        <div key={`area-${aIdx}`} style={{ display: 'flex', backgroundColor: lightenHex(area.color, 70), color: getTextColor(lightenHex(area.color, 70)) }}>
                             <div 
                                 title={area.name} 
                                 style={{ width: `${colWidths.area}px`, flexShrink: 0, display: 'flex', 
+                                
                                     alignItems: 'center', justifyContent: 'center', borderRight: '1px solid #e2e8f0', 
                                     borderBottom: '1px solid #e2e8f0', padding: '0 4px', textAlign: 'center', fontSize: '0.75rem', 
-                                    color: '#475569', fontWeight: 'bold', boxSizing: 'border-box', overflow: 'hidden' }}
+                                    color: getTextColor(lightenHex(area.color, 70)), fontWeight: 'bold', boxSizing: 'border-box', overflow: 'hidden' }}
                             >
                                 <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
                                     {area.name}
@@ -508,6 +576,9 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
                                             <button 
                                                 style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '1rem', padding: '4px' }}
                                                 onClick={(e) => {
+                                                    if(!isEditor){
+                                                        return;
+                                                    }
                                                     if(editingContext){
                                                         setEditingContext(null);
                                                         return;
@@ -537,7 +608,7 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
 
                                         <div 
                                             title={item.name} 
-                                            style={{ width: `${colWidths.item}px`, flexShrink: 0, display: 'flex', alignItems: 'center', textAlign: "left", padding: '0 8px', borderRight: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0', fontSize: '0.75rem', color: '#475569', overflow: 'hidden', boxSizing: 'border-box' }}
+                                            style={{ width: `${colWidths.item}px`, flexShrink: 0, display: 'flex', alignItems: 'center', textAlign: "left", padding: '0 8px', borderRight: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0', fontSize: '0.75rem', color: getTextColor(lightenHex(area.color, 70)), overflow: 'hidden', boxSizing: 'border-box' }}
                                         >
                                             <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
                                                 {item.name}
@@ -549,18 +620,18 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
                                                 <div key={t.id} style={{ 
                                                     display: 'flex', height: `${ROW_HEIGHT}px`, boxSizing: 'border-box',
                                                     borderBottom: '1px solid #e2e8f0',
-                                                    backgroundColor: t.flatIndex % 2 === 0 ? '#ffffff' : '#f8fafc',
-                                                    fontSize: '0.7rem', color: '#64748b'
+                                                    backgroundColor: lightenHex(area.color, 70),
+                                                    fontSize: '0.7rem', color: getTextColor(lightenHex(area.color, 70))
                                                 }}>
                                                     {tableConfig.showDates && (
                                                         <>    
-                                                            <div style={{ width: `${colWidths.type}px`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }} title={t.is_plan ? "Planejado" : "Real"}>
+                                                            <div style={{ width: `${colWidths.type}px`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }} title={t.is_plan ? "Planned" : "Actual"}>
                                                                 {t.is_plan ? 'P' : 'A'}
                                                             </div>
                                                             <div style={{ width: `${colWidths.start}px`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                                                                 {formatDateSafe(t.start)}
                                                             </div>
-                                                            <div style={{ width: `${colWidths.end}px`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                                                            <div style={{ width: `${colWidths.end}px`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', borderRight: '1px solid #e2e8f0' }}>
                                                                 {formatDateSafe(t.end)}
                                                             </div>
                                                         </>
@@ -572,7 +643,7 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
                                         {tableConfig.showStatus && (
                                             <div 
                                                 title={labelsSituacao[item.realStatus as keyof typeof labelsSituacao] || item.realStatus}
-                                                style={{ width: `${colWidths.status}px`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderLeft: '1px solid #e2e8f0', borderRight: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0', fontSize: '0.75rem', color: '#475569', textAlign: 'center', padding: '0 4px', boxSizing: 'border-box', overflow: 'hidden' }}
+                                                style={{ width: `${colWidths.status}px`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRight: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0', fontSize: '0.75rem', color: getTextColor(lightenHex(area.color, 70)), textAlign: 'center', padding: '0 4px', boxSizing: 'border-box', overflow: 'hidden' }}
                                             >
                                                 <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
                                                     {labelsSituacao[item.realStatus as keyof typeof labelsSituacao] || item.realStatus}
@@ -582,7 +653,7 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
 
                                         <div 
                                             title={item.depsStr || "-"}
-                                            style={{ width: `${colWidths.deps}px`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', fontSize: '0.75rem', color: '#475569', textAlign: 'center', padding: '0 4px', boxSizing: 'border-box', overflow: 'hidden' }}
+                                            style={{ width: `${colWidths.deps}px`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid #e2e8f0', fontSize: '0.75rem', color: getTextColor(lightenHex(area.color, 70)), textAlign: 'center', padding: '0 4px', boxSizing: 'border-box', overflow: 'hidden' }}
                                         >
                                             <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
                                                 {item.depsStr || "-"}
@@ -674,8 +745,7 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
                             
                             {monthsData.map((month, i) => {
                                 const rawCenter = month.startX + (month.width / 2);
-                                const safeX = Math.max(40, Math.min(rawCenter, svgWidth - 40));
-                                const shortMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dez"];
+                                const shortMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
                                 const fullMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
                                 
                                 let label = "";
@@ -683,13 +753,11 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
                                 else if (month.width >= 70) label = `${shortMonths[month.dateObj.getUTCMonth()]}/${month.dateObj.getUTCFullYear()}`;
                                 else if (month.width >= 35) label = shortMonths[month.dateObj.getUTCMonth()];
 
-                                return <text key={`m-text-${i}`} x={safeX} y={18} fontSize="12" fontWeight="bold" fill="#334155" textAnchor="middle">{label}</text>;
+                                return <text key={`m-text-${i}`} x={rawCenter} y={18} fontSize="12" fontWeight="bold" fill="#334155" textAnchor="middle">{label}</text>;
                             })}
 
                             {weeksData.map((week, i) => {
-                                const isNearEnd = week.startX > svgWidth - 35;
-                                const safeX = isNearEnd ? week.startX - 5 : week.startX + 5;
-                                return <text key={`w-text-${i}`} x={safeX} y={MONTH_HEIGHT + 16} fontSize="10" fill="#64748b" textAnchor={isNearEnd ? "end" : "start"}>{week.label}</text>;
+                                return <text key={`w-text-${i}`} x={week.startX + 5} y={MONTH_HEIGHT + 16} fontSize="10" fill="#64748b" textAnchor="start">{week.label}</text>;
                             })}
                         </g>
                     </svg>
@@ -711,11 +779,12 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
 
             {/* MODAL / POPOVER DE EDIÇÃO */}
             {editingContext && (
-                <div style={{
+                <div 
+                    className={styles.quick_update_popover}
+                style={{
                     position: 'fixed',
                     left: `${Math.min(editingContext.x, window.innerWidth - 300)}px`,
                     top: `${Math.min(editingContext.y, window.innerHeight - 400)}px`,
-                    width: '280px',
                     backgroundColor: '#ffffff',
                     border: '1px solid #cbd5e1',
                     borderRadius: '8px',
@@ -732,31 +801,31 @@ export const GanttChart = ({ tasks, onSave, onStart, onExecute, onComplete, onRe
                     </div>
 
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                        <button onClick={() => { onStart?.(editingContext.item.realTask?.id || ""); setEditingContext(null); }} style={{ flex: 1, padding: '4px', fontSize: '0.75rem', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Start</button>
-                        <button onClick={() => { onExecute?.(editingContext.item.realTask?.id || ""); setEditingContext(null); }} style={{ flex: 1, padding: '4px', fontSize: '0.75rem', background: '#eab308', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Execute</button>
-                        <button onClick={() => { onComplete?.(editingContext.item.realTask?.id || ""); setEditingContext(null); }} style={{ flex: 1, padding: '4px', fontSize: '0.75rem', background: '#22c55e', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Complete</button>
-                        <button onClick={() => { onReset?.(editingContext.item.realTask?.id || ""); setEditingContext(null); }} style={{ flex: 1, padding: '4px', fontSize: '0.75rem', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Reset</button>
+                        <button onClick={handleOnStart} style={{ flex: 1, padding: '4px', fontSize: '0.75rem', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Start</button>
+                        <button onClick={handleOnExecute} style={{ flex: 1, padding: '4px', fontSize: '0.75rem', background: '#eab308', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Execute</button>
+                        <button onClick={handleOnComplete} style={{ flex: 1, padding: '4px', fontSize: '0.75rem', background: '#22c55e', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Complete</button>
+                        <button onClick={() => {onReset?.(editingContext.item.realTask?.id || ""); setEditingContext(null)}} style={{ flex: 1, padding: '4px', fontSize: '0.75rem', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Reset</button>
                     </div>
 
                     <div style={{ display: 'flex', gap: '8px' }}>
                         <div style={{ flex: 1 }}>
                             <label style={{ fontSize: '0.7rem', color: '#64748b' }}>Start (Plan)</label>
-                            <input type="date" value={editingContext.planStart} onChange={(e) => setEditingContext({ ...editingContext, planStart: e.target.value })} style={{ width: '100%', padding: '4px', fontSize: '0.75rem' }} />
+                            <input type="date" value={editingContext.planStart} onChange={(e) => setEditingContext({ ...editingContext, planStart: e.target.value })} style={{ padding: '4px', fontSize: '0.75rem' }} />
                         </div>
                         <div style={{ flex: 1 }}>
                             <label style={{ fontSize: '0.7rem', color: '#64748b' }}>End (Plan)</label>
-                            <input type="date" value={editingContext.planEnd} onChange={(e) => setEditingContext({ ...editingContext, planEnd: e.target.value })} style={{ width: '100%', padding: '4px', fontSize: '0.75rem' }} />
+                            <input type="date" value={editingContext.planEnd} onChange={(e) => setEditingContext({ ...editingContext, planEnd: e.target.value })} style={{ padding: '4px', fontSize: '0.75rem' }} />
                         </div>
                     </div>
 
                     <div style={{ display: 'flex', gap: '8px' }}>
                         <div style={{ flex: 1 }}>
                             <label style={{ fontSize: '0.7rem', color: '#64748b' }}>Start (Actual)</label>
-                            <input type="date" value={editingContext.realStart} onChange={(e) => setEditingContext({ ...editingContext, realStart: e.target.value })} style={{ width: '100%', padding: '4px', fontSize: '0.75rem' }} />
+                            <input type="date" value={editingContext.realStart} onChange={(e) => setEditingContext({ ...editingContext, realStart: e.target.value })} style={{ padding: '4px', fontSize: '0.75rem' }} />
                         </div>
                         <div style={{ flex: 1 }}>
                             <label style={{ fontSize: '0.7rem', color: '#64748b' }}>End (Actual)</label>
-                            <input type="date" value={editingContext.realEnd} onChange={(e) => setEditingContext({ ...editingContext, realEnd: e.target.value })} style={{ width: '100%', padding: '4px', fontSize: '0.75rem' }} />
+                            <input type="date" value={editingContext.realEnd} onChange={(e) => setEditingContext({ ...editingContext, realEnd: e.target.value })} style={{ padding: '4px', fontSize: '0.75rem' }} />
                         </div>
                     </div>
 

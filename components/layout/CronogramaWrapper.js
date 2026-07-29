@@ -6,11 +6,11 @@ const PageWrapper = ({ children }) => {
             <GenericNavbar
                 base={{
                     titulo: 'Time',
-                    link: "/pags/timeline/monitoring"
+                    link: "/pags/timeline/gantt"
                 }}
                 dropdowns={[
                     {
-                        titulo: 'Time',
+                        titulo: 'Legacy Pages',
                         itens: [
                             {
                                 label: 'Timeline',
@@ -26,6 +26,12 @@ const PageWrapper = ({ children }) => {
                             },
                         ]
                     }
+                ]}
+                itens={[
+                    {
+                    label: "Gantt Chart",
+                    link: "/pags/timeline/gantt"
+                }
                 ]}
             />
             {children}
