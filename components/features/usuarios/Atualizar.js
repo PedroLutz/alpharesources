@@ -30,13 +30,10 @@ const Atualizar = () => {
     const [colorsData, setColorsData] = useState(colorsDataVazio);
 
     useEffect(() => {
-        if(colors.main != null){
-            setColorsData({
+        setColorsData({
             ...colors
         })
         setLoading(false);
-        }
-        
     }, [colors])
 
     const [showModal, setShowModal] = useState(null);
@@ -117,9 +114,9 @@ const Atualizar = () => {
         }
 
         var obj = {
-            main: colorsData?.main || "#fff",
-            secondary: colorsData?.secondary || "#fff",
-            table_header: colorsData?.table_header || "#fff",
+            main: colorsData?.main || "#ffffff",
+            secondary: colorsData?.secondary || "#ffffff",
+            table_header: colorsData?.table_header || "#ffffff",
         };
         if(isUpdate){
             obj = {...obj, id: colors?.id};
@@ -187,14 +184,14 @@ const Atualizar = () => {
                                 className={styles.color_picker}
                                 type="color"
                                 name="main"
-                                value={colorsData.main || "#fff"}
+                                value={colorsData.main || "#ffffff"}
                                 onChange={(e) => handleChange(e, "colors")}
                             />
                             <input
                                 className={styles.hex_code_picker}
                                 type="text"
                                 name="main"
-                                value={colorsData.main || "#fff"}
+                                value={colorsData.main || "No color"}
                                 onChange={(e) => handleChange(e, "colors")}
                                 maxLength={7}
                             />
@@ -205,14 +202,14 @@ const Atualizar = () => {
                             <input
                                 className={styles.color_picker}
                                 name="secondary"
-                                value={colorsData.secondary || "#fff"}
+                                value={colorsData.secondary || "#ffffff"}
                                 onChange={(e) => handleChange(e, "colors")}
                                 type="color"
                             />
                             <input
                                 className={styles.hex_code_picker}
                                 name="secondary"
-                                value={colorsData.secondary || "#fff"}
+                                value={colorsData.secondary || "No color"}
                                 onChange={(e) => handleChange(e, "colors")}
                                 type="text"
                             />
@@ -224,14 +221,14 @@ const Atualizar = () => {
                             <input
                                 className={styles.color_picker}
                                 name="table_header"
-                                value={colorsData.table_header || "#fff"}
+                                value={colorsData.table_header || "#ffffff"}
                                 onChange={(e) => handleChange(e, "colors")}
                                 type="color"
                             />
                             <input
                                 className={styles.hex_code_picker}
                                 name="table_header"
-                                value={colorsData.table_header || "#fff"}
+                                value={colorsData.table_header || "No color"}
                                 onChange={(e) => handleChange(e, "colors")}
                                 type="text"
                             />
